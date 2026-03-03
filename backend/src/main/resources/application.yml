@@ -1,39 +1,5 @@
 spring:
   application:
     name: backend
-
-server:
-  port: 8080
-
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: create
-    show-sql: true
-    defer-datasource-initialization: true
-    properties:
-      hibernate:
-        format_sql: true
-
-  sql:
-    init:
-      mode: always
-
-logging:
-  level:
-    org.springframework.security: DEBUG
-
-jwt:
-  secret: 0619Oaz0w+CrG8qQc36UHreZXI6qXs6zBZgL/LXJVGI=
-  expiration: 3600   # en secondes
+    profiles:
+      active: dev

@@ -1,0 +1,32 @@
+# --- System & IDE files (IntelliJ, VS Code, Mac, Windows) ---
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+Thumbs.db
+
+# --- Java & Maven (Build output) ---
+**/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# --- Spring Boot & Logs ---
+HELP.md
+backend/HELP.md
+*.log
+
+# --- Local H2 Database ---
+*.mv.db
+*.trace.db
+*.lock.db
+
+# --- Eclipse / STS files (in case someone uses Eclipse) ---
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
