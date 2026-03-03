@@ -2,8 +2,6 @@ package com.tiba.pts.modules.academicyear.mapper;
 
 import com.tiba.pts.modules.academicyear.domain.entity.Term;
 import com.tiba.pts.modules.academicyear.dto.TermDto;
-import com.tiba.pts.modules.academicyear.dto.request.TermRequest;
-import com.tiba.pts.modules.academicyear.dto.response.TermResponse;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
