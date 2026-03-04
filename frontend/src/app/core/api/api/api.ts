@@ -1,0 +1,13 @@
+export * from './academic-year-controller.service';
+import { AcademicYearControllerService } from './academic-year-controller.service';
+export * from './academic-year-controller.serviceInterface';
+export * from './auth-controller.service';
+import { AuthControllerService } from './auth-controller.service';
+export * from './auth-controller.serviceInterface';
+export * from './exam-session-controller.service';
+import { ExamSessionControllerService } from './exam-session-controller.service';
+export * from './exam-session-controller.serviceInterface';
+export * from './term-controller.service';
+import { TermControllerService } from './term-controller.service';
+export * from './term-controller.serviceInterface';
+export const APIS = [AcademicYearControllerService, AuthControllerService, ExamSessionControllerService, TermControllerService];

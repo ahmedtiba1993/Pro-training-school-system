@@ -3,6 +3,9 @@ server:
   error:
     include-message: always
 
+springdoc:
+  default-produces-media-type: application/json
+
 spring:
   datasource:
     url: jdbc:h2:file:./dev-db;AUTO_SERVER=TRUE
@@ -41,3 +44,7 @@ logging:
 jwt:
   secret: 0619Oaz0w+CrG8qQc36UHreZXI6qXs6zBZgL/LXJVGI=
   expiration: 3600
+
+app:
+  cors:
+    allowed-origins: http://localhost:4200

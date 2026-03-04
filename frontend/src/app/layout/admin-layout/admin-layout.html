@@ -1,0 +1,9 @@
+<div class="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
+  <app-sidebar></app-sidebar>
+  <main class="flex-1 flex flex-col overflow-hidden relative">
+    <app-header></app-header>
+    <div class="flex-1 overflow-y-auto p-8 bg-slate-50">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
