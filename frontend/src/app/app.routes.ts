@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from './core/guards/role.guard';
+import { ErrorPage } from './shared/pages/error-page/error-page';
 
 export const routes: Routes = [
   {
@@ -12,10 +14,16 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
+    canActivate: [roleGuard],
+    data: { roles: ['ROLE_ADMIN'] },
     loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
   {
+    path: 'error',
+    component: ErrorPage,
+  },
+  {
     path: '**',
-    redirectTo: 'auth/login',
+    redirectTo: 'error',
   },
 ];
