@@ -4,10 +4,11 @@ import { PaginationComponent } from '../../../../../shared/components/pagination
 import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastService } from '../../../../../shared/services/toast.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-academic-year-list',
-  imports: [DatePipe, PaginationComponent, ReactiveFormsModule],
+  imports: [DatePipe, PaginationComponent, ReactiveFormsModule, RouterLink],
   templateUrl: './academic-year-list.html',
   styleUrl: './academic-year-list.css',
 })
