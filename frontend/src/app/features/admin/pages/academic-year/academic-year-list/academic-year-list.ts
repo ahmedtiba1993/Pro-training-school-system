@@ -1,0 +1,189 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { AcademicYearControllerService, AcademicYearDto } from '../../../../../core/api';
+import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
+import { DatePipe } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ToastService } from '../../../../../shared/services/toast.service';
+
+@Component({
+  selector: 'app-academic-year-list',
+  imports: [DatePipe, PaginationComponent, ReactiveFormsModule],
+  templateUrl: './academic-year-list.html',
+  styleUrl: './academic-year-list.css',
+})
+export class AcademicYearList implements OnInit {
+  private apiService = inject(AcademicYearControllerService);
+  private fb = inject(FormBuilder);
+  private toast = inject(ToastService);
+
+  // Data
+  academicYears = signal<AcademicYearDto[]>([]);
+  isLoading = signal<boolean>(true);
+  errorMessage = signal<string>('');
+
+  // --- PAGINATION ---
+  currentPage = signal<number>(0);
+  pageSize = signal<number>(10); // Number of items displayed per page
+  totalElements = signal<number>(0);
+
+  // Confirmation modal state
+  showConfirmModal = signal<boolean>(false);
+  selectedYearId = signal<number | null>(null);
+
+  // --- MODALE D'AJOUT ---
+  showAddModal = signal<boolean>(false);
+  isSaving = signal<boolean>(false); // Spinner pour le bouton enregistrer
+
+  // Définition du formulaire
+  addForm = this.fb.group({
+    label: ['', [Validators.required]],
+    startDate: ['', [Validators.required]],
+    endDate: ['', [Validators.required]],
+  });
+
+  ngOnInit(): void {
+    this.loadAcademicYears();
+  }
+
+  loadAcademicYears() {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+    this.apiService.getAllAcademicYears(this.currentPage(), this.pageSize()).subscribe({
+      next: (response: any) => {
+        const pageData = response.data;
+
+        this.academicYears.set(pageData?.content || []);
+
+        // knows how many pages exist
+        this.totalElements.set(pageData?.totalElements || 0);
+
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error while loading data', err);
+        this.errorMessage.set('Unable to load academic years.');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  // Page change
+  onPageChange(newPage: number) {
+    this.currentPage.set(newPage);
+    this.loadAcademicYears();
+  }
+
+  // Actions activater academic year
+  openActivateModal(id?: number) {
+    if (!id) return;
+    this.selectedYearId.set(id);
+    this.showConfirmModal.set(true);
+  }
+
+  closeModal() {
+    this.showConfirmModal.set(false);
+  }
+  activateAcademicYear() {
+    const id = this.selectedYearId();
+
+    if (!id) return;
+
+    this.isLoading.set(true);
+
+    this.apiService.activateAcademicYear(id).subscribe({
+      next: () => {
+        this.loadAcademicYears();
+        this.showConfirmModal.set(false);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error while activating academic year', err);
+        this.errorMessage.set('Unable to activate the academic year.');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  // --- ADD ACTIONS new academic year ---
+  openAddModal() {
+    // Reset the form every time the modal is opened
+    this.addForm.reset();
+    this.showAddModal.set(true);
+  }
+
+  closeAddModal() {
+    this.showAddModal.set(false);
+  }
+
+  submitAddForm() {
+    if (!this.isFormValid()) return;
+
+    this.isSaving.set(true);
+
+    const payload = this.buildPayload();
+
+    this.apiService.createAcademicYear(payload).subscribe({
+      next: () => this.handleSuccess(),
+      error: (err) => this.handleError(err),
+    });
+  }
+
+  private isFormValid(): boolean {
+    if (this.addForm.invalid) {
+      this.addForm.markAllAsTouched();
+      return false;
+    }
+    return true;
+  }
+
+  private buildPayload() {
+    return {
+      label: this.addForm.value.label!,
+      startDate: this.addForm.value.startDate!,
+      endDate: this.addForm.value.endDate!,
+    };
+  }
+
+  private handleSuccess() {
+    this.isSaving.set(false);
+    this.closeAddModal();
+    this.toast.success('Academic year added successfully');
+    this.loadAcademicYears();
+  }
+
+  private handleError(err: any) {
+    console.error('Error creating academic year', err);
+
+    this.resetFormErrors();
+
+    if (err?.error?.errors) {
+      err.error.errors.forEach((e: any) => {
+        this.handleBackendError(e);
+      });
+    } else {
+      this.errorMessage.set(err?.message || 'Unknown error');
+    }
+
+    this.isSaving.set(false);
+  }
+
+  private resetFormErrors() {
+    Object.keys(this.addForm.controls).forEach((key) => {
+      this.addForm.get(key)?.setErrors(null);
+    });
+  }
+
+  private handleBackendError(e: any) {
+    switch (e.field) {
+      case 'label':
+        if (e.message === 'LABEL_ALREADY_EXISTS') {
+          this.toast.error('This academic year already exists');
+        }
+        break;
+
+      case 'dateRangeValid':
+        this.toast.error('Start date must be before end date');
+        break;
+    }
+  }
+}

@@ -1,14 +1,14 @@
 import { Routes } from '@angular/router';
 import { AdminLayout } from '../../layout/admin-layout/admin-layout';
-import { AcademicYear } from './pages/academic-year/academic-year'; // <-- Ton composant
 import { Dashboard } from './pages/dashboard/dashboard';
+import { AcademicYearList } from './pages/academic-year/academic-year-list/academic-year-list';
 
 export const ADMIN_ROUTES: Routes = [
   {
     path: '',
     component: AdminLayout,
     children: [
-      { path: 'academic-years', component: AcademicYear },
+      { path: 'academic-years', component: AcademicYearList },
       { path: 'dashboard', component: Dashboard },
     ],
   },
