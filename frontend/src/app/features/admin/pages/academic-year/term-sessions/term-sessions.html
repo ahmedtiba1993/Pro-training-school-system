@@ -1,0 +1,263 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+    <div class="flex items-center gap-4">
+      <button
+        onclick="history.back()"
+        class="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all shadow-sm"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+          class="w-5 h-5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+          />
+        </svg>
+      </button>
+      <div>
+        <h2 class="text-2xl font-bold text-slate-800">Sessions d'examens</h2>
+        <p class="text-sm text-slate-500">Gérez les sessions d'évaluation pour ce trimestre.</p>
+      </div>
+    </div>
+
+    <button
+      (click)="openAddModal()"
+      class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-sm transition-all focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+    >
+      <svg
+        class="w-5 h-5 mr-2"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      Nouvelle Session
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative">
+    @if (isLoading()) {
+      <div
+        class="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10"
+      >
+        <svg class="animate-spin h-8 w-8 text-indigo-600 mb-2" viewBox="0 0 24 24" fill="none">
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        <span class="text-sm font-medium text-slate-500">Chargement des sessions...</span>
+      </div>
+    }
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-600">
+        <thead
+          class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold text-xs"
+        >
+          <tr>
+            <th class="px-6 py-4">Type de Session</th>
+            <th class="px-6 py-4">Date de début</th>
+            <th class="px-6 py-4">Date de fin</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-200">
+          @for (session of sessions(); track session.id) {
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4">
+                @if (session.sessionType === 'MAIN') {
+                  <span
+                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-700"
+                  >
+                    Principale
+                  </span>
+                } @else {
+                  <span
+                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-orange-100 text-orange-700"
+                  >
+                    Controle
+                  </span>
+                }
+              </td>
+
+              <td class="px-6 py-4 font-medium text-slate-700">
+                {{ session.startDate | date: 'dd MMM yyyy' }}
+              </td>
+
+              <td class="px-6 py-4 font-medium text-slate-700">
+                {{ session.endDate | date: 'dd MMM yyyy' }}
+              </td>
+            </tr>
+          }
+
+          @if (!isLoading() && sessions().length === 0) {
+            <tr>
+              <td colspan="4" class="px-6 py-12 text-center text-slate-500">
+                <div class="flex flex-col items-center justify-center">
+                  <svg
+                    class="w-12 h-12 text-slate-300 mb-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <p>Aucune session d'examen enregistrée pour ce trimestre.</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@if (showAddModal()) {
+  <div class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm transition-opacity"></div>
+
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 sm:p-8 transform transition-all">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-slate-800">Ajouter une session</h3>
+        <button
+          (click)="closeAddModal()"
+          class="text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="sessionForm" (ngSubmit)="submitSessionForm()">
+        <div class="space-y-5">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">
+              Type de session <span class="text-red-500">*</span>
+            </label>
+            <select
+              formControlName="sessionType"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors text-slate-700"
+            >
+              <option value="MAIN">Principale (MAIN)</option>
+              <option value="RETAKE">Rattrapage (RETAKE)</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">
+                Date de début <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                formControlName="startDate"
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
+                [class.border-red-500]="
+                  sessionForm.get('startDate')?.invalid && sessionForm.get('startDate')?.touched
+                "
+              />
+              @if (sessionForm.get('startDate')?.invalid && sessionForm.get('startDate')?.touched) {
+                <p class="text-red-500 text-xs font-medium mt-1">La date est requise.</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">
+                Date de fin <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                formControlName="endDate"
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
+                [class.border-red-500]="
+                  sessionForm.get('endDate')?.invalid && sessionForm.get('endDate')?.touched
+                "
+              />
+              @if (sessionForm.get('endDate')?.invalid && sessionForm.get('endDate')?.touched) {
+                <p class="text-red-500 text-xs font-medium mt-1">La date est requise.</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-end gap-3 pt-5 border-t border-slate-100">
+          <button
+            type="button"
+            (click)="closeAddModal()"
+            class="px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            Annuler
+          </button>
+
+          <button
+            type="submit"
+            [disabled]="isSaving()"
+            class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center shadow-sm"
+          >
+            @if (isSaving()) {
+              <svg
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Création...
+            } @else {
+              Créer la session
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

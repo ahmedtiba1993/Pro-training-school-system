@@ -27,7 +27,7 @@ public class ExamSessionController {
   }
 
   @GetMapping
-  public ResponseEntity<ApiResponse<List<ExamSessionDto>>> getAllByTerm(Long termId) {
+  public ResponseEntity<ApiResponse<List<ExamSessionDto>>> getAllByTerm(@RequestParam Long termId) {
     List<ExamSessionDto> sessions = examSessionService.getAllByTerm(termId);
     return ResponseEntity.status(HttpStatus.OK)
         .body(ApiResponse.success("EXAM_SESSION_LIST", sessions));

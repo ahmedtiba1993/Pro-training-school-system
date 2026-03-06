@@ -61,7 +61,6 @@ export class AcademicYearTerms implements OnInit {
     });
   }
 
-  // --- MODAL ACTIONS ---
   openAddModal() {
     this.termForm.reset();
     this.showAddModal.set(true);
@@ -82,7 +81,6 @@ export class AcademicYearTerms implements OnInit {
 
     this.isSaving.set(true);
 
-    // Preparing the object to send to the backend
     const payload = {
       name: this.termForm.value.name!,
       startDate: this.termForm.value.startDate!,
