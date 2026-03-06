@@ -148,7 +148,7 @@ export class AcademicYearList implements OnInit {
   private handleSuccess() {
     this.isSaving.set(false);
     this.closeAddModal();
-    this.toast.success('Academic year added successfully');
+    this.toast.success('Année académique ajoutée avec succès');
     this.loadAcademicYears();
   }
 
@@ -178,12 +178,12 @@ export class AcademicYearList implements OnInit {
     switch (e.field) {
       case 'label':
         if (e.message === 'LABEL_ALREADY_EXISTS') {
-          this.toast.error('This academic year already exists');
+          this.toast.error('Cette année académique existe déjà');
         }
         break;
 
       case 'dateRangeValid':
-        this.toast.error('Start date must be before end date');
+        this.toast.error('La date de début doit être antérieure à la date de fin');
         break;
     }
   }
