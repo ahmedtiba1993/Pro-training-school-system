@@ -21,6 +21,7 @@ export class AcademicYearList implements OnInit {
   academicYears = signal<AcademicYearDto[]>([]);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string>('');
+  editingYearId = signal<number | null>(null);
 
   // --- PAGINATION ---
   currentPage = signal<number>(0);
@@ -83,6 +84,7 @@ export class AcademicYearList implements OnInit {
 
   closeModal() {
     this.showConfirmModal.set(false);
+    this.editingYearId.set(null);
   }
   activateAcademicYear() {
     const id = this.selectedYearId();
@@ -120,13 +122,28 @@ export class AcademicYearList implements OnInit {
     if (!this.isFormValid()) return;
 
     this.isSaving.set(true);
-
     const payload = this.buildPayload();
+    const id = this.editingYearId();
 
-    this.apiService.createAcademicYear(payload).subscribe({
-      next: () => this.handleSuccess(),
-      error: (err) => this.handleError(err),
-    });
+    if (id) {
+      // Update
+      this.apiService.updateAcademicYear(id, payload).subscribe({
+        next: () => {
+          this.toast.success('Année académique modifiée avec succès');
+          this.handleSuccess();
+        },
+        error: (err) => this.handleError(err),
+      });
+    } else {
+      // Add
+      this.apiService.createAcademicYear(payload).subscribe({
+        next: () => {
+          this.toast.success('Année académique ajoutée avec succès');
+          this.handleSuccess();
+        },
+        error: (err) => this.handleError(err),
+      });
+    }
   }
 
   private isFormValid(): boolean {
@@ -148,7 +165,6 @@ export class AcademicYearList implements OnInit {
   private handleSuccess() {
     this.isSaving.set(false);
     this.closeAddModal();
-    this.toast.success('Année académique ajoutée avec succès');
     this.loadAcademicYears();
   }
 
@@ -186,5 +202,22 @@ export class AcademicYearList implements OnInit {
         this.toast.error('La date de début doit être antérieure à la date de fin');
         break;
     }
+  }
+
+  // METHOD FOR UPDATING
+  editAcademicYear(year: AcademicYearDto) {
+    // Switch to Edit mode
+    this.editingYearId.set(year.id!);
+
+    // Pre-fill the form with the academic year's data
+    // .substring(0, 10) keeps only "YYYY-MM-DD" if your backend returns time
+    this.addForm.patchValue({
+      label: year.label,
+      startDate: year.startDate ? year.startDate.substring(0, 10) : '',
+      endDate: year.endDate ? year.endDate.substring(0, 10) : '',
+    });
+
+    // Open the same modal
+    this.showAddModal.set(true);
   }
 }
