@@ -5,9 +5,12 @@ import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.core.exception.DuplicateResourceException;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.academicyear.domain.entity.AcademicYear;
+import com.tiba.pts.modules.academicyear.domain.entity.Term;
 import com.tiba.pts.modules.academicyear.dto.AcademicYearDto;
+import com.tiba.pts.modules.academicyear.dto.ActiveAcademicYearDTO;
 import com.tiba.pts.modules.academicyear.mapper.AcademicYearMapper;
 import com.tiba.pts.modules.academicyear.repository.AcademicYearRepository;
+import com.tiba.pts.modules.academicyear.repository.TermRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +19,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +31,7 @@ public class AcademicYearService {
 
   private final AcademicYearRepository repository;
   private final AcademicYearMapper mapper;
+  private final TermRepository termRepository;
 
   public Long create(AcademicYearDto request) {
     validateAcademicYear(request, null);
@@ -106,5 +112,28 @@ public class AcademicYearService {
     if (!repository.existsById(id)) {
       throw new ResourceNotFoundException("ACADEMIC_YEAR_NOT_FOUND");
     }
+  }
+
+  public ActiveAcademicYearDTO getCurrentSession() {
+
+    AcademicYearDto year = getActiveYear();
+
+    LocalDate today = LocalDate.now();
+
+    Term currentTerm =
+        termRepository
+            .findByAcademicYearIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                year.getId(), today, today)
+            .orElse(null);
+
+    long daysRemaining = ChronoUnit.DAYS.between(today, year.getEndDate());
+
+    return ActiveAcademicYearDTO.builder()
+        .label(year.getLabel())
+        .startDate(year.getStartDate())
+        .endDate(year.getEndDate())
+        .currentTerm(currentTerm != null ? currentTerm.getName() : "N/A")
+        .daysRemaining(daysRemaining)
+        .build();
   }
 }

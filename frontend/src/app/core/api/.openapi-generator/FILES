@@ -16,7 +16,9 @@ encoder.ts
 git_push.sh
 index.ts
 model/academic-year-dto.ts
+model/active-academic-year-dto.ts
 model/api-response-academic-year-dto.ts
+model/api-response-active-academic-year-dto.ts
 model/api-response-list-exam-session-dto.ts
 model/api-response-list-term-dto.ts
 model/api-response-long.ts

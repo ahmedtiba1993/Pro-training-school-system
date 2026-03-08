@@ -3,6 +3,7 @@ package com.tiba.pts.modules.academicyear.controller;
 import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.modules.academicyear.dto.AcademicYearDto;
+import com.tiba.pts.modules.academicyear.dto.ActiveAcademicYearDTO;
 import com.tiba.pts.modules.academicyear.service.AcademicYearService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -74,6 +75,14 @@ public class AcademicYearController {
     AcademicYearDto data = academicYearService.getActiveYear();
     ApiResponse<AcademicYearDto> response =
         ApiResponse.success("ACTIVE_ACADEMIC_YEAR_RETRIEVED", data);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/current-session")
+  public ResponseEntity<ApiResponse<ActiveAcademicYearDTO>> getCurrentSession() {
+    ActiveAcademicYearDTO activeAcademicYearDTO = academicYearService.getCurrentSession();
+    ApiResponse<ActiveAcademicYearDTO> response =
+        ApiResponse.success("CURRENT_SESSION_RETRIEVED", activeAcademicYearDTO);
     return ResponseEntity.ok(response);
   }
 }

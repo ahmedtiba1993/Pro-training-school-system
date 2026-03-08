@@ -13,6 +13,7 @@ import { Observable }                                        from 'rxjs';
 
 import { AcademicYearDto } from '../model/models';
 import { ApiResponseAcademicYearDto } from '../model/models';
+import { ApiResponseActiveAcademicYearDTO } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ApiResponsePageResponseAcademicYearDto } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
@@ -65,6 +66,13 @@ export interface AcademicYearControllerServiceInterface {
      * @param size 
      */
     getAllAcademicYears(page?: number, size?: number, extraHttpRequestParams?: any): Observable<ApiResponsePageResponseAcademicYearDto>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/academic-years/current-session
+     */
+    getCurrentSession(extraHttpRequestParams?: any): Observable<ApiResponseActiveAcademicYearDTO>;
 
     /**
      * 

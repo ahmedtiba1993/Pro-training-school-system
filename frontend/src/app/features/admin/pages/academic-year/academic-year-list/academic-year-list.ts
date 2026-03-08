@@ -1,5 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { AcademicYearControllerService, AcademicYearDto } from '../../../../../core/api';
+import {
+  AcademicYearControllerService,
+  AcademicYearDto,
+  ActiveAcademicYearDTO,
+} from '../../../../../core/api';
 import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,7 +12,7 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-academic-year-list',
-  imports: [DatePipe, PaginationComponent, ReactiveFormsModule, RouterLink],
+  imports: [DatePipe, ReactiveFormsModule, RouterLink, PaginationComponent],
   templateUrl: './academic-year-list.html',
   styleUrl: './academic-year-list.css',
 })
@@ -22,10 +26,11 @@ export class AcademicYearList implements OnInit {
   isLoading = signal<boolean>(true);
   errorMessage = signal<string>('');
   editingYearId = signal<number | null>(null);
+  currentActiveYear = signal<any | null>(null);
 
   // --- PAGINATION ---
   currentPage = signal<number>(0);
-  pageSize = signal<number>(10); // Number of items displayed per page
+  pageSize = signal<number>(5); // Number of items displayed per page
   totalElements = signal<number>(0);
 
   // Confirmation modal state
@@ -45,6 +50,7 @@ export class AcademicYearList implements OnInit {
 
   ngOnInit(): void {
     this.loadAcademicYears();
+    this.loadCurrentActiveYear();
   }
 
   loadAcademicYears() {
@@ -96,6 +102,7 @@ export class AcademicYearList implements OnInit {
     this.apiService.activateAcademicYear(id).subscribe({
       next: () => {
         this.loadAcademicYears();
+        this.loadCurrentActiveYear();
         this.showConfirmModal.set(false);
         this.isLoading.set(false);
       },
@@ -219,5 +226,19 @@ export class AcademicYearList implements OnInit {
 
     // Open the same modal
     this.showAddModal.set(true);
+  }
+
+  // Get the active year
+  loadCurrentActiveYear() {
+    this.apiService.getCurrentSession().subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          this.currentActiveYear.set(response.data);
+        }
+      },
+      error: (err) => {
+        console.error('Erreur chargement année active', err);
+      },
+    });
   }
 }

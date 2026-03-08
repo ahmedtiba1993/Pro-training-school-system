@@ -1,5 +1,7 @@
 export * from './academic-year-dto';
+export * from './active-academic-year-dto';
 export * from './api-response-academic-year-dto';
+export * from './api-response-active-academic-year-dto';
 export * from './api-response-list-exam-session-dto';
 export * from './api-response-list-term-dto';
 export * from './api-response-long';
