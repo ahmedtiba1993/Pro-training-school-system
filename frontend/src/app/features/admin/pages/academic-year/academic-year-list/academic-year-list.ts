@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   AcademicYearControllerService,
   AcademicYearDto,
-  ActiveAcademicYearDTO,
+  ActiveAcademicYearDTO
 } from '../../../../../core/api';
 import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
 import { DatePipe } from '@angular/common';
@@ -14,7 +14,7 @@ import { RouterLink } from '@angular/router';
   selector: 'app-academic-year-list',
   imports: [DatePipe, ReactiveFormsModule, RouterLink, PaginationComponent],
   templateUrl: './academic-year-list.html',
-  styleUrl: './academic-year-list.css',
+  styleUrl: './academic-year-list.css'
 })
 export class AcademicYearList implements OnInit {
   private apiService = inject(AcademicYearControllerService);
@@ -27,6 +27,7 @@ export class AcademicYearList implements OnInit {
   errorMessage = signal<string>('');
   editingYearId = signal<number | null>(null);
   currentActiveYear = signal<any | null>(null);
+  isLoadingActiveYear = signal<boolean>(true);
 
   // --- PAGINATION ---
   currentPage = signal<number>(0);
@@ -45,7 +46,7 @@ export class AcademicYearList implements OnInit {
   addForm = this.fb.group({
     label: ['', [Validators.required]],
     startDate: ['', [Validators.required]],
-    endDate: ['', [Validators.required]],
+    endDate: ['', [Validators.required]]
   });
 
   ngOnInit(): void {
@@ -67,11 +68,11 @@ export class AcademicYearList implements OnInit {
 
         this.isLoading.set(false);
       },
-      error: (err) => {
+      error: err => {
         console.error('Error while loading data', err);
         this.errorMessage.set('Unable to load academic years.');
         this.isLoading.set(false);
-      },
+      }
     });
   }
 
@@ -106,11 +107,11 @@ export class AcademicYearList implements OnInit {
         this.showConfirmModal.set(false);
         this.isLoading.set(false);
       },
-      error: (err) => {
+      error: err => {
         console.error('Error while activating academic year', err);
         this.errorMessage.set('Unable to activate the academic year.');
         this.isLoading.set(false);
-      },
+      }
     });
   }
 
@@ -139,7 +140,7 @@ export class AcademicYearList implements OnInit {
           this.toast.success('Année académique modifiée avec succès');
           this.handleSuccess();
         },
-        error: (err) => this.handleError(err),
+        error: err => this.handleError(err)
       });
     } else {
       // Add
@@ -148,7 +149,7 @@ export class AcademicYearList implements OnInit {
           this.toast.success('Année académique ajoutée avec succès');
           this.handleSuccess();
         },
-        error: (err) => this.handleError(err),
+        error: err => this.handleError(err)
       });
     }
   }
@@ -165,7 +166,7 @@ export class AcademicYearList implements OnInit {
     return {
       label: this.addForm.value.label!,
       startDate: this.addForm.value.startDate!,
-      endDate: this.addForm.value.endDate!,
+      endDate: this.addForm.value.endDate!
     };
   }
 
@@ -192,7 +193,7 @@ export class AcademicYearList implements OnInit {
   }
 
   private resetFormErrors() {
-    Object.keys(this.addForm.controls).forEach((key) => {
+    Object.keys(this.addForm.controls).forEach(key => {
       this.addForm.get(key)?.setErrors(null);
     });
   }
@@ -221,7 +222,7 @@ export class AcademicYearList implements OnInit {
     this.addForm.patchValue({
       label: year.label,
       startDate: year.startDate ? year.startDate.substring(0, 10) : '',
-      endDate: year.endDate ? year.endDate.substring(0, 10) : '',
+      endDate: year.endDate ? year.endDate.substring(0, 10) : ''
     });
 
     // Open the same modal
@@ -230,15 +231,19 @@ export class AcademicYearList implements OnInit {
 
   // Get the active year
   loadCurrentActiveYear() {
+    this.isLoadingActiveYear.set(true);
+
     this.apiService.getCurrentSession().subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
           this.currentActiveYear.set(response.data);
         }
+        this.isLoadingActiveYear.set(false);
       },
-      error: (err) => {
+      error: err => {
         console.error('Erreur chargement année active', err);
-      },
+        this.isLoadingActiveYear.set(false);
+      }
     });
   }
 }

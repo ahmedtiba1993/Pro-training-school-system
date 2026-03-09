@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { ExamSessionDto } from './exam-session-dto';
 
 
 export interface TermDto { 
@@ -17,5 +18,6 @@ export interface TermDto {
     startDate: string;
     endDate: string;
     academicYearId: number;
+    examSessions?: Array<ExamSessionDto>;
 }
 

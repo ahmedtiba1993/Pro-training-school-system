@@ -18,6 +18,7 @@ public interface TermMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "academicYear", ignore = true)
+  @Mapping(target = "examSessions", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   void updateEntity(TermDto request, @MappingTarget Term entity);

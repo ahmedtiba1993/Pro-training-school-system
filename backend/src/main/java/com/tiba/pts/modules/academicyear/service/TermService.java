@@ -34,9 +34,8 @@ public class TermService {
 
   @Transactional(readOnly = true)
   public List<TermDto> getAllByAcademicYear(Long academicYearId) {
-    academicYearService.validateYearExists(academicYearId);
-    List<Term> terms = repository.findByAcademicYearId(academicYearId);
-    return terms.stream().map(mapper::toResponse).toList();
+    List<Term> term = repository.findByAcademicYearId(academicYearId);
+    return term.stream().map(mapper::toResponse).toList();
   }
 
   @Transactional
