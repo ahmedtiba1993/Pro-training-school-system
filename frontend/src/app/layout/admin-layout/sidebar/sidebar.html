@@ -20,7 +20,6 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 9v6l9 5 9-5V9" />
         </svg>
       </div>
-
       <span
         class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-indigo-500"
       >
@@ -30,7 +29,7 @@
   </div>
 
   <!-- Navigation -->
-  <nav class="px-4 py-2 flex-1 space-y-1">
+  <nav class="px-4 py-2 flex-1 space-y-1 overflow-y-auto">
     <!-- Dashboard -->
     <a
       routerLink="/admin/dashboard"
@@ -51,7 +50,6 @@
           d="M3 13h8V3H3v10zm10 8h8V3h-8v18zM3 21h8v-6H3v6z"
         />
       </svg>
-
       <span>Tableau de bord</span>
     </a>
 
@@ -75,56 +73,76 @@
           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
         />
       </svg>
-
       <span>Années Scolaires</span>
     </a>
 
-    <!-- Students -->
-    <a
-      routerLink="/admin/students"
-      routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
-      class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="w-5 h-5"
+    <!-- START: Specialties & Training Dropdown Menu -->
+    <div>
+      <button
+        (click)="isSpecialtiesMenuOpen = !isSpecialtiesMenuOpen"
+        [class.bg-indigo-50]="isSpecialtiesMenuOpen"
+        [class.text-indigo-700]="isSpecialtiesMenuOpen"
+        class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900 focus:outline-none"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m8-3.13a4 4 0 10-8 0 4 4 0 008 0zM6 8a4 4 0 118 0 4 4 0 01-8 0z"
-        />
-      </svg>
+        <div class="flex items-center space-x-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-5 h-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122"
+            />
+          </svg>
+          <span [class.font-medium]="isSpecialtiesMenuOpen">Spécialités</span>
+        </div>
+        <svg
+          [class.rotate-180]="isSpecialtiesMenuOpen"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+          class="w-4 h-4 transition-transform duration-200"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
 
-      <span>Élèves</span>
-    </a>
+      <!-- Submenu (displayed only if isSpecialtiesMenuOpen is true) -->
+      <div *ngIf="isSpecialtiesMenuOpen" class="mt-1 mb-2 space-y-1 pl-11 pr-2">
+        <!-- Degree Level -->
+        <a
+          routerLink="/admin/levels"
+          routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
+          class="flex items-center px-4 py-2 text-sm rounded-lg transition-all text-slate-500 hover:text-slate-900 hover:bg-slate-50 relative"
+        >
+          <span
+            class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
+            routerLinkActive="bg-indigo-600"
+          ></span>
+          Niveau de diplôme
+        </a>
 
-    <!-- Settings -->
-    <a
-      routerLink="/admin/settings"
-      routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
-      class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="w-5 h-5"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M11.25 3c.414 0 .75.336.75.75v1.386a7.5 7.5 0 012.635 1.09l.98-.98a.75.75 0 011.06 1.06l-.98.98a7.5 7.5 0 011.09 2.635h1.386a.75.75 0 010 1.5h-1.386a7.5 7.5 0 01-1.09 2.635l.98.98a.75.75 0 11-1.06 1.06l-.98-.98a7.5 7.5 0 01-2.635 1.09v1.386a.75.75 0 01-1.5 0v-1.386a7.5 7.5 0 01-2.635-1.09l-.98.98a.75.75 0 11-1.06-1.06l.98-.98a7.5 7.5 0 01-1.09-2.635H3.75a.75.75 0 010-1.5h1.386a7.5 7.5 0 011.09-2.635l-.98-.98a.75.75 0 011.06-1.06l.98.98a7.5 7.5 0 012.635-1.09V3.75c0-.414.336-.75.75-.75z"
-        />
-      </svg>
-
-      <span>Paramètres</span>
-    </a>
+        <!-- Specialty -->
+        <a
+          routerLink="/admin/specialties"
+          routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
+          class="flex items-center px-4 py-2 text-sm rounded-lg transition-all text-slate-500 hover:text-slate-900 hover:bg-slate-50 relative"
+        >
+          <span
+            class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
+            routerLinkActive="bg-indigo-600"
+          ></span>
+          Spécialité
+        </a>
+      </div>
+    </div>
+    <!-- END: Dropdown Menu -->
   </nav>
 </aside>

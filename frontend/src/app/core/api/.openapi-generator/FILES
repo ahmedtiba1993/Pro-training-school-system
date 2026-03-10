@@ -9,6 +9,8 @@ api/auth-controller.service.ts
 api/auth-controller.serviceInterface.ts
 api/exam-session-controller.service.ts
 api/exam-session-controller.serviceInterface.ts
+api/level-controller.service.ts
+api/level-controller.serviceInterface.ts
 api/term-controller.service.ts
 api/term-controller.serviceInterface.ts
 configuration.ts
@@ -20,6 +22,7 @@ model/active-academic-year-dto.ts
 model/api-response-academic-year-dto.ts
 model/api-response-active-academic-year-dto.ts
 model/api-response-list-exam-session-dto.ts
+model/api-response-list-level-dto.ts
 model/api-response-list-term-dto.ts
 model/api-response-long.ts
 model/api-response-page-response-academic-year-dto.ts
@@ -29,6 +32,7 @@ model/auth-request.ts
 model/auth-response.ts
 model/error-detail.ts
 model/exam-session-dto.ts
+model/level-dto.ts
 model/models.ts
 model/page-response-academic-year-dto.ts
 model/term-dto.ts
