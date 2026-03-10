@@ -36,4 +36,13 @@ public class LevelController {
     ApiResponse<List<LevelDto>> response = ApiResponse.success("LEVEL_LIST_RETRIEVED", data);
     return ResponseEntity.ok(response);
   }
+
+  @PutMapping("/{id}")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<Long>> updateLevel(
+      @PathVariable Long id, @Valid @RequestBody LevelDto request) {
+    Long updatedId = levelService.update(id, request);
+    ApiResponse<Long> response = ApiResponse.success("LEVEL_UPDATED_SUCCESSFULLY", updatedId);
+    return ResponseEntity.ok(response);
+  }
 }

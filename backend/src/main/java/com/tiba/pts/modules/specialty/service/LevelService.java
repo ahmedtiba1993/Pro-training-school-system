@@ -2,6 +2,7 @@ package com.tiba.pts.modules.specialty.service;
 
 import com.tiba.pts.core.dto.ErrorDetail;
 import com.tiba.pts.core.exception.DuplicateResourceException;
+import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.specialty.domain.entity.Level;
 import com.tiba.pts.modules.specialty.dto.LevelDto;
 import com.tiba.pts.modules.specialty.mapper.LevelMapper;
@@ -30,6 +31,16 @@ public class LevelService {
     return levelRepository.findAll().stream()
         .map(levelMapper::toReponse)
         .collect(Collectors.toList());
+  }
+
+  public Long update(Long id, LevelDto dto) {
+    Level existingLevel =
+        levelRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("LEVEL_NOT_FOUND"));
+    validateLevel(dto, id);
+    levelMapper.updateEntityFromDto(dto, existingLevel);
+    return levelRepository.save(existingLevel).getId();
   }
 
   private void validateLevel(LevelDto request, Long id) {
