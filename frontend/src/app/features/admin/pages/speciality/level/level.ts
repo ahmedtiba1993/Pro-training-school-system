@@ -18,8 +18,9 @@ export class Level implements OnInit {
   isLoading = signal<boolean>(true);
   isSaving = signal<boolean>(false);
 
-  // signal pour modal
+  // Modal signals
   showModal = signal(false);
+  editingLevelId = signal<number | null>(null);
 
   // FormGroup
   levelForm: FormGroup = this.fb.group({
@@ -52,42 +53,65 @@ export class Level implements OnInit {
     return code.substring(0, 3).toUpperCase();
   }
 
-  //Model Add
-  openModal() {
+  //Model Add & update
+  openAddModal(id?: number) {
+    if (id != null) {
+      this.editingLevelId.set(id);
+    }
     this.showModal.set(true);
+  }
+
+  openEditModal(level: LevelDto) {
+    if (level && level.id != null) {
+      this.editingLevelId.set(level.id);
+
+      this.levelForm.patchValue({
+        code: level.code,
+        label: level.label,
+        type: level.type
+      });
+
+      this.showModal.set(true);
+    }
   }
 
   closeModal() {
     this.showModal.set(false);
     this.levelForm.reset();
+    this.editingLevelId.set(null);
   }
 
-  addLevel() {
+  saveLevel() {
     if (this.levelForm.invalid) {
-      // Force showing all validation errors
       this.levelForm.markAllAsTouched();
       return;
     }
-    console.log(this.isSaving);
+
     this.isSaving.set(true);
-    console.log(this.isSaving);
+    const payload = this.levelForm.value;
+    const currentId = this.editingLevelId();
 
-    if (this.levelForm.invalid) {
-      this.levelForm.markAllAsTouched();
-      return;
+    let request$;
+    if (currentId) {
+      request$ = this.levelService.updateLevel(currentId, payload);
+    } else {
+      request$ = this.levelService.createLevel(payload);
     }
 
-    const payload = this.levelForm.value;
-
-    this.levelService.createLevel(payload).subscribe({
+    request$.subscribe({
       next: res => {
         this.isSaving.set(false);
-
         this.fetchLevels();
         this.closeModal();
-        this.toastService.success('ajoutée avec succès');
+
+        const successMessage = currentId
+          ? 'Niveau modifié avec succès'
+          : 'Niveau ajouté avec succès';
+        this.toastService.success(successMessage);
       },
       error: err => {
+        this.isSaving.set(false);
+
         if (err?.error?.errors) {
           err.error.errors.forEach((e: any) => {
             switch (e.field) {
@@ -99,8 +123,11 @@ export class Level implements OnInit {
             }
           });
         }
-        this.isSaving.set(false);
-        console.error('Erreur lors de l’ajout du niveau', err);
+
+        const errorLogMessage = currentId
+          ? 'Erreur lors de la modification'
+          : 'Erreur lors de l’ajout';
+        console.error(errorLogMessage, err);
       }
     });
   }

@@ -9,6 +9,8 @@ import lombok.Data;
 @Data
 public class LevelDto {
 
+  private Long id;
+
   @NotBlank(message = "CODE_REQUIRED")
   @Size(max = 20, message = "CODE_TOO_LONG")
   private String code;

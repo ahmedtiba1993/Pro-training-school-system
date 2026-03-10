@@ -14,8 +14,8 @@ import lombok.*;
 public class Level extends BaseEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "training_seq")
-  @SequenceGenerator(name = "training_seq", sequenceName = "training_seq")
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "level_seq")
+  @SequenceGenerator(name = "level_seq", sequenceName = "level_seq")
   private Long id;
 
   @Column(nullable = false, unique = true)

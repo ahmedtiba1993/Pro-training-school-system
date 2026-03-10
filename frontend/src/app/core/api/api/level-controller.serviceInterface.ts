@@ -39,4 +39,13 @@ export interface LevelControllerServiceInterface {
      */
     getAllLevels(extraHttpRequestParams?: any): Observable<ApiResponseListLevelDto>;
 
+    /**
+     * 
+     * 
+     * @endpoint put /api/v1/levels/{id}
+     * @param id 
+     * @param levelDto 
+     */
+    updateLevel(id: number, levelDto: LevelDto, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
 }
