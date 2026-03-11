@@ -2,6 +2,7 @@ package com.tiba.pts.modules.registrationdocuments.controller;
 
 import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.modules.registrationdocuments.dto.RegistrationDocumentRequest;
+import com.tiba.pts.modules.registrationdocuments.dto.RegistrationDocumentResponse;
 import com.tiba.pts.modules.registrationdocuments.service.RegistrationDocumentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/registration-documents")
@@ -27,5 +30,14 @@ public class RegistrationDocumentController {
         ApiResponse.success(
             "REGISTRATION_DOCUMENT_CREATED_SUCCESSFULLY", documentService.addDocument(request));
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @GetMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<RegistrationDocumentResponse>>> getAllDocuments() {
+    List<RegistrationDocumentResponse> dataList = documentService.getAll();
+    ApiResponse<List<RegistrationDocumentResponse>> response =
+        ApiResponse.success("REGISTRATION_DOCUMENT_LIST_RETRIEVED", dataList);
+    return ResponseEntity.ok(response);
   }
 }

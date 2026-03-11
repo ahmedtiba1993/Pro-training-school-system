@@ -3,6 +3,7 @@ package com.tiba.pts.modules.registrationdocuments.service;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.registrationdocuments.domain.entity.RegistrationDocument;
 import com.tiba.pts.modules.registrationdocuments.dto.RegistrationDocumentRequest;
+import com.tiba.pts.modules.registrationdocuments.dto.RegistrationDocumentResponse;
 import com.tiba.pts.modules.registrationdocuments.mapper.RegistrationDocumentMapper;
 import com.tiba.pts.modules.registrationdocuments.repository.RegistrationDocumentRepository;
 import com.tiba.pts.modules.specialty.domain.entity.Level;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,5 +48,11 @@ public class RegistrationDocumentService {
     }
 
     return documentRepository.save(document).getId();
+  }
+
+  @Transactional(readOnly = true)
+  public List<RegistrationDocumentResponse> getAll() {
+    List<RegistrationDocument> documents = documentRepository.findAll();
+    return documents.stream().map(mapper::toResponse).collect(Collectors.toList());
   }
 }

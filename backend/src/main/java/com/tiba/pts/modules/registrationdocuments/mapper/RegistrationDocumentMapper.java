@@ -2,6 +2,7 @@ package com.tiba.pts.modules.registrationdocuments.mapper;
 
 import com.tiba.pts.modules.registrationdocuments.domain.entity.RegistrationDocument;
 import com.tiba.pts.modules.registrationdocuments.dto.RegistrationDocumentRequest;
+import com.tiba.pts.modules.registrationdocuments.dto.RegistrationDocumentResponse;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,4 +13,6 @@ public interface RegistrationDocumentMapper {
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "levels", ignore = true)
   RegistrationDocument toEntity(RegistrationDocumentRequest request);
+
+  RegistrationDocumentResponse toResponse(RegistrationDocument entity);
 }
