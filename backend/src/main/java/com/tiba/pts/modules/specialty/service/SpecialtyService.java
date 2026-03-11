@@ -5,6 +5,7 @@ import com.tiba.pts.core.exception.DuplicateResourceException;
 import com.tiba.pts.modules.specialty.domain.entity.Level;
 import com.tiba.pts.modules.specialty.domain.entity.Specialty;
 import com.tiba.pts.modules.specialty.dto.SpecialtyRequest;
+import com.tiba.pts.modules.specialty.dto.SpecialtyResponse;
 import com.tiba.pts.modules.specialty.mapper.SpecialtyMapper;
 import com.tiba.pts.modules.specialty.repository.LevelRepository;
 import com.tiba.pts.modules.specialty.repository.SpecialtyRepository;
@@ -38,6 +39,12 @@ public class SpecialtyService {
     specialty.getAssociatedLevels().addAll(levels);
 
     return specialtyRepository.save(specialty).getId();
+  }
+
+  @Transactional(readOnly = true)
+  public List<SpecialtyResponse> getAllSpecialties() {
+    List<Specialty> specialties = specialtyRepository.findAllWithLevels();
+    return specialtyMapper.toResponseList(specialties);
   }
 
   private void validateSpecialtyCreation(SpecialtyRequest request, List<Level> levels) {

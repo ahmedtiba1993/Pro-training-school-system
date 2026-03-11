@@ -6,6 +6,8 @@ import com.tiba.pts.modules.specialty.dto.SpecialtyResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface SpecialtyMapper {
 
@@ -13,5 +15,5 @@ public interface SpecialtyMapper {
   @Mapping(target = "associatedLevels", expression = "java(new java.util.HashSet<>())")
   Specialty toEntity(SpecialtyRequest request);
 
-  SpecialtyResponse toResponse(Specialty specialty);
+  List<SpecialtyResponse> toResponseList(List<Specialty> specialties);
 }
