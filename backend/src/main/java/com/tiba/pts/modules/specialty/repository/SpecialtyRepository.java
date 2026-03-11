@@ -14,4 +14,10 @@ public interface SpecialtyRepository extends JpaRepository<Specialty, Long> {
 
   @Query("SELECT s FROM Specialty s LEFT JOIN FETCH s.associatedLevels")
   List<Specialty> findAllWithLevels();
+
+  // Exclude the current ID when checking for uniqueness.
+  boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
+
+  // Exclude the current ID when checking for uniqueness.
+  boolean existsByCodeIgnoreCaseAndIdNot(String code, Long id);
 }

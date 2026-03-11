@@ -34,4 +34,12 @@ public class SpecialtyController {
         ApiResponse.success("CREATED_SUCCESSFULLY", specialties);
     return ResponseEntity.ok(response);
   }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<ApiResponse<Long>> updateSpecialty(
+      @PathVariable Long id, @Valid @RequestBody SpecialtyRequest request) {
+    Long updatedId = specialtyService.updateSpecialty(id, request);
+    ApiResponse<Long> response = ApiResponse.success("UPDATED_SUCCESSFULLY", updatedId);
+    return ResponseEntity.ok(response);
+  }
 }

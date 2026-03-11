@@ -2,6 +2,7 @@ package com.tiba.pts.modules.specialty.service;
 
 import com.tiba.pts.core.dto.ErrorDetail;
 import com.tiba.pts.core.exception.DuplicateResourceException;
+import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.specialty.domain.entity.Level;
 import com.tiba.pts.modules.specialty.domain.entity.Specialty;
 import com.tiba.pts.modules.specialty.dto.SpecialtyRequest;
@@ -27,15 +28,38 @@ public class SpecialtyService {
 
   @Transactional
   public Long createSpecialty(SpecialtyRequest request) {
-
     Set<Long> requestedLevelIds = request.getLevelIds();
     List<Level> levels = levelRepository.findAllById(requestedLevelIds);
 
-    // Global business validation
-    validateSpecialtyCreation(request, levels);
+    // Pour la création, on passe 'null' comme ID
+    validateSpecialty(null, request, levels);
 
-    // Mapping and association
     Specialty specialty = specialtyMapper.toEntity(request);
+    specialty.getAssociatedLevels().addAll(levels);
+
+    return specialtyRepository.save(specialty).getId();
+  }
+
+  @Transactional
+  public Long updateSpecialty(Long id, SpecialtyRequest request) {
+    Specialty specialty =
+        specialtyRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("SPECIALTY_NOT_FOUND"));
+
+    // Extract the level IDs
+    Set<Long> requestedLevelIds = request.getLevelIds();
+    List<Level> levels = levelRepository.findAllById(requestedLevelIds);
+
+    // Validate the specialty data
+    validateSpecialty(id, request, levels);
+
+    // Update basic fields of the specialty
+    specialty.setName(request.getName());
+    specialty.setCode(request.getCode());
+
+    // Clear existing associated levels to avoid duplicates or outdated relations
+    specialty.getAssociatedLevels().clear();
     specialty.getAssociatedLevels().addAll(levels);
 
     return specialtyRepository.save(specialty).getId();
@@ -47,25 +71,38 @@ public class SpecialtyService {
     return specialtyMapper.toResponseList(specialties);
   }
 
-  private void validateSpecialtyCreation(SpecialtyRequest request, List<Level> levels) {
+  private void validateSpecialty(Long specialtyId, SpecialtyRequest request, List<Level> levels) {
     List<ErrorDetail> erreurs = new ArrayList<>();
 
-    // Check: the name already exist
-    if (specialtyRepository.existsByNameIgnoreCase(request.getName())) {
+    // Check if the specialty name already exists
+    // If specialtyId is null → creation case
+    // Otherwise → update case, excluding the current specialty ID
+    boolean nameExists =
+        (specialtyId == null)
+            ? specialtyRepository.existsByNameIgnoreCase(request.getName())
+            : specialtyRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), specialtyId);
+
+    if (nameExists) {
       erreurs.add(new ErrorDetail("name", "SPECIALTY_NAME_ALREADY_EXISTS"));
     }
 
-    // Check: the code already exist
-    if (specialtyRepository.existsByCodeIgnoreCase(request.getCode())) {
+    // Check if the specialty code already exists
+    // Same logic: exclude the current ID during update
+    boolean codeExists =
+        (specialtyId == null)
+            ? specialtyRepository.existsByCodeIgnoreCase(request.getCode())
+            : specialtyRepository.existsByCodeIgnoreCaseAndIdNot(request.getCode(), specialtyId);
+
+    if (codeExists) {
       erreurs.add(new ErrorDetail("code", "SPECIALTY_CODE_ALREADY_EXISTS"));
     }
 
-    // Check: Do all provided IDs exist in the database
+    // Verify that all provided level IDs actually exist in the database
     if (levels.size() != request.getLevelIds().size()) {
       erreurs.add(new ErrorDetail("levelIds", "ONE_OR_MORE_LEVELS_NOT_FOUND"));
     }
 
-    // If there is at least one error, block the process
+    // Throw a validation exception if any errors were found
     if (!erreurs.isEmpty()) {
       throw new DuplicateResourceException("VALIDATION_ERREUR", erreurs);
     }
