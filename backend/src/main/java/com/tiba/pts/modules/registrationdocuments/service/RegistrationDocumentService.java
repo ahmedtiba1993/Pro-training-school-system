@@ -1,0 +1,50 @@
+package com.tiba.pts.modules.registrationdocuments.service;
+
+import com.tiba.pts.core.exception.ResourceNotFoundException;
+import com.tiba.pts.modules.registrationdocuments.domain.entity.RegistrationDocument;
+import com.tiba.pts.modules.registrationdocuments.dto.RegistrationDocumentRequest;
+import com.tiba.pts.modules.registrationdocuments.mapper.RegistrationDocumentMapper;
+import com.tiba.pts.modules.registrationdocuments.repository.RegistrationDocumentRepository;
+import com.tiba.pts.modules.specialty.domain.entity.Level;
+import com.tiba.pts.modules.specialty.repository.LevelRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class RegistrationDocumentService {
+
+  private final RegistrationDocumentRepository documentRepository;
+  private final RegistrationDocumentMapper mapper;
+  private final LevelRepository levelRepository;
+
+  @Transactional
+  public Long addDocument(RegistrationDocumentRequest request) {
+
+    if (documentRepository.existsByNameIgnoreCase(request.getName())) {
+      throw new ResourceNotFoundException("DOCUMENT_NAME_ALREADY_EXISTS");
+    }
+
+    // Convert the Request DTO to Entity
+    RegistrationDocument document = mapper.toEntity(request);
+
+    // Associate Levels if they are provided
+    if (request.getLevelIds() != null && !request.getLevelIds().isEmpty()) {
+      // Retrieve all corresponding levels in a single query
+      List<Level> levels = levelRepository.findAllById(request.getLevelIds());
+
+      // Optional safety check: verify that all requested levels were found
+      if (levels.size() != request.getLevelIds().size()) {
+        throw new ResourceNotFoundException("Un ou plusieurs niveaux fournis sont introuvables.");
+      }
+
+      document.setLevels(new HashSet<>(levels));
+    }
+
+    return documentRepository.save(document).getId();
+  }
+}

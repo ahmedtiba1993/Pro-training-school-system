@@ -39,4 +39,13 @@ export interface SpecialtyControllerServiceInterface {
      */
     getAllSpecialties(extraHttpRequestParams?: any): Observable<ApiResponseListSpecialtyResponse>;
 
+    /**
+     * 
+     * 
+     * @endpoint put /api/v1/specialties/{id}
+     * @param id 
+     * @param specialtyRequest 
+     */
+    updateSpecialty(id: number, specialtyRequest: SpecialtyRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
 }

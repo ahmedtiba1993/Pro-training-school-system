@@ -69,11 +69,31 @@ export class Specialty {
   }
 
   // ---- Modal Management (Add & Update) ----
-  openAddModal(id?: number) {
-    if (id != null) {
-      this.editingSpecialtyId.set(id);
-    }
+  // ---- Modal Management (Add & Update) ----
+  openAddModal() {
+    this.editingSpecialtyId.set(null);
+    this.specialtyForm.reset({ levelIds: [] }); // S'assure que le formulaire est vide
     this.showModal.set(true);
+  }
+
+  openEditModal(specialty: SpecialtyResponse) {
+    if (specialty && specialty.id != null) {
+      this.editingSpecialtyId.set(specialty.id);
+
+      // 1. On dit à TypeScript : "Fais-moi confiance, à l'exécution c'est un vrai tableau"
+      const levelsArray = ((specialty.associatedLevels as unknown) as LevelDto[]) || [];
+
+      // 2. On peut maintenant utiliser le .map() en toute sécurité
+      const associatedLevelIds = levelsArray.map(l => l.id);
+
+      this.specialtyForm.patchValue({
+        name: specialty.name,
+        code: specialty.code,
+        levelIds: associatedLevelIds
+      });
+
+      this.showModal.set(true);
+    }
   }
 
   closeModal() {
@@ -116,7 +136,13 @@ export class Specialty {
     // Prepare Request (Update if ID exists, else Create)
     let request$;
 
-    request$ = this.specialtyService.createSpecialty(payload);
+    if (currentId) {
+      // Si on a un ID, on fait une modification (PUT)
+      request$ = this.specialtyService.updateSpecialty(currentId, payload);
+    } else {
+      // Sinon, on fait une création (POST)
+      request$ = this.specialtyService.createSpecialty(payload);
+    }
 
     request$.subscribe({
       next: () => {
