@@ -15,20 +15,20 @@ export interface RegistrationDocumentRequest {
     nature: RegistrationDocumentRequest.NatureEnum;
     condition: RegistrationDocumentRequest.ConditionEnum;
     levelIds: Set<number>;
-    isMandatory: boolean;
+    mandatory: boolean;
 }
 export namespace RegistrationDocumentRequest {
     export const NatureEnum = {
         Original: 'ORIGINAL',
-        CopieSimple: 'COPIE_SIMPLE',
-        CopieConforme: 'COPIE_CONFORME',
-        FormatPhysique: 'FORMAT_PHYSIQUE'
+        SimpleCopy: 'SIMPLE_COPY',
+        CertifiedCopy: 'CERTIFIED_COPY',
+        PhysicalFormat: 'PHYSICAL_FORMAT'
     } as const;
     export type NatureEnum = typeof NatureEnum[keyof typeof NatureEnum];
     export const ConditionEnum = {
-        ToutesInscriptions: 'TOUTES_INSCRIPTIONS',
-        EleveMajeur: 'ELEVE_MAJEUR',
-        EtudiantEtranger: 'ETUDIANT_ETRANGER'
+        AllRegistrations: 'ALL_REGISTRATIONS',
+        AdultStudent: 'ADULT_STUDENT',
+        ForeignStudent: 'FOREIGN_STUDENT'
     } as const;
     export type ConditionEnum = typeof ConditionEnum[keyof typeof ConditionEnum];
 }

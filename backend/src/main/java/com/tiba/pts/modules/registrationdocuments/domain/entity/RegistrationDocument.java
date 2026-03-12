@@ -15,7 +15,6 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class RegistrationDocument extends BaseEntity {
 
   @Id
@@ -44,6 +43,6 @@ public class RegistrationDocument extends BaseEntity {
       inverseJoinColumns = @JoinColumn(name = "level_id"))
   private Set<Level> levels = new HashSet<>();
 
-  @Column(name = "is_mandatory", nullable = false)
-  private boolean isMandatory;
+  @Column(name = "mandatory", nullable = false)
+  private Boolean mandatory;
 }

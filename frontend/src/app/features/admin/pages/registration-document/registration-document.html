@@ -9,7 +9,7 @@
       </p>
     </div>
     <button
-      onclick="openModal()"
+      (click)="openModal()"
       class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm"
     >
       <svg
@@ -217,9 +217,10 @@
               {{ doc.quantity }}
             </td>
 
+            <!-- Colonne Nature (Type) -->
             <td class="px-6 py-4 text-slate-500 font-medium">
-              @switch (doc.nature) { @case ('ORIGINAL') { Original } @case ('COPIE_SIMPLE') { Copie
-              simple } @case ('COPIE_CONFORME') { Copie conforme } @case ('FORMAT_PHYSIQUE') {
+              @switch (doc.nature) { @case ('ORIGINAL') { Original } @case ('SIMPLE_COPY') { Copie
+              simple } @case ('CERTIFIED_COPY') { Copie conforme } @case ('PHYSICAL_FORMAT') {
               Format physique } @default { {{ doc.nature }} } }
             </td>
 
@@ -234,7 +235,7 @@
               <span
                 class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-100 rounded-full text-[10px] font-bold uppercase"
               >
-                Non obligatoire
+                Optionnel
               </span>
               }
             </td>
@@ -251,16 +252,17 @@
               </div>
             </td>
 
+            <!--  Colonne Conditions (Requirement) -->
             <td class="px-6 py-4">
-              @switch (doc.condition) { @case ('TOUTES_INSCRIPTIONS') {
+              @switch (doc.condition) { @case ('ALL_REGISTRATIONS') {
               <span class="text-xs text-slate-500 font-medium">Toutes inscriptions</span>
-              } @case ('ELEVE_MAJEUR') {
+              } @case ('ADULT_STUDENT') {
               <span
                 class="px-2 py-1 bg-amber-50 text-amber-700 border border-amber-100 rounded text-[10px] font-bold uppercase"
               >
                 Élève majeur (+18)
               </span>
-              } @case ('ETUDIANT_ETRANGER') {
+              } @case ('FOREIGN_STUDENT') {
               <span
                 class="px-2 py-1 bg-sky-50 text-sky-700 border border-sky-100 rounded text-[10px] font-bold uppercase"
               >
@@ -289,3 +291,229 @@
     </div>
   </div>
 </main>
+<!-- ADD MODAL -->
+@if (isModalOpen()) {
+<div
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+>
+  <div
+    class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all flex flex-col max-h-[90vh]"
+  >
+    <div
+      class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+            <line x1="12" y1="18" x2="12" y2="12" />
+            <line x1="9" y1="15" x2="15" y2="15" />
+          </svg>
+        </div>
+        <h3 class="font-bold text-slate-800 text-lg">Nouveau Document Requis</h3>
+      </div>
+      <button
+        type="button"
+        (click)="closeModal()"
+        class="text-slate-400 hover:text-slate-600 transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <form
+      [formGroup]="documentForm"
+      (ngSubmit)="saveDocument()"
+      class="p-6 space-y-5 overflow-y-auto"
+    >
+      <div class="grid grid-cols-4 gap-4">
+        <div class="col-span-3">
+          <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider"
+            >Nom du document</label
+          >
+          <input
+            type="text"
+            formControlName="name"
+            placeholder="Ex: Enveloppes timbrées, Copie BAC..."
+            class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none transition-all focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500"
+            [class.border-red-500]="
+              documentForm.get('name')?.invalid && documentForm.get('name')?.touched
+            "
+            [class.border-slate-200]="
+              !(documentForm.get('name')?.invalid && documentForm.get('name')?.touched)
+            "
+          />
+          @if (documentForm.get('name')?.invalid && documentForm.get('name')?.touched) {
+          <p class="text-xs text-red-500 mt-1 font-medium">Ce champ est obligatoire.</p>
+          }
+        </div>
+
+        <div class="col-span-1">
+          <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider"
+            >Quantité</label
+          >
+          <input
+            type="number"
+            formControlName="quantity"
+            class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none transition-all text-center focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500"
+            [class.border-red-500]="
+              documentForm.get('quantity')?.invalid && documentForm.get('quantity')?.touched
+            "
+            [class.border-slate-200]="
+              !(documentForm.get('quantity')?.invalid && documentForm.get('quantity')?.touched)
+            "
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider"
+          >Nature du document</label
+        >
+        <select
+          formControlName="nature"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 bg-white"
+        >
+          <option value="ORIGINAL">Original</option>
+          <option value="SIMPLE_COPY">Copie simple</option>
+          <option value="CERTIFIED_COPY">Copie conforme (légalisée)</option>
+          <option value="PHYSICAL_FORMAT">Format physique (Objet/Photo)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider"
+          >Niveaux concernés</label
+        >
+        <div
+          class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-3 border rounded-xl bg-slate-50/50"
+          [class.border-red-500]="
+            documentForm.get('levelIds')?.invalid && documentForm.get('levelIds')?.touched
+          "
+          [class.border-slate-200]="
+            !(documentForm.get('levelIds')?.invalid && documentForm.get('levelIds')?.touched)
+          "
+        >
+          @for (level of levels(); track level.id) {
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              [value]="level.id"
+              (change)="onLevelChange($event, level.id!)"
+              [checked]="documentForm.get('levelIds')?.value.includes(level.id)"
+              class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+            />
+            <span class="text-sm font-medium text-slate-700">{{ level.code }}</span>
+          </label>
+          } @if (levels().length === 0) {
+          <p class="text-xs text-slate-500 col-span-2">Aucun niveau trouvé.</p>
+          }
+        </div>
+        @if (documentForm.get('levelIds')?.invalid && documentForm.get('levelIds')?.touched) {
+        <p class="text-xs text-red-500 mt-1 font-medium">
+          Veuillez sélectionner au moins un niveau.
+        </p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider"
+          >Conditions</label
+        >
+        <select
+          formControlName="condition"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 bg-white"
+        >
+          <option value="ALL_REGISTRATIONS">Toutes les inscriptions (Général)</option>
+          <option value="ADULT_STUDENT">Si l'élève est majeur (+18 ans)</option>
+          <option value="FOREIGN_STUDENT">Étudiants étrangers uniquement</option>
+        </select>
+      </div>
+
+      <div class="pt-2 border-t border-slate-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-bold text-slate-800 text-sm">Document Obligatoire</p>
+            <p class="text-xs text-slate-500 mt-0.5">
+              L'inscription sera bloquée s'il manque ce document.
+            </p>
+          </div>
+
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" formControlName="mandatory" class="sr-only peer" />
+            <div
+              class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-indigo-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10"
+            ></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-4 border-t border-slate-100 flex items-center gap-3">
+        <button
+          type="button"
+          (click)="closeModal()"
+          [disabled]="isSaving()"
+          class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Annuler
+        </button>
+
+        <button
+          type="submit"
+          [disabled]="isSaving()"
+          class="w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2 disabled:bg-indigo-400 disabled:cursor-not-allowed"
+        >
+          @if (isSaving()) {
+          <svg
+            class="animate-spin h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          Enregistrement... } @else { Enregistrer }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}

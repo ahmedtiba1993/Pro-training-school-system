@@ -16,5 +16,5 @@ public class RegistrationDocumentResponse {
   private DocumentNature nature;
   private DocumentCondition condition;
   private Set<LevelDto> levels;
-  private boolean isMandatory;
+  private Boolean mandatory;
 }

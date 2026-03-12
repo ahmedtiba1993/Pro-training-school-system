@@ -17,7 +17,7 @@ public class RegistrationDocumentRequest {
   @NotNull(message = "QUANTITY_REQUIRED")
   private Integer quantity;
 
-  @NotNull(message = "NATURE_REQUIRED")
+  @NotNull(message = "TYPE_REQUIRED")
   private DocumentNature nature;
 
   @NotNull(message = "CONDITION_REQUIRED")
@@ -26,6 +26,6 @@ public class RegistrationDocumentRequest {
   @NotEmpty(message = "LEVEL_IDS_REQUIRED")
   private Set<Long> levelIds;
 
-  @NotNull(message = "IS_MANDATORY_REQUIRED")
-  private Boolean isMandatory;
+  @NotNull(message = "MANDATORY_REQUIRED")
+  private Boolean mandatory;
 }
