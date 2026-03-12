@@ -1,0 +1,291 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+  <header
+    class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shrink-0"
+  >
+    <div>
+      <h1 class="text-xl font-bold">Configuration du Dossier d'Inscription</h1>
+      <p class="text-xs text-slate-500">
+        Gérez la liste des documents requis pour l'inscription des élèves
+      </p>
+    </div>
+    <button
+      onclick="openModal()"
+      class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="w-4 h-4"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M8 12h8"></path>
+        <path d="M12 8v8"></path>
+      </svg>
+      Ajouter un Document
+    </button>
+  </header>
+
+  <div class="flex-1 overflow-y-auto p-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div
+        class="bg-white rounded-xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm"
+      >
+        <div
+          class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center shrink-0"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-6 h-6"
+          >
+            <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
+            <path d="M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z"></path>
+            <path d="M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8"></path>
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pièces</p>
+          @if (isLoading()) {
+          <div class="h-7 flex items-center">
+            <svg
+              class="animate-spin h-4 w-4 text-indigo-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+          } @else {
+          <p class="text-xl font-bold text-slate-800">
+            {{ totalDocuments() }} Document{{ totalDocuments() > 1 ? 's' : '' }}
+          </p>
+          }
+        </div>
+      </div>
+
+      <div
+        class="bg-white rounded-xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm"
+      >
+        <div
+          class="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center shrink-0"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-6 h-6"
+          >
+            <polygon
+              points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"
+            ></polygon>
+            <line x1="12" x2="12" y1="8" y2="12"></line>
+            <line x1="12" x2="12.01" y1="16" y2="16"></line>
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Obligatoires</p>
+          @if (isLoading()) {
+          <div class="h-7 flex items-center">
+            <svg
+              class="animate-spin h-4 w-4 text-rose-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+          } @else {
+          <p class="text-xl font-bold text-slate-800">
+            {{ mandatoryDocumentsCount() }} Document{{ mandatoryDocumentsCount() > 1 ? 's' : '' }}
+          </p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-left text-sm">
+        <thead
+          class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
+        >
+          <tr>
+            <th class="px-6 py-4">Nom du Document</th>
+            <th class="px-6 py-4 text-center">Quantité</th>
+            <th class="px-6 py-4">Nature</th>
+            <th class="px-6 py-4">Statut</th>
+            <th class="px-6 py-4">Niveaux concernés</th>
+            <th class="px-6 py-4">Conditions</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100">
+          @if (isLoading()) {
+          <tr>
+            <td colspan="7" class="px-6 py-8 text-center text-slate-500">
+              <div class="flex items-center justify-center gap-2">
+                <svg
+                  class="animate-spin h-5 w-5 text-indigo-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Chargement des documents...
+              </div>
+            </td>
+          </tr>
+          } @for (doc of documents(); track doc.id) {
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="w-4 h-4"
+                  >
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                  </svg>
+                </div>
+                <span class="font-semibold text-slate-800">{{ doc.name }}</span>
+              </div>
+            </td>
+
+            <td class="px-6 py-4 text-center font-bold text-slate-700">
+              {{ doc.quantity }}
+            </td>
+
+            <td class="px-6 py-4 text-slate-500 font-medium">
+              @switch (doc.nature) { @case ('ORIGINAL') { Original } @case ('COPIE_SIMPLE') { Copie
+              simple } @case ('COPIE_CONFORME') { Copie conforme } @case ('FORMAT_PHYSIQUE') {
+              Format physique } @default { {{ doc.nature }} } }
+            </td>
+
+            <td class="px-6 py-4">
+              @if (doc.mandatory) {
+              <span
+                class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-[10px] font-bold uppercase"
+              >
+                Obligatoire
+              </span>
+              } @else {
+              <span
+                class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-100 rounded-full text-[10px] font-bold uppercase"
+              >
+                Non obligatoire
+              </span>
+              }
+            </td>
+
+            <td class="px-6 py-4">
+              <div class="flex gap-1 flex-wrap">
+                @for (level of doc.levels; track level.id) {
+                <span
+                  class="px-2 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded text-[10px] font-bold uppercase"
+                >
+                  {{ level.code }}
+                </span>
+                }
+              </div>
+            </td>
+
+            <td class="px-6 py-4">
+              @switch (doc.condition) { @case ('TOUTES_INSCRIPTIONS') {
+              <span class="text-xs text-slate-500 font-medium">Toutes inscriptions</span>
+              } @case ('ELEVE_MAJEUR') {
+              <span
+                class="px-2 py-1 bg-amber-50 text-amber-700 border border-amber-100 rounded text-[10px] font-bold uppercase"
+              >
+                Élève majeur (+18)
+              </span>
+              } @case ('ETUDIANT_ETRANGER') {
+              <span
+                class="px-2 py-1 bg-sky-50 text-sky-700 border border-sky-100 rounded text-[10px] font-bold uppercase"
+              >
+                Étudiant étranger
+              </span>
+              } @default {
+              <span class="text-xs text-slate-500">{{ doc.condition }}</span>
+              } }
+            </td>
+
+            <td class="px-6 py-4 text-right">
+              <button class="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+                Test
+              </button>
+            </td>
+          </tr>
+          } @if (documents().length === 0 && !isLoading()) {
+          <tr>
+            <td colspan="7" class="px-6 py-8 text-center text-slate-500">
+              Aucun document d'inscription n'a encore été configuré.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>

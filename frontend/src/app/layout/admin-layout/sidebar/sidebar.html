@@ -1,13 +1,11 @@
 <aside
   class="fixed lg:sticky top-0 left-0 h-screen w-72 bg-white border-r border-slate-100 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-sm"
 >
-  <!-- Logo -->
   <div class="p-6 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <div
         class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200"
       >
-        <!-- Graduation Cap -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -28,9 +26,7 @@
     </div>
   </div>
 
-  <!-- Navigation -->
   <nav class="px-4 py-2 flex-1 space-y-1 overflow-y-auto">
-    <!-- Dashboard -->
     <a
       routerLink="/admin/dashboard"
       routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
@@ -53,7 +49,6 @@
       <span>Tableau de bord</span>
     </a>
 
-    <!-- Academic Years -->
     <a
       routerLink="/admin/academic-years"
       routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
@@ -76,7 +71,29 @@
       <span>Années Scolaires</span>
     </a>
 
-    <!-- START: Specialties & Training Dropdown Menu -->
+    <a
+      routerLink="/admin/registration-documents"
+      routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+      class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-5 h-5"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+        />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m9 13 2 2 4-4" />
+      </svg>
+      <span>Pièces à fournir</span>
+    </a>
+
     <div>
       <button
         (click)="isSpecialtiesMenuOpen = !isSpecialtiesMenuOpen"
@@ -114,9 +131,7 @@
         </svg>
       </button>
 
-      <!-- Submenu (displayed only if isSpecialtiesMenuOpen is true) -->
       <div *ngIf="isSpecialtiesMenuOpen" class="mt-1 mb-2 space-y-1 pl-11 pr-2">
-        <!-- Degree Level -->
         <a
           routerLink="/admin/levels"
           routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
@@ -129,7 +144,6 @@
           Niveau de diplôme
         </a>
 
-        <!-- Specialty -->
         <a
           routerLink="/admin/specialties"
           routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
@@ -143,6 +157,5 @@
         </a>
       </div>
     </div>
-    <!-- END: Dropdown Menu -->
   </nav>
 </aside>
