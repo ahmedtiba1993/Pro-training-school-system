@@ -26,6 +26,9 @@ export class RegistrationDocument {
   isLoading = signal<boolean>(true);
   levels = signal<LevelDto[]>([]);
 
+  // Signal to indicate if we are in edit mode
+  editingDocumentId = signal<number | null>(null);
+
   // Compute the total number of documents
   totalDocuments = computed(() => this.documents().length);
 
@@ -79,7 +82,9 @@ export class RegistrationDocument {
   }
 
   // Modal controls
+  //Resets the ID to force "Add" mode
   openModal() {
+    this.editingDocumentId.set(null);
     this.documentForm.reset({
       quantity: 1,
       nature: 'ORIGINAL',
@@ -92,6 +97,29 @@ export class RegistrationDocument {
 
   closeModal(): void {
     this.isModalOpen.set(false);
+    this.editingDocumentId.set(null); // We clear the ID when closing
+  }
+
+  // Opens the modal in "Edit" mode and pre-fills the fields
+  openEditModal(doc: RegistrationDocumentResponse) {
+    if (doc.id != null) {
+      this.editingDocumentId.set(doc.id);
+
+      // We extract only the IDs from the LevelDto objects received from the backend
+      const extractedLevelIds = doc.levels ? Array.from(doc.levels).map(level => level.id) : [];
+
+      // We inject the values into the form
+      this.documentForm.patchValue({
+        name: doc.name,
+        quantity: doc.quantity,
+        nature: doc.nature,
+        condition: doc.condition,
+        levelIds: extractedLevelIds,
+        mandatory: doc.mandatory
+      });
+
+      this.isModalOpen.set(true);
+    }
   }
 
   // Handles selection/deselection of level checkboxes
@@ -109,30 +137,35 @@ export class RegistrationDocument {
   }
 
   saveDocument() {
-    // Check if the form is valid
     if (this.documentForm.invalid) {
       this.documentForm.markAllAsTouched();
       return;
     }
 
-    // Enable loading state
     this.isSaving.set(true);
-
-    // Retrieve form data
     const payload = this.documentForm.value;
+    const currentId = this.editingDocumentId();
 
-    // Call the API to create the document
-    this.documentService.createDocument(payload).subscribe({
+    // Choice of request (Create OR Update)
+    let request$;
+    if (currentId) {
+      request$ = this.documentService.updateDocument(currentId, payload);
+    } else {
+      request$ = this.documentService.createDocument(payload);
+    }
+
+    request$.subscribe({
       next: response => {
-        // Succès
         this.isSaving.set(false);
         this.closeModal();
         this.fetchDocuments();
 
-        this.toastService.success('Document ajouté avec succès');
+        const successMessage = currentId
+          ? 'Document modifié avec succès'
+          : 'Document ajouté avec succès';
+        this.toastService.success(successMessage);
       },
       error: err => {
-        // Erreur
         this.isSaving.set(false);
         const errorMessage = err?.error?.message || err?.error?.errors?.[0]?.message;
 
@@ -140,7 +173,10 @@ export class RegistrationDocument {
           this.documentForm.get('name')?.setErrors({ alreadyExists: true });
           this.toastService.error('Ce nom de document existe déjà.');
         } else {
-          this.toastService.error('Une erreur est survenue.');
+          const defaultMsg = currentId
+            ? 'Erreur lors de la modification.'
+            : "Erreur lors de l'ajout.";
+          this.toastService.error(defaultMsg);
         }
       }
     });

@@ -39,4 +39,13 @@ export interface RegistrationDocumentControllerServiceInterface {
      */
     getAllDocuments(extraHttpRequestParams?: any): Observable<ApiResponseListRegistrationDocumentResponse>;
 
+    /**
+     * 
+     * 
+     * @endpoint put /api/v1/registration-documents/{id}
+     * @param id 
+     * @param registrationDocumentRequest 
+     */
+    updateDocument(id: number, registrationDocumentRequest: RegistrationDocumentRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
 }
