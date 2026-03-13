@@ -55,4 +55,43 @@ public class RegistrationDocumentService {
     List<RegistrationDocument> documents = documentRepository.findAll();
     return documents.stream().map(mapper::toResponse).collect(Collectors.toList());
   }
+
+  @Transactional
+  public Long update(Long id, RegistrationDocumentRequest request) {
+
+    // Find the existing document
+    RegistrationDocument document =
+        documentRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("DOCUMENT_NOT_FOUND"));
+
+    // Check name uniqueness (only if the name has been modified)
+    if (!document.getName().equalsIgnoreCase(request.getName())
+        && documentRepository.existsByNameIgnoreCase(request.getName())) {
+      throw new ResourceNotFoundException("DOCUMENT_NAME_ALREADY_EXISTS");
+    }
+
+    // Update simple properties
+    document.setName(request.getName());
+    document.setQuantity(request.getQuantity());
+    document.setNature(request.getNature());
+    document.setCondition(request.getCondition());
+    document.setMandatory(request.getMandatory());
+
+    // Update levels
+    if (request.getLevelIds() != null && !request.getLevelIds().isEmpty()) {
+      List<Level> levels = levelRepository.findAllById(request.getLevelIds());
+
+      if (levels.size() != request.getLevelIds().size()) {
+        throw new ResourceNotFoundException("One or more provided levels were not found.");
+      }
+
+      // Replace the old list with the new one
+      document.setLevels(new HashSet<>(levels));
+    }
+
+    // Save the entity and return the response DTO ID
+    RegistrationDocument updatedDocument = documentRepository.save(document);
+    return mapper.toResponse(updatedDocument).getId();
+  }
 }

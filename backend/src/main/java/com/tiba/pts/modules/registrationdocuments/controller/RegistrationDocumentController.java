@@ -40,4 +40,14 @@ public class RegistrationDocumentController {
         ApiResponse.success("REGISTRATION_DOCUMENT_LIST_RETRIEVED", dataList);
     return ResponseEntity.ok(response);
   }
+
+  @PutMapping("/{id}")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<Long>> updateDocument(
+      @PathVariable Long id, @Valid @RequestBody RegistrationDocumentRequest request) {
+    Long updatedData = documentService.update(id, request);
+    ApiResponse<Long> response =
+        ApiResponse.success("REGISTRATION_DOCUMENT_UPDATED_SUCCESSFULLY", updatedData);
+    return ResponseEntity.ok(response);
+  }
 }
