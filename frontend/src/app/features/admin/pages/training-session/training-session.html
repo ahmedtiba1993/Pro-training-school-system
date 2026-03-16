@@ -1,0 +1,683 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+  <!-- Header & Context Filters -->
+  <header class="bg-white border-b border-slate-200 shrink-0">
+    <div class="px-8 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold text-slate-800">Ouverture des Promotions</h1>
+        <p class="text-xs text-slate-500">
+          Gérez les cohortes et les capacités d'accueil pour les nouvelles inscriptions
+        </p>
+      </div>
+    </div>
+
+    <!-- Context Bar (Filters) -->
+    <div class="px-8 py-3 bg-slate-50/50 border-t border-slate-100 flex flex-wrap gap-4 items-end">
+      <!-- Academic Year -->
+      <div class="relative">
+        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">
+          Année Scolaire
+        </label>
+        <select
+          [class.border-red-300]="errorMessage()"
+          class="px-3 py-2 border rounded-lg text-sm font-semibold outline-none w-40 cursor-not-allowed bg-slate-100 text-slate-700 transition-colors"
+          disabled
+        >
+          @if (isLoadingYear()) {
+          <option>Chargement...</option>
+          } @else if (activeYear()) {
+          <option selected>{{ activeYear()?.label }}</option>
+          } @else {
+          <option>Non définie</option>
+          }
+        </select>
+
+        <!-- Academic Year Error -->
+        @if (errorMessage()) {
+        <div
+          class="absolute -bottom-5 left-0 text-[10px] font-medium text-red-500 whitespace-nowrap flex items-center gap-1"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-3 h-3"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          {{ errorMessage() }}
+        </div>
+        }
+      </div>
+
+      <!-- Level -->
+      <div class="relative">
+        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">
+          Niveau
+        </label>
+        <select
+          (change)="onLevelChange($event)"
+          [disabled]="isLoadingLevels() || levelsError() !== null"
+          [class.border-red-300]="levelsError()"
+          class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 text-blue-700 w-32 cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-50 transition-colors"
+        >
+          @if (isLoadingLevels()) {
+          <option value="">Chargement...</option>
+          } @else {
+          <option value="" disabled selected>Sélectionner</option>
+          @for (level of levels(); track level.id) {
+          <option [value]="level.id">{{ level.code }}</option>
+          } }
+        </select>
+      </div>
+
+      <!-- Specialty (Dependent on Level) -->
+      <div class="relative">
+        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">
+          Spécialité
+        </label>
+        <select
+          (change)="onSpecialtyChange($event)"
+          [disabled]="isLoadingSpecialties() || !selectedLevelId() || specialtiesError() !== null"
+          [class.border-red-300]="specialtiesError()"
+          class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 text-indigo-700 min-w-[200px] cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 transition-colors"
+        >
+          @if (!selectedLevelId()) {
+          <option value="" disabled selected>Choisissez un niveau</option>
+          } @else if (isLoadingSpecialties()) {
+          <option value="">Chargement...</option>
+          } @else if (specialtiesError()) {
+          <option value="">{{ specialtiesError() }}</option>
+          } @else {
+          <option value="" disabled selected>Sélectionnez une spécialité</option>
+          @for (specialty of specialties(); track specialty.id) {
+          <option [value]="specialty.id">{{ specialty.name }}</option>
+          } }
+        </select>
+      </div>
+
+      <!-- Open Promotion Button -->
+      <div class="flex-1 flex justify-end">
+        <button
+          (click)="openModal()"
+          [disabled]="!activeYear()?.id || !selectedLevelId() || !selectedSpecialtyId()"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-sm"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Ouvrir une Promotion
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Table Content -->
+  <div class="flex-1 overflow-auto bg-white p-6">
+    <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead
+          class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
+        >
+          <tr>
+            <th class="px-6 py-4">Nom de la Promotion</th>
+            <th class="px-6 py-4">Année Scolaire</th>
+            <th class="px-6 py-4 text-center">Inscrits</th>
+            <th class="px-6 py-4">Date de Rentrée</th>
+            <th class="px-6 py-4">Statut</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100">
+          <!-- Table Loading State -->
+          @if (isLoadingSessions()) {
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+              <div class="flex items-center justify-center gap-2">
+                <div
+                  class="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"
+                ></div>
+                Chargement des promotions en cours...
+              </div>
+            </td>
+          </tr>
+          } @else {
+
+          <!-- Data Loop -->
+          @for (session of trainingSessions(); track session.id) {
+          <tr class="hover:bg-slate-50 transition-colors">
+            <!-- Promotion Name -->
+            <td class="px-6 py-4 font-semibold text-slate-800">
+              {{ session.promotionName }}
+              <div class="text-[10px] text-slate-400 font-normal mt-0.5">
+                {{ session.levelCode }} - {{ session.specialtyCode }}
+              </div>
+            </td>
+
+            <!-- Academic Year -->
+            <td class="px-6 py-4 text-slate-600">
+              {{ session.academicYearLabel }}
+            </td>
+
+            <!-- Enrolled Students -->
+            <td class="px-6 py-4 text-center">
+              <span class="font-bold text-indigo-600">{{ session.enrolledCount || 0 }}</span>
+            </td>
+
+            <!-- Start Date -->
+            <td class="px-6 py-4 text-slate-500">
+              {{ session.expectedStartDate | date: 'dd MMM yyyy' }}
+            </td>
+
+            <!-- Dynamic Status -->
+            <td class="px-6 py-4">
+              <span
+                class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider"
+                [class]="getStatusClasses(session.status)"
+              >
+                {{ getStatusLabel(session.status) }}
+              </span>
+            </td>
+
+            <!-- Row Actions -->
+            <td class="px-6 py-4 text-right">
+              <button
+                (click)="openDetailsModal(session)"
+                class="p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+                title="Voir les détails"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+          }
+
+          <!-- Empty Table State -->
+          @empty {
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-slate-500 bg-slate-50/50">
+              <div class="flex flex-col items-center justify-center">
+                <span class="text-sm font-medium text-slate-400">
+                  Aucune promotion trouvée.
+                </span>
+              </div>
+            </td>
+          </tr>
+          } }
+        </tbody>
+      </table>
+      <!-- PAGINATION -->
+      <app-pagination
+        [currentPage]="currentPage()"
+        [total]="totalElements()"
+        [limit]="pageSize()"
+        (changePage)="onPageChange($event)"
+      ></app-pagination>
+    </div>
+  </div>
+</main>
+
+<!-- Add Model -->
+@if (isModalOpen()) {
+<div
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+>
+  <div
+    class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all flex flex-col max-h-[90vh]"
+  >
+    <form [formGroup]="promotionForm">
+      <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-5 h-5"
+            >
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+              <line x1="4" x2="4" y1="22" y2="15"></line>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 text-lg">Ouvrir une nouvelle Promotion</h3>
+            <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+              BTP - Informatique de Gestion (2025-2026)
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-6 h-6"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <div class="grid grid-cols-3 gap-4">
+          <div class="col-span-2 relative">
+            <label
+              class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider"
+              >Nom de la promotion</label
+            >
+            <input
+              type="text"
+              formControlName="promotionName"
+              placeholder="Ex: Rentrée Principale Septembre..."
+              [class.border-red-500]="
+                promotionForm.get('promotionName')?.invalid &&
+                promotionForm.get('promotionName')?.touched
+              "
+              class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+            />
+            @if (promotionForm.get('promotionName')?.invalid &&
+            promotionForm.get('promotionName')?.touched) {
+            <p class="absolute -bottom-4 left-0 text-[10px] text-red-500">Nom obligatoire.</p>
+            }
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-4 gap-y-6">
+          <div class="relative">
+            <label
+              class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider"
+              >Ouverture des inscriptions</label
+            >
+            <input
+              type="date"
+              formControlName="registrationOpenDate"
+              [class.border-red-500]="
+                promotionForm.get('registrationOpenDate')?.invalid &&
+                promotionForm.get('registrationOpenDate')?.touched
+              "
+              class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-700"
+            />
+            @if (promotionForm.get('registrationOpenDate')?.invalid &&
+            promotionForm.get('registrationOpenDate')?.touched) {
+            <p class="absolute -bottom-4 left-0 text-[10px] text-red-500">Date obligatoire.</p>
+            }
+          </div>
+
+          <div class="relative">
+            <label
+              class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider"
+              >Date limite d'inscription</label
+            >
+            <input
+              type="date"
+              formControlName="registrationDeadline"
+              [class.border-red-500]="
+                promotionForm.get('registrationDeadline')?.invalid &&
+                promotionForm.get('registrationDeadline')?.touched
+              "
+              class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-700"
+            />
+            @if (promotionForm.get('registrationDeadline')?.invalid &&
+            promotionForm.get('registrationDeadline')?.touched) {
+            <p class="absolute -bottom-4 left-0 text-[10px] text-red-500">Date obligatoire.</p>
+            }
+          </div>
+
+          <div class="relative">
+            <label
+              class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider"
+              >Date de Rentrée prévue</label
+            >
+            <input
+              type="date"
+              formControlName="expectedStartDate"
+              [class.border-red-500]="
+                promotionForm.get('expectedStartDate')?.invalid &&
+                promotionForm.get('expectedStartDate')?.touched
+              "
+              class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-700"
+            />
+            @if (promotionForm.get('expectedStartDate')?.invalid &&
+            promotionForm.get('expectedStartDate')?.touched) {
+            <p class="absolute -bottom-4 left-0 text-[10px] text-red-500">Date obligatoire.</p>
+            }
+          </div>
+
+          <div class="relative">
+            <label
+              class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider"
+              >Fin de la formation (estimée)</label
+            >
+            <input
+              type="date"
+              formControlName="estimatedEndDate"
+              [class.border-red-500]="
+                promotionForm.get('estimatedEndDate')?.invalid &&
+                promotionForm.get('estimatedEndDate')?.touched
+              "
+              class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-slate-700"
+            />
+            @if (promotionForm.get('estimatedEndDate')?.invalid &&
+            promotionForm.get('estimatedEndDate')?.touched) {
+            <p class="absolute -bottom-4 left-0 text-[10px] text-red-500">Date obligatoire.</p>
+            }
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+          <label class="block text-[10px] font-bold text-slate-400 uppercase mb-3 tracking-wider"
+            >Statut initial</label
+          >
+          <div class="flex items-center gap-6">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                formControlName="status"
+                value="open"
+                class="w-4 h-4 text-emerald-600 focus:ring-emerald-500"
+              />
+              <span class="text-sm font-semibold text-slate-700"
+                >Inscriptions ouvertes immédiatement</span
+              >
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                formControlName="status"
+                value="planned"
+                class="w-4 h-4 text-amber-500 focus:ring-amber-500"
+              />
+              <span class="text-sm font-semibold text-slate-700">Planifiée (en attente)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="flex-1 py-3 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="savePromotion()"
+          class="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+        >
+          @if (isSaving()) {
+          <div
+            class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+          ></div>
+          Enregistrement... } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-4 h-4"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Ouvrir la Promotion }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+} @if (selectedSession(); as session) {
+<div
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+>
+  <div
+    class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden transform transition-all flex flex-col max-h-[90vh]"
+  >
+    <div
+      class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0"
+    >
+      <div class="flex items-center gap-4">
+        <div
+          class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center border border-indigo-100"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-6 h-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-xl">{{ session.promotionName }}</h3>
+          <p class="text-[11px] text-slate-500 font-medium uppercase tracking-wider mt-1">
+            Détails de la cohorte
+          </p>
+        </div>
+      </div>
+      <button
+        (click)="closeDetailsModal()"
+        class="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-lg hover:bg-slate-100"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="w-6 h-6"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 overflow-y-auto bg-slate-50/30">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h4
+            class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2"
+          >
+            Informations Générales
+          </h4>
+          <div class="space-y-3">
+            <div>
+              <p class="text-[10px] text-slate-500 uppercase tracking-wide">Année Scolaire</p>
+              <p class="font-semibold text-slate-800">{{ session.academicYearLabel }}</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-[10px] text-slate-500 uppercase tracking-wide">Niveau</p>
+                <p class="font-semibold text-slate-800">{{ session.levelCode }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] text-slate-500 uppercase tracking-wide">Spécialité</p>
+                <p class="font-semibold text-slate-800">{{ session.specialtyCode }}</p>
+              </div>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-500 uppercase tracking-wide mb-1">Statut actuel</p>
+              <span
+                class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider inline-block"
+                [class]="getStatusClasses(session.status)"
+              >
+                {{ getStatusLabel(session.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h4
+            class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2"
+          >
+            Inscriptions
+          </h4>
+          <div class="space-y-3">
+            <div
+              class="flex items-center justify-between bg-indigo-50/50 p-3 rounded-lg border border-indigo-100"
+            >
+              <div>
+                <p class="text-[10px] text-indigo-600 uppercase tracking-wide font-bold">
+                  Inscrits confirmés
+                </p>
+                <p class="text-2xl font-black text-indigo-700">{{ session.enrolledCount }}</p>
+              </div>
+              <div
+                class="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 pt-1">
+              <div>
+                <p class="text-[10px] text-slate-500 uppercase tracking-wide">Ouverture</p>
+                <p class="font-medium text-slate-700">
+                  {{ session.registrationOpenDate | date: 'dd MMMM yyyy' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-[10px] text-slate-500 uppercase tracking-wide">Clôture</p>
+                <p class="font-medium text-slate-700">
+                  {{ session.registrationDeadline | date: 'dd MMMM yyyy' }}
+                </p>
+              </div>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-500 uppercase tracking-wide mb-1">
+                État des inscriptions
+              </p>
+              @if (session.registrationsOpen) {
+              <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Ouvertes
+              </span>
+              } @else {
+              <span class="text-xs font-semibold text-red-500 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-red-500"></span> Fermées
+              </span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4 md:col-span-2"
+        >
+          <h4
+            class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2"
+          >
+            Période de Formation
+          </h4>
+          <div class="flex items-center justify-between px-4 py-2">
+            <div class="text-center">
+              <p class="text-[10px] text-slate-500 uppercase tracking-wide mb-1">Rentrée prévue</p>
+              <p class="font-bold text-slate-800">
+                {{ session.expectedStartDate | date: 'dd MMM yyyy' }}
+              </p>
+            </div>
+            <div class="flex-1 px-8 flex items-center">
+              <div class="h-0.5 w-full bg-slate-200 relative">
+                <div
+                  class="absolute -top-1.5 -left-1 w-3.5 h-3.5 rounded-full border-2 border-indigo-500 bg-white"
+                ></div>
+                <div
+                  class="absolute -top-1.5 -right-1 w-3.5 h-3.5 rounded-full border-2 border-slate-300 bg-white"
+                ></div>
+              </div>
+            </div>
+            <div class="text-center">
+              <p class="text-[10px] text-slate-500 uppercase tracking-wide mb-1">Fin estimée</p>
+              <p class="font-bold text-slate-800">
+                {{ session.estimatedEndDate | date: 'dd MMM yyyy' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end shrink-0">
+      <button
+        (click)="closeDetailsModal()"
+        class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors"
+      >
+        Fermer
+      </button>
+    </div>
+  </div>
+</div>
+}

@@ -94,6 +94,30 @@
       <span>Pièces à fournir</span>
     </a>
 
+    <!-- NOUVEAU MENU : Ouverture Promotions -->
+    <a
+      routerLink="/admin/promotions"
+      routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+      class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-5 h-5"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M3 3v1.5M3 21v-6m0 0 2.77-.693a14.45 14.45 0 0 1 4.208-.622 14.45 14.45 0 0 0 4.208.622 14.45 14.45 0 0 1 4.208.622l2.77.693M3 15V4.5l2.77.693a14.45 14.45 0 0 0 4.208.622 14.45 14.45 0 0 1 4.208-.622 14.45 14.45 0 0 0 4.208-.622l2.77-.693V15.75l-2.77-.693a14.45 14.45 0 0 1-4.208-.622 14.45 14.45 0 0 0-4.208.622 14.45 14.45 0 0 1-4.208.622l-2.77.693Z"
+        />
+      </svg>
+      <span>Ouverture Promotions</span>
+    </a>
+
+    <!-- Menu Déroulant Spécialités -->
     <div>
       <button
         (click)="isSpecialtiesMenuOpen = !isSpecialtiesMenuOpen"

@@ -17,44 +17,44 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { ApiResponseListSpecialtyResponse } from '../model/api-response-list-specialty-response';
-// @ts-ignore
 import { ApiResponseLong } from '../model/api-response-long';
 // @ts-ignore
-import { SpecialtyRequest } from '../model/specialty-request';
+import { ApiResponsePageResponseTrainingSessionResponse } from '../model/api-response-page-response-training-session-response';
+// @ts-ignore
+import { TrainingSessionRequest } from '../model/training-session-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
 import {
-    SpecialtyControllerServiceInterface
-} from './specialty-controller.serviceInterface';
+    TrainingSessionControllerServiceInterface
+} from './training-session-controller.serviceInterface';
 
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class SpecialtyControllerService extends BaseService implements SpecialtyControllerServiceInterface {
+export class TrainingSessionControllerService extends BaseService implements TrainingSessionControllerServiceInterface {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
     }
 
     /**
-     * @endpoint post /api/v1/specialties
-     * @param specialtyRequest 
+     * @endpoint post /api/v1/training-sessions
+     * @param trainingSessionRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public createSpecialty(specialtyRequest: SpecialtyRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
-    public createSpecialty(specialtyRequest: SpecialtyRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
-    public createSpecialty(specialtyRequest: SpecialtyRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
-    public createSpecialty(specialtyRequest: SpecialtyRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (specialtyRequest === null || specialtyRequest === undefined) {
-            throw new Error('Required parameter specialtyRequest was null or undefined when calling createSpecialty.');
+    public createTrainingSession(trainingSessionRequest: TrainingSessionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
+    public createTrainingSession(trainingSessionRequest: TrainingSessionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
+    public createTrainingSession(trainingSessionRequest: TrainingSessionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
+    public createTrainingSession(trainingSessionRequest: TrainingSessionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (trainingSessionRequest === null || trainingSessionRequest === undefined) {
+            throw new Error('Required parameter trainingSessionRequest was null or undefined when calling createTrainingSession.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -94,12 +94,12 @@ export class SpecialtyControllerService extends BaseService implements Specialty
             }
         }
 
-        let localVarPath = `/api/v1/specialties`;
+        let localVarPath = `/api/v1/training-sessions`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ApiResponseLong>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: specialtyRequest,
+                body: trainingSessionRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -111,15 +111,37 @@ export class SpecialtyControllerService extends BaseService implements Specialty
     }
 
     /**
-     * @endpoint get /api/v1/specialties
+     * @endpoint get /api/v1/training-sessions
+     * @param page 
+     * @param size 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAllSpecialties(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListSpecialtyResponse>;
-    public getAllSpecialties(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListSpecialtyResponse>>;
-    public getAllSpecialties(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListSpecialtyResponse>>;
-    public getAllSpecialties(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getPaginatedTrainingSessions(page?: number, size?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponsePageResponseTrainingSessionResponse>;
+    public getPaginatedTrainingSessions(page?: number, size?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponsePageResponseTrainingSessionResponse>>;
+    public getPaginatedTrainingSessions(page?: number, size?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponsePageResponseTrainingSessionResponse>>;
+    public getPaginatedTrainingSessions(page?: number, size?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'size',
+            <any>size,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -149,11 +171,12 @@ export class SpecialtyControllerService extends BaseService implements Specialty
             }
         }
 
-        let localVarPath = `/api/v1/specialties`;
+        let localVarPath = `/api/v1/training-sessions`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseListSpecialtyResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponsePageResponseTrainingSessionResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -165,80 +188,22 @@ export class SpecialtyControllerService extends BaseService implements Specialty
     }
 
     /**
-     * @endpoint get /api/v1/specialties/by-level/{levelId}
-     * @param levelId 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getSpecialtiesByLevel(levelId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListSpecialtyResponse>;
-    public getSpecialtiesByLevel(levelId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListSpecialtyResponse>>;
-    public getSpecialtiesByLevel(levelId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListSpecialtyResponse>>;
-    public getSpecialtiesByLevel(levelId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (levelId === null || levelId === undefined) {
-            throw new Error('Required parameter levelId was null or undefined when calling getSpecialtiesByLevel.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (bearerAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/v1/specialties/by-level/${this.configuration.encodeParam({name: "levelId", value: levelId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseListSpecialtyResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint put /api/v1/specialties/{id}
+     * @endpoint put /api/v1/training-sessions/{id}
      * @param id 
-     * @param specialtyRequest 
+     * @param trainingSessionRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateSpecialty(id: number, specialtyRequest: SpecialtyRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
-    public updateSpecialty(id: number, specialtyRequest: SpecialtyRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
-    public updateSpecialty(id: number, specialtyRequest: SpecialtyRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
-    public updateSpecialty(id: number, specialtyRequest: SpecialtyRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateTrainingSession(id: number, trainingSessionRequest: TrainingSessionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
+    public updateTrainingSession(id: number, trainingSessionRequest: TrainingSessionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
+    public updateTrainingSession(id: number, trainingSessionRequest: TrainingSessionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
+    public updateTrainingSession(id: number, trainingSessionRequest: TrainingSessionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling updateSpecialty.');
+            throw new Error('Required parameter id was null or undefined when calling updateTrainingSession.');
         }
-        if (specialtyRequest === null || specialtyRequest === undefined) {
-            throw new Error('Required parameter specialtyRequest was null or undefined when calling updateSpecialty.');
+        if (trainingSessionRequest === null || trainingSessionRequest === undefined) {
+            throw new Error('Required parameter trainingSessionRequest was null or undefined when calling updateTrainingSession.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -278,12 +243,12 @@ export class SpecialtyControllerService extends BaseService implements Specialty
             }
         }
 
-        let localVarPath = `/api/v1/specialties/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/api/v1/training-sessions/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ApiResponseLong>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: specialtyRequest,
+                body: trainingSessionRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

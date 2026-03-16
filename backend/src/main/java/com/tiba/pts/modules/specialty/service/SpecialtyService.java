@@ -71,6 +71,12 @@ public class SpecialtyService {
     return specialtyMapper.toResponseList(specialties);
   }
 
+  @Transactional(readOnly = true)
+  public List<SpecialtyResponse> getSpecialtiesByLevelId(Long levelId) {
+    List<Specialty> specialties = specialtyRepository.findByAssociatedLevels_Id(levelId);
+    return specialtyMapper.toResponseList(specialties);
+  }
+
   private void validateSpecialty(Long specialtyId, SpecialtyRequest request, List<Level> levels) {
     List<ErrorDetail> erreurs = new ArrayList<>();
 

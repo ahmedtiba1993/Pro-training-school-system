@@ -26,7 +26,6 @@ public class Specialty extends BaseEntity {
   @Column(nullable = false, unique = true)
   private String code;
 
-  // Relation Plusieurs-à-Plusieurs avec l'entité Level
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
       name = "specialty_levels",

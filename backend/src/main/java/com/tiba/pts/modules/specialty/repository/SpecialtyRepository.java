@@ -28,4 +28,6 @@ public interface SpecialtyRepository extends JpaRepository<Specialty, Long> {
       nativeQuery = true)
   boolean existsSpecialtyLevelAssociation(
       @Param("specialtyId") Long specialtyId, @Param("levelId") Long levelId);
+
+  List<Specialty> findByAssociatedLevels_Id(Long levelId);
 }

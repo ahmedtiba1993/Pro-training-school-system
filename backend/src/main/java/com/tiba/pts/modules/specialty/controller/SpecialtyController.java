@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +41,16 @@ public class SpecialtyController {
       @PathVariable Long id, @Valid @RequestBody SpecialtyRequest request) {
     Long updatedId = specialtyService.updateSpecialty(id, request);
     ApiResponse<Long> response = ApiResponse.success("UPDATED_SUCCESSFULLY", updatedId);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/by-level/{levelId}")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<SpecialtyResponse>>> getSpecialtiesByLevel(
+      @PathVariable Long levelId) {
+    List<SpecialtyResponse> data = specialtyService.getSpecialtiesByLevelId(levelId);
+    ApiResponse<List<SpecialtyResponse>> response =
+        ApiResponse.success("SPECIALTIES_RETRIEVED_SUCCESSFULLY", data);
     return ResponseEntity.ok(response);
   }
 }

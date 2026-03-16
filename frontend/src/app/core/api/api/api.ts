@@ -19,4 +19,7 @@ export * from './specialty-controller.serviceInterface';
 export * from './term-controller.service';
 import { TermControllerService } from './term-controller.service';
 export * from './term-controller.serviceInterface';
-export const APIS = [AcademicYearControllerService, AuthControllerService, ExamSessionControllerService, LevelControllerService, RegistrationDocumentControllerService, SpecialtyControllerService, TermControllerService];
+export * from './training-session-controller.service';
+import { TrainingSessionControllerService } from './training-session-controller.service';
+export * from './training-session-controller.serviceInterface';
+export const APIS = [AcademicYearControllerService, AuthControllerService, ExamSessionControllerService, LevelControllerService, RegistrationDocumentControllerService, SpecialtyControllerService, TermControllerService, TrainingSessionControllerService];

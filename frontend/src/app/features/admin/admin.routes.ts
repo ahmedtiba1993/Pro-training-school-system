@@ -6,6 +6,7 @@ import { AcademicYearTerms } from './pages/academic-year/academic-year-terms/aca
 import { Level } from './pages/speciality/level/level';
 import { Specialty } from './pages/speciality/specialty/specialty';
 import { RegistrationDocument } from '../../../app/features/admin/pages/registration-document/registration-document';
+import { TrainingSession } from './pages/training-session/training-session';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -17,7 +18,8 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'levels', component: Level },
       { path: 'specialties', component: Specialty },
       { path: 'dashboard', component: Dashboard },
-      { path: 'registration-documents', component: RegistrationDocument }
+      { path: 'registration-documents', component: RegistrationDocument },
+      { path: 'promotions', component: TrainingSession }
     ]
   }
 ];
