@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/training-sessions")
 @RequiredArgsConstructor
@@ -49,6 +51,16 @@ public class TrainingSessionController {
     Long updatedId = trainingSessionService.updateTrainingSession(id, request);
     ApiResponse<Long> response =
         ApiResponse.success("TRAINING_SESSION_UPDATED_SUCCESSFULLY", updatedId);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/in-progress")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<TrainingSessionResponse>>> getInProgressSessions() {
+
+    List<TrainingSessionResponse> data = trainingSessionService.getInProgressSessions();
+    ApiResponse<List<TrainingSessionResponse>> response =
+        ApiResponse.success("IN_PROGRESS_SESSIONS_RETRIEVED", data);
     return ResponseEntity.ok(response);
   }
 }

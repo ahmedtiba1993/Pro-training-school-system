@@ -43,7 +43,7 @@ export class TrainingSession implements OnInit {
   levelsError = signal<string | null>(null);
   selectedLevelId = signal<number | null>(null);
 
-  // --- SIGNALS: Specialties (Linked to level) ---
+  // --- SIGNALS: Specialties ---
   specialties = signal<SpecialtyResponse[]>([]);
   isLoadingSpecialties = signal<boolean>(false);
   specialtiesError = signal<string | null>(null);
@@ -53,8 +53,14 @@ export class TrainingSession implements OnInit {
   trainingSessions = signal<TrainingSessionResponse[]>([]);
   isLoadingSessions = signal<boolean>(true);
 
-  // --- SIGNALS: Modale ---
+  // --- SIGNALS: In Progress Promotions (Cards) ---
+  inProgressSessions = signal<TrainingSessionResponse[]>([]);
+  isLoadingInProgress = signal<boolean>(true);
+
+  // --- SIGNALS: Modals ---
   isModalOpen = signal<boolean>(false);
+  selectedSession = signal<TrainingSessionResponse | null>(null);
+  editingSession = signal<TrainingSessionResponse | null>(null);
 
   // FORM DECLARATION
   promotionForm!: FormGroup;
@@ -62,11 +68,8 @@ export class TrainingSession implements OnInit {
 
   // --- PAGINATION ---
   currentPage = signal<number>(0);
-  pageSize = signal<number>(5); // Number of items displayed per page
+  pageSize = signal<number>(5);
   totalElements = signal<number>(0);
-
-  // --- SIGNAL: Details modal ---
-  selectedSession = signal<TrainingSessionResponse | null>(null);
 
   // FORM INITIALIZATION
   initForm() {
@@ -84,14 +87,13 @@ export class TrainingSession implements OnInit {
     this.fetchActiveAcademicYear();
     this.fetchLevels();
     this.fetchTrainingSessions();
+    this.fetchInProgressSessions();
     this.initForm();
   }
 
-  // Fetch the active academic year
   fetchActiveAcademicYear() {
     this.isLoadingYear.set(true);
     this.errorMessage.set(null);
-
     this.academicYearService.getActiveAcademicYear().subscribe({
       next: response => {
         if (response.success && response.data) {
@@ -109,11 +111,9 @@ export class TrainingSession implements OnInit {
     });
   }
 
-  // Fetch the list of levels
   fetchLevels() {
     this.isLoadingLevels.set(true);
     this.levelsError.set(null);
-
     this.levelService.getAllLevels().subscribe({
       next: response => {
         if (response.success && response.data) {
@@ -131,31 +131,25 @@ export class TrainingSession implements OnInit {
     });
   }
 
-  // Event triggered on Level change
   onLevelChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     const levelId = Number(selectElement.value);
-
     this.selectedLevelId.set(levelId);
     this.selectedSpecialtyId.set(null);
-    this.specialties.set([]); // Clear the specialties list
+    this.specialties.set([]);
     this.specialtiesError.set(null);
-
     if (levelId) {
       this.fetchSpecialtiesByLevel(levelId);
     }
   }
 
-  // FUNCTION TO HANDLE SPECIALTY CHANGES
   onSpecialtyChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     this.selectedSpecialtyId.set(Number(selectElement.value));
   }
 
-  // Fetch specialties based on the selected level
   fetchSpecialtiesByLevel(levelId: number) {
     this.isLoadingSpecialties.set(true);
-
     this.specialtyService.getSpecialtiesByLevel(levelId).subscribe({
       next: response => {
         if (response.success && response.data) {
@@ -176,20 +170,16 @@ export class TrainingSession implements OnInit {
     });
   }
 
-  // Fetch all training sessions (Promotions)
   fetchTrainingSessions() {
     this.isLoadingSessions.set(true);
-
     this.trainingSessionService
       .getPaginatedTrainingSessions(this.currentPage(), this.pageSize())
       .subscribe({
         next: response => {
           if (response.success && response.data) {
             this.trainingSessions.set(response.data.content!);
+            this.totalElements.set(response.data.totalElements || 0);
           }
-          // knows how many pages exist
-          this.totalElements.set(response.data?.totalElements || 0);
-
           this.isLoadingSessions.set(false);
         },
         error: err => {
@@ -197,6 +187,152 @@ export class TrainingSession implements OnInit {
           this.isLoadingSessions.set(false);
         }
       });
+  }
+
+  fetchInProgressSessions() {
+    this.isLoadingInProgress.set(true);
+    this.trainingSessionService.getInProgressSessions().subscribe({
+      next: response => {
+        if (response.success && response.data) {
+          this.inProgressSessions.set(response.data);
+        }
+        this.isLoadingInProgress.set(false);
+      },
+      error: err => {
+        console.error('Erreur API Promotions en cours:', err);
+        this.isLoadingInProgress.set(false);
+      }
+    });
+  }
+
+  // --- MODALS (ADD AND EDIT) ---
+  openModal() {
+    this.editingSession.set(null); // Creation mode
+    this.promotionForm.reset({ status: 'open' });
+    this.isModalOpen.set(true);
+  }
+
+  // Pre-fill the form for editing
+  openEditModal(session: TrainingSessionResponse) {
+    this.editingSession.set(session);
+
+    // Fill the form with existing values
+    this.promotionForm.patchValue({
+      promotionName: session.promotionName,
+      registrationOpenDate: session.registrationOpenDate,
+      registrationDeadline: session.registrationDeadline,
+      expectedStartDate: session.expectedStartDate,
+      estimatedEndDate: session.estimatedEndDate,
+      status: session.registrationsOpen ? 'open' : 'planned'
+    });
+
+    this.isModalOpen.set(true);
+  }
+
+  closeModal() {
+    this.isModalOpen.set(false);
+    this.editingSession.set(null);
+    this.promotionForm.reset({ status: 'open' });
+  }
+
+  // Creation AND Editing Management
+  savePromotion() {
+    if (this.promotionForm.invalid) {
+      this.promotionForm.markAllAsTouched();
+      return;
+    }
+
+    const formValues = this.promotionForm.value;
+    const editing = this.editingSession();
+
+    // If editing, keep existing IDs. If creating, take the ones from filters.
+    const academicYearId = editing ? editing.academicYearId : this.activeYear()?.id;
+    const levelId = editing ? editing.levelId : this.selectedLevelId();
+    const specialtyId = editing ? editing.specialtyId : this.selectedSpecialtyId();
+
+    if (!academicYearId || !levelId || !specialtyId) {
+      this.toastService.error('Contexte manquant (Année, Niveau ou Spécialité)');
+      return;
+    }
+
+    const payload: TrainingSessionRequest = {
+      promotionName: formValues.promotionName,
+      academicYearId: academicYearId,
+      levelId: levelId,
+      specialtyId: specialtyId,
+      expectedStartDate: formValues.expectedStartDate,
+      estimatedEndDate: formValues.estimatedEndDate,
+      registrationOpenDate: formValues.registrationOpenDate,
+      registrationDeadline: formValues.registrationDeadline,
+      status: TrainingSessionRequest.StatusEnum.InProgress, // Backend handles the IN_PROGRESS state by default
+      registrationsOpen: formValues.status === 'open'
+    };
+
+    this.isSaving.set(true);
+
+    if (editing) {
+      // MODE: UPDATE
+      this.trainingSessionService.updateTrainingSession(editing.id!, payload).subscribe({
+        next: () => {
+          this.toastService.success('Promotion modifiée avec succès !');
+          this.handleSuccess();
+        },
+        error: err => this.handleError(err)
+      });
+    } else {
+      // MODE: CREATION
+      this.trainingSessionService.createTrainingSession(payload).subscribe({
+        next: () => {
+          this.toastService.success('Promotion ajoutée avec succès !');
+          this.handleSuccess();
+        },
+        error: err => this.handleError(err)
+      });
+    }
+  }
+
+  // Utility functions for save success/error
+  private handleSuccess() {
+    this.isSaving.set(false);
+    this.closeModal();
+    this.fetchTrainingSessions();
+    this.fetchInProgressSessions();
+  }
+
+  private handleError(err: any) {
+    this.isSaving.set(false);
+    if (err?.error?.errors) {
+      err.error.errors.forEach((e: any) => {
+        if (e.message === 'ESTIMATED END DATE MUST BE AFTER EXPECTED START DATE') {
+          this.toastService.error('La date de fin doit être postérieure à la date de début.');
+        } else if (e.message === 'REGISTRATION DEADLINE MUST BE AFTER REGISTRATION OPEN DATE') {
+          this.toastService.error(
+            "La date limite d'inscription doit être postérieure à l'ouverture."
+          );
+        } else if (e.message === 'PROMOTION_NAME_ALREADY_EXISTS') {
+          this.toastService.error('Le nom de la promotion existe déjà.');
+        } else if (e.message === 'TRAINING_SESSION_COMBINATION_ALREADY_EXISTS') {
+          this.toastService.error('Cette combinaison de session de formation existe déjà.');
+        }
+      });
+    } else {
+      this.toastService.error("Une erreur inattendue s'est produite.");
+    }
+  }
+
+  // --- DETAILS MODAL ---
+  openDetailsModal(session: TrainingSessionResponse) {
+    this.selectedSession.set(session);
+  }
+
+  closeDetailsModal() {
+    this.selectedSession.set(null);
+  }
+
+  // --- PAGINATION ---
+  onPageChange(newPage: number) {
+    this.currentPage.set(newPage);
+    this.fetchTrainingSessions();
   }
 
   // --- STATUS UTILITIES ---
@@ -220,97 +356,5 @@ export class TrainingSession implements OnInit {
       default:
         return 'bg-gray-50 text-gray-500';
     }
-  }
-
-  // --- METHODES: Modale ---
-  openModal() {
-    this.isModalOpen.set(true);
-  }
-
-  closeModal() {
-    this.isModalOpen.set(false);
-    this.promotionForm.reset({ status: 'open' });
-  }
-
-  // Add FUNCTION
-  savePromotion() {
-    if (this.promotionForm.invalid) {
-      this.promotionForm.markAllAsTouched();
-      return;
-    }
-
-    const formValues = this.promotionForm.value;
-    const activeYearId = this.activeYear()?.id;
-    const levelId = this.selectedLevelId();
-    const specialtyId = this.selectedSpecialtyId();
-
-    // Security check: prevent form submission if filters are not selected
-    if (!activeYearId || !levelId || !specialtyId) {
-      console.error('Contexte manquant (Année, Niveau ou Spécialité)');
-      return;
-    }
-
-    // Build the payload according to the JSON structure
-    const payload = {
-      promotionName: formValues.promotionName,
-      academicYearId: activeYearId,
-      levelId: levelId,
-      specialtyId: specialtyId,
-      expectedStartDate: formValues.expectedStartDate,
-      estimatedEndDate: formValues.estimatedEndDate,
-      registrationOpenDate: formValues.registrationOpenDate,
-      registrationDeadline: formValues.registrationDeadline,
-      status:
-        formValues.status === 'open'
-          ? TrainingSessionRequest.StatusEnum.InProgress
-          : TrainingSessionRequest.StatusEnum.InProgress,
-
-      registrationsOpen: formValues.status === 'open'
-    };
-
-    this.isSaving.set(true);
-
-    this.trainingSessionService.createTrainingSession(payload).subscribe({
-      next: response => {
-        this.isSaving.set(false);
-        this.closeModal();
-        this.fetchTrainingSessions();
-        this.toastService.success('Promotion ajoutée avec succès !');
-      },
-      error: err => {
-        this.isSaving.set(false);
-        if (err?.error?.errors) {
-          err.error.errors.forEach((e: any) => {
-            if (e.message === 'ESTIMATED END DATE MUST BE AFTER EXPECTED START DATE') {
-              this.toastService.error('La date de fin doit être postérieure à la date de début.');
-            } else if (e.message === 'REGISTRATION DEADLINE MUST BE AFTER REGISTRATION OPEN DATE') {
-              this.toastService.error(
-                "La date limite d'inscription doit être postérieure à l'ouverture."
-              );
-            } else if (e.message === 'PROMOTION_NAME_ALREADY_EXISTS') {
-              this.toastService.error('Le nom de la promotion existe déjà.');
-            } else if (e.message === 'TRAINING_SESSION_COMBINATION_ALREADY_EXISTS') {
-              this.toastService.error('Cette combinaison de session de formation existe déjà.');
-            }
-          });
-        }
-      }
-    });
-  }
-
-  //Pagination
-  // Page change
-  onPageChange(newPage: number) {
-    this.currentPage.set(newPage);
-    this.fetchTrainingSessions();
-  }
-
-  // --- METHODS: Details modal handling ---
-  openDetailsModal(session: TrainingSessionResponse) {
-    this.selectedSession.set(session);
-  }
-
-  closeDetailsModal() {
-    this.selectedSession.set(null);
   }
 }

@@ -11,6 +11,7 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ApiResponseListTrainingSessionResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ApiResponsePageResponseTrainingSessionResponse } from '../model/models';
 import { TrainingSessionRequest } from '../model/models';
@@ -31,6 +32,13 @@ export interface TrainingSessionControllerServiceInterface {
      * @param trainingSessionRequest 
      */
     createTrainingSession(trainingSessionRequest: TrainingSessionRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/training-sessions/in-progress
+     */
+    getInProgressSessions(extraHttpRequestParams?: any): Observable<ApiResponseListTrainingSessionResponse>;
 
     /**
      * 

@@ -7,6 +7,7 @@ export * from './api-response-list-level-dto';
 export * from './api-response-list-registration-document-response';
 export * from './api-response-list-specialty-response';
 export * from './api-response-list-term-dto';
+export * from './api-response-list-training-session-response';
 export * from './api-response-long';
 export * from './api-response-page-response-academic-year-dto';
 export * from './api-response-page-response-training-session-response';

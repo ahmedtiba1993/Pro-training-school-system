@@ -8,6 +8,7 @@ import com.tiba.pts.modules.academicyear.repository.AcademicYearRepository;
 import com.tiba.pts.modules.specialty.repository.LevelRepository;
 import com.tiba.pts.modules.specialty.repository.SpecialtyRepository;
 import com.tiba.pts.modules.trainingSession.domain.entity.TrainingSession;
+import com.tiba.pts.modules.trainingSession.domain.enums.TrainingSessionStatus;
 import com.tiba.pts.modules.trainingSession.dto.TrainingSessionRequest;
 import com.tiba.pts.modules.trainingSession.dto.TrainingSessionResponse;
 import com.tiba.pts.modules.trainingSession.mapper.TrainingSessionMapper;
@@ -109,5 +110,12 @@ public class TrainingSessionService {
     if (!conflicts.isEmpty()) {
       throw new DuplicateResourceException("CONFLICT_DETECTED", conflicts);
     }
+  }
+
+  @Transactional(readOnly = true)
+  public List<TrainingSessionResponse> getInProgressSessions() {
+    List<TrainingSession> sessions =
+        trainingSessionRepository.findByStatus(TrainingSessionStatus.IN_PROGRESS);
+    return sessions.stream().map(trainingSessionMapper::toResponse).toList();
   }
 }
