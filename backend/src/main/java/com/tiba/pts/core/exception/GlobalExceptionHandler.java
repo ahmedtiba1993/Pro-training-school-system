@@ -101,6 +101,14 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
   }
 
+  @ExceptionHandler(BusinessValidationException.class)
+  public ResponseEntity<ApiResponse<Void>> handleBusinessValidationException(
+      BusinessValidationException ex) {
+    ApiResponse<Void> response =
+        ApiResponse.error(ex.getMessage(), "ERR_VALIDATION", ex.getErrors());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+  }
+
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
 

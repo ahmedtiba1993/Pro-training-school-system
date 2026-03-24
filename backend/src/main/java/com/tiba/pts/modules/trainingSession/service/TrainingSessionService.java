@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InvalidObjectException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,5 +118,16 @@ public class TrainingSessionService {
     List<TrainingSession> sessions =
         trainingSessionRepository.findByStatus(TrainingSessionStatus.IN_PROGRESS);
     return sessions.stream().map(trainingSessionMapper::toResponse).toList();
+  }
+
+  public TrainingSession getValidSessionForEnrollment(Long sessionId) {
+    TrainingSession session =
+        trainingSessionRepository
+            .findById(sessionId)
+            .orElseThrow(() -> new ValidationException("TRAINING_SESSION_NOT_FOUND"));
+    if (!Boolean.TRUE.equals(session.getRegistrationsOpen())) {
+      throw new ValidationException("REGISTRATIONS_CLOSED");
+    }
+    return session;
   }
 }

@@ -94,4 +94,11 @@ public class RegistrationDocumentService {
     RegistrationDocument updatedDocument = documentRepository.save(document);
     return mapper.toResponse(updatedDocument).getId();
   }
+
+  public RegistrationDocument getRegistrationDocumentById(Long documentId) {
+    return documentRepository
+        .findById(documentId)
+        .orElseThrow(
+            () -> new ResourceNotFoundException("DOCUMENT_NOT_FOUND_IN_CATALOG: " + documentId));
+  }
 }
