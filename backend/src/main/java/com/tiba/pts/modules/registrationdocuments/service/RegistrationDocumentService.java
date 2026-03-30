@@ -101,4 +101,9 @@ public class RegistrationDocumentService {
         .orElseThrow(
             () -> new ResourceNotFoundException("DOCUMENT_NOT_FOUND_IN_CATALOG: " + documentId));
   }
+
+  public List<RegistrationDocumentResponse> getDocumentsByLevelId(Long levelId) {
+    List<RegistrationDocument> documents = documentRepository.findByLevelsId(levelId);
+    return documents.stream().map(mapper::toResponse).collect(Collectors.toList());
+  }
 }

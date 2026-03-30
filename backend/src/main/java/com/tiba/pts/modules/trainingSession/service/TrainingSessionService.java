@@ -25,6 +25,7 @@ import java.io.InvalidObjectException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -129,5 +130,13 @@ public class TrainingSessionService {
       throw new ValidationException("REGISTRATIONS_CLOSED");
     }
     return session;
+  }
+
+  public List<TrainingSessionResponse> getSessionsByLevelAndSpecialty(
+      Long levelId, Long specialtyId) {
+    List<TrainingSession> sessions =
+        trainingSessionRepository.findByLevelIdAndSpecialtyIdAndRegistrationsOpenTrue(
+            levelId, specialtyId);
+    return sessions.stream().map(trainingSessionMapper::toResponse).collect(Collectors.toList());
   }
 }

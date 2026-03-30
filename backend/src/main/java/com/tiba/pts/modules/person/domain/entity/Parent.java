@@ -23,10 +23,6 @@ public class Parent extends Person {
   private String profession;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private ParentType parentType;
-
-  @Enumerated(EnumType.STRING)
   private MaritalStatus maritalStatus;
 
   @Column(nullable = false, columnDefinition = "boolean default false")

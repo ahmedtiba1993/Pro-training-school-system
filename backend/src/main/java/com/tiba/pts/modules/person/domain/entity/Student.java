@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ import java.util.Set;
 @Table(name = "students")
 @PrimaryKeyJoinColumn(name = "person_id")
 public class Student extends Person {
+
+  private LocalDate dateOfBirth;
 
   @Column(name = "education_level")
   private String educationLevel;

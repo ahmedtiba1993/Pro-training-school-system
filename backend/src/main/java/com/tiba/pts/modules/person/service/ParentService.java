@@ -23,7 +23,7 @@ public class ParentService {
       return null;
     }
     Parent parent = parentMapper.toEntity(parentReq);
-    parent.setParentType(type);
+    //parent.setParentType(type);
     parent.getChildren().add(student);
     return parentRepository.save(parent);
   }

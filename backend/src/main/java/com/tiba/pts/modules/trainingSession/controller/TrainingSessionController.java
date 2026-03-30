@@ -57,10 +57,19 @@ public class TrainingSessionController {
   @GetMapping("/in-progress")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<List<TrainingSessionResponse>>> getInProgressSessions() {
-
     List<TrainingSessionResponse> data = trainingSessionService.getInProgressSessions();
     ApiResponse<List<TrainingSessionResponse>> response =
         ApiResponse.success("IN_PROGRESS_SESSIONS_RETRIEVED", data);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/level/{levelId}/specialty/{specialtyId}")
+  public ResponseEntity<ApiResponse<List<TrainingSessionResponse>>> getSessionsByLevelAndSpecialty(
+      @PathVariable Long levelId, @PathVariable Long specialtyId) {
+    List<TrainingSessionResponse> data =
+        trainingSessionService.getSessionsByLevelAndSpecialty(levelId, specialtyId);
+    ApiResponse<List<TrainingSessionResponse>> response =
+        ApiResponse.success("TRAINING_SESSIONS_RETRIEVED_SUCCESSFULLY", data);
     return ResponseEntity.ok(response);
   }
 }

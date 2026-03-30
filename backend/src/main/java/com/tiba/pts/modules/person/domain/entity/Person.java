@@ -33,12 +33,8 @@ public abstract class Person extends BaseEntity {
 
   private String phoneNumber;
 
-  private LocalDate dateOfBirth;
-
   @Column(unique = true)
   private String cin;
 
   private String address;
-
-  private Boolean isLegalGuardian = false;
 }

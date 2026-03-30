@@ -50,4 +50,13 @@ public class RegistrationDocumentController {
         ApiResponse.success("REGISTRATION_DOCUMENT_UPDATED_SUCCESSFULLY", updatedData);
     return ResponseEntity.ok(response);
   }
+
+  @GetMapping("/level/{levelId}")
+  public ResponseEntity<ApiResponse<List<RegistrationDocumentResponse>>> getDocumentsByLevel(
+      @PathVariable Long levelId) {
+    List<RegistrationDocumentResponse> data = documentService.getDocumentsByLevelId(levelId);
+    ApiResponse<List<RegistrationDocumentResponse>> response =
+        ApiResponse.success("DOCUMENTS_RETRIEVED_SUCCESSFULLY", data);
+    return ResponseEntity.ok(response);
+  }
 }

@@ -21,4 +21,7 @@ public interface TrainingSessionRepository extends JpaRepository<TrainingSession
       Long academicYearId, Long levelId, Long specialtyId, Long id);
 
   List<TrainingSession> findByStatus(TrainingSessionStatus status);
+
+  List<TrainingSession> findByLevelIdAndSpecialtyIdAndRegistrationsOpenTrue(
+      Long levelId, Long specialtyId);
 }

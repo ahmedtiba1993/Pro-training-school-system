@@ -52,6 +52,15 @@ export interface TrainingSessionControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/training-sessions/level/{levelId}/specialty/{specialtyId}
+     * @param levelId 
+     * @param specialtyId 
+     */
+    getSessionsByLevelAndSpecialty(levelId: number, specialtyId: number, extraHttpRequestParams?: any): Observable<ApiResponseListTrainingSessionResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint put /api/v1/training-sessions/{id}
      * @param id 
      * @param trainingSessionRequest 

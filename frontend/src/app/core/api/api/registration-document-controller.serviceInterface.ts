@@ -42,6 +42,14 @@ export interface RegistrationDocumentControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/registration-documents/level/{levelId}
+     * @param levelId 
+     */
+    getDocumentsByLevel(levelId: number, extraHttpRequestParams?: any): Observable<ApiResponseListRegistrationDocumentResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint put /api/v1/registration-documents/{id}
      * @param id 
      * @param registrationDocumentRequest 
