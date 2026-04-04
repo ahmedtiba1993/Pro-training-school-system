@@ -11,8 +11,10 @@
     </div>
 
     <!-- Context Bar (Filters) -->
+    <!--
     <div class="px-8 py-3 bg-slate-50/50 border-t border-slate-100 flex flex-wrap gap-4 items-end">
       <!-- Academic Year -->
+    <!--
       <div class="relative">
         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider"
           >Année Scolaire</label
@@ -51,9 +53,10 @@
           {{ errorMessage() }}
         </div>
         }
-      </div>
+      </div>-->
 
-      <!-- Level -->
+    <!-- Level -->
+    <!--
       <div class="relative">
         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider"
           >Niveau</label
@@ -72,34 +75,35 @@
           <option [value]="level.id">{{ level.code }}</option>
           } }
         </select>
-      </div>
+      </div> -->
 
-      <!-- Specialty -->
-      <div class="relative">
-        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider"
-          >Spécialité</label
-        >
-        <select
-          (change)="onSpecialtyChange($event)"
-          [disabled]="isLoadingSpecialties() || !selectedLevelId() || specialtiesError() !== null"
-          [class.border-red-300]="specialtiesError()"
-          class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 text-indigo-700 min-w-[200px] cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 transition-colors"
-        >
-          @if (!selectedLevelId()) {
-          <option value="" disabled selected>Choisissez un niveau</option>
-          } @else if (isLoadingSpecialties()) {
-          <option value="">Chargement...</option>
-          } @else if (specialtiesError()) {
-          <option value="">{{ specialtiesError() }}</option>
-          } @else {
-          <option value="" disabled selected>Sélectionnez une spécialité</option>
-          @for (specialty of specialties(); track specialty.id) {
-          <option [value]="specialty.id">{{ specialty.name }}</option>
-          } }
-        </select>
-      </div>
+    <!-- Specialty -->
+    <div class="relative">
+      <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider"
+        >Spécialité</label
+      >
+      <select
+        (change)="onSpecialtyChange($event)"
+        [disabled]="isLoadingSpecialties() || !selectedLevelId() || specialtiesError() !== null"
+        [class.border-red-300]="specialtiesError()"
+        class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 text-indigo-700 min-w-[200px] cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 transition-colors"
+      >
+        @if (!selectedLevelId()) {
+        <option value="" disabled selected>Choisissez un niveau</option>
+        } @else if (isLoadingSpecialties()) {
+        <option value="">Chargement...</option>
+        } @else if (specialtiesError()) {
+        <option value="">{{ specialtiesError() }}</option>
+        } @else {
+        <option value="" disabled selected>Sélectionnez une spécialité</option>
+        @for (specialty of specialties(); track specialty.id) {
+        <option [value]="specialty.id">{{ specialty.name }}</option>
+        } }
+      </select>
+    </div>
 
-      <!-- Open Promotion Button -->
+    <!-- Open Promotion Button -->
+    <!--
       <div class="flex-1 flex justify-end">
         <button
           (click)="openModal()"
@@ -121,8 +125,8 @@
           </svg>
           Ouvrir une Promotion
         </button>
-      </div>
-    </div>
+      </div> 
+    </div>-->
   </header>
 
   <!-- Scrollable Content -->

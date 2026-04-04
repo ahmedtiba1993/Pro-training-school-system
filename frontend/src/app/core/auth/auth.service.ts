@@ -8,7 +8,7 @@ import { AuthControllerService } from '../api/api/auth-controller.service';
 import { AuthRequest, AuthResponse } from '../api/model/models';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthService {
   // Inject the Swagger-generated service
@@ -33,7 +33,7 @@ export class AuthService {
           // Save the user role
           localStorage.setItem('role', response.data.user?.role || '');
         }
-      }),
+      })
     );
   }
 
@@ -45,5 +45,32 @@ export class AuthService {
 
     // Redirect to login page
     this.router.navigate(['/auth/login']);
+  }
+
+  hasValidToken(): boolean {
+    const token = localStorage.getItem('token');
+
+    if (!token) return false;
+
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const payloadDecoded = JSON.parse(atob(payloadBase64));
+      const expirationDate = payloadDecoded.exp * 1000;
+
+      const isValid = Date.now() < expirationDate;
+
+      if (!isValid) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        this.currentUser.set(null);
+      }
+
+      return isValid;
+    } catch (e) {
+      // Token malformé
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      return false;
+    }
   }
 }

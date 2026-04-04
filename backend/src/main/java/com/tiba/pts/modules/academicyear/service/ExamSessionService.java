@@ -1,62 +1,116 @@
 package com.tiba.pts.modules.academicyear.service;
 
-import com.tiba.pts.core.dto.ErrorDetail;
-import com.tiba.pts.core.exception.DuplicateResourceException;
+import com.tiba.pts.core.exception.EntityAlreadyExistsException;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.academicyear.domain.entity.ExamSession;
-import com.tiba.pts.modules.academicyear.domain.entity.Term;
-import com.tiba.pts.modules.academicyear.dto.ExamSessionDto;
+import com.tiba.pts.modules.academicyear.domain.enums.SessionStatus;
+import com.tiba.pts.modules.academicyear.dto.request.ExamSessionRequest;
+import com.tiba.pts.modules.academicyear.dto.response.ExamSessionResponse;
 import com.tiba.pts.modules.academicyear.mapper.ExamSessionMapper;
 import com.tiba.pts.modules.academicyear.repository.ExamSessionRepository;
-import com.tiba.pts.modules.academicyear.repository.TermRepository;
+import com.tiba.pts.modules.academicyear.repository.PeriodRepository;
+// repository
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ExamSessionService {
 
-  private final ExamSessionRepository repository;
-  private final ExamSessionMapper mapper;
-  private final TermService termService;
-  private final TermRepository termRepository;
+  private final ExamSessionRepository examSessionRepository;
+  private final PeriodRepository periodRepository;
+  private final ExamSessionMapper examSessionMapper;
 
   @Transactional
-  public Long create(ExamSessionDto request) {
-    Term term = termService.getEntityById(request.getTermId());
-    checkBusinessRules(request, term, null);
-    ExamSession entity = mapper.toEntity(request);
-    entity.setTerm(term);
-    return repository.save(entity).getId();
+  public Long createExamSession(ExamSessionRequest request) {
+
+    // Verify that the parent period exists
+    if (!periodRepository.existsById(request.periodId())) {
+      throw new ResourceNotFoundException("PERIOD_NOT_FOUND");
+    }
+
+    // Check label uniqueness for THIS period
+    if (examSessionRepository.existsByLabelIgnoreCaseAndPeriodId(
+        request.label(), request.periodId())) {
+      throw new EntityAlreadyExistsException("EXAM_SESSION_LABEL_ALREADY_EXISTS_IN_THIS_PERIOD");
+    }
+
+    // Check session TYPE uniqueness (e.g., impossible to have two MAIN sessions in the same period)
+    if (examSessionRepository.existsBySessionTypeAndPeriodId(
+        request.sessionType(), request.periodId())) {
+      throw new EntityAlreadyExistsException("EXAM_SESSION_TYPE_ALREADY_EXISTS_IN_THIS_PERIOD");
+    }
+
+    // Verify that there is only one OPEN session
+    if (request.status() == SessionStatus.OPEN) {
+      if (examSessionRepository.existsByStatusAndPeriodId(SessionStatus.OPEN, request.periodId())) {
+        throw new ValidationException("AN_OPEN_SESSION_ALREADY_EXISTS_IN_THIS_PERIOD");
+      }
+    }
+
+    ExamSession sessionToSave = examSessionMapper.toEntity(request);
+    return examSessionRepository.save(sessionToSave).getId();
   }
 
-  public List<ExamSessionDto> getAllByTerm(Long termId) {
-    if (!termRepository.existsById(termId)) {
-      throw new ResourceNotFoundException("TERM_NOT_FOUND");
+  @Transactional(readOnly = true)
+  public List<ExamSessionResponse> getExamSessionsByPeriod(Long periodId) {
+
+    if (!periodRepository.existsById(periodId)) {
+      throw new ResourceNotFoundException("PERIOD_NOT_FOUND");
     }
-    List<ExamSession> sessions = repository.findByTermId(termId);
-    return sessions.stream().map(mapper::toResponse).collect(Collectors.toList());
+
+    return examSessionRepository.findByPeriodIdOrderByStartDateAsc(periodId).stream()
+        .map(examSessionMapper::toResponse)
+        .toList();
   }
 
-  private void checkBusinessRules(ExamSessionDto request, Term term, Long excludeId) {
-    List<ErrorDetail> errors = new ArrayList<>();
+  @Transactional
+  public ExamSessionResponse updateExamSession(Long id, ExamSessionRequest request) {
 
-    boolean isDuplicate =
-        (excludeId == null)
-            ? repository.existsByTermIdAndSessionType(term.getId(), request.getSessionType())
-            : repository.existsByTermIdAndSessionTypeAndIdNot(
-                term.getId(), request.getSessionType(), excludeId);
+    // Retrieve the existing session
+    ExamSession existingSession =
+        examSessionRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("EXAM_SESSION_NOT_FOUND"));
 
-    if (isDuplicate) {
-      errors.add(new ErrorDetail("sessionType", "SESSION_TYPE_ALREADY_EXISTS_FOR_THIS_TERM"));
+    // Check if the parent period has changed and verify its existence
+    if (!existingSession.getPeriod().getId().equals(request.periodId())) {
+      if (!periodRepository.existsById(request.periodId())) {
+        throw new ResourceNotFoundException("PERIOD_NOT_FOUND");
+      }
+      existingSession.setPeriod(periodRepository.getReferenceById(request.periodId()));
     }
-    if (!errors.isEmpty()) {
-      throw new DuplicateResourceException("BUSINESS_RULES_VIOLATION", errors);
+
+    // Check label uniqueness for THIS period (excluding the current ID)
+    if (examSessionRepository.existsByLabelIgnoreCaseAndPeriodIdAndIdNot(
+        request.label(), request.periodId(), id)) {
+      throw new EntityAlreadyExistsException("EXAM_SESSION_LABEL_ALREADY_EXISTS_IN_THIS_PERIOD");
     }
+
+    // Check session TYPE uniqueness (excluding the current ID)
+    if (examSessionRepository.existsBySessionTypeAndPeriodIdAndIdNot(
+        request.sessionType(), request.periodId(), id)) {
+      throw new EntityAlreadyExistsException("EXAM_SESSION_TYPE_ALREADY_EXISTS_IN_THIS_PERIOD");
+    }
+
+    // Ensure only one session is OPEN (excluding the current ID)
+    if (request.status() == SessionStatus.OPEN) {
+      if (examSessionRepository.existsByStatusAndPeriodIdAndIdNot(
+          SessionStatus.OPEN, request.periodId(), id)) {
+        throw new ValidationException("AN_OPEN_SESSION_ALREADY_EXISTS_IN_THIS_PERIOD");
+      }
+    }
+
+    // Update data via MapStruct
+    examSessionMapper.updateEntityFromRequest(request, existingSession);
+
+    // Save
+    ExamSession updatedSession = examSessionRepository.save(existingSession);
+    return examSessionMapper.toResponse(updatedSession);
   }
 }

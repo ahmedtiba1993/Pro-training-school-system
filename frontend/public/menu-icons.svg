@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <!-- Logo EduAdmin -->
+  <symbol id="menu-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 14L3 9l9-5 9 5-9 5z" />
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3 9v6l9 5 9-5V9" />
+  </symbol>
+
+  <!-- Tableau de bord -->
+  <symbol id="menu-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h8V3H3v10zm10 8h8V3h-8v18zM3 21h8v-6H3v6z" />
+  </symbol>
+
+  <!-- Années Scolaires -->
+  <symbol id="menu-academic" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+  </symbol>
+
+  <!-- Vacances -->
+  <symbol id="menu-holiday" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <circle cx="12" cy="12" r="4"></circle>
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2M12 20v2m-7.07-17.07l1.41 1.41m12.73 12.73l1.41 1.41M2 12h2m16 0h2m-12.73 5.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+  </symbol>
+
+  <!-- Promotions -->
+  <symbol id="menu-promotions" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a14.45 14.45 0 0 1 4.208-.622 14.45 14.45 0 0 0 4.208.622 14.45 14.45 0 0 1 4.208.622l2.77.693M3 15V4.5l2.77.693a14.45 14.45 0 0 0 4.208.622 14.45 14.45 0 0 1 4.208-.622 14.45 14.45 0 0 0 4.208-.622l2.77-.693V15.75l-2.77-.693a14.45 14.45 0 0 1-4.208-.622 14.45 14.45 0 0 0-4.208.622 14.45 14.45 0 0 1-4.208.622l-2.77.693Z" />
+  </symbol>
+
+  <!-- Spécialités -->
+  <symbol id="menu-specialties" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122" />
+  </symbol>
+
+  <!-- Flèche Dropdown -->
+  <symbol id="menu-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+  </symbol>
+
+  <!-- Nouvelle Inscription -->
+  <symbol id="menu-user-add" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4"></circle>
+    <line stroke-linecap="round" stroke-linejoin="round" x1="19" y1="8" x2="19" y2="14"></line>
+    <line stroke-linecap="round" stroke-linejoin="round" x1="22" y1="11" x2="16" y2="11"></line>
+  </symbol>
+
+  <!-- Liste des Inscriptions -->
+  <symbol id="menu-users" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+  </symbol>
+
+  <!-- Pièces à fournir (Dossier) -->
+  <symbol id="menu-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+    <path stroke-linecap="round" stroke-linejoin="round" d="m9 13 2 2 4-4" />
+  </symbol>
+</svg>

@@ -28,7 +28,7 @@ public interface EnrollmentMapper {
   @Mapping(target = "dateOfBirth", source = "student.dateOfBirth")
   @Mapping(target = "studentPhoneNumber", source = "student.phoneNumber")
   @Mapping(target = "promotionName", source = "trainingSession.promotionName")
-  @Mapping(target = "enrollmentDate", source = "createdAt")
+  // @Mapping(target = "enrollmentDate", source = "createdAt")
   @Mapping(target = "status", source = "status")
 
   // Concaténation "Niveau - Spécialité" (ex: "Licence - Informatique")
@@ -54,7 +54,7 @@ public interface EnrollmentMapper {
     }
 
     // On cherche le parent qui est le tuteur légal (isLegalGuardian = true)
-    for (Parent parent : parents) {
+    /* for (Parent parent : parents) {
       if (Boolean.TRUE.equals(parent.getIsLegalGuardian())) {
 
         // Si le tuteur n'a pas renseigné son téléphone, on renvoie un texte par défaut
@@ -65,7 +65,7 @@ public interface EnrollmentMapper {
         // Sinon, on renvoie son numéro !
         return parent.getPhoneNumber();
       }
-    }
+    }*/
 
     // Si la boucle se termine sans trouver de tuteur, on renvoie un texte par défaut
     return "Non renseigné";

@@ -17,11 +17,13 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { ApiResponseListExamSessionDto } from '../model/api-response-list-exam-session-dto';
+import { ApiResponseExamSessionResponse } from '../model/api-response-exam-session-response';
+// @ts-ignore
+import { ApiResponseListExamSessionResponse } from '../model/api-response-list-exam-session-response';
 // @ts-ignore
 import { ApiResponseLong } from '../model/api-response-long';
 // @ts-ignore
-import { ExamSessionDto } from '../model/exam-session-dto';
+import { ExamSessionRequest } from '../model/exam-session-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -44,17 +46,17 @@ export class ExamSessionControllerService extends BaseService implements ExamSes
 
     /**
      * @endpoint post /api/v1/exam-sessions
-     * @param examSessionDto 
+     * @param examSessionRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public createExamSession(examSessionDto: ExamSessionDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
-    public createExamSession(examSessionDto: ExamSessionDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
-    public createExamSession(examSessionDto: ExamSessionDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
-    public createExamSession(examSessionDto: ExamSessionDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (examSessionDto === null || examSessionDto === undefined) {
-            throw new Error('Required parameter examSessionDto was null or undefined when calling createExamSession.');
+    public createExamSession(examSessionRequest: ExamSessionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
+    public createExamSession(examSessionRequest: ExamSessionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
+    public createExamSession(examSessionRequest: ExamSessionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
+    public createExamSession(examSessionRequest: ExamSessionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (examSessionRequest === null || examSessionRequest === undefined) {
+            throw new Error('Required parameter examSessionRequest was null or undefined when calling createExamSession.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -99,7 +101,7 @@ export class ExamSessionControllerService extends BaseService implements ExamSes
         return this.httpClient.request<ApiResponseLong>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: examSessionDto,
+                body: examSessionRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -111,30 +113,19 @@ export class ExamSessionControllerService extends BaseService implements ExamSes
     }
 
     /**
-     * @endpoint get /api/v1/exam-sessions
-     * @param termId 
+     * @endpoint get /api/v1/exam-sessions/period/{periodId}
+     * @param periodId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAllByTerm(termId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListExamSessionDto>;
-    public getAllByTerm(termId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListExamSessionDto>>;
-    public getAllByTerm(termId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListExamSessionDto>>;
-    public getAllByTerm(termId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (termId === null || termId === undefined) {
-            throw new Error('Required parameter termId was null or undefined when calling getAllByTerm.');
+    public getExamSessionsByPeriodId(periodId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListExamSessionResponse>;
+    public getExamSessionsByPeriodId(periodId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListExamSessionResponse>>;
+    public getExamSessionsByPeriodId(periodId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListExamSessionResponse>>;
+    public getExamSessionsByPeriodId(periodId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (periodId === null || periodId === undefined) {
+            throw new Error('Required parameter periodId was null or undefined when calling getExamSessionsByPeriodId.');
         }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'termId',
-            <any>termId,
-            QueryParamStyle.Form,
-            true,
-        );
-
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -164,12 +155,83 @@ export class ExamSessionControllerService extends BaseService implements ExamSes
             }
         }
 
-        let localVarPath = `/api/v1/exam-sessions`;
+        let localVarPath = `/api/v1/exam-sessions/period/${this.configuration.encodeParam({name: "periodId", value: periodId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseListExamSessionDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseListExamSessionResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint put /api/v1/exam-sessions/{id}
+     * @param id 
+     * @param examSessionRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public updateExamSession(id: number, examSessionRequest: ExamSessionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseExamSessionResponse>;
+    public updateExamSession(id: number, examSessionRequest: ExamSessionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseExamSessionResponse>>;
+    public updateExamSession(id: number, examSessionRequest: ExamSessionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseExamSessionResponse>>;
+    public updateExamSession(id: number, examSessionRequest: ExamSessionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling updateExamSession.');
+        }
+        if (examSessionRequest === null || examSessionRequest === undefined) {
+            throw new Error('Required parameter examSessionRequest was null or undefined when calling updateExamSession.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/exam-sessions/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseExamSessionResponse>('put', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: examSessionRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

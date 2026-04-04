@@ -14,4 +14,9 @@ public class BusinessValidationException extends RuntimeException {
     super(message);
     this.errors = errors;
   }
+
+  public BusinessValidationException(String message) {
+    super(message);
+    this.errors = null;
+  }
 }

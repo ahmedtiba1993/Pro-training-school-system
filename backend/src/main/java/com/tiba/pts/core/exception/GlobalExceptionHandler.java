@@ -122,4 +122,11 @@ public class GlobalExceptionHandler {
     ApiResponse<Void> response = ApiResponse.error(ex.getMessage(), "ERR_VALIDATION");
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
+
+  @ExceptionHandler(EntityAlreadyExistsException.class)
+  public ResponseEntity<ApiResponse<Void>> handleEntityAlreadyExists(
+      EntityAlreadyExistsException ex) {
+    ApiResponse<Void> response = ApiResponse.error(ex.getMessage(), "ENTITY_ALREADY_EXISTS");
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+  }
 }

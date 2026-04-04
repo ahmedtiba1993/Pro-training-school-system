@@ -3,7 +3,6 @@ import { DatePipe } from '@angular/common';
 
 import {
   AcademicYearControllerService,
-  AcademicYearDto,
   LevelControllerService,
   LevelDto,
   SpecialtyControllerService,
@@ -33,7 +32,7 @@ export class TrainingSession implements OnInit {
   private toastService = inject(ToastService);
 
   // --- SIGNALS: Academic Year ---
-  activeYear = signal<AcademicYearDto | null>(null);
+  activeYear = signal<null | null>(null);
   isLoadingYear = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
 
@@ -92,7 +91,7 @@ export class TrainingSession implements OnInit {
   }
 
   fetchActiveAcademicYear() {
-    this.isLoadingYear.set(true);
+    /* this.isLoadingYear.set(true);
     this.errorMessage.set(null);
     this.academicYearService.getActiveAcademicYear().subscribe({
       next: response => {
@@ -108,7 +107,7 @@ export class TrainingSession implements OnInit {
         this.errorMessage.set("Aucune année scolaire active n'est configurée.");
         this.isLoadingYear.set(false);
       }
-    });
+    });*/
   }
 
   fetchLevels() {
@@ -237,7 +236,7 @@ export class TrainingSession implements OnInit {
 
   // Creation AND Editing Management
   savePromotion() {
-    if (this.promotionForm.invalid) {
+    /*if (this.promotionForm.invalid) {
       this.promotionForm.markAllAsTouched();
       return;
     }
@@ -288,7 +287,7 @@ export class TrainingSession implements OnInit {
         },
         error: err => this.handleError(err)
       });
-    }
+    }*/
   }
 
   // Utility functions for save success/error

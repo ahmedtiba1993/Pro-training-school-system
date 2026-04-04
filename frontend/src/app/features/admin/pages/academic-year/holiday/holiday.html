@@ -1,0 +1,340 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50/50">
+  <!-- Header -->
+  <header
+    class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex items-center justify-between sticky top-0 z-10"
+  >
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Calendrier des Vacances</h1>
+      <p class="text-xs text-slate-500 font-medium mt-1">Gérez les vacances scolaires annuelles</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- Liste déroulante des années -->
+      <select
+        (change)="onYearChange($event)"
+        class="bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 px-4 py-2 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
+      >
+        @for (year of academicYears(); track year.id) {
+        <option [value]="year.id" [selected]="year.id === selectedYearId()">
+          {{ year.label }} {{ year.isActive ? '(Actuelle)' : '' }}
+        </option>
+        }
+      </select>
+
+      <button
+        (click)="openModal()"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm"
+      >
+        <svg class="w-4 h-4" stroke-width="2.5"><use href="icons.svg#icon-plus"></use></svg>
+        Nouvelle Date
+      </button>
+    </div>
+  </header>
+
+  <!-- Zone défilable -->
+  <div class="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50/50">
+    @if (isLoading()) {
+    <div class="flex justify-center items-center h-32">
+      <svg class="animate-spin h-8 w-8 text-indigo-600">
+        <use href="icons.svg#icon-spinner"></use>
+      </svg>
+    </div>
+    } @else {
+
+    <!-- Statistiques Rapides Dynamiques -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+      <!-- Stat 1 : Total Jours -->
+      <div
+        class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow"
+      >
+        <div
+          class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform"
+        >
+          <svg class="w-24 h-24 text-indigo-900" stroke-width="2">
+            <use href="icons.svg#icon-sun"></use>
+          </svg>
+        </div>
+        <div class="flex items-center gap-4 relative z-10">
+          <div
+            class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0"
+          >
+            <svg class="w-6 h-6" stroke-width="2"><use href="icons.svg#icon-calendar"></use></svg>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Jours de Vacances
+            </p>
+            <p class="text-2xl font-black text-slate-800">
+              {{ totalHolidayDays() }} <span class="text-sm font-medium text-slate-500">Jours</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stat 2 : Prochain Repos -->
+      <div
+        class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl border border-indigo-700 p-5 shadow-md text-white"
+      >
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-[10px] font-bold text-indigo-200 uppercase tracking-wider mb-1">
+              Prochain repos dans
+            </p>
+            @if (daysUntilNextHoliday() !== null) {
+            <p class="text-2xl font-black">
+              @if (daysUntilNextHoliday() === 0) { Aujourd'hui ! } @else {
+              {{ daysUntilNextHoliday() }} Jours }
+            </p>
+            } @else {
+            <p class="text-xl font-bold mt-1">Aucun prévu à l'avenir</p>
+            }
+          </div>
+          <div
+            class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"
+          >
+            <svg class="w-5 h-5 text-white" stroke-width="2">
+              <use href="icons.svg#icon-clock"></use>
+            </svg>
+          </div>
+        </div>
+        @if (nextHoliday(); as next) {
+        <p class="text-sm font-medium text-indigo-100 mt-2">
+          {{ next.title }} (À partir du {{ next.startDate | date: 'dd MMM yyyy' }})
+        </p>
+        }
+      </div>
+    </div>
+
+    <!-- Grille des Vacances -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <!-- Empty State -->
+      @if (holidays().length === 0) {
+      <div
+        class="md:col-span-2 xl:col-span-3 flex flex-col items-center justify-center text-center py-16 bg-white rounded-2xl border border-slate-200 border-dashed"
+      >
+        <div
+          class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mb-4"
+        >
+          <svg class="w-8 h-8" stroke-width="2">
+            <use href="icons.svg#icon-calendar-empty"></use>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800">Calendrier vide</h3>
+        <p class="text-sm text-slate-500 mt-1 mb-6">
+          Aucune vacance n'est enregistrée pour cette année scolaire.
+        </p>
+        <button
+          (click)="openModal()"
+          class="px-5 py-2.5 bg-indigo-50 text-indigo-600 font-bold rounded-xl hover:bg-indigo-100 transition-colors"
+        >
+          Ajouter une date
+        </button>
+      </div>
+      }
+
+      <!-- Boucle sur les données réelles -->
+      @for (holiday of holidays(); track holiday.id) {
+
+      <!-- CONDITION 1 : PROCHAINE VACANCE (À VENIR) -->
+      @if (nextHoliday()?.id === holiday.id) {
+      <div
+        class="bg-white rounded-2xl border-2 border-indigo-500 shadow-md p-5 flex gap-5 relative overflow-hidden group"
+      >
+        <div
+          class="absolute top-0 right-0 bg-indigo-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-lg uppercase tracking-wider"
+        >
+          À venir
+        </div>
+
+        <div
+          class="flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-indigo-50 text-indigo-700 shrink-0 border border-indigo-100 shadow-inner group-hover:scale-105 transition-transform"
+        >
+          <span class="text-[10px] font-bold uppercase tracking-widest">{{
+            holiday.startDate | date: 'MMM'
+          }}</span>
+          <span class="text-xl font-black">{{ holiday.startDate | date: 'dd' }}</span>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="flex justify-between items-start mb-1">
+            <h3 class="font-bold text-slate-900 truncate" [title]="holiday.title">
+              {{ holiday.title }}
+            </h3>
+            <div class="flex gap-2 text-slate-300">
+              <button
+                (click)="editHoliday(holiday)"
+                class="hover:text-indigo-600 transition-colors"
+                title="Modifier"
+              >
+                <svg class="w-4 h-4" stroke-width="2"><use href="icons.svg#icon-edit"></use></svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 text-xs text-slate-600 font-medium mt-2">
+            <span class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-indigo-400" stroke-width="2">
+                <use href="icons.svg#icon-calendar-empty"></use>
+              </svg>
+              {{ holiday.startDate | date: 'dd MMM yyyy' }}
+            </span>
+            <span class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-indigo-400" stroke-width="2">
+                <use href="icons.svg#icon-clock-alt"></use>
+              </svg>
+              {{ holiday.numberOfDays }} Jours
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONDITION 2 : VACANCES CLASSIQUES / PASSÉES -->
+      } @else {
+      <div
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow p-5 flex gap-5 group"
+      >
+        <div
+          class="flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-emerald-50 text-emerald-700 shrink-0 border border-emerald-100 group-hover:bg-emerald-100 transition-colors"
+        >
+          <span class="text-[10px] font-bold uppercase tracking-widest">{{
+            holiday.startDate | date: 'MMM'
+          }}</span>
+          <span class="text-xl font-black">{{ holiday.startDate | date: 'dd' }}</span>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="flex justify-between items-start mb-1">
+            <h3 class="font-bold text-slate-800 truncate" [title]="holiday.title">
+              {{ holiday.title }}
+            </h3>
+            <div class="flex gap-2 text-slate-300">
+              <button
+                (click)="editHoliday(holiday)"
+                class="hover:text-indigo-600 transition-colors"
+                title="Modifier"
+              >
+                <svg class="w-4 h-4" stroke-width="2"><use href="icons.svg#icon-edit"></use></svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 text-xs text-slate-500 font-medium mt-2">
+            <span class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" stroke-width="2">
+                <use href="icons.svg#icon-calendar-empty"></use>
+              </svg>
+              {{ holiday.startDate | date: 'dd MMM yyyy' }}
+            </span>
+            <span class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" stroke-width="2">
+                <use href="icons.svg#icon-clock-alt"></use>
+              </svg>
+              {{ holiday.numberOfDays }} Jours
+            </span>
+          </div>
+        </div>
+      </div>
+      } }
+    </div>
+
+    }
+  </div>
+</main>
+
+<!-- MODALE : AJOUTER / MODIFIER VACANCE -->
+@if (showHolidayModal()) {
+<div
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity"
+>
+  <div
+    class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all"
+  >
+    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center shadow-inner"
+        >
+          <svg class="w-5 h-5" stroke-width="2">
+            <use href="icons.svg#icon-calendar-empty"></use>
+          </svg>
+        </div>
+        <h3 class="font-bold text-slate-800 text-lg">
+          {{ editingHolidayId() ? 'Modifier la date' : 'Ajouter une date' }}
+        </h3>
+      </div>
+      <button
+        (click)="closeModal()"
+        class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"
+      >
+        <svg class="w-5 h-5" stroke-width="2.5"><use href="icons.svg#icon-close"></use></svg>
+      </button>
+    </div>
+
+    <form [formGroup]="holidayForm" (ngSubmit)="submitHoliday()" class="p-6 space-y-6">
+      <div>
+        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-wider"
+          >Libellé <span class="text-red-500">*</span></label
+        >
+        <input
+          type="text"
+          formControlName="title"
+          placeholder="Ex: Vacances de Printemps, Fête du Travail..."
+          class="w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-xl text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all"
+          [class.border-red-500]="
+            holidayForm.get('title')?.invalid && holidayForm.get('title')?.touched
+          "
+        />
+        @if (holidayForm.get('title')?.invalid && holidayForm.get('title')?.touched) {
+        <p class="text-red-500 text-xs font-medium mt-1">Le libellé est obligatoire.</p>
+        }
+      </div>
+
+      <div class="grid grid-cols-2 gap-5">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-wider"
+            >Date de début <span class="text-red-500">*</span></label
+          >
+          <input
+            type="date"
+            formControlName="startDate"
+            class="w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-xl text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all text-slate-700"
+            [class.border-red-500]="
+              holidayForm.get('startDate')?.invalid && holidayForm.get('startDate')?.touched
+            "
+          />
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-wider"
+            >Date de fin <span class="text-red-500"></span
+          ></label>
+          <input
+            type="date"
+            formControlName="endDate"
+            class="w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-xl text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all text-slate-700"
+          />
+        </div>
+      </div>
+
+      <div class="pt-4 flex gap-3 border-t border-slate-100">
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="flex-1 py-3 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="isSaving()"
+          class="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (isSaving()) {
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white">
+            <use href="icons.svg#icon-spinner"></use>
+          </svg>
+          Enregistrement... } @else {
+          {{ editingHolidayId() ? 'Mettre à jour' : 'Enregistrer' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}

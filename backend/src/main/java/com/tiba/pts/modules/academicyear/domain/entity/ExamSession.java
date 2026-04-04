@@ -1,46 +1,52 @@
 package com.tiba.pts.modules.academicyear.domain.entity;
 
 import com.tiba.pts.core.domain.BaseEntity;
+import com.tiba.pts.modules.academicyear.domain.enums.SessionStatus;
 import com.tiba.pts.modules.academicyear.domain.enums.SessionType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDate;
+
 @Entity
-@Table(
-    name = "exam_sessions",
-    uniqueConstraints = {
-      @UniqueConstraint(
-          name = "uk_term_session_type",
-          columnNames = {"term_id", "session_type"})
-    })
+@Table(name = "exam_sessions")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ExamSession extends BaseEntity {
+public class ExamSession {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "exam_session_seq_gen")
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "exam_session_seq")
   @SequenceGenerator(
-      name = "exam_session_seq_gen",
+      name = "exam_session_seq",
       sequenceName = "exam_session_seq",
       allocationSize = 1)
   private Long id;
 
+  @Column(nullable = false)
+  private String label;
+
   @Enumerated(EnumType.STRING)
-  @Column(name = "session_type", nullable = false)
+  @Column(nullable = false)
   private SessionType sessionType;
 
-  @Column(name = "start_date", nullable = false)
+  @Column(nullable = false)
   private LocalDate startDate;
 
-  @Column(name = "end_date", nullable = false)
+  @Column(nullable = false)
   private LocalDate endDate;
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private SessionStatus status;
+
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "term_id", nullable = false)
-  private Term term;
+  @JoinColumn(name = "period_id", nullable = false)
+  private Period period;
 }

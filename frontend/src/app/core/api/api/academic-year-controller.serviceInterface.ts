@@ -11,11 +11,12 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { AcademicYearDto } from '../model/models';
-import { ApiResponseAcademicYearDto } from '../model/models';
-import { ApiResponseActiveAcademicYearDTO } from '../model/models';
+import { AcademicYearRequest } from '../model/models';
+import { ApiResponseAcademicYearResponse } from '../model/models';
+import { ApiResponseActiveAcademicYearResponse } from '../model/models';
+import { ApiResponseListAcademicYearResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
-import { ApiResponsePageResponseAcademicYearDto } from '../model/models';
+import { ApiResponsePageResponseAcademicYearResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
 
 
@@ -38,10 +39,27 @@ export interface AcademicYearControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint post /api/v1/academic-years
-     * @param academicYearDto 
+     * @endpoint patch /api/v1/academic-years/{id}/status
+     * @param id 
+     * @param newStatus 
      */
-    createAcademicYear(academicYearDto: AcademicYearDto, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+    changeAcademicYearStatus(id: number, newStatus: 'PLANNED' | 'IN_PROGRESS' | 'CLOSED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint post /api/v1/academic-years
+     * @param academicYearRequest 
+     */
+    createAcademicYear(academicYearRequest: AcademicYearRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/academic-years/{id}/deactivate
+     * @param id 
+     */
+    deactivateAcademicYear(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 
@@ -49,14 +67,14 @@ export interface AcademicYearControllerServiceInterface {
      * @endpoint get /api/v1/academic-years/{id}
      * @param id 
      */
-    getAcademicYearById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseAcademicYearDto>;
+    getAcademicYearById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseAcademicYearResponse>;
 
     /**
      * 
      * 
-     * @endpoint get /api/v1/academic-years/active
+     * @endpoint get /api/v1/academic-years/active-or-planned
      */
-    getActiveAcademicYear(extraHttpRequestParams?: any): Observable<ApiResponseAcademicYearDto>;
+    getActiveOrPlannedYears(extraHttpRequestParams?: any): Observable<ApiResponseListAcademicYearResponse>;
 
     /**
      * 
@@ -65,22 +83,29 @@ export interface AcademicYearControllerServiceInterface {
      * @param page 
      * @param size 
      */
-    getAllAcademicYears(page?: number, size?: number, extraHttpRequestParams?: any): Observable<ApiResponsePageResponseAcademicYearDto>;
+    getAllAcademicYears(page?: number, size?: number, extraHttpRequestParams?: any): Observable<ApiResponsePageResponseAcademicYearResponse>;
 
     /**
      * 
      * 
-     * @endpoint get /api/v1/academic-years/current-session
+     * @endpoint get /api/v1/academic-years/current
      */
-    getCurrentSession(extraHttpRequestParams?: any): Observable<ApiResponseActiveAcademicYearDTO>;
+    getCurrentAcademicYear(extraHttpRequestParams?: any): Observable<ApiResponseAcademicYearResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/academic-years/active-year-info
+     */
+    getCurrentActiveSession(extraHttpRequestParams?: any): Observable<ApiResponseActiveAcademicYearResponse>;
 
     /**
      * 
      * 
      * @endpoint put /api/v1/academic-years/{id}
      * @param id 
-     * @param academicYearDto 
+     * @param academicYearRequest 
      */
-    updateAcademicYear(id: number, academicYearDto: AcademicYearDto, extraHttpRequestParams?: any): Observable<ApiResponseAcademicYearDto>;
+    updateAcademicYear(id: number, academicYearRequest: AcademicYearRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
 
 }

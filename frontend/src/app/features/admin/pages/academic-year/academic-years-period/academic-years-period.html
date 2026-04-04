@@ -1,0 +1,430 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50/50">
+  <!-- Header -->
+  <header
+    class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 sticky top-0 z-10"
+  >
+    <div class="flex items-center gap-4">
+      <a
+        [routerLink]="['/admin/academic-years']"
+        class="p-2 -ml-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+      >
+        <svg class="h-5 w-5" stroke-width="2.5"><use href="icons.svg#icon-chevron-left"></use></svg>
+      </a>
+      <div>
+        <h1 class="text-xl font-bold text-slate-800">Découpage de l'Année</h1>
+        @if (academicYear(); as year) {
+        <p class="text-xs text-slate-500 mt-1 font-medium">
+          Année de formation <span class="text-indigo-600">{{ year.label }}</span>
+        </p>
+        }
+      </div>
+    </div>
+
+    <button
+      (click)="openPeriodModal()"
+      class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm"
+    >
+      <svg class="w-4 h-4 -ml-1" stroke-width="2"><use href="icons.svg#icon-plus"></use></svg>
+      Nouvelle Période
+    </button>
+  </header>
+
+  <!-- Content Area -->
+  <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+    @if (isLoading()) {
+    <div class="flex justify-center items-center h-48">
+      <svg class="animate-spin h-8 w-8 text-indigo-600">
+        <use href="icons.svg#icon-spinner"></use>
+      </svg>
+    </div>
+    } @else if (errorMessage()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-center">
+      {{ errorMessage() }}
+    </div>
+    } @else {
+
+    <div id="periodsContainer" class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <!-- Empty State -->
+      @if (periods().length === 0) {
+      <div class="xl:col-span-2 flex items-center justify-center">
+        <div
+          class="max-w-lg w-full text-center bg-white border border-slate-200 rounded-3xl shadow-sm p-10"
+        >
+          <div
+            class="mx-auto w-16 h-16 flex items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-6"
+          >
+            <svg class="w-8 h-8" stroke-width="2">
+              <use href="icons.svg#icon-calendar-empty"></use>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">Aucune période créée</h3>
+          <p class="text-sm text-slate-500 mb-8">
+            Commencez par créer votre premier semestre ou trimestre pour cette année.
+          </p>
+          <button
+            (click)="openPeriodModal()"
+            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-semibold"
+          >
+            Créer une période
+          </button>
+        </div>
+      </div>
+      }
+
+      <!-- Period Cards -->
+      @for (period of periods(); track period.id) {
+      <div
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden transition-all hover:shadow-md"
+      >
+        <!-- En-tête de la Période -->
+        <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
+              >
+                <svg class="w-5 h-5" stroke-width="2">
+                  <use href="icons.svg#icon-calendar"></use>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-lg font-bold text-slate-800">{{ period.label }}</h2>
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  {{ period.startDate | date: 'dd MMM yyyy' }} —
+                  {{ period.endDate | date: 'dd MMM yyyy' }}
+                </span>
+              </div>
+            </div>
+
+            <button
+              (click)="editPeriod(period)"
+              class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+              title="Modifier la période"
+            >
+              <svg class="w-5 h-5" stroke-width="2"><use href="icons.svg#icon-edit"></use></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Section Sessions de la Période -->
+        <div class="p-6 flex-1 space-y-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3
+              class="text-sm font-bold text-slate-700 uppercase tracking-tight flex items-center gap-2"
+            >
+              <svg class="w-6 h-6" stroke-width="2"><use href="icons.svg#icon-layers"></use></svg>
+              Sessions de la période
+            </h3>
+
+            <button
+              (click)="openSessionModal(period.id!)"
+              class="text-xs font-bold text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded-md transition-all flex items-center gap-1"
+            >
+              <svg class="w-3.5 h-3.5" stroke-width="2">
+                <use href="icons.svg#icon-plus-circle"></use>
+              </svg>
+              Ajouter Session
+            </button>
+          </div>
+
+          <!-- LISTE DES SESSIONS -->
+          @if (!period.sessions || period.sessions.length === 0) {
+          <div class="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-4 text-center">
+            <p class="text-sm text-slate-500 italic">Aucune session d'examen configurée.</p>
+          </div>
+          } @else {
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            @for (session of period.sessions; track session.id) {
+            <!-- CARTE DE SESSION -->
+            <div
+              [ngClass]="{
+                'border-indigo-100 bg-indigo-50/30 hover:bg-indigo-50 border-l-indigo-500':
+                  session.sessionType === 'MAIN',
+                'border-amber-100 bg-amber-50/30 hover:bg-amber-50 border-l-amber-500':
+                  session.sessionType === 'RETAKE'
+              }"
+              class="session-card group relative p-4 rounded-xl border transition-all border-l-4 flex justify-between items-start"
+            >
+              <div>
+                <div class="flex items-center gap-2">
+                  <p
+                    [ngClass]="{
+                      'text-indigo-700': session.sessionType === 'MAIN',
+                      'text-amber-700': session.sessionType === 'RETAKE'
+                    }"
+                    class="text-xs font-bold uppercase"
+                  >
+                    {{ session.sessionType === 'MAIN' ? 'Principale' : 'Rattrapage' }}
+                  </p>
+
+                  <span
+                    [ngClass]="{
+                      'bg-emerald-100 text-emerald-700': session.status === 'OPEN',
+                      'bg-slate-200 text-slate-600': session.status === 'CLOSED',
+                      'bg-rose-100 text-rose-700': session.status === 'LOCKED'
+                    }"
+                    class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider"
+                  >
+                    {{
+                      session.status === 'OPEN'
+                        ? 'Ouverte'
+                        : session.status === 'CLOSED'
+                        ? 'Fermée'
+                        : 'Verrouillée'
+                    }}
+                  </span>
+                </div>
+
+                <h4 class="font-bold text-slate-800 mt-1 text-sm">
+                  {{ session.label }}
+                </h4>
+
+                <p class="text-[11px] text-slate-500 mt-2 flex items-center gap-1.5 font-medium">
+                  <svg class="text-slate-400 w-3.5 h-3.5" stroke-width="2">
+                    <use href="icons.svg#icon-calendar"></use>
+                  </svg>
+                  {{ session.startDate | date: 'dd MMM yyyy' }} —
+                  {{ session.endDate | date: 'dd MMM yyyy' }}
+                </p>
+              </div>
+
+              <!-- Boutons d'actions -->
+              <div class="flex gap-2">
+                <button
+                  (click)="editSession(session, period.id!)"
+                  class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-indigo-500 transition-all p-1"
+                  title="Modifier"
+                >
+                  <svg class="w-4 h-4" stroke-width="2">
+                    <use href="icons.svg#icon-edit-alt"></use>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            }
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</main>
+
+<!-- MODALE : PÉRIODE -->
+@if (showPeriodModal()) {
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-opacity"
+>
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 sm:p-8 transform transition-all">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold text-slate-800">
+        {{ editingPeriodId() ? 'Modifier la période' : 'Nouvelle période' }}
+      </h3>
+      <button (click)="closePeriodModal()" class="text-slate-400 hover:text-slate-600">
+        <svg class="w-6 h-6" stroke-width="2"><use href="icons.svg#icon-close"></use></svg>
+      </button>
+    </div>
+
+    <form [formGroup]="periodForm" (ngSubmit)="submitPeriodForm()">
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">
+            Label <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            formControlName="label"
+            placeholder="Ex: 1er Trimestre"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
+            [class.border-red-500]="
+              periodForm.get('label')?.invalid && periodForm.get('label')?.touched
+            "
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1"
+              >Date de début <span class="text-red-500">*</span></label
+            >
+            <input
+              type="date"
+              formControlName="startDate"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
+              [class.border-red-500]="
+                periodForm.get('startDate')?.invalid && periodForm.get('startDate')?.touched
+              "
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1"
+              >Date de fin <span class="text-red-500">*</span></label
+            >
+            <input
+              type="date"
+              formControlName="endDate"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
+              [class.border-red-500]="
+                periodForm.get('endDate')?.invalid && periodForm.get('endDate')?.touched
+              "
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 flex justify-end gap-3 pt-5 border-t border-slate-100">
+        <button
+          type="button"
+          (click)="closePeriodModal()"
+          class="px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="isSaving()"
+          class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 flex items-center shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          @if (isSaving()) {
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white">
+            <use href="icons.svg#icon-spinner"></use>
+          </svg>
+          Enregistrement... } @else { Enregistrer }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}
+
+<!-- MODALE : SESSION -->
+@if (showSessionModal()) {
+<div class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm transition-opacity"></div>
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 sm:p-8 transform transition-all">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold text-slate-800">
+        {{ editingSessionId() ? 'Modifier la session' : 'Ajouter une session' }}
+      </h3>
+      <button
+        (click)="closeSessionModal()"
+        class="text-slate-400 hover:text-slate-600 transition-colors"
+      >
+        <svg class="w-6 h-6" stroke-width="2"><use href="icons.svg#icon-close"></use></svg>
+      </button>
+    </div>
+
+    <form [formGroup]="sessionForm" (ngSubmit)="submitSessionForm()">
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1"
+            >Nom de la session <span class="text-red-500">*</span></label
+          >
+          <input
+            type="text"
+            formControlName="label"
+            placeholder="Ex: Session Principale - Semestre 1"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
+            [class.border-red-500]="
+              sessionForm.get('label')?.invalid && sessionForm.get('label')?.touched
+            "
+          />
+          @if (sessionForm.get('label')?.invalid && sessionForm.get('label')?.touched) {
+          <p class="text-red-500 text-xs font-medium mt-1">Ce champ est obligatoire.</p>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1"
+              >Type <span class="text-red-500">*</span></label
+            >
+            <select
+              formControlName="sessionType"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors text-slate-700"
+            >
+              <option value="MAIN">Principale</option>
+              <option value="RETAKE">Rattrapage</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1"
+              >Statut <span class="text-red-500">*</span></label
+            >
+            <select
+              formControlName="status"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors text-slate-700"
+            >
+              <option value="OPEN">Ouverte</option>
+              <option value="CLOSED">Fermée</option>
+              <option value="LOCKED">Verrouillée</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1"
+              >Date de début <span class="text-red-500">*</span></label
+            >
+            <input
+              type="date"
+              formControlName="startDate"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
+              [class.border-red-500]="
+                sessionForm.get('startDate')?.invalid && sessionForm.get('startDate')?.touched
+              "
+            />
+            @if (sessionForm.get('startDate')?.invalid && sessionForm.get('startDate')?.touched) {
+            <p class="text-red-500 text-xs font-medium mt-1">Ce champ est obligatoire.</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1"
+              >Date de fin <span class="text-red-500">*</span></label
+            >
+            <input
+              type="date"
+              formControlName="endDate"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
+              [class.border-red-500]="
+                sessionForm.get('endDate')?.invalid && sessionForm.get('endDate')?.touched
+              "
+            />
+            @if (sessionForm.get('endDate')?.invalid && sessionForm.get('endDate')?.touched) {
+            <p class="text-red-500 text-xs font-medium mt-1">Ce champ est obligatoire.</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 flex justify-end gap-3 pt-5 border-t border-slate-100">
+        <button
+          type="button"
+          (click)="closeSessionModal()"
+          class="px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="isSaving()"
+          class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center shadow-sm"
+        >
+          @if (isSaving()) {
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white">
+            <use href="icons.svg#icon-spinner"></use>
+          </svg>
+          Enregistrement... } @else {
+          {{ editingSessionId() ? 'Modifier' : 'Créer la session' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}

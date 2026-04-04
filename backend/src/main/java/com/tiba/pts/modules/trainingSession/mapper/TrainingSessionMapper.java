@@ -14,8 +14,8 @@ public interface TrainingSessionMapper {
   @Mapping(target = "level.id", source = "levelId")
   @Mapping(target = "specialty.id", source = "specialtyId")
   @Mapping(target = "enrolledCount", ignore = true)
-  @Mapping(target = "createdAt", ignore = true)
-  @Mapping(target = "updatedAt", ignore = true)
+  // @Mapping(target = "createdAt", ignore = true)
+  // @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "id", ignore = true)
   TrainingSession toEntity(TrainingSessionRequest request);
 
@@ -31,8 +31,8 @@ public interface TrainingSessionMapper {
   @Mapping(target = "level.id", source = "levelId")
   @Mapping(target = "specialty.id", source = "specialtyId")
   @Mapping(target = "enrolledCount", ignore = true)
-  @Mapping(target = "createdAt", ignore = true)
-  @Mapping(target = "updatedAt", ignore = true)
+  // @Mapping(target = "createdAt", ignore = true)
+  // @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "id", ignore = true)
   void updateEntityFromRequest(
       TrainingSessionRequest request, @MappingTarget TrainingSession entity);

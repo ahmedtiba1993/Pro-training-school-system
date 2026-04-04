@@ -17,15 +17,17 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { AcademicYearDto } from '../model/academic-year-dto';
+import { AcademicYearRequest } from '../model/academic-year-request';
 // @ts-ignore
-import { ApiResponseAcademicYearDto } from '../model/api-response-academic-year-dto';
+import { ApiResponseAcademicYearResponse } from '../model/api-response-academic-year-response';
 // @ts-ignore
-import { ApiResponseActiveAcademicYearDTO } from '../model/api-response-active-academic-year-dto';
+import { ApiResponseActiveAcademicYearResponse } from '../model/api-response-active-academic-year-response';
+// @ts-ignore
+import { ApiResponseListAcademicYearResponse } from '../model/api-response-list-academic-year-response';
 // @ts-ignore
 import { ApiResponseLong } from '../model/api-response-long';
 // @ts-ignore
-import { ApiResponsePageResponseAcademicYearDto } from '../model/api-response-page-response-academic-year-dto';
+import { ApiResponsePageResponseAcademicYearResponse } from '../model/api-response-page-response-academic-year-response';
 // @ts-ignore
 import { ApiResponseVoid } from '../model/api-response-void';
 
@@ -107,18 +109,92 @@ export class AcademicYearControllerService extends BaseService implements Academ
     }
 
     /**
-     * @endpoint post /api/v1/academic-years
-     * @param academicYearDto 
+     * @endpoint patch /api/v1/academic-years/{id}/status
+     * @param id 
+     * @param newStatus 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public createAcademicYear(academicYearDto: AcademicYearDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
-    public createAcademicYear(academicYearDto: AcademicYearDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
-    public createAcademicYear(academicYearDto: AcademicYearDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
-    public createAcademicYear(academicYearDto: AcademicYearDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (academicYearDto === null || academicYearDto === undefined) {
-            throw new Error('Required parameter academicYearDto was null or undefined when calling createAcademicYear.');
+    public changeAcademicYearStatus(id: number, newStatus: 'PLANNED' | 'IN_PROGRESS' | 'CLOSED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseVoid>;
+    public changeAcademicYearStatus(id: number, newStatus: 'PLANNED' | 'IN_PROGRESS' | 'CLOSED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseVoid>>;
+    public changeAcademicYearStatus(id: number, newStatus: 'PLANNED' | 'IN_PROGRESS' | 'CLOSED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseVoid>>;
+    public changeAcademicYearStatus(id: number, newStatus: 'PLANNED' | 'IN_PROGRESS' | 'CLOSED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling changeAcademicYearStatus.');
+        }
+        if (newStatus === null || newStatus === undefined) {
+            throw new Error('Required parameter newStatus was null or undefined when calling changeAcademicYearStatus.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'newStatus',
+            <any>newStatus,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/academic-years/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/status`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseVoid>('patch', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint post /api/v1/academic-years
+     * @param academicYearRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public createAcademicYear(academicYearRequest: AcademicYearRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
+    public createAcademicYear(academicYearRequest: AcademicYearRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
+    public createAcademicYear(academicYearRequest: AcademicYearRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
+    public createAcademicYear(academicYearRequest: AcademicYearRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (academicYearRequest === null || academicYearRequest === undefined) {
+            throw new Error('Required parameter academicYearRequest was null or undefined when calling createAcademicYear.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -163,7 +239,65 @@ export class AcademicYearControllerService extends BaseService implements Academ
         return this.httpClient.request<ApiResponseLong>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: academicYearDto,
+                body: academicYearRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint patch /api/v1/academic-years/{id}/deactivate
+     * @param id 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public deactivateAcademicYear(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseVoid>;
+    public deactivateAcademicYear(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseVoid>>;
+    public deactivateAcademicYear(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseVoid>>;
+    public deactivateAcademicYear(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling deactivateAcademicYear.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/academic-years/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/deactivate`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseVoid>('patch', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -181,9 +315,9 @@ export class AcademicYearControllerService extends BaseService implements Academ
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAcademicYearById(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseAcademicYearDto>;
-    public getAcademicYearById(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseAcademicYearDto>>;
-    public getAcademicYearById(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseAcademicYearDto>>;
+    public getAcademicYearById(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseAcademicYearResponse>;
+    public getAcademicYearById(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseAcademicYearResponse>>;
+    public getAcademicYearById(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseAcademicYearResponse>>;
     public getAcademicYearById(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling getAcademicYearById.');
@@ -219,7 +353,7 @@ export class AcademicYearControllerService extends BaseService implements Academ
 
         let localVarPath = `/api/v1/academic-years/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseAcademicYearDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseAcademicYearResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -233,15 +367,15 @@ export class AcademicYearControllerService extends BaseService implements Academ
     }
 
     /**
-     * @endpoint get /api/v1/academic-years/active
+     * @endpoint get /api/v1/academic-years/active-or-planned
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getActiveAcademicYear(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseAcademicYearDto>;
-    public getActiveAcademicYear(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseAcademicYearDto>>;
-    public getActiveAcademicYear(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseAcademicYearDto>>;
-    public getActiveAcademicYear(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getActiveOrPlannedYears(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListAcademicYearResponse>;
+    public getActiveOrPlannedYears(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListAcademicYearResponse>>;
+    public getActiveOrPlannedYears(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListAcademicYearResponse>>;
+    public getActiveOrPlannedYears(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -271,9 +405,9 @@ export class AcademicYearControllerService extends BaseService implements Academ
             }
         }
 
-        let localVarPath = `/api/v1/academic-years/active`;
+        let localVarPath = `/api/v1/academic-years/active-or-planned`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseAcademicYearDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseListAcademicYearResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -294,9 +428,9 @@ export class AcademicYearControllerService extends BaseService implements Academ
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAllAcademicYears(page?: number, size?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponsePageResponseAcademicYearDto>;
-    public getAllAcademicYears(page?: number, size?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponsePageResponseAcademicYearDto>>;
-    public getAllAcademicYears(page?: number, size?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponsePageResponseAcademicYearDto>>;
+    public getAllAcademicYears(page?: number, size?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponsePageResponseAcademicYearResponse>;
+    public getAllAcademicYears(page?: number, size?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponsePageResponseAcademicYearResponse>>;
+    public getAllAcademicYears(page?: number, size?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponsePageResponseAcademicYearResponse>>;
     public getAllAcademicYears(page?: number, size?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -349,7 +483,7 @@ export class AcademicYearControllerService extends BaseService implements Academ
 
         let localVarPath = `/api/v1/academic-years`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponsePageResponseAcademicYearDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponsePageResponseAcademicYearResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),
@@ -364,15 +498,15 @@ export class AcademicYearControllerService extends BaseService implements Academ
     }
 
     /**
-     * @endpoint get /api/v1/academic-years/current-session
+     * @endpoint get /api/v1/academic-years/current
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getCurrentSession(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseActiveAcademicYearDTO>;
-    public getCurrentSession(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseActiveAcademicYearDTO>>;
-    public getCurrentSession(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseActiveAcademicYearDTO>>;
-    public getCurrentSession(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getCurrentAcademicYear(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseAcademicYearResponse>;
+    public getCurrentAcademicYear(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseAcademicYearResponse>>;
+    public getCurrentAcademicYear(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseAcademicYearResponse>>;
+    public getCurrentAcademicYear(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -402,9 +536,63 @@ export class AcademicYearControllerService extends BaseService implements Academ
             }
         }
 
-        let localVarPath = `/api/v1/academic-years/current-session`;
+        let localVarPath = `/api/v1/academic-years/current`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseActiveAcademicYearDTO>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseAcademicYearResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/v1/academic-years/active-year-info
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getCurrentActiveSession(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseActiveAcademicYearResponse>;
+    public getCurrentActiveSession(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseActiveAcademicYearResponse>>;
+    public getCurrentActiveSession(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseActiveAcademicYearResponse>>;
+    public getCurrentActiveSession(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/academic-years/active-year-info`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseActiveAcademicYearResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -420,20 +608,20 @@ export class AcademicYearControllerService extends BaseService implements Academ
     /**
      * @endpoint put /api/v1/academic-years/{id}
      * @param id 
-     * @param academicYearDto 
+     * @param academicYearRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateAcademicYear(id: number, academicYearDto: AcademicYearDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseAcademicYearDto>;
-    public updateAcademicYear(id: number, academicYearDto: AcademicYearDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseAcademicYearDto>>;
-    public updateAcademicYear(id: number, academicYearDto: AcademicYearDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseAcademicYearDto>>;
-    public updateAcademicYear(id: number, academicYearDto: AcademicYearDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateAcademicYear(id: number, academicYearRequest: AcademicYearRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
+    public updateAcademicYear(id: number, academicYearRequest: AcademicYearRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
+    public updateAcademicYear(id: number, academicYearRequest: AcademicYearRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
+    public updateAcademicYear(id: number, academicYearRequest: AcademicYearRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling updateAcademicYear.');
         }
-        if (academicYearDto === null || academicYearDto === undefined) {
-            throw new Error('Required parameter academicYearDto was null or undefined when calling updateAcademicYear.');
+        if (academicYearRequest === null || academicYearRequest === undefined) {
+            throw new Error('Required parameter academicYearRequest was null or undefined when calling updateAcademicYear.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -475,10 +663,10 @@ export class AcademicYearControllerService extends BaseService implements Academ
 
         let localVarPath = `/api/v1/academic-years/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseAcademicYearDto>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseLong>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: academicYearDto,
+                body: academicYearRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

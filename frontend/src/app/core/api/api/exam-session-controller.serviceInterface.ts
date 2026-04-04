@@ -11,9 +11,10 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { ApiResponseListExamSessionDto } from '../model/models';
+import { ApiResponseExamSessionResponse } from '../model/models';
+import { ApiResponseListExamSessionResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
-import { ExamSessionDto } from '../model/models';
+import { ExamSessionRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -28,16 +29,25 @@ export interface ExamSessionControllerServiceInterface {
      * 
      * 
      * @endpoint post /api/v1/exam-sessions
-     * @param examSessionDto 
+     * @param examSessionRequest 
      */
-    createExamSession(examSessionDto: ExamSessionDto, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+    createExamSession(examSessionRequest: ExamSessionRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
 
     /**
      * 
      * 
-     * @endpoint get /api/v1/exam-sessions
-     * @param termId 
+     * @endpoint get /api/v1/exam-sessions/period/{periodId}
+     * @param periodId 
      */
-    getAllByTerm(termId: number, extraHttpRequestParams?: any): Observable<ApiResponseListExamSessionDto>;
+    getExamSessionsByPeriodId(periodId: number, extraHttpRequestParams?: any): Observable<ApiResponseListExamSessionResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint put /api/v1/exam-sessions/{id}
+     * @param id 
+     * @param examSessionRequest 
+     */
+    updateExamSession(id: number, examSessionRequest: ExamSessionRequest, extraHttpRequestParams?: any): Observable<ApiResponseExamSessionResponse>;
 
 }

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,9 +10,9 @@ import { AuthRequest } from '../../../core/api/model/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrl: './login.css'
 })
-export class Login {
+export class Login implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private authService = inject(AuthService);
@@ -26,12 +26,23 @@ export class Login {
   // Form definition
   loginForm = this.fb.group({
     username: ['', [Validators.required]],
-    password: ['', [Validators.required, Validators.minLength(5)]],
+    password: ['', [Validators.required, Validators.minLength(5)]]
   });
+
+  ngOnInit(): void {
+    if (this.authService.hasValidToken()) {
+      const role = localStorage.getItem('role');
+      if (role === 'ROLE_ADMIN') {
+        this.router.navigate(['/admin/dashboard']);
+      } else {
+        this.router.navigate(['/']);
+      }
+    }
+  }
 
   // Toggle password visibility
   togglePasswordVisibility() {
-    this.showPassword.update((val) => !val);
+    this.showPassword.update(val => !val);
   }
 
   // Action triggered when the user clicks the submit button
@@ -41,11 +52,11 @@ export class Login {
 
       const request: AuthRequest = {
         username: this.loginForm.value.username!,
-        password: this.loginForm.value.password!,
+        password: this.loginForm.value.password!
       };
 
       this.authService.login(request).subscribe({
-        next: (response) => {
+        next: response => {
           console.log(response);
 
           const role = response.data?.user?.role;
@@ -56,7 +67,7 @@ export class Login {
             this.router.navigate(['/']);
           }
         },
-        error: (err) => {
+        error: err => {
           this.isLoading.set(false);
           if (err.error && err.error.errorCode === 'BAD_CREDENTIALS') {
             this.errorMessage.set('Identifiant ou mot de passe incorrect.');
@@ -65,7 +76,7 @@ export class Login {
           } else {
             this.errorMessage.set('Une erreur inattendue est survenue.');
           }
-        },
+        }
       });
     }
   }
