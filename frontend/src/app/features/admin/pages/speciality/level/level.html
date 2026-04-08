@@ -1,315 +1,243 @@
-<!-- Main Content -->
 <main class="flex-1 flex flex-col h-screen overflow-hidden">
-  <!-- Header -->
   <header
     class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shrink-0"
   >
     <div>
-      <h1 class="text-xl font-bold">Niveaux & Types de Formation</h1>
+      <h1 class="text-xl font-bold">Niveaux de Formation</h1>
       <p class="text-xs text-slate-500">
-        Configurez les types de diplômes et certifications proposés
+        Configurez les niveaux de diplômes et certifications proposés
       </p>
     </div>
+    <!-- Add Button -->
     <button
       (click)="openAddModal()"
       class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm"
     >
-      <!-- PLUS Icon -->
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="2"
-        stroke="currentColor"
-        class="w-5 h-5"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      <svg class="w-6 h-6" stroke-width="2">
+        <use href="icons.svg#icon-plus-circle"></use>
       </svg>
       Ajouter un Niveau
     </button>
   </header>
 
-  <!-- Content -->
   <div class="flex-1 overflow-y-auto p-8">
-    @if (isLoading()) {
-    <div class="text-center py-10 text-slate-500">
-      Chargement des niveaux...
-    </div>
-    } @if (!isLoading()) {
-
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <table class="w-full text-left text-sm">
         <thead
           class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
         >
           <tr>
-            <th class="px-6 py-4">Niveau / Diplôme</th>
-            <th class="px-6 py-4">Type de Certification</th>
+            <th class="px-6 py-4">Code / Niveau</th>
+            <th class="px-6 py-4">Niveau d'accès</th>
             <th class="px-6 py-4 text-right">Actions</th>
           </tr>
         </thead>
-
         <tbody class="divide-y divide-slate-100">
-          @for (level of levels(); track level.id) {
-
+          @if (isLoading()) {
+          <tr>
+            <td colspan="3" class="px-6 py-8 text-center text-slate-500">Chargement...</td>
+          </tr>
+          } @else { @for (level of levels(); track level.id) {
           <tr class="hover:bg-slate-50 transition-colors">
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
                 <div
-                  class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs"
+                  class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs uppercase"
                 >
-                  {{ getShortCode(level.code) }}
+                  {{ level.code }}
                 </div>
-
-                <span class="font-semibold text-slate-700">
-                  {{ level.label }}
-                </span>
+                <span class="font-semibold text-slate-700">{{ level.label }}</span>
               </div>
             </td>
-
             <td class="px-6 py-4">
-              @if (level.type === 'ACCREDITED') {
               <span
-                class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                class="px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-full text-[10px] font-bold uppercase tracking-wider"
               >
-                Diplôme Homologué
+                {{ getAccessLevelLabel(level.accessLevel) }}
               </span>
-              } @else {
-              <span
-                class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-100 rounded-full text-[10px] font-bold uppercase tracking-wider"
-              >
-                Formation Accélérée
-              </span>
-              }
             </td>
-
             <td class="px-6 py-4 text-right">
-              <div class="flex justify-end">
+              <div class="flex justify-end gap-2">
+                <!-- Bouton Modifier -->
                 <button
                   (click)="openEditModal(level)"
-                  class="flex items-center gap-2 px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+                  class="p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+                  title="Modifier"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="w-4 h-4"
-                  >
-                    <path d="M12 20h9"></path>
-                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                  <svg class="w-6 h-6" stroke-width="2">
+                    <use href="icons.svg#icon-edit"></use>
                   </svg>
-                  Modifier
                 </button>
               </div>
             </td>
           </tr>
-
-          }
+          } @empty {
+          <tr>
+            <td colspan="3" class="px-6 py-8 text-center text-slate-500">Aucun niveau trouvé.</td>
+          </tr>
+          } }
         </tbody>
       </table>
     </div>
-
-    }
   </div>
 </main>
 
-<!-- Add Level Modal -->
-@if (showModal()) {
+<!-- Shared Modal (Add / Edit) -->
+@if (isModalOpen()) {
 <div
-  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 flex items-center justify-center p-4 transition-all"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
 >
-  <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transition-all">
+  <form
+    [formGroup]="levelForm"
+    (ngSubmit)="onSubmit()"
+    class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all"
+  >
     <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
       <div class="flex items-center gap-3">
         <div
           class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="w-5 h-5"
-          >
-            <path d="M20 7h-9"></path>
-            <path d="M14 17H5"></path>
-            <circle cx="17" cy="17" r="3"></circle>
-            <circle cx="7" cy="7" r="3"></circle>
+          @if (editingLevelId()) {
+          <svg class="w-5 h-5" stroke-width="2">
+            <use href="icons.svg#icon-edit-alt"></use>
           </svg>
+          } @else {
+          <svg class="w-5 h-5" stroke-width="2">
+            <use href="icons.svg#icon-settings"></use>
+          </svg>
+          }
         </div>
         <h3 class="font-bold text-slate-800 text-lg">
           {{ editingLevelId() ? 'Modifier le Niveau' : 'Ajouter un Niveau' }}
         </h3>
       </div>
-      <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-        <i class="lucide-x w-6 h-6"></i>
+      <!-- Close Button -->
+      <button
+        type="button"
+        (click)="closeModal()"
+        class="text-slate-400 hover:text-slate-600 transition-colors"
+      >
+        <svg class="w-6 h-6" stroke-width="2">
+          <use href="icons.svg#icon-close"></use>
+        </svg>
       </button>
     </div>
 
-    <form [formGroup]="levelForm" class="p-6 space-y-6">
-      <div>
-        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider"
-          >Code du Niveau (BTP, BTS...)</label
-        >
-        <input
-          formControlName="code"
-          type="text"
-          placeholder="Ex: BTS, CAP, Formation..."
-          class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-          [class.border-slate-200]="
-            !(levelForm.get('code')?.invalid && levelForm.get('code')?.touched)
-          "
-          [class.border-red-500]="levelForm.get('code')?.invalid && levelForm.get('code')?.touched"
-          [class.bg-red-50]="levelForm.get('code')?.invalid && levelForm.get('code')?.touched"
-        />
-        @if (levelForm.get('code')?.invalid && levelForm.get('code')?.touched) {
-        <p class="text-red-500 text-xs font-medium mt-1.5 flex items-center">
-          <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          Le code est obligatoire.
-        </p>
-        }
-      </div>
-
-      <div>
-        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider"
-          >Nom du Niveau (Brevet Technicien Pro...)</label
-        >
-        <input
-          formControlName="label"
-          type="text"
-          placeholder="Nom du niveau"
-          class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-          [class.border-slate-200]="
-            !(levelForm.get('label')?.invalid && levelForm.get('label')?.touched)
-          "
-          [class.border-red-500]="
-            levelForm.get('label')?.invalid && levelForm.get('label')?.touched
-          "
-          [class.bg-red-50]="levelForm.get('label')?.invalid && levelForm.get('label')?.touched"
-        />
-        @if (levelForm.get('label')?.invalid && levelForm.get('label')?.touched) {
-        <p class="text-red-500 text-xs font-medium mt-1.5 flex items-center">
-          <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          Le nom du niveau est obligatoire.
-        </p>
-        }
-      </div>
-
-      <div>
-        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider"
-          >Type de Niveau</label
-        >
-        <div class="grid grid-cols-1 gap-3">
-          <label
-            class="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors group"
+    <!-- FORM CONTENT -->
+    <div class="p-6 space-y-6">
+      <!--Level Code and Name -->
+      <div class="grid grid-cols-3 gap-4">
+        <div class="col-span-1">
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider"
+            >Code *</label
           >
-            <input
-              type="radio"
-              formControlName="type"
-              class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
-              value="ACCREDITED"
-            />
-            <div>
-              <p class="text-sm font-bold text-slate-700">
-                Diplôme Homologué
-              </p>
-              <p class="text-[11px] text-slate-500">
-                Reconnu par l'État et le ministère
-              </p>
-            </div>
-          </label>
-
-          <label
-            class="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors group"
-          >
-            <input
-              type="radio"
-              formControlName="type"
-              class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
-              value="ACCELERATED"
-            />
-            <div>
-              <p class="text-sm font-bold text-slate-700">
-                Formation Accélérée
-              </p>
-              <p class="text-[11px] text-slate-500">
-                Certificat interne ou cycle de courte durée
-              </p>
-            </div>
-          </label>
+          <input
+            type="text"
+            formControlName="code"
+            placeholder="Ex: BTS"
+            class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none focus:ring-4 focus:border-indigo-500 transition-all uppercase"
+            [class.border-rose-500]="
+              levelForm.controls['code'].invalid && levelForm.controls['code'].touched
+            "
+            [class.focus:ring-rose-500]="
+              levelForm.controls['code'].invalid && levelForm.controls['code'].touched
+            "
+            [class.border-slate-200]="
+              !(levelForm.controls['code'].invalid && levelForm.controls['code'].touched)
+            "
+          />
+          @if (levelForm.controls['code'].invalid && levelForm.controls['code'].touched) {
+          <p class="text-[10px] text-rose-500 font-medium mt-1">Requis.</p>
+          }
         </div>
+        <div class="col-span-2">
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider"
+            >Nom Complet *</label
+          >
+          <input
+            type="text"
+            formControlName="label"
+            placeholder="Ex: Brevet Technicien Supérieur"
+            class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none focus:ring-4 focus:border-indigo-500 transition-all"
+            [class.border-rose-500]="
+              levelForm.controls['label'].invalid && levelForm.controls['label'].touched
+            "
+            [class.focus:ring-rose-500]="
+              levelForm.controls['label'].invalid && levelForm.controls['label'].touched
+            "
+            [class.border-slate-200]="
+              !(levelForm.controls['label'].invalid && levelForm.controls['label'].touched)
+            "
+          />
+          @if (levelForm.controls['label'].invalid && levelForm.controls['label'].touched) {
+          <p class="text-[10px] text-rose-500 font-medium mt-1">Requis.</p>
+          }
+        </div>
+      </div>
 
-        @if (levelForm.get('type')?.invalid && levelForm.get('type')?.touched) {
-        <p class="text-red-500 text-xs font-medium mt-1.5 flex items-center">
-          <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          Veuillez sélectionner un type de certification.
-        </p>
+      <!-- Required Access Level-->
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider"
+          >Niveau d'accès *</label
+        >
+        <select
+          formControlName="accessLevel"
+          class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none focus:ring-4 focus:border-indigo-500 transition-all bg-white"
+          [class.border-rose-500]="
+            levelForm.controls['accessLevel'].invalid && levelForm.controls['accessLevel'].touched
+          "
+          [class.focus:ring-rose-500]="
+            levelForm.controls['accessLevel'].invalid && levelForm.controls['accessLevel'].touched
+          "
+          [class.border-slate-200]="
+            !(
+              levelForm.controls['accessLevel'].invalid && levelForm.controls['accessLevel'].touched
+            )
+          "
+        >
+          <option value="">Sélectionnez le niveau requis...</option>
+          <option value="GRADE_9">9ème Année de Base accomplie</option>
+          <option value="SECONDARY_1">1ère Année Secondaire accomplie</option>
+          <option value="SECONDARY_2">2ème Année Secondaire accomplie</option>
+          <option value="SECONDARY_3">3ème Année Secondaire accomplie</option>
+          <option value="BACCALAUREATE">Baccalauréat accompli</option>
+          <option value="BACHELORS_DEGREE">Licence ou équivalent</option>
+          <option value="NONE">Sans condition de niveau (Accès libre)</option>
+        </select>
+        @if (levelForm.controls['accessLevel'].invalid && levelForm.controls['accessLevel'].touched)
+        {
+        <p class="text-[10px] text-rose-500 font-medium mt-1">Requis.</p>
         }
       </div>
-    </form>
+    </div>
 
     <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
       <button
+        type="button"
         (click)="closeModal()"
         class="flex-1 py-3 text-sm font-bold text-slate-500 hover:text-slate-700"
       >
         Annuler
       </button>
+
       <button
-        (click)="saveLevel()"
         type="submit"
-        [disabled]="isSaving()"
-        class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center shadow-sm"
+        [disabled]="levelForm.invalid || isSubmitting()"
+        class="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        @if (isSaving()) {
-        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          ></circle>
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
+        @if (isSubmitting()) {
+        <svg class="animate-spin h-4 w-4 text-white">
+          <use href="icons.svg#icon-spinner"></use>
         </svg>
-        Enregistrement... } @else { Enregistrer }
+        {{ editingLevelId() ? 'Modification...' : 'Enregistrement...' }}
+        } @else {
+        <svg class="w-6 h-6" stroke-width="2">
+          <use href="icons.svg#icon-save"></use>
+        </svg>
+        {{ editingLevelId() ? 'Modifier' : 'Enregistrer' }}
+        }
       </button>
     </div>
-  </div>
+  </form>
 </div>
 }

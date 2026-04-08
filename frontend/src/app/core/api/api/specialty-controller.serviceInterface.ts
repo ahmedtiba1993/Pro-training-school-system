@@ -35,17 +35,9 @@ export interface SpecialtyControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint get /api/v1/specialties
+     * @endpoint get /api/v1/specialties/all
      */
     getAllSpecialties(extraHttpRequestParams?: any): Observable<ApiResponseListSpecialtyResponse>;
-
-    /**
-     * 
-     * 
-     * @endpoint get /api/v1/specialties/by-level/{levelId}
-     * @param levelId 
-     */
-    getSpecialtiesByLevel(levelId: number, extraHttpRequestParams?: any): Observable<ApiResponseListSpecialtyResponse>;
 
     /**
      * 

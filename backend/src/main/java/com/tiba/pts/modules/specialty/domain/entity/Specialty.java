@@ -4,9 +4,6 @@ import com.tiba.pts.core.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Entity
 @Getter
 @Setter
@@ -21,16 +18,8 @@ public class Specialty extends BaseEntity {
   private Long id;
 
   @Column(nullable = false)
-  private String name;
+  private String label;
 
   @Column(nullable = false, unique = true)
   private String code;
-
-  @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(
-      name = "specialty_levels",
-      joinColumns = @JoinColumn(name = "specialty_id"),
-      inverseJoinColumns = @JoinColumn(name = "level_id"))
-  @Builder.Default
-  private Set<Level> associatedLevels = new HashSet<>();
 }

@@ -72,14 +72,13 @@
     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8"></path>
   </symbol>
 
-  <!-- Loading Spinner (Note: spinners use path filling instead of stroking usually, keep as is) -->
+  <!-- Loading Spinner -->
   <symbol id="icon-spinner" viewBox="0 0 24 24" fill="none">
     <circle opacity="0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
     <path opacity="0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
   </symbol>
-</svg>
 
-<!-- Soleil (Statistiques) -->
+  <!-- Soleil (Statistiques) -->
   <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor">
     <circle cx="12" cy="12" r="4"></circle>
     <path d="M12 2v2"></path>
@@ -102,3 +101,66 @@
   <symbol id="icon-clock-alt" viewBox="0 0 24 24" fill="none" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
   </symbol>
+
+  <!-- Settings (Depuis le code HTML) -->
+  <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7h-9" />
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 17H5" />
+    <circle cx="17" cy="17" r="3" stroke-width="2" />
+    <circle cx="7" cy="7" r="3" stroke-width="2" />
+  </symbol>
+
+  <!-- Save (Depuis le code HTML) -->
+  <symbol id="icon-save" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+    <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="17 21 17 13 7 13 7 21" />
+    <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="7 3 7 8 15 8" />
+  </symbol>
+
+  <!-- Book Open (Livre ouvert) -->
+  <symbol id="icon-book-open" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+    <path stroke-linecap="round" stroke-linejoin="round" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+  </symbol>
+
+  <!-- Award / Homologuée -->
+  <symbol id="icon-award" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <circle cx="12" cy="8" r="6"></circle>
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+  </symbol>
+
+  <!-- History / Continue -->
+  <symbol id="icon-history" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v5h5" />
+  </symbol>
+
+  <!-- Zap / Accélérée -->
+  <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <polygon stroke-linecap="round" stroke-linejoin="round" points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </symbol>
+
+  <!-- Power / Activer-Désactiver -->
+  <symbol id="icon-power" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+    <line stroke-linecap="round" stroke-linejoin="round" x1="12" y1="2" x2="12" y2="12" />
+  </symbol>
+
+  <!-- Edit File (Table Action) -->
+  <symbol id="icon-edit-file" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+    <path stroke-linecap="round" stroke-linejoin="round" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </symbol>
+
+  <!-- Edit Pencil (Modal Header) -->
+  <symbol id="icon-edit-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9" />
+    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+  </symbol>
+
+  <!-- Graduation Cap / Diplôme -->
+  <symbol id="icon-graduation-cap" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M22 10v6M2 10l10-5 10 5-10 5z" />
+    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12v5c3 3 9 3 12 0v-5" />
+  </symbol>
+</svg>

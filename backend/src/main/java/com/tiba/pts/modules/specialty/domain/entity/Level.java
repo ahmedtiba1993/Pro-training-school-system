@@ -1,9 +1,12 @@
 package com.tiba.pts.modules.specialty.domain.entity;
 
 import com.tiba.pts.core.domain.BaseEntity;
-import com.tiba.pts.modules.specialty.domain.enums.TrainingType;
+import com.tiba.pts.modules.specialty.domain.enums.AccessLevel;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,6 +28,9 @@ public class Level extends BaseEntity {
   private String label;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private TrainingType type;
+  private AccessLevel accessLevel;
+
+  @OneToMany(mappedBy = "level", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<Training> trainings = new ArrayList<>();
 }

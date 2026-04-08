@@ -11,9 +11,9 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { ApiResponseListLevelDto } from '../model/models';
+import { ApiResponseListLevelResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
-import { LevelDto } from '../model/models';
+import { LevelRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -28,24 +28,24 @@ export interface LevelControllerServiceInterface {
      * 
      * 
      * @endpoint post /api/v1/levels
-     * @param levelDto 
+     * @param levelRequest 
      */
-    createLevel(levelDto: LevelDto, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+    createLevel(levelRequest: LevelRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
 
     /**
      * 
      * 
      * @endpoint get /api/v1/levels
      */
-    getAllLevels(extraHttpRequestParams?: any): Observable<ApiResponseListLevelDto>;
+    getAllLevels(extraHttpRequestParams?: any): Observable<ApiResponseListLevelResponse>;
 
     /**
      * 
      * 
      * @endpoint put /api/v1/levels/{id}
      * @param id 
-     * @param levelDto 
+     * @param levelRequest 
      */
-    updateLevel(id: number, levelDto: LevelDto, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+    updateLevel(id: number, levelRequest: LevelRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
 
 }

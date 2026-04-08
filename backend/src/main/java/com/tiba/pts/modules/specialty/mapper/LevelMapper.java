@@ -1,7 +1,8 @@
 package com.tiba.pts.modules.specialty.mapper;
 
 import com.tiba.pts.modules.specialty.domain.entity.Level;
-import com.tiba.pts.modules.specialty.dto.LevelDto;
+import com.tiba.pts.modules.specialty.dto.request.LevelRequest;
+import com.tiba.pts.modules.specialty.dto.response.LevelResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -9,10 +10,10 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface LevelMapper {
 
-  Level toEntity(LevelDto levelDto);
+  Level toEntity(LevelRequest request);
 
-  LevelDto toReponse(Level level);
+  LevelResponse toReponse(Level level);
 
   @Mapping(target = "id", ignore = true)
-  void updateEntityFromDto(LevelDto levelDto, @MappingTarget Level level);
+  void updateEntityFromDto(LevelRequest request, @MappingTarget Level level);
 }

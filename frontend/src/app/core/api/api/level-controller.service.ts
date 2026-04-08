@@ -17,11 +17,11 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { ApiResponseListLevelDto } from '../model/api-response-list-level-dto';
+import { ApiResponseListLevelResponse } from '../model/api-response-list-level-response';
 // @ts-ignore
 import { ApiResponseLong } from '../model/api-response-long';
 // @ts-ignore
-import { LevelDto } from '../model/level-dto';
+import { LevelRequest } from '../model/level-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -44,17 +44,17 @@ export class LevelControllerService extends BaseService implements LevelControll
 
     /**
      * @endpoint post /api/v1/levels
-     * @param levelDto 
+     * @param levelRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public createLevel(levelDto: LevelDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
-    public createLevel(levelDto: LevelDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
-    public createLevel(levelDto: LevelDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
-    public createLevel(levelDto: LevelDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (levelDto === null || levelDto === undefined) {
-            throw new Error('Required parameter levelDto was null or undefined when calling createLevel.');
+    public createLevel(levelRequest: LevelRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
+    public createLevel(levelRequest: LevelRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
+    public createLevel(levelRequest: LevelRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
+    public createLevel(levelRequest: LevelRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (levelRequest === null || levelRequest === undefined) {
+            throw new Error('Required parameter levelRequest was null or undefined when calling createLevel.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -99,7 +99,7 @@ export class LevelControllerService extends BaseService implements LevelControll
         return this.httpClient.request<ApiResponseLong>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: levelDto,
+                body: levelRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -116,9 +116,9 @@ export class LevelControllerService extends BaseService implements LevelControll
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAllLevels(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListLevelDto>;
-    public getAllLevels(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListLevelDto>>;
-    public getAllLevels(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListLevelDto>>;
+    public getAllLevels(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListLevelResponse>;
+    public getAllLevels(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListLevelResponse>>;
+    public getAllLevels(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListLevelResponse>>;
     public getAllLevels(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
@@ -151,7 +151,7 @@ export class LevelControllerService extends BaseService implements LevelControll
 
         let localVarPath = `/api/v1/levels`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseListLevelDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseListLevelResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -167,20 +167,20 @@ export class LevelControllerService extends BaseService implements LevelControll
     /**
      * @endpoint put /api/v1/levels/{id}
      * @param id 
-     * @param levelDto 
+     * @param levelRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateLevel(id: number, levelDto: LevelDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
-    public updateLevel(id: number, levelDto: LevelDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
-    public updateLevel(id: number, levelDto: LevelDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
-    public updateLevel(id: number, levelDto: LevelDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateLevel(id: number, levelRequest: LevelRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
+    public updateLevel(id: number, levelRequest: LevelRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
+    public updateLevel(id: number, levelRequest: LevelRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
+    public updateLevel(id: number, levelRequest: LevelRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling updateLevel.');
         }
-        if (levelDto === null || levelDto === undefined) {
-            throw new Error('Required parameter levelDto was null or undefined when calling updateLevel.');
+        if (levelRequest === null || levelRequest === undefined) {
+            throw new Error('Required parameter levelRequest was null or undefined when calling updateLevel.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -225,7 +225,7 @@ export class LevelControllerService extends BaseService implements LevelControll
         return this.httpClient.request<ApiResponseLong>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: levelDto,
+                body: levelRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

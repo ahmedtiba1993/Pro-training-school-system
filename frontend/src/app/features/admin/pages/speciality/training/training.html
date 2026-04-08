@@ -1,0 +1,475 @@
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+  <!-- Header -->
+  <header
+    class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shrink-0"
+  >
+    <div>
+      <h1 class="text-xl font-bold">Catalogue des Formations</h1>
+      <p class="text-xs text-slate-500">
+        Combinez niveaux, spécialités et types pour créer vos cursus
+      </p>
+    </div>
+    <button
+      (click)="openAddModal()"
+      class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm"
+    >
+      <svg class="w-6 h-6" stroke-width="2">
+        <use href="icons.svg#icon-plus-circle"></use>
+      </svg>
+      Créer une Formation
+    </button>
+  </header>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto p-8">
+    <!-- STATISTICS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Card : Accredited-->
+      <div
+        class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4"
+      >
+        <div
+          class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0"
+        >
+          <svg class="w-6 h-6" stroke-width="2">
+            <use href="icons.svg#icon-award"></use>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Homologuées
+          </p>
+          <p class="text-2xl font-bold text-slate-800">{{ trainingStats().ACCREDITED }}</p>
+        </div>
+      </div>
+
+      <!-- Carte : Continuous -->
+      <div
+        class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4"
+      >
+        <div
+          class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0"
+        >
+          <svg class="w-6 h-6" stroke-width="2">
+            <use href="icons.svg#icon-history"></use>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Continues
+          </p>
+          <p class="text-2xl font-bold text-slate-800">{{ trainingStats().CONTINUOUS }}</p>
+        </div>
+      </div>
+
+      <!-- Carte : Accelerated -->
+      <div
+        class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4"
+      >
+        <div
+          class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center shrink-0"
+        >
+          <svg class="w-6 h-6" stroke-width="2">
+            <use href="icons.svg#icon-zap"></use>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Accélérées
+          </p>
+          <p class="text-2xl font-bold text-slate-800">{{ trainingStats().ACCELERATED }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Training List -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-left text-sm">
+        <thead
+          class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
+        >
+          <tr>
+            <th class="px-6 py-4">Nom de la Formation & Spécialité</th>
+            <th class="px-6 py-4">Type de Formation</th>
+            <th class="px-6 py-4">Durée</th>
+            <th class="px-6 py-4 text-center">Statut</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @if (isLoading()) {
+          <tr>
+            <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+              Chargement des formations...
+            </td>
+          </tr>
+          } @else { @for (training of trainings(); track training.id) {
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-6 py-4">
+              <p class="font-bold text-slate-800">
+                {{ training.levelCode }} {{ training.specialtyCode }}
+              </p>
+              <p class="text-xs text-slate-500 mt-0.5">
+                {{ training.levelCode }} {{ training.specialtyLabel }}
+              </p>
+            </td>
+            <td class="px-6 py-4">
+              @switch (training.trainingType) { @case ('ACCREDITED') {
+              <span
+                class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 w-max"
+                >Homologuée</span
+              >
+              } @case ('CONTINUOUS') {
+              <span
+                class="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 w-max"
+                >Continue</span
+              >
+              } @case ('ACCELERATED') {
+              <span
+                class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 w-max"
+                >Accélérée</span
+              >
+              } @default {
+              <span
+                class="px-2.5 py-1 bg-slate-50 text-slate-700 border border-slate-200 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 w-max"
+                >{{ training.trainingType }}</span
+              >
+              } }
+            </td>
+            <td class="px-6 py-4 font-medium text-slate-700">
+              {{ training.durationInMonths }} Mois
+            </td>
+            <td class="px-6 py-4 text-center">
+              @if (training.active) {
+              <span
+                class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md text-[10px] font-bold uppercase tracking-wider"
+                >Active</span
+              >
+              } @else {
+              <span
+                class="px-2 py-1 bg-slate-100 text-slate-500 rounded-md text-[10px] font-bold uppercase tracking-wider"
+                >Inactive</span
+              >
+              }
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex justify-end gap-2">
+                <button
+                  (click)="openEditModal(training)"
+                  class="p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+                  title="Modifier"
+                >
+                  <svg class="w-4 h-4" stroke-width="2">
+                    <use href="icons.svg#icon-edit-file"></use>
+                  </svg>
+                </button>
+                <button
+                  (click)="confirmToggleActivation(training)"
+                  [title]="training.active ? 'Désactiver la formation' : 'Activer la formation'"
+                  class="p-2 transition-colors"
+                  [class]="
+                    training.active
+                      ? 'text-rose-400 hover:text-rose-600'
+                      : 'text-emerald-400 hover:text-emerald-600'
+                  "
+                >
+                  <svg class="w-4 h-4" stroke-width="2">
+                    <use href="icons.svg#icon-power"></use>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+              Aucune formation trouvée. Cliquez sur "Créer une Formation" pour commencer.
+            </td>
+          </tr>
+          } }
+        </tbody>
+      </table>
+      <app-pagination
+        [currentPage]="currentPage()"
+        [total]="totalElements()"
+        [limit]="pageSize()"
+        (changePage)="onPageChange($event)"
+      ></app-pagination>
+    </div>
+  </div>
+</main>
+
+<!-- Create and Edit Training Modal -->
+@if (isModalOpen()) {
+<div
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+>
+  <form
+    [formGroup]="trainingForm"
+    (ngSubmit)="onSubmit()"
+    class="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden transform transition-all"
+  >
+    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
+        >
+          @if (editingTrainingId()) {
+          <svg class="w-5 h-5" stroke-width="2">
+            <use href="icons.svg#icon-edit-pencil"></use>
+          </svg>
+          } @else {
+          <svg class="w-5 h-5" stroke-width="2">
+            <use href="icons.svg#icon-graduation-cap"></use>
+          </svg>
+          }
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-lg">
+            {{ editingTrainingId() ? 'Modifier la Formation' : 'Créer une Formation' }}
+          </h3>
+          <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+            Combinaison Niveau + Spécialité
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="closeModal()"
+        class="text-slate-400 hover:text-slate-600 transition-colors"
+      >
+        <svg class="w-6 h-6" stroke-width="2">
+          <use href="icons.svg#icon-close"></use>
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-6">
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-wider"
+            >Niveau *</label
+          >
+          <select
+            formControlName="levelId"
+            class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none transition-all bg-white font-medium"
+            [class.border-rose-500]="
+              trainingForm.controls['levelId'].invalid && trainingForm.controls['levelId'].touched
+            "
+            [class.border-slate-200]="
+              !(
+                trainingForm.controls['levelId'].invalid && trainingForm.controls['levelId'].touched
+              )
+            "
+          >
+            <option value="" disabled selected>Choisir un niveau...</option>
+            @for (level of levels(); track level.id) {
+            <option [value]="level.id">({{ level.code }}) {{ level.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-wider"
+            >Spécialité *</label
+          >
+          <select
+            formControlName="specialtyId"
+            class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none transition-all bg-white font-medium"
+            [class.border-rose-500]="
+              trainingForm.controls['specialtyId'].invalid &&
+              trainingForm.controls['specialtyId'].touched
+            "
+            [class.border-slate-200]="
+              !(
+                trainingForm.controls['specialtyId'].invalid &&
+                trainingForm.controls['specialtyId'].touched
+              )
+            "
+          >
+            <option value="" disabled selected>Choisir une spécialité...</option>
+            @for (spec of specialties(); track spec.id) {
+            <option [value]="spec.id">{{ spec.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-wider"
+          >Type de Formation</label
+        >
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <label
+            class="flex flex-col gap-2 p-3 border rounded-xl cursor-pointer transition-colors group relative"
+            [class.border-emerald-200]="trainingForm.get('trainingType')?.value === 'ACCREDITED'"
+            [class.bg-emerald-50]="trainingForm.get('trainingType')?.value === 'ACCREDITED'"
+          >
+            <div class="flex items-center justify-between">
+              <svg class="w-5 h-5 text-emerald-600" stroke-width="2">
+                <use href="icons.svg#icon-award"></use>
+              </svg>
+              <input
+                type="radio"
+                formControlName="trainingType"
+                value="ACCREDITED"
+                class="w-4 h-4 text-emerald-600 outline-none"
+              />
+            </div>
+            <div><p class="text-xs font-bold text-emerald-900">Homologuée</p></div>
+          </label>
+          <label
+            class="flex flex-col gap-2 p-3 border rounded-xl cursor-pointer transition-colors group relative"
+            [class.border-blue-200]="trainingForm.get('trainingType')?.value === 'CONTINUOUS'"
+            [class.bg-blue-50]="trainingForm.get('trainingType')?.value === 'CONTINUOUS'"
+          >
+            <div class="flex items-center justify-between">
+              <svg class="w-5 h-5 text-blue-500" stroke-width="2">
+                <use href="icons.svg#icon-history"></use>
+              </svg>
+              <input
+                type="radio"
+                formControlName="trainingType"
+                value="CONTINUOUS"
+                class="w-4 h-4 text-blue-600 outline-none"
+              />
+            </div>
+            <div><p class="text-xs font-bold text-blue-900">Continue</p></div>
+          </label>
+          <label
+            class="flex flex-col gap-2 p-3 border rounded-xl cursor-pointer transition-colors group relative"
+            [class.border-amber-200]="trainingForm.get('trainingType')?.value === 'ACCELERATED'"
+            [class.bg-amber-50]="trainingForm.get('trainingType')?.value === 'ACCELERATED'"
+          >
+            <div class="flex items-center justify-between">
+              <svg class="w-5 h-5 text-amber-500" stroke-width="2">
+                <use href="icons.svg#icon-zap"></use>
+              </svg>
+              <input
+                type="radio"
+                formControlName="trainingType"
+                value="ACCELERATED"
+                class="w-4 h-4 text-amber-500 outline-none"
+              />
+            </div>
+            <div><p class="text-xs font-bold text-amber-900">Accélérée</p></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-wider"
+            >Durée (en mois) *</label
+          >
+          <input
+            type="number"
+            formControlName="durationInMonths"
+            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none transition-all bg-white font-medium"
+          />
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-wider"
+            >Statut d'activation</label
+          >
+          <div class="mt-2.5">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" formControlName="active" class="sr-only peer" />
+              <div
+                class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"
+              ></div>
+              <span class="ml-3 text-sm font-bold text-slate-700">Formation Active</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+      <button
+        type="button"
+        (click)="closeModal()"
+        class="flex-1 py-3 text-sm font-bold text-slate-500 hover:text-slate-700"
+      >
+        Annuler
+      </button>
+      <button
+        type="submit"
+        [disabled]="trainingForm.invalid || isSubmitting()"
+        class="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        @if (isSubmitting()) {
+        <svg class="animate-spin h-4 w-4 text-white">
+          <use href="icons.svg#icon-spinner"></use>
+        </svg>
+        {{ editingTrainingId() ? 'Enregistrement...' : 'Création...' }}
+        } @else {
+        <svg class="w-4 h-4" stroke-width="2">
+          <use href="icons.svg#icon-save"></use>
+        </svg>
+        {{ editingTrainingId() ? 'Enregistrer les modifications' : 'Créer la Formation' }}
+        }
+      </button>
+    </div>
+  </form>
+</div>
+}
+
+<!-- Status Change Confirmation Popup -->
+@if (trainingToToggle() !== null) {
+<div
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+>
+  <div
+    class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform transition-all text-center p-6"
+  >
+    <div
+      class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4"
+      [class]="
+        trainingToToggle()?.active ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'
+      "
+    >
+      <svg class="w-8 h-8" stroke-width="2">
+        <use href="icons.svg#icon-power"></use>
+      </svg>
+    </div>
+    <h3 class="font-bold text-slate-800 text-xl mb-2">
+      {{ trainingToToggle()?.active ? 'Désactiver la formation ?' : 'Activer la formation ?' }}
+    </h3>
+    <p class="text-sm text-slate-500 mb-6">
+      Êtes-vous sûr de vouloir
+      <strong>{{ trainingToToggle()?.active ? 'désactiver' : 'activer' }}</strong> la formation
+      <br />
+      <span class="font-bold text-slate-700"
+        >{{ trainingToToggle()?.levelCode }} {{ trainingToToggle()?.specialtyCode }}</span
+      >
+      ?
+    </p>
+    <div class="flex gap-3">
+      <button
+        (click)="cancelToggle()"
+        class="flex-1 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+      >
+        Annuler
+      </button>
+      <button
+        (click)="executeToggleActivation()"
+        [disabled]="isSubmitting()"
+        class="flex-1 py-2.5 text-sm font-bold text-white rounded-xl shadow-lg transition-all flex justify-center items-center gap-2"
+        [class]="
+          trainingToToggle()?.active
+            ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-200'
+            : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200'
+        "
+      >
+        @if (isSubmitting()) {
+        <svg class="animate-spin h-4 w-4 text-white">
+          <use href="icons.svg#icon-spinner"></use>
+        </svg>
+        } @else { Confirmer }
+      </button>
+    </div>
+  </div>
+</div>
+}

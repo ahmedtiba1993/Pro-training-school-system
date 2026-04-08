@@ -7,13 +7,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LevelDto } from './level-dto';
 
 
 export interface SpecialtyResponse { 
     id?: number;
-    name?: string;
+    label?: string;
     code?: string;
-    associatedLevels?: Set<LevelDto>;
 }
 

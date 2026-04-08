@@ -1,7 +1,8 @@
 package com.tiba.pts.modules.specialty.controller;
 
 import com.tiba.pts.core.dto.ApiResponse;
-import com.tiba.pts.modules.specialty.dto.LevelDto;
+import com.tiba.pts.modules.specialty.dto.request.LevelRequest;
+import com.tiba.pts.modules.specialty.dto.response.LevelResponse;
 import com.tiba.pts.modules.specialty.service.LevelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class LevelController {
 
   @PostMapping
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<Long>> createLevel(@Valid @RequestBody LevelDto request) {
+  public ResponseEntity<ApiResponse<Long>> createLevel(@Valid @RequestBody LevelRequest request) {
     ApiResponse<Long> response =
         ApiResponse.success("LEVEL_CREATED_SUCCESSFULLY", levelService.create(request));
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -31,16 +32,16 @@ public class LevelController {
 
   @GetMapping
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<List<LevelDto>>> getAllLevels() {
-    List<LevelDto> data = levelService.getAll();
-    ApiResponse<List<LevelDto>> response = ApiResponse.success("LEVEL_LIST_RETRIEVED", data);
+  public ResponseEntity<ApiResponse<List<LevelResponse>>> getAllLevels() {
+    List<LevelResponse> data = levelService.getAll();
+    ApiResponse<List<LevelResponse>> response = ApiResponse.success("LEVEL_LIST_RETRIEVED", data);
     return ResponseEntity.ok(response);
   }
 
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<Long>> updateLevel(
-      @PathVariable Long id, @Valid @RequestBody LevelDto request) {
+      @PathVariable Long id, @Valid @RequestBody LevelRequest request) {
     Long updatedId = levelService.update(id, request);
     ApiResponse<Long> response = ApiResponse.success("LEVEL_UPDATED_SUCCESSFULLY", updatedId);
     return ResponseEntity.ok(response);

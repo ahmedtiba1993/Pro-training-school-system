@@ -1,14 +1,13 @@
 package com.tiba.pts.modules.specialty.controller;
 
 import com.tiba.pts.core.dto.ApiResponse;
-import com.tiba.pts.modules.specialty.dto.SpecialtyRequest;
-import com.tiba.pts.modules.specialty.dto.SpecialtyResponse;
+import com.tiba.pts.modules.specialty.dto.request.SpecialtyRequest;
+import com.tiba.pts.modules.specialty.dto.response.SpecialtyResponse;
 import com.tiba.pts.modules.specialty.service.SpecialtyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,14 +27,6 @@ public class SpecialtyController {
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  @GetMapping
-  public ResponseEntity<ApiResponse<List<SpecialtyResponse>>> getAllSpecialties() {
-    List<SpecialtyResponse> specialties = specialtyService.getAllSpecialties();
-    ApiResponse<List<SpecialtyResponse>> response =
-        ApiResponse.success("CREATED_SUCCESSFULLY", specialties);
-    return ResponseEntity.ok(response);
-  }
-
   @PutMapping("/{id}")
   public ResponseEntity<ApiResponse<Long>> updateSpecialty(
       @PathVariable Long id, @Valid @RequestBody SpecialtyRequest request) {
@@ -44,13 +35,11 @@ public class SpecialtyController {
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/by-level/{levelId}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<List<SpecialtyResponse>>> getSpecialtiesByLevel(
-      @PathVariable Long levelId) {
-    List<SpecialtyResponse> data = specialtyService.getSpecialtiesByLevelId(levelId);
+  @GetMapping("/all")
+  public ResponseEntity<ApiResponse<List<SpecialtyResponse>>> getAllSpecialties() {
+    List<SpecialtyResponse> data = specialtyService.getAll();
     ApiResponse<List<SpecialtyResponse>> response =
-        ApiResponse.success("SPECIALTIES_RETRIEVED_SUCCESSFULLY", data);
+        ApiResponse.success("ALL_SPECIALTIES_RETRIEVED_SUCCESSFULLY", data);
     return ResponseEntity.ok(response);
   }
 }

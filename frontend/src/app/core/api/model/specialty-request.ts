@@ -10,8 +10,7 @@
 
 
 export interface SpecialtyRequest { 
-    name: string;
+    label: string;
     code: string;
-    levelIds: Set<number>;
 }
 
