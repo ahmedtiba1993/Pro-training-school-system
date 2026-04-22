@@ -2,6 +2,7 @@ package com.tiba.pts.modules.specialty.controller;
 
 import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.core.dto.PageResponse;
+import com.tiba.pts.modules.specialty.domain.enums.TrainingType;
 import com.tiba.pts.modules.specialty.dto.request.TrainingRequest;
 import com.tiba.pts.modules.specialty.dto.response.TrainingResponse;
 import com.tiba.pts.modules.specialty.dto.response.TrainingTypeCountResponse;
@@ -48,8 +49,9 @@ public class TrainingController {
 
   @GetMapping("/active")
   @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<ApiResponse<List<TrainingResponse>>> getAllActiveTrainings() {
-    List<TrainingResponse> activeTrainings = trainingService.getAllActive();
+  public ResponseEntity<ApiResponse<List<TrainingResponse>>> getAllActiveTrainings(
+      @RequestParam(required = false) TrainingType type) {
+    List<TrainingResponse> activeTrainings = trainingService.getAllActive(type);
     ApiResponse<List<TrainingResponse>> response =
         ApiResponse.success("ACTIVE_TRAINING_LIST_RETRIEVED", activeTrainings);
     return ResponseEntity.ok(response);
@@ -77,12 +79,9 @@ public class TrainingController {
   @GetMapping("/stats/active-by-type")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<List<TrainingTypeCountResponse>>> getActiveTrainingStats() {
-
     List<TrainingTypeCountResponse> stats = trainingService.getActiveTrainingStats();
-
     ApiResponse<List<TrainingTypeCountResponse>> response =
         ApiResponse.success("TRAINING_STATS_RETRIEVED", stats);
-
     return ResponseEntity.ok(response);
   }
 }

@@ -16,4 +16,5 @@ export class Sidebar {
 
   isAnneeScolaireOpen: boolean = false;
   isSpecialtiesMenuOpen = false;
+  isPromotionsMenuOpen: boolean = false;
 }

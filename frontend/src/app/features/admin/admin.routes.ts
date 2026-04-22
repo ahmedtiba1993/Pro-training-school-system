@@ -11,6 +11,9 @@ import { EnrollmentCreate } from './pages/enrollment/enrollment-create/enrollmen
 import { AcademicYearsPeriod } from './pages/academic-year/academic-years-period/academic-years-period';
 import { Holiday } from './pages/academic-year/holiday/holiday';
 import { Training } from './pages/speciality/training/training';
+import { Accelerated } from './pages/training-session/accelerated/accelerated';
+import { Continuous } from './pages/training-session/continuous/continuous';
+import { Accredited } from './pages/training-session/accredited/accredited';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -27,7 +30,10 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'enrollments', component: EnrollmentList },
       { path: 'enrollments/new', component: EnrollmentCreate },
       { path: 'holidays', component: Holiday },
-      { path: 'training', component: Training }
+      { path: 'training', component: Training },
+      { path: 'promotions/accelerated', component: Accelerated },
+      { path: 'promotions/continuous', component: Continuous },
+      { path: 'promotions/accredited', component: Accredited }
     ]
   }
 ];

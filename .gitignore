@@ -32,3 +32,4 @@ backend/HELP.md
 bin/
 frontend/src/app/core/api/.openapi-generator/FILES
 frontend/src/app/core/api/.openapi-generator/FILES
+frontend/src/app/core/api/.openapi-generator/FILES

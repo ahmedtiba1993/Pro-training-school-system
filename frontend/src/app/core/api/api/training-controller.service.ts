@@ -230,14 +230,26 @@ export class TrainingControllerService extends BaseService implements TrainingCo
 
     /**
      * @endpoint get /api/v1/trainings/active
+     * @param type 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAllActiveTrainings(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListTrainingResponse>;
-    public getAllActiveTrainings(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListTrainingResponse>>;
-    public getAllActiveTrainings(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListTrainingResponse>>;
-    public getAllActiveTrainings(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getAllActiveTrainings(type?: 'CONTINUOUS' | 'ACCELERATED' | 'ACCREDITED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListTrainingResponse>;
+    public getAllActiveTrainings(type?: 'CONTINUOUS' | 'ACCELERATED' | 'ACCREDITED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListTrainingResponse>>;
+    public getAllActiveTrainings(type?: 'CONTINUOUS' | 'ACCELERATED' | 'ACCREDITED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListTrainingResponse>>;
+    public getAllActiveTrainings(type?: 'CONTINUOUS' | 'ACCELERATED' | 'ACCREDITED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'type',
+            <any>type,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -272,6 +284,7 @@ export class TrainingControllerService extends BaseService implements TrainingCo
         return this.httpClient.request<ApiResponseListTrainingResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

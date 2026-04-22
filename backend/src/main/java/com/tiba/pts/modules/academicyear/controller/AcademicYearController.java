@@ -93,7 +93,7 @@ public class AcademicYearController {
   @PatchMapping("/{id}/status")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<Void>> changeAcademicYearStatus(
-      @PathVariable Long id, @RequestParam YearStatus newStatus) { // <-- Différence ici
+      @PathVariable Long id, @RequestParam YearStatus newStatus) {
     academicYearService.changeStatus(id, newStatus);
     return ResponseEntity.ok(ApiResponse.success("ACADEMIC_YEAR_STATUS_CHANGED", null));
   }

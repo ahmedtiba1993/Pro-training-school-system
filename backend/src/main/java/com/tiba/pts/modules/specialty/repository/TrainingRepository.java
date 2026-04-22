@@ -15,6 +15,8 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
 
   List<Training> findByIsActiveTrue();
 
+  List<Training> findByIsActiveTrueAndTrainingType(TrainingType type);
+
   // METHOD FOR UPDATE
   boolean existsByLevelIdAndSpecialtyIdAndIdNot(Long levelId, Long specialtyId, Long id);
 

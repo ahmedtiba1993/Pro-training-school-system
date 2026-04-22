@@ -75,10 +75,12 @@ public class TrainingService {
     return PageResponse.of(pageResult, trainingMapper::toResponse);
   }
 
-  public List<TrainingResponse> getAllActive() {
-    return trainingRepository.findByIsActiveTrue().stream()
-        .map(trainingMapper::toResponse)
-        .toList();
+  public List<TrainingResponse> getAllActive(TrainingType type) {
+    List<Training> trainings =
+        (type == null)
+            ? trainingRepository.findByIsActiveTrue()
+            : trainingRepository.findByIsActiveTrueAndTrainingType(type);
+    return trainings.stream().map(trainingMapper::toResponse).toList();
   }
 
   @Transactional
