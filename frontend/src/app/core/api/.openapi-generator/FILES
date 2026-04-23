@@ -13,6 +13,8 @@ api/auth-controller.service.ts
 api/auth-controller.serviceInterface.ts
 api/continuous-promotion-controller.service.ts
 api/continuous-promotion-controller.serviceInterface.ts
+api/enrollment-document-controller.service.ts
+api/enrollment-document-controller.serviceInterface.ts
 api/exam-session-controller.service.ts
 api/exam-session-controller.serviceInterface.ts
 api/holiday-controller.service.ts
@@ -50,6 +52,7 @@ model/api-response-list-academic-year-response.ts
 model/api-response-list-accelerated-promotion-response.ts
 model/api-response-list-accredited-promotion-response.ts
 model/api-response-list-continuous-promotion-response.ts
+model/api-response-list-enrollment-document-response.ts
 model/api-response-list-exam-session-response.ts
 model/api-response-list-holiday-response.ts
 model/api-response-list-level-response.ts
@@ -70,6 +73,8 @@ model/auth-request.ts
 model/auth-response.ts
 model/continuous-promotion-request.ts
 model/continuous-promotion-response.ts
+model/enrollment-document-request.ts
+model/enrollment-document-response.ts
 model/error-detail.ts
 model/exam-session-request.ts
 model/exam-session-response.ts
@@ -77,6 +82,7 @@ model/holiday-request.ts
 model/holiday-response.ts
 model/level-request.ts
 model/level-response.ts
+model/level-summary-response.ts
 model/models.ts
 model/page-response-academic-year-response.ts
 model/page-response-accelerated-promotion-response.ts

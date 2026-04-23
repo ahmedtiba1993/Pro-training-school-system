@@ -1,0 +1,188 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+  <header
+    class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shrink-0"
+  >
+    <div>
+      <h1 class="text-xl font-bold">Configuration du Dossier d'Inscription</h1>
+      <p class="text-xs text-slate-500">
+        Gérez la liste des documents requis pour l'inscription des élèves
+      </p>
+    </div>
+    <button
+      (click)="openModal()"
+      class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm"
+    >
+      <svg class="w-4 h-4" stroke-width="2">
+        <use href="icons.svg#icon-plus"></use>
+      </svg>
+      Ajouter un Document
+    </button>
+  </header>
+
+  <div class="flex-1 overflow-y-auto p-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div
+        class="bg-white rounded-xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm"
+      >
+        <div
+          class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center shrink-0"
+        >
+          <svg class="w-6 h-6" stroke-width="2">
+            <use href="icons.svg#icon-layers"></use>
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pièces</p>
+          <p class="text-xl font-bold text-slate-800">{{ totalDocuments() }} Documents</p>
+        </div>
+      </div>
+      <div
+        class="bg-white rounded-xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm"
+      >
+        <div
+          class="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center shrink-0"
+        >
+          <svg class="w-6 h-6" stroke-width="2">
+            <use href="icons.svg#icon-award"></use>
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Obligatoires</p>
+          <p class="text-xl font-bold text-slate-800">{{ mandatoryDocuments() }} Documents</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-left text-sm">
+        <thead
+          class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
+        >
+          <tr>
+            <th class="px-6 py-4">Nom du Document</th>
+            <th class="px-6 py-4 text-center">Quantité</th>
+            <th class="px-6 py-4">Nature</th>
+            <th class="px-6 py-4">Statut</th>
+            <th class="px-6 py-4">Conditions</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @if (isLoading()) {
+          <tr>
+            <td colspan="6" class="px-6 py-10 text-center">
+              <svg class="animate-spin h-8 w-8 text-indigo-600 mx-auto">
+                <use href="icons.svg#icon-spinner"></use>
+              </svg>
+            </td>
+          </tr>
+          } @else { @for (doc of documents(); track doc.id) {
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-6 py-4 font-semibold text-slate-800">{{ doc.name }}</td>
+            <td class="px-6 py-4 text-center font-bold text-slate-700">{{ doc.quantity }}</td>
+            <td class="px-6 py-4 text-slate-500">{{ natureLabels[doc.nature!] || doc.nature }}</td>
+            <td class="px-6 py-4">
+              <span
+                [class]="
+                  doc.mandatory
+                    ? 'bg-rose-50 text-rose-700 border-rose-100'
+                    : 'bg-slate-100 text-slate-600 border-slate-200'
+                "
+                class="px-2.5 py-1 border rounded-full text-[10px] font-bold uppercase"
+              >
+                {{ doc.mandatory ? 'Obligatoire' : 'Facultatif' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-xs text-slate-500">
+              <span class="font-medium text-slate-700">{{
+                conditionLabels[doc.condition!] || doc.condition
+              }}</span>
+              <div class="mt-1 flex gap-1 flex-wrap">
+                @for (lvl of doc.levels; track lvl.id) {
+                <span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[10px]">{{
+                  lvl.code
+                }}</span>
+                }
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <button
+                (click)="openModal(doc)"
+                class="p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+              >
+                <svg class="w-4 h-4" stroke-width="2">
+                  <use href="icons.svg#icon-edit-file"></use>
+                </svg>
+              </button>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="6" class="px-6 py-10 text-center text-slate-400">
+              Aucun document configuré.
+            </td>
+          </tr>
+          } }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+@if (isModalOpen()) {
+<div
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+>
+  <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
+        >
+          <svg class="w-5 h-5" stroke-width="2">
+            <use
+              [attr.href]="isEditMode() ? 'icons.svg#icon-edit-pencil' : 'icons.svg#icon-plus'"
+            ></use>
+          </svg>
+        </div>
+        <h3 class="font-bold text-slate-800 text-lg">
+          {{ isEditMode() ? 'Modifier le Document' : 'Nouveau Document' }}
+        </h3>
+      </div>
+      <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600">
+        <svg class="w-6 h-6" stroke-width="2">
+          <use href="icons.svg#icon-close"></use>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="documentForm" (ngSubmit)="onSubmit()">
+      <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="flex-1 py-3 text-sm font-bold text-slate-500"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="documentForm.invalid || isSubmitting()"
+          class="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2"
+        >
+          @if (isSubmitting()) {
+          <svg class="animate-spin h-4 w-4 text-white">
+            <use href="icons.svg#icon-spinner"></use>
+          </svg>
+          Traitement... } @else {
+          <svg class="w-4 h-4" stroke-width="2">
+            <use [attr.href]="isEditMode() ? 'icons.svg#icon-save' : 'icons.svg#icon-plus'"></use>
+          </svg>
+          {{ isEditMode() ? 'Mettre à jour' : 'Enregistrer' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}

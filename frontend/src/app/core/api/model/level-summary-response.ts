@@ -9,7 +9,7 @@
  */
 
 
-export interface SpecialtyResponse { 
+export interface LevelSummaryResponse { 
     id?: number;
     code?: string;
     label?: string;
