@@ -3,13 +3,13 @@ package com.tiba.pts.modules.specialty.domain.entity;
 import com.tiba.pts.core.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@SuperBuilder
 public class Specialty extends BaseEntity {
 
   @Id

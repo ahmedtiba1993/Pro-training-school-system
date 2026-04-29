@@ -4,13 +4,13 @@ import com.tiba.pts.core.domain.BaseEntity;
 import com.tiba.pts.modules.specialty.domain.enums.TrainingType;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(
     name = "training",
     uniqueConstraints = {

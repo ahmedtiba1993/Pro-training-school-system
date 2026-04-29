@@ -4,6 +4,7 @@ import com.tiba.pts.core.domain.BaseEntity;
 import com.tiba.pts.modules.specialty.domain.enums.AccessLevel;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@SuperBuilder
 public class Level extends BaseEntity {
 
   @Id
