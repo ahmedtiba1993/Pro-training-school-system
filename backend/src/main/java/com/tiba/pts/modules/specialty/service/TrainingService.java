@@ -158,4 +158,17 @@ public class TrainingService {
 
     return finalResult;
   }
+
+  public List<TrainingResponse> getActiveTrainingsByLevelId(Long levelId) {
+    // Check if the level exists
+    if (!levelRepository.existsById(levelId)) {
+      throw new ResourceNotFoundException("LEVEL_NOT_FOUND");
+    }
+
+    // Retrieve active entities only
+    List<Training> activeTrainings = trainingRepository.findByLevelIdAndIsActiveTrue(levelId);
+
+    // Mapping via TrainingMapper (MapStruct)
+    return activeTrainings.stream().map(trainingMapper::toResponse).toList();
+  }
 }

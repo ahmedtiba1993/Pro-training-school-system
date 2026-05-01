@@ -42,6 +42,14 @@ export interface EnrollmentDocumentControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/enrollment-documents/level/{levelId}
+     * @param levelId 
+     */
+    getDocumentsByLevel(levelId: number, extraHttpRequestParams?: any): Observable<ApiResponseListEnrollmentDocumentResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint put /api/v1/enrollment-documents/{id}
      * @param id 
      * @param enrollmentDocumentRequest 

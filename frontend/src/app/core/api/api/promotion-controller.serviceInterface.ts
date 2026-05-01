@@ -11,6 +11,7 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ApiResponseListPromotionLookupResponse } from '../model/models';
 import { ApiResponsePromotionStatisticsResponse } from '../model/models';
 
 
@@ -21,6 +22,14 @@ import { Configuration }                                     from '../configurat
 export interface PromotionControllerServiceInterface {
     defaultHeaders: HttpHeaders;
     configuration: Configuration;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/promotions/training/{trainingId}/open-enrollment/lookup
+     * @param trainingId 
+     */
+    getOpenPromotionsLookup(trainingId: number, extraHttpRequestParams?: any): Observable<ApiResponseListPromotionLookupResponse>;
 
     /**
      * 

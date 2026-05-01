@@ -41,7 +41,7 @@ public class EnrollmentDocumentService {
 
       // Optional safety check: verify that all requested levels were found
       if (levels.size() != request.getLevelIds().size()) {
-        throw new ResourceNotFoundException("Un ou plusieurs niveaux fournis sont introuvables.");
+        throw new ResourceNotFoundException("One or more provided levels were not found.");
       }
 
       document.setLevels(new HashSet<>(levels));
@@ -100,5 +100,19 @@ public class EnrollmentDocumentService {
         .findById(documentId)
         .orElseThrow(
             () -> new ResourceNotFoundException("DOCUMENT_NOT_FOUND_IN_CATALOG: " + documentId));
+  }
+
+  @Transactional(readOnly = true)
+  public List<EnrollmentDocumentResponse> getDocumentsByLevelId(Long levelId) {
+    // Check if the level exists
+    if (!levelRepository.existsById(levelId)) {
+      throw new ResourceNotFoundException("LEVEL_NOT_FOUND");
+    }
+
+    // Retrieve documents linked to this level
+    List<EnrollmentDocument> documents = documentRepository.findByLevelsId(levelId);
+
+    // Mapping Entity -> DTO via MapStruct and return the list of responses
+    return documents.stream().map(mapper::toResponse).collect(Collectors.toList());
   }
 }

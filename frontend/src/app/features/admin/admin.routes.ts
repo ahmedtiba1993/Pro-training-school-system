@@ -14,6 +14,7 @@ import { Accelerated } from './pages/training-session/accelerated/accelerated';
 import { Continuous } from './pages/training-session/continuous/continuous';
 import { Accredited } from './pages/training-session/accredited/accredited';
 import { EnrollmentDocumentComponent } from './pages/enrollment-document/enrollment-document';
+import { EnrollmentDetail } from './pages/enrollment/enrollment-detail/enrollment-detail';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -29,6 +30,7 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'promotions', component: TrainingSession },
       { path: 'enrollments', component: EnrollmentList },
       { path: 'enrollments/new', component: EnrollmentCreate },
+      { path: 'enrollments/details/:id', component: EnrollmentDetail },
       { path: 'holidays', component: Holiday },
       { path: 'training', component: Training },
       { path: 'promotions/accelerated', component: Accelerated },

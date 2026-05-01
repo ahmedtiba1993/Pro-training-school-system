@@ -84,4 +84,17 @@ public class TrainingController {
         ApiResponse.success("TRAINING_STATS_RETRIEVED", stats);
     return ResponseEntity.ok(response);
   }
+
+  @GetMapping("/level/{levelId}/active")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<ApiResponse<List<TrainingResponse>>> getActiveTrainingsByLevel(
+      @PathVariable Long levelId) {
+
+    List<TrainingResponse> trainings = trainingService.getActiveTrainingsByLevelId(levelId);
+
+    ApiResponse<List<TrainingResponse>> response =
+        ApiResponse.success("ACTIVE_TRAININGS_BY_LEVEL_RETRIEVED", trainings);
+
+    return ResponseEntity.ok(response);
+  }
 }

@@ -5,11 +5,13 @@ import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.documents.domain.entity.EnrollmentDocument;
 import com.tiba.pts.modules.documents.repository.EnrollmentDocumentRepository;
 import com.tiba.pts.modules.enrollment.domain.entity.Enrollment;
+import com.tiba.pts.modules.enrollment.domain.entity.EnrollmentDocumentSubmission;
 import com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus;
 import com.tiba.pts.modules.enrollment.dto.request.EnrollmentRequest;
 import com.tiba.pts.modules.enrollment.dto.response.EnrollmentListResponse;
 import com.tiba.pts.modules.enrollment.dto.response.EnrollmentResponse;
 import com.tiba.pts.modules.enrollment.mapper.EnrollmentMapper;
+import com.tiba.pts.modules.enrollment.repository.EnrollmentDocumentSubmissionRepository;
 import com.tiba.pts.modules.enrollment.repository.EnrollmentRepository;
 import com.tiba.pts.modules.profiles.domain.entity.Student;
 import com.tiba.pts.modules.profiles.dto.request.StudentRequest;
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +42,7 @@ public class EnrollmentService {
   private final EnrollmentDocumentRepository documentRepository;
   private final StudentRepository studentRepository;
   private final StudentService studentService;
+  private final EnrollmentDocumentSubmissionRepository submissionRepository;
 
   @Transactional
   public EnrollmentResponse create(EnrollmentRequest request) {
@@ -61,7 +65,7 @@ public class EnrollmentService {
     enrollment.setEnrollmentNumber(generateEnrollmentNumber());
     enrollment.setStatus(EnrollmentStatus.PRE_ENROLLED);
 
-// Document synchronization
+    // Document synchronization
     if (enrollment.getEnrollmentDocumentSubmissions() != null) {
       enrollment
           .getEnrollmentDocumentSubmissions()
@@ -122,8 +126,31 @@ public class EnrollmentService {
 
   @Transactional(readOnly = true)
   public PageResponse<EnrollmentListResponse> getAllPaged(int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
     Page<Enrollment> pageResult = enrollmentRepository.findAll(pageable);
     return PageResponse.of(pageResult, enrollmentMapper::toListResponse);
+  }
+
+  @Transactional
+  public void toggleDocumentStatus(Long submissionId) {
+    EnrollmentDocumentSubmission submission =
+        submissionRepository
+            .findById(submissionId)
+            .orElseThrow(() -> new ResourceNotFoundException("DOCUMENT_SUBMISSION_NOT_FOUND"));
+
+    // Inverser le statut (Toggle)
+    submission.setProvided(!submission.isProvided());
+
+    submissionRepository.save(submission);
+  }
+
+  @Transactional
+  public void updateStatus(Long id, EnrollmentStatus newStatus) {
+    Enrollment enrollment =
+        enrollmentRepository
+            .findById(id)
+            .orElseThrow(() -> new RuntimeException("ENROLLMENT_NOT_FOUND"));
+
+    enrollment.setStatus(newStatus);
   }
 }

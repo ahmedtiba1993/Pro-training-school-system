@@ -104,22 +104,21 @@ public class AcademicYearService {
   public void changeStatus(Long id, YearStatus newStatus) {
     AcademicYear targetYear = getOrThrow(id);
 
-    // Appliquer les règles en fonction du nouveau statut
+    // Apply rules based on the new status
     switch (newStatus) {
       case IN_PROGRESS -> {
-        // 1. Vérifier s'il y a DÉJÀ une autre année active
+        // 1. Check if there is ALREADY another active year
         academicYearRepository
             .findByIsActiveTrue()
             .filter(currentlyActive -> !currentlyActive.getId().equals(targetYear.getId()))
             .ifPresent(
                 currentlyActive -> {
-                  // Lève une exception au lieu de désactiver l'année silencieusement
-                  // Utilisez l'exception qui correspond à votre gestionnaire d'erreurs (ex:
-                  // ValidationException)
+                  // Throws an exception instead of silently deactivating the year
+                  // Use the exception that matches your error handler (e.g., ValidationException)
                   throw new BusinessValidationException("ANOTHER_YEAR_IS_ALREADY_IN_PROGRESS");
                 });
 
-        // 2. Activer la nouvelle
+        // 2. Activate the new one
         targetYear.setStatus(YearStatus.IN_PROGRESS);
       }
 
@@ -145,7 +144,7 @@ public class AcademicYearService {
   }
 
   public ActiveAcademicYearResponse getCurrentActiveSession() {
-    // 1. Récupérer l'année académique active (isActive = true)
+    // 1. Retrieve the active academic year (isActive = true)
     AcademicYear activeYear =
         academicYearRepository
             .findByIsActiveTrue()
@@ -153,27 +152,27 @@ public class AcademicYearService {
 
     LocalDate today = LocalDate.now();
 
-    // 2. Calculer les jours restants
+    // 2. Calculate remaining days
     long daysRemaining = ChronoUnit.DAYS.between(today, activeYear.getEndDate());
-    // Optionnel : si l'année est dépassée, on bloque à 0
+    // Optional: if the year has passed, cap at 0
     if (daysRemaining < 0) {
       daysRemaining = 0;
     }
 
-    // 3. Déterminer la période actuelle (ex: Semestre 1)
-    String currentPeriodName = "N/A"; // Valeur par défaut
+    // 3. Determine the current period (e.g., Semester 1)
+    String currentPeriodName = "N/A"; // Default value
 
     if (activeYear.getPeriods() != null && !activeYear.getPeriods().isEmpty()) {
       for (Period period : activeYear.getPeriods()) {
-        // Vérifier si la date d'aujourd'hui est comprise entre le début et la fin de la période
+        // Check if today's date is between the start and end of the period
         if (!today.isBefore(period.getStartDate()) && !today.isAfter(period.getEndDate())) {
-          currentPeriodName = period.getLabel(); // ou period.getName() selon votre entité
+          currentPeriodName = period.getLabel();
           break;
         }
       }
     }
 
-    // 4. Construire et retourner la réponse
+    // 4. Build and return the response
     return ActiveAcademicYearResponse.builder()
         .label(activeYear.getLabel())
         .startDate(activeYear.getStartDate())
@@ -185,7 +184,7 @@ public class AcademicYearService {
 
   @Transactional(readOnly = true)
   public List<AcademicYearResponse> getActiveOrPlannedYears() {
-    // On passe YearStatus.PLANNED en paramètre pour la condition "OrStatus"
+    // Pass YearStatus.PLANNED as a parameter for the "OrStatus" condition
     return academicYearRepository
         .findTop2ByIsActiveTrueOrStatusOrderByStartDateAsc(YearStatus.PLANNED)
         .stream()
@@ -194,7 +193,7 @@ public class AcademicYearService {
   }
 
   // ==========================================
-  //            PRIVATE Fonction
+  //            PRIVATE Functions
   // ==========================================
 
   private AcademicYear getOrThrow(Long id) {

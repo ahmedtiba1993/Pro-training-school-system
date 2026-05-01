@@ -2,6 +2,7 @@ package com.tiba.pts.modules.enrollment.controller;
 
 import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.core.dto.PageResponse;
+import com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus;
 import com.tiba.pts.modules.enrollment.dto.request.EnrollmentRequest;
 import com.tiba.pts.modules.enrollment.dto.response.EnrollmentListResponse;
 import com.tiba.pts.modules.enrollment.dto.response.EnrollmentResponse;
@@ -24,7 +25,7 @@ public class EnrollmentController {
 
   @PostMapping
   @PreAuthorize("hasAnyRole('ADMIN')")
-  public ResponseEntity<ApiResponse<EnrollmentResponse>> create(
+  public ResponseEntity<ApiResponse<EnrollmentResponse>> createEnrollment(
       @Valid @RequestBody EnrollmentRequest request) {
     EnrollmentResponse response = enrollmentService.create(request);
     return ResponseEntity.status(HttpStatus.CREATED)
@@ -32,14 +33,32 @@ public class EnrollmentController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<EnrollmentResponse> getById(@PathVariable Long id) {
+  public ResponseEntity<EnrollmentResponse> getEnrollmentById(@PathVariable Long id) {
     EnrollmentResponse response = enrollmentService.getById(id);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping
-  public ResponseEntity<PageResponse<EnrollmentListResponse>> getAllPaged(
+  public ResponseEntity<PageResponse<EnrollmentListResponse>> getAllEnrollmentPaged(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     return ResponseEntity.ok(enrollmentService.getAllPaged(page, size));
+  }
+
+  @PatchMapping("/documents/{submissionId}/toggle-status")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> toggleDocumentStatus(@PathVariable Long submissionId) {
+
+    enrollmentService.toggleDocumentStatus(submissionId);
+    return ResponseEntity.ok(ApiResponse.success("DOCUMENT_STATUS_TOGGLED_SUCCESSFULLY", null));
+  }
+
+  @PatchMapping("/{id}/status/{status}")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> updateStatus(
+      @PathVariable Long id, @PathVariable EnrollmentStatus status) {
+
+    enrollmentService.updateStatus(id, status);
+
+    return ResponseEntity.ok(ApiResponse.success("ENROLLMENT_STATUS_UPDATED_SUCCESSFULLY", null));
   }
 }

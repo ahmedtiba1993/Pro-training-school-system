@@ -23,4 +23,6 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
   @Query(
       "SELECT t.trainingType AS trainingType, COUNT(t) AS count FROM Training t WHERE t.isActive = true GROUP BY t.trainingType")
   List<TrainingTypeCountProjection> countActiveTrainingsByType();
+
+  List<Training> findByLevelIdAndIsActiveTrue(Long levelId);
 }

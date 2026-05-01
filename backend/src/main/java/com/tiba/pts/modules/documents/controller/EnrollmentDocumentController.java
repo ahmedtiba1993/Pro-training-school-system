@@ -50,4 +50,17 @@ public class EnrollmentDocumentController {
         ApiResponse.success("REGISTRATION_DOCUMENT_UPDATED_SUCCESSFULLY", updatedData);
     return ResponseEntity.ok(response);
   }
+
+  @GetMapping("/level/{levelId}")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<ApiResponse<List<EnrollmentDocumentResponse>>> getDocumentsByLevel(
+      @PathVariable Long levelId) {
+
+    List<EnrollmentDocumentResponse> documents = documentService.getDocumentsByLevelId(levelId);
+
+    ApiResponse<List<EnrollmentDocumentResponse>> response =
+        ApiResponse.success("REGISTRATION_DOCUMENTS_BY_LEVEL_RETRIEVED", documents);
+
+    return ResponseEntity.ok(response);
+  }
 }

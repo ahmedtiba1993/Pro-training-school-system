@@ -59,7 +59,7 @@ export class AcademicYearList implements OnInit {
   showToggleActiveModal = signal<boolean>(false);
   toggleActionType = signal<'ACTIVATE' | 'DEACTIVATE'>('ACTIVATE');
 
-  // MODALE CHANGE STATUS
+  // MODAL CHANGE STATUS
   showChangeStatusModal = signal<boolean>(false);
   newStatusValue = signal<string>('');
 

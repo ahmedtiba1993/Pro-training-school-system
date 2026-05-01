@@ -1,0 +1,1755 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50">
+  <header
+    class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex items-center justify-between"
+  >
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Dossier d'Inscription</h1>
+      <p class="text-xs text-slate-500">
+        Saisissez les informations complètes de l'élève (Type: NEW)
+      </p>
+    </div>
+  </header>
+
+  <div class="flex-1 overflow-y-auto p-4 lg:p-8">
+    <form
+      [formGroup]="enrollmentForm"
+      class="max-w-[1400px] mx-auto grid grid-cols-1 xl:grid-cols-3 gap-8"
+    >
+      <div class="xl:col-span-2 space-y-6">
+        <!-- ASSIGNMENT -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div
+            class="bg-indigo-600 border-b border-indigo-700 px-6 py-4 rounded-t-2xl flex items-center justify-between"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-white/20 text-white rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="font-bold text-white">Affectation (Promotion)</h2>
+                <p class="text-[10px] text-indigo-200 uppercase tracking-wider">
+                  Choix du cursus et classe
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <!-- LEVEL -->
+            <div>
+              <label
+                class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-2"
+              >
+                Niveau / Type <span class="text-rose-500 text-sm">*</span>
+              </label>
+              <select
+                formControlName="levelId"
+                [ngClass]="
+                  enrollmentForm.get('levelId')?.invalid && enrollmentForm.get('levelId')?.touched
+                    ? 'border-rose-500 bg-rose-50'
+                    : 'border-slate-200 bg-white focus:border-indigo-500 focus:ring-indigo-500/20'
+                "
+                class="w-full px-4 py-2.5 border rounded-xl text-sm font-medium outline-none focus:ring-2 transition-all"
+              >
+                <option value="">Sélectionner un niveau...</option>
+                @for (level of levels(); track level.id) {
+                <option [value]="level.id">{{ level.code || level.label }}</option>
+                }
+              </select>
+              @if (enrollmentForm.get('levelId')?.invalid && enrollmentForm.get('levelId')?.touched)
+              {
+              <p class="text-[10px] text-rose-500 mt-1 font-semibold">
+                Veuillez sélectionner un niveau.
+              </p>
+              }
+            </div>
+
+            <!-- TRAINING -->
+            <div class="relative">
+              <label
+                class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-2 h-[15px]"
+              >
+                Spécialité à inscrire <span class="text-rose-500 text-sm">*</span>
+              </label>
+              <button
+                type="button"
+                (click)="$event.preventDefault(); toggleTrainingDropdown()"
+                [disabled]="enrollmentForm.get('trainingId')?.disabled"
+                [ngClass]="
+                  enrollmentForm.get('trainingId')?.invalid &&
+                  enrollmentForm.get('trainingId')?.touched
+                    ? 'border-rose-500 bg-rose-50'
+                    : 'border-slate-200 bg-white focus:border-indigo-500 focus:ring-indigo-500/20'
+                "
+                class="w-full flex items-center justify-between px-4 py-2.5 border rounded-xl text-sm font-medium transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed text-left outline-none focus:ring-2"
+              >
+                @if (selectedTraining(); as selected) {
+                <div class="flex items-center justify-between w-full pr-2">
+                  <span class="text-slate-800">{{ selected.specialtyLabel || selected.name }}</span>
+                  <span [class]="getTrainingTypeConfig(selected.trainingType)?.classes">{{
+                    getTrainingTypeConfig(selected.trainingType)?.label
+                  }}</span>
+                </div>
+                } @else { <span class="text-slate-500">Sélectionner une spécialité...</span> }
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="w-4 h-4 text-slate-400 ml-2 shrink-0"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              @if (enrollmentForm.get('trainingId')?.invalid &&
+              enrollmentForm.get('trainingId')?.touched) {
+              <p class="text-[10px] text-rose-500 mt-1 font-semibold">
+                Veuillez sélectionner une spécialité.
+              </p>
+              } @if (isTrainingDropdownOpen()) {
+              <div class="fixed inset-0 z-40" (click)="isTrainingDropdownOpen.set(false)"></div>
+              <div
+                class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1"
+              >
+                @for (training of trainings(); track training.id) {
+                <div
+                  (click)="selectTraining(training.id || training.trainingId)"
+                  class="px-4 py-2.5 hover:bg-slate-50 cursor-pointer flex items-center justify-between transition-colors"
+                >
+                  <span class="text-sm font-medium text-slate-700">{{
+                    training.specialtyLabel || training.name
+                  }}</span>
+                  <span [class]="getTrainingTypeConfig(training.trainingType)?.classes">{{
+                    getTrainingTypeConfig(training.trainingType)?.label
+                  }}</span>
+                </div>
+                } @empty {
+                <div class="px-4 py-3 text-sm text-slate-500 text-center">
+                  Aucune spécialité disponible
+                </div>
+                }
+              </div>
+              }
+            </div>
+
+            <!-- PROMOTION -->
+            <div class="sm:col-span-2">
+              <label
+                class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-2"
+              >
+                Promotion d'affectation <span class="text-rose-500 text-sm">*</span>
+              </label>
+              <select
+                formControlName="promotionId"
+                [ngClass]="
+                  enrollmentForm.get('promotionId')?.invalid &&
+                  enrollmentForm.get('promotionId')?.touched
+                    ? 'border-rose-500 bg-rose-50'
+                    : 'border-indigo-100 bg-indigo-50/50 focus:border-indigo-500 focus:ring-indigo-500/20'
+                "
+                class="w-full px-4 py-2.5 border-2 rounded-xl text-sm font-bold text-indigo-900 outline-none focus:ring-2 transition-all disabled:bg-slate-50 disabled:border-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
+              >
+                <option value="">Sélectionnez la promotion associée...</option>
+                @for (promo of promotions(); track promo.id) {
+                <option [value]="promo.id">{{ promo.name }}</option>
+                }
+              </select>
+              @if (enrollmentForm.get('promotionId')?.invalid &&
+              enrollmentForm.get('promotionId')?.touched) {
+              <p class="text-[10px] text-rose-500 mt-1 font-semibold">La promotion est requise.</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- STUDENT INFORMATION -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div
+            class="bg-blue-600 border-b border-blue-700 px-6 py-4 flex items-center justify-between"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-white/20 text-white rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="w-4 h-4"
+                >
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div>
+                <h2 class="font-bold text-white">Informations de l'Élève</h2>
+                <p class="text-[10px] text-blue-200 uppercase tracking-wider">
+                  Profil et coordonnées
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div formGroupName="studentInfo" class="p-6 space-y-8">
+            <!-- Identity -->
+            <div>
+              <h3
+                class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2"
+              >
+                Identité
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Prénom (Français) <span class="text-rose-500 text-sm">*</span></label
+                  >
+                  <input
+                    type="text"
+                    formControlName="firstName"
+                    placeholder="Ex: Rayen"
+                    [ngClass]="
+                      enrollmentForm.get('studentInfo.firstName')?.invalid &&
+                      enrollmentForm.get('studentInfo.firstName')?.touched
+                        ? 'border-rose-500 bg-rose-50'
+                        : 'border-slate-200 focus:border-indigo-500'
+                    "
+                    class="w-full px-4 py-2 border rounded-xl text-sm outline-none transition-all"
+                  />
+                  @if (enrollmentForm.get('studentInfo.firstName')?.invalid &&
+                  enrollmentForm.get('studentInfo.firstName')?.touched) {
+                  <p class="text-[10px] text-rose-500 mt-1 font-semibold">Le prénom est requis.</p>
+                  }
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Nom (Français) <span class="text-rose-500 text-sm">*</span></label
+                  >
+                  <input
+                    type="text"
+                    formControlName="lastName"
+                    placeholder="Ex: Mejri"
+                    [ngClass]="
+                      enrollmentForm.get('studentInfo.lastName')?.invalid &&
+                      enrollmentForm.get('studentInfo.lastName')?.touched
+                        ? 'border-rose-500 bg-rose-50'
+                        : 'border-slate-200 focus:border-indigo-500'
+                    "
+                    class="w-full px-4 py-2 border rounded-xl text-sm outline-none transition-all"
+                  />
+                  @if (enrollmentForm.get('studentInfo.lastName')?.invalid &&
+                  enrollmentForm.get('studentInfo.lastName')?.touched) {
+                  <p class="text-[10px] text-rose-500 mt-1 font-semibold">Le nom est requis.</p>
+                  }
+                </div>
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 text-right"
+                    >Nom (Arabe) - اللقب</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="lastNameAr"
+                    dir="rtl"
+                    placeholder="الماجري"
+                    class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all bg-slate-50/50"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 text-right"
+                    >Prénom (Arabe) - الإسم</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="firstNameAr"
+                    dir="rtl"
+                    placeholder="ريان"
+                    class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all bg-slate-50/50"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >N° CIN / Passeport</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                      <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    <input
+                      type="text"
+                      formControlName="cin"
+                      placeholder="14725836"
+                      class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Birth & Contact -->
+            <div>
+              <h3
+                class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2"
+              >
+                Naissance & Contact
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Date de naissance <span class="text-rose-500 text-sm">*</span></label
+                  >
+                  <input
+                    type="date"
+                    formControlName="birthDate"
+                    [ngClass]="
+                      enrollmentForm.get('studentInfo.birthDate')?.invalid &&
+                      enrollmentForm.get('studentInfo.birthDate')?.touched
+                        ? 'border-rose-500 bg-rose-50'
+                        : 'border-slate-200 focus:border-indigo-500'
+                    "
+                    class="w-full px-4 py-2 border rounded-xl text-sm outline-none transition-all text-slate-700"
+                  />
+                  @if (enrollmentForm.get('studentInfo.birthDate')?.invalid &&
+                  enrollmentForm.get('studentInfo.birthDate')?.touched) {
+                  <p class="text-[10px] text-rose-500 mt-1 font-semibold">Date requise.</p>
+                  }
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Lieu de naissance</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="birthPlace"
+                    placeholder="Ex: Monastir"
+                    class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+                  />
+                </div>
+                <div class="sm:col-span-1">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Téléphone</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                      ></path>
+                    </svg>
+                    <input
+                      type="tel"
+                      formControlName="phone"
+                      placeholder="Ex: 25888999"
+                      class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+                    />
+                  </div>
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Adresse E-mail</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                    <input
+                      type="email"
+                      formControlName="email"
+                      placeholder="rayen@example.com"
+                      class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Addresses and Location -->
+            <div>
+              <h3
+                class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2"
+              >
+                Adresses et Localisation
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Gouvernorat</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="governorate"
+                    placeholder="Ex: Monastir"
+                    class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Délégation</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="delegation"
+                    placeholder="Ex: Monastir Ville"
+                    class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Adresse de Résidence</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="residenceAddress"
+                    placeholder="Avenue Habib Bourguiba, Monastir"
+                    class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Adresse de Correspondance</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="correspondenceAddress"
+                    placeholder="BP 102, Monastir 5000"
+                    class="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Family Situation & Health -->
+            <div>
+              <h3
+                class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2"
+              >
+                Situation Familiale & Santé
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Résidence de l'élève <span class="text-rose-500 text-sm">*</span></label
+                  >
+                  <select
+                    formControlName="residence"
+                    class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all bg-white"
+                  >
+                    <option value="WITH_BOTH_PARENTS">Avec les deux parents</option>
+                    <option value="WITH_FATHER_ONLY">Avec le père uniquement</option>
+                    <option value="WITH_MOTHER_ONLY">Avec la mère uniquement</option>
+                    <option value="WITH_RELATIVES">Avec des proches</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Situation des parents</label
+                  >
+                  <select
+                    formControlName="parentsSituation"
+                    class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all bg-white"
+                  >
+                    <option value="LIVING_TOGETHER">Vivent ensemble</option>
+                    <option value="SEPARATED">Séparés / Divorcés</option>
+                    <option value="FATHER_DECEASED">Père décédé</option>
+                    <option value="MOTHER_DECEASED">Mère décédée</option>
+                    <option value="BOTH_DECEASED">Les deux décédés</option>
+                  </select>
+                </div>
+                <div
+                  class="sm:col-span-2 bg-rose-50/50 p-4 rounded-xl border border-rose-100 mt-2 transition-all"
+                >
+                  <label class="flex items-center gap-3 cursor-pointer mb-3">
+                    <input
+                      type="checkbox"
+                      formControlName="hasChronicDisease"
+                      class="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
+                    />
+                    <span class="text-sm font-bold text-rose-900"
+                      >L'élève souffre-t-il d'une maladie chronique ?</span
+                    >
+                  </label>
+                  @if (enrollmentForm.get('studentInfo.hasChronicDisease')?.value) {
+                  <div class="animate-in fade-in slide-in-from-top-2 duration-300">
+                    <label class="block text-[10px] font-bold text-rose-400 uppercase mb-1.5"
+                      >Description de la maladie / Soins
+                      <span class="text-rose-500 text-sm">*</span></label
+                    >
+                    <textarea
+                      formControlName="diseaseDescription"
+                      rows="2"
+                      placeholder="Asthme, Diabète, Allergies..."
+                      [ngClass]="
+                        enrollmentForm.get('studentInfo.diseaseDescription')?.invalid &&
+                        enrollmentForm.get('studentInfo.diseaseDescription')?.touched
+                          ? 'border-rose-500 bg-rose-50'
+                          : 'border-rose-200 bg-white focus:border-rose-500'
+                      "
+                      class="w-full px-4 py-2 border rounded-xl text-sm outline-none transition-all"
+                    ></textarea>
+                    @if (enrollmentForm.get('studentInfo.diseaseDescription')?.invalid &&
+                    enrollmentForm.get('studentInfo.diseaseDescription')?.touched) {
+                    <p class="text-[10px] text-rose-500 mt-1 font-semibold">
+                      Veuillez décrire la maladie.
+                    </p>
+                    }
+                  </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BROTHERS AND SISTERS -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div
+            class="bg-teal-600 border-b border-teal-700 px-6 py-4 flex items-center justify-between"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-white/20 text-white rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M9 12h.01M15 12h.01M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5M21 12c0 4.4-4 8-9 8s-9-3.6-9-8 4-8 9-8 9 3.6 9 8Z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="font-bold text-white">Frères et Sœurs</h2>
+                <p class="text-[10px] text-teal-200 uppercase tracking-wider">
+                  Membres de la fratrie
+                </p>
+              </div>
+            </div>
+
+            <!-- Pure CSS Toggle -->
+            <div class="flex items-center gap-3 bg-white/10 px-3 py-2 rounded-xl">
+              <span class="text-xs font-bold text-white">Renseigner</span>
+              <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                <input
+                  type="checkbox"
+                  [checked]="hasSiblings()"
+                  (change)="toggleSiblings($event)"
+                  class="sr-only peer"
+                />
+                <div
+                  class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-300"
+                ></div>
+              </label>
+            </div>
+          </div>
+
+          @if (hasSiblings()) {
+          <div formGroupName="studentInfo" class="p-6 transition-all duration-300 block">
+            <div formArrayName="studentSiblings" class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead
+                  class="text-[10px] text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100"
+                >
+                  <tr>
+                    <th class="pb-2">Nom et Prénom <span class="text-rose-500">*</span></th>
+                    <th class="pb-2 w-24">Âge <span class="text-rose-500">*</span></th>
+                    <th class="pb-2">Établissement / Travail</th>
+                    <th class="pb-2 w-10"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                  @for (sibling of studentSiblingsArray.controls; track sibling; let i = $index) {
+                  <tr [formGroupName]="i">
+                    <td class="py-3 pr-2 align-top">
+                      <input
+                        type="text"
+                        formControlName="fullName"
+                        placeholder="Ex: Eya Mejri"
+                        [ngClass]="
+                          sibling.get('fullName')?.invalid && sibling.get('fullName')?.touched
+                            ? 'border-rose-500 bg-rose-50'
+                            : 'border-slate-200 focus:border-indigo-500'
+                        "
+                        class="w-full px-3 py-2 border rounded-lg text-sm outline-none transition-all"
+                      />
+                      @if (sibling.get('fullName')?.invalid && sibling.get('fullName')?.touched) {
+                      <p class="text-[10px] text-rose-500 mt-1 font-semibold">Requis.</p>
+                      }
+                    </td>
+                    <td class="py-3 pr-2 align-top">
+                      <input
+                        type="number"
+                        formControlName="age"
+                        placeholder="12"
+                        [ngClass]="
+                          sibling.get('age')?.invalid && sibling.get('age')?.touched
+                            ? 'border-rose-500 bg-rose-50'
+                            : 'border-slate-200 focus:border-indigo-500'
+                        "
+                        class="w-full px-3 py-2 border rounded-lg text-sm outline-none transition-all"
+                      />
+                      @if (sibling.get('age')?.invalid && sibling.get('age')?.touched) {
+                      <p class="text-[10px] text-rose-500 mt-1 font-semibold">Requis.</p>
+                      }
+                    </td>
+                    <td class="py-3 pr-2 align-top">
+                      <input
+                        type="text"
+                        formControlName="schoolOrWorkplace"
+                        placeholder="Ex: Collège Ali Bourguiba"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-500 transition-all"
+                      />
+                    </td>
+                    <td class="py-3 text-right align-top">
+                      <button
+                        type="button"
+                        (click)="removeSibling(i)"
+                        class="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        title="Supprimer"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="w-4 h-4"
+                        >
+                          <path d="M3 6h18"></path>
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between">
+              <p class="text-[10px] text-slate-400">
+                Désactivez en haut à droite si l'élève est enfant unique.
+              </p>
+              <button
+                type="button"
+                (click)="addSibling()"
+                class="text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-lg shadow-sm transition-all flex items-center gap-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="w-4 h-4"
+                >
+                  <path d="M5 12h14"></path>
+                  <path d="M12 5v14"></path>
+                </svg>
+                Ajouter un membre
+              </button>
+            </div>
+          </div>
+          } @else {
+          <div class="py-8 text-center bg-slate-50/50">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-6 h-6 text-slate-300 mx-auto mb-2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 12h8"></path>
+            </svg>
+            <p class="text-sm font-semibold text-slate-500">
+              Informations de la fratrie ignorées (Enfant unique).
+            </p>
+          </div>
+          }
+        </div>
+
+        <!-- PARENTS AND GUARDIANS -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div
+            class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-white/10 text-white rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="w-4 h-4"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="font-bold text-white">Parents et Tuteurs</h2>
+                <p class="text-[10px] text-slate-300 uppercase tracking-wider">
+                  Informations familiales
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 bg-white/10 px-3 py-2 rounded-xl">
+              <span class="text-xs font-bold text-white">Saisir</span>
+              <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                <input
+                  type="checkbox"
+                  [checked]="isParentsSectionEnabled()"
+                  (change)="toggleParentsSection($event)"
+                  class="sr-only peer"
+                />
+                <div
+                  class="w-9 h-5 bg-slate-500 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"
+                ></div>
+              </label>
+            </div>
+          </div>
+
+          @if (isParentsSectionEnabled()) {
+          <div
+            formGroupName="studentInfo"
+            class="p-6 space-y-6 bg-slate-50/30 transition-all duration-300 block"
+          >
+            <!-- PRIMARY CONTACT / LEGAL GUARDIAN -->
+            <div class="bg-indigo-50/50 p-5 md:p-6 rounded-2xl border border-indigo-100">
+              <h3 class="text-sm font-bold text-indigo-900 mb-5 flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="w-4 h-4 text-indigo-500"
+                >
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                  ></path>
+                  <path d="M14.05 2a9 9 0 0 1 8 7.94"></path>
+                  <path d="M14.05 6A5 5 0 0 1 18 10"></path>
+                </svg>
+                Contact Principal (Tuteur Légal / ولي الأمر)
+              </h3>
+
+              <div class="mb-5 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex flex-wrap gap-4">
+                  <label
+                    class="flex items-center gap-2 cursor-pointer bg-slate-50 hover:bg-white px-4 py-2.5 rounded-lg border border-slate-200 shadow-sm hover:border-indigo-300 transition-colors"
+                  >
+                    <input
+                      type="radio"
+                      formControlName="legalGuardianRole"
+                      value="FATHER"
+                      class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span class="text-sm font-bold text-slate-700">Le Père</span>
+                  </label>
+                  <label
+                    class="flex items-center gap-2 cursor-pointer bg-slate-50 hover:bg-white px-4 py-2.5 rounded-lg border border-slate-200 shadow-sm hover:border-indigo-300 transition-colors"
+                  >
+                    <input
+                      type="radio"
+                      formControlName="legalGuardianRole"
+                      value="MOTHER"
+                      class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span class="text-sm font-bold text-slate-700">La Mère</span>
+                  </label>
+                  <label
+                    class="flex items-center gap-2 cursor-pointer bg-slate-50 hover:bg-white px-4 py-2.5 rounded-lg border border-slate-200 shadow-sm hover:border-indigo-300 transition-colors"
+                  >
+                    <input
+                      type="radio"
+                      formControlName="legalGuardianRole"
+                      value="OTHER"
+                      class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span class="text-sm font-bold text-slate-700">Autre Tuteur Légal</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Other Guardian Form -->
+              @if (enrollmentForm.get('studentInfo.legalGuardianRole')?.value === 'OTHER') {
+              <div
+                formGroupName="otherGuardian"
+                class="pt-4 border-t border-indigo-100 animate-in fade-in slide-in-from-top-2"
+              >
+                <p class="text-xs font-semibold text-slate-500 mb-4 uppercase tracking-wider">
+                  Informations du Tuteur Autre
+                </p>
+                <div
+                  class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5"
+                >
+                  <!-- FRENCH LINE -->
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                      >Prénom (FR) <span class="text-rose-500 text-sm">*</span></label
+                    >
+                    <input
+                      type="text"
+                      formControlName="firstName"
+                      [ngClass]="
+                        enrollmentForm.get('studentInfo.otherGuardian.firstName')?.invalid &&
+                        enrollmentForm.get('studentInfo.otherGuardian.firstName')?.touched
+                          ? 'border-rose-500 bg-rose-50'
+                          : 'border-slate-200 focus:border-indigo-500 bg-slate-50'
+                      "
+                      class="w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:bg-white transition-all"
+                    />
+                    @if (enrollmentForm.get('studentInfo.otherGuardian.firstName')?.invalid &&
+                    enrollmentForm.get('studentInfo.otherGuardian.firstName')?.touched) {
+                    <p class="text-[10px] text-rose-500 mt-1 font-semibold">Requis.</p>
+                    }
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                      >Nom (FR) <span class="text-rose-500 text-sm">*</span></label
+                    >
+                    <input
+                      type="text"
+                      formControlName="lastName"
+                      [ngClass]="
+                        enrollmentForm.get('studentInfo.otherGuardian.lastName')?.invalid &&
+                        enrollmentForm.get('studentInfo.otherGuardian.lastName')?.touched
+                          ? 'border-rose-500 bg-rose-50'
+                          : 'border-slate-200 focus:border-indigo-500 bg-slate-50'
+                      "
+                      class="w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:bg-white transition-all"
+                    />
+                    @if (enrollmentForm.get('studentInfo.otherGuardian.lastName')?.invalid &&
+                    enrollmentForm.get('studentInfo.otherGuardian.lastName')?.touched) {
+                    <p class="text-[10px] text-rose-500 mt-1 font-semibold">Requis.</p>
+                    }
+                  </div>
+
+                  <!-- ARABIC LINE -->
+                  <div>
+                    <label
+                      class="block text-[10px] font-bold text-slate-400 uppercase mb-1 text-right"
+                      >Nom (AR)</label
+                    >
+                    <input
+                      type="text"
+                      formControlName="lastNameAr"
+                      dir="rtl"
+                      class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      class="block text-[10px] font-bold text-slate-400 uppercase mb-1 text-right"
+                      >Prénom (AR)</label
+                    >
+                    <input
+                      type="text"
+                      formControlName="firstNameAr"
+                      dir="rtl"
+                      class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+
+                  <div class="xl:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                      >N° CIN</label
+                    >
+                    <div class="relative">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                      >
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                      </svg>
+                      <input
+                        type="text"
+                        formControlName="cin"
+                        class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div class="xl:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                      >Téléphone</label
+                    >
+                    <div class="relative">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                      >
+                        <path
+                          d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                        ></path>
+                      </svg>
+                      <input
+                        type="tel"
+                        formControlName="phone"
+                        class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div class="xl:col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                      >Adresse E-mail</label
+                    >
+                    <div class="relative">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                      >
+                        <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                      </svg>
+                      <input
+                        type="email"
+                        formControlName="email"
+                        class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div class="xl:col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                      >Lien de parenté</label
+                    >
+                    <input
+                      type="text"
+                      formControlName="relation"
+                      placeholder="Ex: Oncle, Grand-père..."
+                      class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+                  <div class="xl:col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                      >Profession</label
+                    >
+                    <div class="relative">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                      >
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                      </svg>
+                      <input
+                        type="text"
+                        formControlName="profession"
+                        class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+
+            <!-- FATHER CARD -->
+            <div class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <div
+                class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 mb-5 gap-4"
+              >
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-5 h-5"
+                    >
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  Le Père
+                </h3>
+
+                <div
+                  class="flex items-center gap-3 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl"
+                >
+                  <span class="text-xs font-bold text-slate-600">Saisir le père</span>
+                  <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      [checked]="isFatherEnabled()"
+                      (change)="toggleFather($event)"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"
+                    ></div>
+                  </label>
+                </div>
+              </div>
+
+              @if (isFatherEnabled()) {
+              <div
+                formGroupName="father"
+                class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 animate-in fade-in"
+              >
+                <!-- FRENCH LINE -->
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Prénom (FR) <span class="text-rose-500 text-sm">*</span></label
+                  >
+                  <input
+                    type="text"
+                    formControlName="firstName"
+                    [ngClass]="
+                      enrollmentForm.get('studentInfo.father.firstName')?.invalid &&
+                      enrollmentForm.get('studentInfo.father.firstName')?.touched
+                        ? 'border-rose-500 bg-rose-50'
+                        : 'border-slate-200 focus:border-indigo-500 bg-slate-50'
+                    "
+                    class="w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:bg-white transition-all"
+                  />
+                  @if (enrollmentForm.get('studentInfo.father.firstName')?.invalid &&
+                  enrollmentForm.get('studentInfo.father.firstName')?.touched) {
+                  <p class="text-[10px] text-rose-500 mt-1 font-semibold">Requis.</p>
+                  }
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Nom (FR) <span class="text-rose-500 text-sm">*</span></label
+                  >
+                  <input
+                    type="text"
+                    formControlName="lastName"
+                    [ngClass]="
+                      enrollmentForm.get('studentInfo.father.lastName')?.invalid &&
+                      enrollmentForm.get('studentInfo.father.lastName')?.touched
+                        ? 'border-rose-500 bg-rose-50'
+                        : 'border-slate-200 focus:border-indigo-500 bg-slate-50'
+                    "
+                    class="w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:bg-white transition-all"
+                  />
+                  @if (enrollmentForm.get('studentInfo.father.lastName')?.invalid &&
+                  enrollmentForm.get('studentInfo.father.lastName')?.touched) {
+                  <p class="text-[10px] text-rose-500 mt-1 font-semibold">Requis.</p>
+                  }
+                </div>
+
+                <!-- LIGNE ARABE -->
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 text-right"
+                    >Nom (AR)</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="lastNameAr"
+                    dir="rtl"
+                    class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 text-right"
+                    >Prénom (AR)</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="firstNameAr"
+                    dir="rtl"
+                    class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                  />
+                </div>
+
+                <div class="xl:col-span-1">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >N° CIN</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                      <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    <input
+                      type="text"
+                      formControlName="cin"
+                      class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+                </div>
+                <div class="xl:col-span-1">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Téléphone</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                      ></path>
+                    </svg>
+                    <input
+                      type="tel"
+                      formControlName="phone"
+                      class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+                </div>
+                <div class="xl:col-span-2">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Adresse E-mail</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                    <input
+                      type="email"
+                      formControlName="email"
+                      class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+                </div>
+                <div class="xl:col-span-4 border-t border-slate-100 pt-4 mt-1">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Profession</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    <input
+                      type="text"
+                      formControlName="profession"
+                      class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+              } @else {
+              <div
+                class="py-6 text-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200"
+              >
+                <p class="text-sm font-semibold text-slate-500">Informations du père ignorées.</p>
+              </div>
+              }
+            </div>
+
+            <!-- MOTHER CARD -->
+            <div class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <div
+                class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 mb-5 gap-4"
+              >
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center border border-fuchsia-100"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-5 h-5"
+                    >
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  La Mère
+                </h3>
+
+                <div
+                  class="flex items-center gap-3 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl"
+                >
+                  <span class="text-xs font-bold text-slate-600">Saisir la mère</span>
+                  <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      [checked]="isMotherEnabled()"
+                      (change)="toggleMother($event)"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-fuchsia-500"
+                    ></div>
+                  </label>
+                </div>
+              </div>
+
+              @if (isMotherEnabled()) {
+              <div
+                formGroupName="mother"
+                class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 animate-in fade-in"
+              >
+                <!-- FRENCH LINE -->
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Prénom (FR) <span class="text-rose-500 text-sm">*</span></label
+                  >
+                  <input
+                    type="text"
+                    formControlName="firstName"
+                    [ngClass]="
+                      enrollmentForm.get('studentInfo.mother.firstName')?.invalid &&
+                      enrollmentForm.get('studentInfo.mother.firstName')?.touched
+                        ? 'border-rose-500 bg-rose-50'
+                        : 'border-slate-200 focus:border-indigo-500 bg-slate-50'
+                    "
+                    class="w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:bg-white transition-all"
+                  />
+                  @if (enrollmentForm.get('studentInfo.mother.firstName')?.invalid &&
+                  enrollmentForm.get('studentInfo.mother.firstName')?.touched) {
+                  <p class="text-[10px] text-rose-500 mt-1 font-semibold">Requis.</p>
+                  }
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Nom (FR) <span class="text-rose-500 text-sm">*</span></label
+                  >
+                  <input
+                    type="text"
+                    formControlName="lastName"
+                    [ngClass]="
+                      enrollmentForm.get('studentInfo.mother.lastName')?.invalid &&
+                      enrollmentForm.get('studentInfo.mother.lastName')?.touched
+                        ? 'border-rose-500 bg-rose-50'
+                        : 'border-slate-200 focus:border-indigo-500 bg-slate-50'
+                    "
+                    class="w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:bg-white transition-all"
+                  />
+                  @if (enrollmentForm.get('studentInfo.mother.lastName')?.invalid &&
+                  enrollmentForm.get('studentInfo.mother.lastName')?.touched) {
+                  <p class="text-[10px] text-rose-500 mt-1 font-semibold">Requis.</p>
+                  }
+                </div>
+
+                <!-- Arabic Name -->
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 text-right"
+                    >Nom (AR)</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="lastNameAr"
+                    dir="rtl"
+                    class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 text-right"
+                    >Prénom (AR)</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="firstNameAr"
+                    dir="rtl"
+                    class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                  />
+                </div>
+
+                <div class="xl:col-span-1">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >N° CIN</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                      <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    <input
+                      type="text"
+                      formControlName="cin"
+                      class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+                </div>
+                <div class="xl:col-span-1">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Téléphone</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                      ></path>
+                    </svg>
+                    <input
+                      type="tel"
+                      formControlName="phone"
+                      class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+                </div>
+                <div class="xl:col-span-2">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Adresse E-mail</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                    <input
+                      type="email"
+                      formControlName="email"
+                      class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+                </div>
+                <div class="xl:col-span-4 border-t border-slate-100 pt-4 mt-1">
+                  <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5"
+                    >Profession</label
+                  >
+                  <div class="relative">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    >
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    <input
+                      type="text"
+                      formControlName="profession"
+                      class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-indigo-500 bg-slate-50 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+              } @else {
+              <div
+                class="py-6 text-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200"
+              >
+                <p class="text-sm font-semibold text-slate-500">
+                  Informations de la mère ignorées.
+                </p>
+              </div>
+              }
+            </div>
+          </div>
+          } @else {
+          <div class="py-10 text-center bg-slate-50/50">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-8 h-8 text-slate-300 mx-auto mb-3"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <p class="text-sm font-semibold text-slate-600">Section Parents et Tuteurs ignorée.</p>
+            <p class="text-xs text-slate-400 mt-1">
+              Vous pourrez compléter le dossier ultérieurement si nécessaire.
+            </p>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Documents -->
+      <div class="xl:col-span-1 space-y-6">
+        <div
+          class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden sticky top-6"
+        >
+          <div
+            class="bg-emerald-600 border-b border-emerald-700 px-6 py-4 flex items-center justify-between"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-white/20 text-white rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="w-4 h-4"
+                >
+                  <path
+                    d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"
+                  ></path>
+                  <path d="m9 13 2 2 4-4"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="font-bold text-white">Documents</h2>
+                <p class="text-[10px] text-emerald-200 uppercase tracking-wider">
+                  Pièces jointes <span class="text-emerald-100 text-sm">*</span>
+                </p>
+              </div>
+            </div>
+            <span
+              class="bg-white text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm"
+            >
+              {{ providedDocsCount() }}/{{ documents().length }}
+            </span>
+          </div>
+
+          <div class="p-6">
+            <p class="text-xs text-slate-500 mb-4 flex items-center gap-2">
+              Cochez les documents physiques réceptionnés. @if (isLoadingDocuments()) {
+              <svg
+                class="animate-spin h-3 w-3 text-emerald-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              }
+            </p>
+
+            <div formArrayName="enrollmentSubmittedDocuments" class="space-y-4">
+              @if (documents().length === 0 && !isLoadingDocuments()) {
+              <div
+                class="text-center py-6 text-sm text-slate-400 font-medium bg-slate-50 rounded-xl border border-dashed border-slate-200"
+              >
+                Sélectionnez un niveau pour voir les documents requis.
+              </div>
+              } @for (doc of documents(); track doc.id; let i = $index) {
+              <div
+                [formGroupName]="i"
+                class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 transition-colors"
+              >
+                <div>
+                  <p class="font-bold text-slate-700 text-sm">{{ doc.quantity }}x {{ doc.name }}</p>
+                  <div class="flex items-center gap-2 mt-1 flex-wrap">
+                    <span
+                      [class]="
+                        doc.mandatory
+                          ? 'bg-rose-50 text-rose-700 border-rose-100'
+                          : 'bg-slate-100 text-slate-600 border-slate-200'
+                      "
+                      class="px-2 py-0.5 border rounded text-[9px] font-bold uppercase tracking-wider"
+                    >
+                      {{ doc.mandatory ? 'Obligatoire' : 'Optionnel' }}
+                    </span>
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input type="checkbox" formControlName="provided" class="sr-only peer" />
+                  <div
+                    class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"
+                  ></div>
+                </label>
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="p-6 border-t border-slate-100 bg-slate-50">
+            <button
+              type="button"
+              (click)="onSubmit()"
+              [disabled]="isSubmitting()"
+              [ngClass]="
+                enrollmentForm.invalid
+                  ? 'bg-slate-300 text-slate-500 hover:bg-slate-400 shadow-none'
+                  : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-200'
+              "
+              class="w-full py-3.5 rounded-xl text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2"
+            >
+              @if (isSubmitting()) {
+              <svg
+                class="animate-spin h-5 w-5 text-current"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Envoi en cours... } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5"
+              >
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+              Soumettre l'Inscription }
+            </button>
+            <p
+              class="text-[10px] text-center mt-3"
+              [ngClass]="enrollmentForm.invalid ? 'text-rose-500 font-bold' : 'text-slate-500'"
+            >
+              Veuillez remplir tous les champs obligatoires (<span class="text-rose-500 text-sm"
+                >*</span
+              >) avant de soumettre.
+            </p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</main>

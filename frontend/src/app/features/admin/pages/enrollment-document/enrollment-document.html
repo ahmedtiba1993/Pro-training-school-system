@@ -1,9 +1,9 @@
-<main class="flex-1 flex flex-col h-screen overflow-hidden">
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50">
   <header
     class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shrink-0"
   >
     <div>
-      <h1 class="text-xl font-bold">Configuration du Dossier d'Inscription</h1>
+      <h1 class="text-xl font-bold text-slate-800">Configuration du Dossier d'Inscription</h1>
       <p class="text-xs text-slate-500">
         Gérez la liste des documents requis pour l'inscription des élèves
       </p>
@@ -133,8 +133,13 @@
 <div
   class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
 >
-  <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
-    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+  <div
+    class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+  >
+    <!-- Modal Header -->
+    <div
+      class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0"
+    >
       <div class="flex items-center gap-3">
         <div
           class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
@@ -156,19 +161,116 @@
       </button>
     </div>
 
-    <form [formGroup]="documentForm" (ngSubmit)="onSubmit()">
-      <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+    <form [formGroup]="documentForm" (ngSubmit)="onSubmit()" class="flex flex-col overflow-hidden">
+      <!-- Modal Body (FIELDS ADDED HERE) -->
+      <div class="p-6 space-y-5 overflow-y-auto flex-1">
+        <!-- Name -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Nom du document *</label>
+          <input
+            type="text"
+            formControlName="name"
+            class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+            placeholder="Ex: Acte de naissance, Relevé de notes..."
+          />
+          @if (documentForm.get('name')?.invalid && documentForm.get('name')?.touched) {
+          <p class="text-rose-500 text-xs mt-1">Le nom est requis (min 3 caractères).</p>
+          }
+        </div>
+
+        <!-- Quantity & Nature Row -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Quantité *</label>
+            <input
+              type="number"
+              formControlName="quantity"
+              min="1"
+              class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Nature *</label>
+            <select
+              formControlName="nature"
+              class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+            >
+              @for (key of ['ORIGINAL', 'COPY', 'CERTIFIED_COPY', 'PHYSICAL']; track key) {
+              <option [value]="key">{{ natureLabels[key] }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Condition -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Condition *</label>
+          <select
+            formControlName="condition"
+            class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+          >
+            @for (key of ['ALL_REGISTRATIONS', 'FOREIGN_STUDENT', 'ADULT_ONLY']; track key) {
+            <option [value]="key">{{ conditionLabels[key] }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Concerned Levels (Checkboxes) -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Niveaux concernés *</label>
+          <div
+            class="border border-slate-200 rounded-xl bg-slate-50/50 p-3 max-h-40 overflow-y-auto grid grid-cols-2 gap-2"
+          >
+            @for (level of levels(); track level.id) {
+            <label
+              class="flex items-center gap-2 cursor-pointer text-sm text-slate-700 p-1 hover:bg-slate-100 rounded"
+            >
+              <input
+                type="checkbox"
+                [checked]="isLevelSelected(level.id!)"
+                (change)="onLevelChange($event, level.id!)"
+                class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+              />
+              {{ level.code }}
+            </label>
+            } @empty {
+            <p class="text-xs text-slate-500 col-span-2 p-2">Aucun niveau disponible.</p>
+            }
+          </div>
+          @if (documentForm.get('levelIds')?.invalid && documentForm.get('levelIds')?.touched) {
+          <p class="text-rose-500 text-xs mt-1">Sélectionnez au moins un niveau.</p>
+          }
+        </div>
+
+        <!-- Mandatory Status (Toggle/Checkbox) -->
+        <div class="flex items-center gap-3 pt-2">
+          <div class="relative flex items-center">
+            <input
+              type="checkbox"
+              formControlName="mandatory"
+              id="mandatory-toggle"
+              class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500"
+            />
+          </div>
+          <label for="mandatory-toggle" class="text-sm font-semibold text-slate-700 cursor-pointer">
+            Document obligatoire
+          </label>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
         <button
           type="button"
           (click)="closeModal()"
-          class="flex-1 py-3 text-sm font-bold text-slate-500"
+          class="flex-1 py-3 text-sm font-bold text-slate-500 hover:bg-slate-200 rounded-xl transition-colors"
         >
           Annuler
         </button>
         <button
           type="submit"
           [disabled]="documentForm.invalid || isSubmitting()"
-          class="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2"
+          class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors"
         >
           @if (isSubmitting()) {
           <svg class="animate-spin h-4 w-4 text-white">

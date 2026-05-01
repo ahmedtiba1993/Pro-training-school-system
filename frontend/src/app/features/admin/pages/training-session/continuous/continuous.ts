@@ -27,11 +27,11 @@ export class Continuous implements OnInit {
   private toastService = inject(ToastService);
 
   sessions = signal<ContinuousPromotionResponse[]>([]);
-  activeSessions = signal<ContinuousPromotionResponse[]>([]); // Les 4 cartes en vedette
+  activeSessions = signal<ContinuousPromotionResponse[]>([]);
   trainings = signal<TrainingResponse[]>([]);
   isLoading = signal<boolean>(true);
 
-  // Gestion de la Modale Principale
+  // Main Modal Management
   isModalOpen = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
@@ -48,21 +48,21 @@ export class Continuous implements OnInit {
   pageSize = signal<number>(3);
   totalElements = signal<number>(0);
 
-  // State pour la modale de Détails
+  // State for the Details modal
   isDetailsModalOpen = signal<boolean>(false);
   selectedSession = signal<ContinuousPromotionResponse | null>(null);
 
-  // State pour la modale listant TOUTES les sessions actives
+  // State for the modal listing ALL active sessions
   isActiveSessionsModalOpen = signal<boolean>(false);
   allActiveSessions = signal<ContinuousPromotionResponse[]>([]);
   isLoadingAllActive = signal<boolean>(false);
 
-  // States pour la modale de confirmation de statut
+  // States for the status confirmation modal
   isConfirmStatusModalOpen = signal<boolean>(false);
   pendingStatus = signal<'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED' | null>(null);
   isChangingStatus = signal<boolean>(false);
 
-  // Modification ici : durationInMonths au lieu de numberOfHours
+  // Modification here: durationInMonths instead of numberOfHours
   sessionForm = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     code: ['', [Validators.required]],
@@ -83,7 +83,7 @@ export class Continuous implements OnInit {
   }
 
   loadActiveSessions(): void {
-    // On charge uniquement 4 sessions pour les cartes en vedette
+    // Load only 4 sessions for the featured cards
     this.continuousService.getPromotionsByStatus('IN_PROGRESS', 4).subscribe({
       next: (response: any) => {
         if (response.success) {
@@ -94,12 +94,12 @@ export class Continuous implements OnInit {
     });
   }
 
-  // Ouverture de la modale listant toutes les sessions actives
+  // Opening of the modal listing all active sessions
   openActiveSessionsModal(): void {
     this.isActiveSessionsModalOpen.set(true);
     this.isLoadingAllActive.set(true);
 
-    // On appelle sans limite (ou undefined) pour tout récupérer
+    // Call without limit (or undefined) to retrieve everything
     this.continuousService.getPromotionsByStatus('IN_PROGRESS', undefined as any).subscribe({
       next: (response: any) => {
         if (response.success) {
@@ -183,7 +183,7 @@ export class Continuous implements OnInit {
         level: (session as any).level || '',
         startDate: formattedStartDate,
         endDate: formattedEndDate,
-        duration: (session as any).duration, // Modification ici
+        duration: (session as any).duration,
         fee: session.fee,
         status: session.status || 'PLANNED'
       });
@@ -249,7 +249,6 @@ export class Continuous implements OnInit {
   }
 
   // ==========================================
-  // CHANGEMENT DE STATUT ET CONFIRMATION
   // ==========================================
 
   openConfirmStatusModal(newStatus: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED') {
@@ -307,6 +306,7 @@ export class Continuous implements OnInit {
           }
 
           // Mettre à jour la grande liste si la modale est ouverte
+          // Update the main list if the modal is open
           if (this.isActiveSessionsModalOpen()) {
             this.openActiveSessionsModal();
           }
@@ -348,7 +348,7 @@ export class Continuous implements OnInit {
   }
 
   // ==========================================
-  // MÉTHODES PRIVÉES
+  // PRIVATE METHODS
   // ==========================================
 
   private buildPromotionRequest(): ContinuousPromotionRequest {
@@ -358,7 +358,7 @@ export class Continuous implements OnInit {
       trainingId: this.sessionForm.value.trainingId!,
       startDate: this.sessionForm.value.startDate!,
       endDate: this.sessionForm.value.endDate!,
-      duration: this.sessionForm.value.duration!, // Modification ici
+      duration: this.sessionForm.value.duration!, // Modification here
       fee: this.sessionForm.value.fee!
     };
   }

@@ -1,6 +1,7 @@
 package com.tiba.pts.modules.profiles.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tiba.pts.modules.enrollment.dto.request.StudentParentInfoRequest;
 import com.tiba.pts.modules.profiles.domain.enums.ParentsSituation;
 import com.tiba.pts.modules.profiles.domain.enums.StudentResidence;
 import jakarta.validation.Valid;
@@ -44,7 +45,7 @@ public class StudentRequest extends PersonRequest {
     }
 
     // We count how many parents have isLegalGuardian = true
-    long guardianCount = parents.stream().filter(StudentParentInfoRequest::isLegalGuardian).count();
+    long guardianCount = parents.stream().filter(StudentParentRequest::isLegalGuardian).count();
 
     // The validation passes ONLY if there is exactly 1 legal guardian
     return guardianCount == 1;
