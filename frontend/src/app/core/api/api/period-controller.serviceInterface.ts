@@ -14,6 +14,7 @@ import { Observable }                                        from 'rxjs';
 import { ApiResponseListPeriodResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ApiResponsePeriodResponse } from '../model/models';
+import { ApiResponseVoid } from '../model/models';
 import { PeriodRequest } from '../model/models';
 
 
@@ -40,6 +41,14 @@ export interface PeriodControllerServiceInterface {
      * @param academicYearId 
      */
     getPeriodsByAcademicYearId(academicYearId: number, extraHttpRequestParams?: any): Observable<ApiResponseListPeriodResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/periods/{id}/toggle-lock
+     * @param id 
+     */
+    togglePeriodLock(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 

@@ -14,14 +14,17 @@ export interface AcademicYearResponse {
     label?: string;
     startDate?: string;
     endDate?: string;
-    isActive?: boolean;
+    isDefault?: boolean;
+    isLocked?: boolean;
     status?: AcademicYearResponse.StatusEnum;
 }
 export namespace AcademicYearResponse {
     export const StatusEnum = {
         Planned: 'PLANNED',
+        Enrollment: 'ENROLLMENT',
         InProgress: 'IN_PROGRESS',
-        Closed: 'CLOSED'
+        Closing: 'CLOSING',
+        Completed: 'COMPLETED'
     } as const;
     export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
 }

@@ -1,15 +1,9 @@
 package com.tiba.pts.modules.academicyear.domain.entity;
 
-import com.tiba.pts.core.domain.BaseEntity;
-import com.tiba.pts.modules.academicyear.domain.enums.SessionStatus;
 import com.tiba.pts.modules.academicyear.domain.enums.SessionType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
-
-import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDate;
 
 @Entity
@@ -42,9 +36,8 @@ public class ExamSession {
   @Column(nullable = false)
   private LocalDate endDate;
 
-  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private SessionStatus status;
+  private Boolean isLocked;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "period_id", nullable = false)

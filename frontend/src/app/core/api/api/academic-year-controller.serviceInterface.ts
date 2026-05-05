@@ -31,19 +31,11 @@ export interface AcademicYearControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint patch /api/v1/academic-years/{id}/activate
-     * @param id 
-     */
-    activateAcademicYear(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
-
-    /**
-     * 
-     * 
      * @endpoint patch /api/v1/academic-years/{id}/status
      * @param id 
      * @param newStatus 
      */
-    changeAcademicYearStatus(id: number, newStatus: 'PLANNED' | 'IN_PROGRESS' | 'CLOSED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+    changeAcademicYearStatus(id: number, newStatus: 'PLANNED' | 'ENROLLMENT' | 'IN_PROGRESS' | 'CLOSING' | 'COMPLETED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 
@@ -56,25 +48,10 @@ export interface AcademicYearControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint patch /api/v1/academic-years/{id}/deactivate
-     * @param id 
-     */
-    deactivateAcademicYear(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
-
-    /**
-     * 
-     * 
      * @endpoint get /api/v1/academic-years/{id}
      * @param id 
      */
     getAcademicYearById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseAcademicYearResponse>;
-
-    /**
-     * 
-     * 
-     * @endpoint get /api/v1/academic-years/active-or-planned
-     */
-    getActiveOrPlannedYears(extraHttpRequestParams?: any): Observable<ApiResponseListAcademicYearResponse>;
 
     /**
      * 
@@ -90,14 +67,30 @@ export interface AcademicYearControllerServiceInterface {
      * 
      * @endpoint get /api/v1/academic-years/current
      */
-    getCurrentAcademicYear(extraHttpRequestParams?: any): Observable<ApiResponseAcademicYearResponse>;
+    getCurrentAcademicYear(extraHttpRequestParams?: any): Observable<ApiResponseActiveAcademicYearResponse>;
 
     /**
      * 
      * 
-     * @endpoint get /api/v1/academic-years/active-year-info
+     * @endpoint get /api/v1/academic-years/open
      */
-    getCurrentActiveSession(extraHttpRequestParams?: any): Observable<ApiResponseActiveAcademicYearResponse>;
+    getOpenAcademicYears(extraHttpRequestParams?: any): Observable<ApiResponseListAcademicYearResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/academic-years/{id}/set-default
+     * @param id 
+     */
+    setDefaultAcademicYear(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/academic-years/{id}/toggle-lock
+     * @param id 
+     */
+    toggleLock(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 

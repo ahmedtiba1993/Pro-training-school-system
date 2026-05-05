@@ -1,7 +1,6 @@
 package com.tiba.pts.modules.academicyear.dto.response;
 
 import com.tiba.pts.modules.academicyear.domain.enums.YearStatus;
-
 import java.time.LocalDate;
 
 public record AcademicYearResponse(
@@ -9,5 +8,6 @@ public record AcademicYearResponse(
     String label,
     LocalDate startDate,
     LocalDate endDate,
-    boolean isActive,
+    Boolean isDefault,
+    Boolean isLocked,
     YearStatus status) {}

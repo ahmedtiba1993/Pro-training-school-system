@@ -14,6 +14,7 @@ import { Observable }                                        from 'rxjs';
 import { ApiResponseExamSessionResponse } from '../model/models';
 import { ApiResponseListExamSessionResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
+import { ApiResponseVoid } from '../model/models';
 import { ExamSessionRequest } from '../model/models';
 
 
@@ -40,6 +41,14 @@ export interface ExamSessionControllerServiceInterface {
      * @param periodId 
      */
     getExamSessionsByPeriodId(periodId: number, extraHttpRequestParams?: any): Observable<ApiResponseListExamSessionResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/exam-sessions/{id}/toggle-lock
+     * @param id 
+     */
+    toggleSessionLock(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 

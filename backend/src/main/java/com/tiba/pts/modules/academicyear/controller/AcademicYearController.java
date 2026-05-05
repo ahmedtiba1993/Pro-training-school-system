@@ -8,8 +8,6 @@ import com.tiba.pts.modules.academicyear.dto.response.AcademicYearResponse;
 import com.tiba.pts.modules.academicyear.dto.response.ActiveAcademicYearResponse;
 import com.tiba.pts.modules.academicyear.service.AcademicYearService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,8 +38,7 @@ public class AcademicYearController {
   @GetMapping
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<PageResponse<AcademicYearResponse>>> getAllAcademicYears(
-      @RequestParam(defaultValue = "0") @Min(0) int page,
-      @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     PageResponse<AcademicYearResponse> paginatedData = academicYearService.getAllPaged(page, size);
     ApiResponse<PageResponse<AcademicYearResponse>> response =
         ApiResponse.success("ACADEMIC_YEAR_LIST_RETRIEVED", paginatedData);
@@ -67,27 +64,11 @@ public class AcademicYearController {
     return ResponseEntity.ok(response);
   }
 
-  @PatchMapping("/{id}/activate")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<Void>> activateAcademicYear(@PathVariable Long id) {
-    academicYearService.activate(id);
-    return ResponseEntity.ok(ApiResponse.success("ACADEMIC_YEAR_ACTIVATED_SUCCESSFULLY", null));
-  }
-
-  @PatchMapping("/{id}/deactivate")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<Void>> deactivateAcademicYear(@PathVariable Long id) {
-    academicYearService.deactivate(id);
-    return ResponseEntity.ok(ApiResponse.success("ACADEMIC_YEAR_DEACTIVATED_SUCCESSFULLY", null));
-  }
-
-  @GetMapping("/current")
-  @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<ApiResponse<AcademicYearResponse>> getCurrentAcademicYear() {
-    AcademicYearResponse currentYear = academicYearService.getCurrentAcademicYear();
-    ApiResponse<AcademicYearResponse> response =
-        ApiResponse.success("CURRENT_ACADEMIC_YEAR_RETRIEVED", currentYear);
-    return ResponseEntity.ok(response);
+  @PatchMapping("/{id}/set-default")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> setDefaultAcademicYear(@PathVariable Long id) {
+    academicYearService.setDefaultAcademicYear(id);
+    return ResponseEntity.ok(ApiResponse.success("ACADEMIC_YEAR_SET_AS_DEFAULT"));
   }
 
   @PatchMapping("/{id}/status")
@@ -95,22 +76,31 @@ public class AcademicYearController {
   public ResponseEntity<ApiResponse<Void>> changeAcademicYearStatus(
       @PathVariable Long id, @RequestParam YearStatus newStatus) {
     academicYearService.changeStatus(id, newStatus);
-    return ResponseEntity.ok(ApiResponse.success("ACADEMIC_YEAR_STATUS_CHANGED", null));
+    return ResponseEntity.ok(ApiResponse.success("ACADEMIC_YEAR_STATUS_CHANGED"));
   }
 
-  @GetMapping("/active-year-info")
-  public ResponseEntity<ApiResponse<ActiveAcademicYearResponse>> getCurrentActiveSession() {
-    ApiResponse<ActiveAcademicYearResponse> response =
-        ApiResponse.success("RETRIEVED", academicYearService.getCurrentActiveSession());
+  @PatchMapping("/{id}/toggle-lock")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> toggleLock(@PathVariable Long id) {
+    academicYearService.toggleLock(id);
+    return ResponseEntity.ok(ApiResponse.success("ACADEMIC_YEAR_LOCK_STATUS_TOGGLED"));
+  }
+
+  @GetMapping("/open")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<List<AcademicYearResponse>>> getOpenAcademicYears() {
+    List<AcademicYearResponse> openYears = academicYearService.getOpenAcademicYears();
+    ApiResponse<List<AcademicYearResponse>> response =
+        ApiResponse.success("OPEN_ACADEMIC_YEARS_RETRIEVED", openYears);
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/active-or-planned")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<List<AcademicYearResponse>>> getActiveOrPlannedYears() {
-    List<AcademicYearResponse> data = academicYearService.getActiveOrPlannedYears();
-    ApiResponse<List<AcademicYearResponse>> response =
-        ApiResponse.success("ACTIVE_OR_PLANNED_YEARS_RETRIEVED", data);
+  @GetMapping("/current")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<ActiveAcademicYearResponse>> getCurrentAcademicYear() {
+    ActiveAcademicYearResponse currentYear = academicYearService.getCurrentAcademicYear();
+    ApiResponse<ActiveAcademicYearResponse> response =
+        ApiResponse.success("CURRENT_ACADEMIC_YEAR_RETRIEVED", currentYear);
     return ResponseEntity.ok(response);
   }
 }

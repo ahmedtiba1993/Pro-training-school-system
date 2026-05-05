@@ -296,7 +296,7 @@ export class Continuous implements OnInit {
 
           this.loadSessions();
           this.loadStatistics();
-          this.loadActiveSessions(); // Rafraîchir les cartes
+          this.loadActiveSessions(); // Refresh cards
 
           if (this.selectedSession()?.id === id) {
             this.selectedSession.set({
@@ -305,7 +305,6 @@ export class Continuous implements OnInit {
             });
           }
 
-          // Mettre à jour la grande liste si la modale est ouverte
           // Update the main list if the modal is open
           if (this.isActiveSessionsModalOpen()) {
             this.openActiveSessionsModal();

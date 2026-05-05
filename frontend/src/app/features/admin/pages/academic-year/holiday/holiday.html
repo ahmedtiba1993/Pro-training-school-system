@@ -5,18 +5,18 @@
   >
     <div>
       <h1 class="text-xl font-bold text-slate-800">Calendrier des Vacances</h1>
-      <p class="text-xs text-slate-500 font-medium mt-1">Gérez les vacances scolaires annuelles</p>
+      <p class="text-xs text-slate-500 font-medium mt-1">Gérez les vacances et jours fériés</p>
     </div>
     <div class="flex items-center gap-3">
-      <!-- Liste déroulante des années -->
+      <!-- Years dropdown -->
       <select
         (change)="onYearChange($event)"
         class="bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 px-4 py-2 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
       >
         @for (year of academicYears(); track year.id) {
-        <option [value]="year.id" [selected]="year.id === selectedYearId()">
-          {{ year.label }} {{ year.isActive ? '(Actuelle)' : '' }}
-        </option>
+        <option [value]="year.id" [selected]="year.id === selectedYearId()">{{
+          year.label
+        }}</option>
         }
       </select>
 
@@ -30,7 +30,7 @@
     </div>
   </header>
 
-  <!-- Zone défilable -->
+  <!-- Scrollable area -->
   <div class="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50/50">
     @if (isLoading()) {
     <div class="flex justify-center items-center h-32">
@@ -40,9 +40,9 @@
     </div>
     } @else {
 
-    <!-- Statistiques Rapides Dynamiques -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-      <!-- Stat 1 : Total Jours -->
+    <!-- Dynamic Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <!-- Stat 1: Total Days -->
       <div
         class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow"
       >
@@ -70,9 +70,9 @@
         </div>
       </div>
 
-      <!-- Stat 2 : Prochain Repos -->
+      <!-- Next Rest -->
       <div
-        class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl border border-indigo-700 p-5 shadow-md text-white"
+        class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl border border-indigo-700 p-5 shadow-md text-white flex flex-col justify-center"
       >
         <div class="flex justify-between items-start">
           <div>
@@ -85,7 +85,7 @@
               {{ daysUntilNextHoliday() }} Jours }
             </p>
             } @else {
-            <p class="text-xl font-bold mt-1">Aucun prévu à l'avenir</p>
+            <p class="text-xl font-bold mt-1">Aucun repos prévu à l'avenir</p>
             }
           </div>
           <div
@@ -97,16 +97,15 @@
           </div>
         </div>
         @if (nextHoliday(); as next) {
-        <p class="text-sm font-medium text-indigo-100 mt-2">
-          {{ next.title }} (À partir du {{ next.startDate | date: 'dd MMM yyyy' }})
+        <p class="text-sm font-medium text-indigo-100 mt-2 truncate" [title]="next.label">
+          {{ next.label }} (À partir du {{ next.startDate | date: 'dd MMM yyyy' }})
         </p>
         }
       </div>
     </div>
 
-    <!-- Grille des Vacances -->
+    <!-- Holidays Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-      <!-- Empty State -->
       @if (holidays().length === 0) {
       <div
         class="md:col-span-2 xl:col-span-3 flex flex-col items-center justify-center text-center py-16 bg-white rounded-2xl border border-slate-200 border-dashed"
@@ -131,10 +130,10 @@
       </div>
       }
 
-      <!-- Boucle sur les données réelles -->
+      <!-- Loop through data -->
       @for (holiday of holidays(); track holiday.id) {
 
-      <!-- CONDITION 1 : PROCHAINE VACANCE (À VENIR) -->
+      <!-- NEXT HOLIDAY (UPCOMING) -->
       @if (nextHoliday()?.id === holiday.id) {
       <div
         class="bg-white rounded-2xl border-2 border-indigo-500 shadow-md p-5 flex gap-5 relative overflow-hidden group"
@@ -156,20 +155,27 @@
 
         <div class="flex-1 min-w-0">
           <div class="flex justify-between items-start mb-1">
-            <h3 class="font-bold text-slate-900 truncate" [title]="holiday.title">
-              {{ holiday.title }}
-            </h3>
-            <div class="flex gap-2 text-slate-300">
-              <button
-                (click)="editHoliday(holiday)"
-                class="hover:text-indigo-600 transition-colors"
-                title="Modifier"
+            <div>
+              <span
+                class="px-1.5 py-0.5 border rounded text-[8px] font-black uppercase tracking-wider mb-1 inline-block"
+                [ngClass]="getTypeBadgeClass(holiday.type)"
               >
-                <svg class="w-4 h-4" stroke-width="2"><use href="icons.svg#icon-edit"></use></svg>
-              </button>
+                {{ getTypeLabel(holiday.type) }}
+              </span>
+              <h3 class="font-bold text-slate-900 truncate" [title]="holiday.label">
+                {{ holiday.label }}
+              </h3>
             </div>
+
+            <button
+              (click)="editHoliday(holiday)"
+              class="hover:text-indigo-600 text-slate-300 transition-colors"
+              title="Modifier"
+            >
+              <svg class="w-4 h-4" stroke-width="2"><use href="icons.svg#icon-edit"></use></svg>
+            </button>
           </div>
-          <div class="flex items-center gap-4 text-xs text-slate-600 font-medium mt-2">
+          <div class="flex items-center gap-4 text-xs text-slate-600 font-medium mt-1">
             <span class="flex items-center gap-1">
               <svg class="w-3.5 h-3.5 text-indigo-400" stroke-width="2">
                 <use href="icons.svg#icon-calendar-empty"></use>
@@ -186,7 +192,7 @@
         </div>
       </div>
 
-      <!-- CONDITION 2 : VACANCES CLASSIQUES / PASSÉES -->
+      <!-- REGULAR / PAST HOLIDAYS -->
       } @else {
       <div
         class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow p-5 flex gap-5 group"
@@ -202,20 +208,27 @@
 
         <div class="flex-1 min-w-0">
           <div class="flex justify-between items-start mb-1">
-            <h3 class="font-bold text-slate-800 truncate" [title]="holiday.title">
-              {{ holiday.title }}
-            </h3>
-            <div class="flex gap-2 text-slate-300">
-              <button
-                (click)="editHoliday(holiday)"
-                class="hover:text-indigo-600 transition-colors"
-                title="Modifier"
+            <div>
+              <span
+                class="px-1.5 py-0.5 border rounded text-[8px] font-black uppercase tracking-wider mb-1 inline-block"
+                [ngClass]="getTypeBadgeClass(holiday.type)"
               >
-                <svg class="w-4 h-4" stroke-width="2"><use href="icons.svg#icon-edit"></use></svg>
-              </button>
+                {{ getTypeLabel(holiday.type) }}
+              </span>
+              <h3 class="font-bold text-slate-800 truncate" [title]="holiday.label">
+                {{ holiday.label }}
+              </h3>
             </div>
+
+            <button
+              (click)="editHoliday(holiday)"
+              class="hover:text-indigo-600 text-slate-300 transition-colors"
+              title="Modifier"
+            >
+              <svg class="w-4 h-4" stroke-width="2"><use href="icons.svg#icon-edit"></use></svg>
+            </button>
           </div>
-          <div class="flex items-center gap-4 text-xs text-slate-500 font-medium mt-2">
+          <div class="flex items-center gap-4 text-xs text-slate-500 font-medium mt-1">
             <span class="flex items-center gap-1">
               <svg class="w-3.5 h-3.5" stroke-width="2">
                 <use href="icons.svg#icon-calendar-empty"></use>
@@ -233,12 +246,11 @@
       </div>
       } }
     </div>
-
     }
   </div>
 </main>
 
-<!-- MODALE : AJOUTER / MODIFIER VACANCE -->
+<!-- MODAL: ADD / EDIT HOLIDAY -->
 @if (showHolidayModal()) {
 <div
   class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity"
@@ -274,16 +286,30 @@
         >
         <input
           type="text"
-          formControlName="title"
-          placeholder="Ex: Vacances de Printemps, Fête du Travail..."
+          formControlName="label"
+          placeholder="Ex: Vacances d'Hiver, Fête de l'Indépendance..."
           class="w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-xl text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all"
           [class.border-red-500]="
-            holidayForm.get('title')?.invalid && holidayForm.get('title')?.touched
+            holidayForm.get('label')?.invalid && holidayForm.get('label')?.touched
           "
         />
-        @if (holidayForm.get('title')?.invalid && holidayForm.get('title')?.touched) {
+        @if (holidayForm.get('label')?.invalid && holidayForm.get('label')?.touched) {
         <p class="text-red-500 text-xs font-medium mt-1">Le libellé est obligatoire.</p>
         }
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-wider"
+          >Type d'évènement <span class="text-red-500">*</span></label
+        >
+        <select
+          formControlName="type"
+          class="w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-xl text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all text-slate-700 cursor-pointer"
+        >
+          <option value="SCHOOL_BREAK">Vacances Scolaires (Plusieurs jours)</option>
+          <option value="PUBLIC_HOLIDAY">Jour Férié / Fête Nationale</option>
+          <option value="EXCEPTIONAL">Fermeture Exceptionnelle</option>
+        </select>
       </div>
 
       <div class="grid grid-cols-2 gap-5">
@@ -302,13 +328,16 @@
         </div>
         <div>
           <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-wider"
-            >Date de fin <span class="text-red-500"></span
-          ></label>
+            >Date de fin</label
+          >
           <input
             type="date"
             formControlName="endDate"
             class="w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-xl text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all text-slate-700"
           />
+          <p class="text-[9px] text-slate-400 mt-1 uppercase font-bold tracking-wider text-right">
+            Optionnel
+          </p>
         </div>
       </div>
 
@@ -329,9 +358,7 @@
           <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white">
             <use href="icons.svg#icon-spinner"></use>
           </svg>
-          Enregistrement... } @else {
-          {{ editingHolidayId() ? 'Mettre à jour' : 'Enregistrer' }}
-          }
+          Enregistrement... } @else { {{ editingHolidayId() ? 'Mettre à jour' : 'Enregistrer' }} }
         </button>
       </div>
     </form>

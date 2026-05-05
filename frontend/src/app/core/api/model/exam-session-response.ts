@@ -12,11 +12,10 @@
 export interface ExamSessionResponse { 
     id?: number;
     label?: string;
-    sessionType?: ExamSessionResponse.SessionTypeEnum;
     startDate?: string;
     endDate?: string;
-    status?: ExamSessionResponse.StatusEnum;
-    periodId?: number;
+    isLocked?: boolean;
+    sessionType?: ExamSessionResponse.SessionTypeEnum;
 }
 export namespace ExamSessionResponse {
     export const SessionTypeEnum = {
@@ -24,12 +23,6 @@ export namespace ExamSessionResponse {
         Retake: 'RETAKE'
     } as const;
     export type SessionTypeEnum = typeof SessionTypeEnum[keyof typeof SessionTypeEnum];
-    export const StatusEnum = {
-        Open: 'OPEN',
-        Closed: 'CLOSED',
-        Locked: 'LOCKED'
-    } as const;
-    export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
 }
 
 

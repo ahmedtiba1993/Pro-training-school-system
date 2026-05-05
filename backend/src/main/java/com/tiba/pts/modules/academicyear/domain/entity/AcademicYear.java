@@ -4,13 +4,9 @@ import com.tiba.pts.core.domain.BaseEntity;
 import com.tiba.pts.modules.academicyear.domain.enums.YearStatus;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.persistence.*;
-import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -37,13 +33,15 @@ public class AcademicYear extends BaseEntity {
   @Column(nullable = false)
   private LocalDate endDate;
 
-  @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-  private Boolean isActive = false;
+  @Column(nullable = false)
+  private Boolean isDefault;
+
+  @Column(nullable = false)
+  private Boolean isLocked;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  @Builder.Default
-  private YearStatus status = YearStatus.PLANNED;
+  private YearStatus status;
 
   @OneToMany(mappedBy = "academicYear", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default

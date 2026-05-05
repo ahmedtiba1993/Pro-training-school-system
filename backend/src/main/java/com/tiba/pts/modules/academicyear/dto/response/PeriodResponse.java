@@ -8,5 +8,6 @@ public record PeriodResponse(
     String label,
     LocalDate startDate,
     LocalDate endDate,
-    Long academicYearId,
+    Integer orderIndex,
+    Boolean isLocked,
     List<ExamSessionResponse> sessions) {}

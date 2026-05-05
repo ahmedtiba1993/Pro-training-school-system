@@ -11,10 +11,20 @@
 
 export interface HolidayResponse { 
     id?: number;
-    title?: string;
+    label?: string;
     startDate?: string;
     endDate?: string;
-    numberOfDays?: number;
+    type?: HolidayResponse.TypeEnum;
     academicYearId?: number;
+    numberOfDays?: number;
 }
+export namespace HolidayResponse {
+    export const TypeEnum = {
+        PublicHoliday: 'PUBLIC_HOLIDAY',
+        SchoolBreak: 'SCHOOL_BREAK',
+        Exceptional: 'EXCEPTIONAL'
+    } as const;
+    export type TypeEnum = typeof TypeEnum[keyof typeof TypeEnum];
+}
+
 

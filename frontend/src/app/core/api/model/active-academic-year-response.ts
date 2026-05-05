@@ -10,10 +10,25 @@
 
 
 export interface ActiveAcademicYearResponse { 
+    id?: number;
     label?: string;
     startDate?: string;
     endDate?: string;
-    currentPeriod?: string;
-    daysRemaining?: number;
+    status?: ActiveAcademicYearResponse.StatusEnum;
+    remainingDaysInYear?: number;
+    currentPeriodLabel?: string;
+    periodProgress?: number;
+    remainingDaysInCurrentPeriod?: number;
 }
+export namespace ActiveAcademicYearResponse {
+    export const StatusEnum = {
+        Planned: 'PLANNED',
+        Enrollment: 'ENROLLMENT',
+        InProgress: 'IN_PROGRESS',
+        Closing: 'CLOSING',
+        Completed: 'COMPLETED'
+    } as const;
+    export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
+}
+
 

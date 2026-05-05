@@ -24,7 +24,6 @@ public class ExamSessionController {
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<Long>> createExamSession(
       @Valid @RequestBody ExamSessionRequest request) {
-
     Long sessionId = examSessionService.createExamSession(request);
     ApiResponse<Long> response =
         ApiResponse.success("EXAM_SESSION_CREATED_SUCCESSFULLY", sessionId);
@@ -35,7 +34,6 @@ public class ExamSessionController {
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<List<ExamSessionResponse>>> getExamSessionsByPeriodId(
       @PathVariable Long periodId) {
-
     List<ExamSessionResponse> data = examSessionService.getExamSessionsByPeriod(periodId);
     ApiResponse<List<ExamSessionResponse>> response =
         ApiResponse.success("EXAM_SESSIONS_FOR_PERIOD_RETRIEVED", data);
@@ -46,10 +44,16 @@ public class ExamSessionController {
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<ExamSessionResponse>> updateExamSession(
       @PathVariable Long id, @Valid @RequestBody ExamSessionRequest request) {
-
     ExamSessionResponse updatedSession = examSessionService.updateExamSession(id, request);
     ApiResponse<ExamSessionResponse> response =
         ApiResponse.success("EXAM_SESSION_UPDATED_SUCCESSFULLY", updatedSession);
     return ResponseEntity.ok(response);
+  }
+
+  @PatchMapping("/{id}/toggle-lock")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> toggleSessionLock(@PathVariable Long id) {
+    examSessionService.toggleSessionLock(id);
+    return ResponseEntity.ok(ApiResponse.success("EXAM_SESSION_LOCK_STATUS_TOGGLED"));
   }
 }

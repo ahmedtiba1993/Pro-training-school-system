@@ -13,11 +13,10 @@ public interface ExamSessionMapper {
   @Mapping(target = "period", source = "periodId", qualifiedByName = "idToPeriod")
   ExamSession toEntity(ExamSessionRequest request);
 
-  @Mapping(target = "periodId", source = "period.id")
   ExamSessionResponse toResponse(ExamSession entity);
 
   @Mapping(target = "id", ignore = true)
-  @Mapping(target = "period", ignore = true) // Géré manuellement dans le service
+  @Mapping(target = "period", ignore = true)
   void updateEntityFromRequest(ExamSessionRequest request, @MappingTarget ExamSession entity);
 
   @Named("idToPeriod")

@@ -42,11 +42,16 @@ public class PeriodController {
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<PeriodResponse>> updatePeriod(
       @PathVariable Long id, @Valid @RequestBody PeriodRequest request) {
-
     PeriodResponse updatedPeriod = periodService.updatePeriod(id, request);
     ApiResponse<PeriodResponse> response =
         ApiResponse.success("PERIOD_UPDATED_SUCCESSFULLY", updatedPeriod);
-
     return ResponseEntity.ok(response);
+  }
+
+  @PatchMapping("/{id}/toggle-lock")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> togglePeriodLock(@PathVariable Long id) {
+    periodService.togglePeriodLock(id);
+    return ResponseEntity.ok(ApiResponse.success("PERIOD_LOCK_STATUS_TOGGLED"));
   }
 }

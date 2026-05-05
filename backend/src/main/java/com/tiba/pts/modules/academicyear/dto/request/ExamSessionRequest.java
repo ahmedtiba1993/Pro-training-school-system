@@ -1,7 +1,6 @@
 package com.tiba.pts.modules.academicyear.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.tiba.pts.modules.academicyear.domain.enums.SessionStatus;
 import com.tiba.pts.modules.academicyear.domain.enums.SessionType;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
@@ -14,8 +13,15 @@ public record ExamSessionRequest(
     @NotNull(message = "SESSION_TYPE_REQUIRED") SessionType sessionType,
     @NotNull(message = "START_DATE_REQUIRED") LocalDate startDate,
     @NotNull(message = "END_DATE_REQUIRED") LocalDate endDate,
-    @NotNull(message = "STATUS_REQUIRED") SessionStatus status,
     @NotNull(message = "PERIOD_ID_REQUIRED") Long periodId) {
+
+  // Constructor
+  public ExamSessionRequest {
+    if (label != null) {
+      label = label.trim();
+    }
+  }
+
   @JsonIgnore
   @AssertTrue(message = "END_DATE_MUST_BE_AFTER_START_DATE")
   public boolean isDateRangeValid() {

@@ -30,6 +30,12 @@ public class Period extends BaseEntity {
   @Column(nullable = false)
   private LocalDate endDate;
 
+  @Column(nullable = false)
+  private Integer orderIndex;
+
+  @Column(nullable = false)
+  private Boolean isLocked;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "academic_year_id", nullable = false)
   private AcademicYear academicYear;

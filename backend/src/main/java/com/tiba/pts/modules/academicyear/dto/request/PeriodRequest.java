@@ -12,6 +12,14 @@ public record PeriodRequest(
     @NotNull(message = "START_DATE_REQUIRED") LocalDate startDate,
     @NotNull(message = "END_DATE_REQUIRED") LocalDate endDate,
     @NotNull(message = "ACADEMIC_YEAR_ID_REQUIRED") Long academicYearId) {
+
+  // Constructor
+  public PeriodRequest {
+    if (label != null) {
+      label = label.trim(); // Retire uniquement les espaces aux extrémités
+    }
+  }
+
   @JsonIgnore
   @AssertTrue(message = "END_DATE_MUST_BE_AFTER_START_DATE")
   public boolean isDateRangeValid() {

@@ -1,12 +1,13 @@
 package com.tiba.pts.modules.academicyear.dto.response;
 
+import com.tiba.pts.modules.academicyear.domain.enums.HolidayType;
 import java.time.LocalDate;
 
 public record HolidayResponse(
     Long id,
-    String title,
+    String label,
     LocalDate startDate,
     LocalDate endDate,
-    Long numberOfDays,
-    Long academicYearId
-    ) {}
+    HolidayType type,
+    Long academicYearId,
+    long numberOfDays) {}

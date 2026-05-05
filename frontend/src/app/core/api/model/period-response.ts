@@ -15,7 +15,8 @@ export interface PeriodResponse {
     label?: string;
     startDate?: string;
     endDate?: string;
-    academicYearId?: number;
+    orderIndex?: number;
+    isLocked?: boolean;
     sessions?: Array<ExamSessionResponse>;
 }
 

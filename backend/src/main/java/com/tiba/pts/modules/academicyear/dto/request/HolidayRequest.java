@@ -1,6 +1,7 @@
 package com.tiba.pts.modules.academicyear.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tiba.pts.modules.academicyear.domain.enums.HolidayType;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,10 +9,17 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public record HolidayRequest(
-    @NotBlank(message = "TITLE_REQUIRED") String title,
+    @NotBlank(message = "TITLE_REQUIRED") String label,
     @NotNull(message = "START_DATE_REQUIRED") LocalDate startDate,
     LocalDate endDate,
+    @NotNull(message = "HOLIDAY_TYPE_REQUIRED") HolidayType type,
     @NotNull(message = "ACADEMIC_YEAR_ID_REQUIRED") Long academicYearId) {
+
+  public HolidayRequest {
+    if (label != null) {
+      label = label.trim();
+    }
+  }
 
   @JsonIgnore
   @AssertTrue(message = "END_DATE_MUST_BE_AFTER_START_DATE")

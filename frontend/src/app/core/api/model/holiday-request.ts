@@ -10,9 +10,19 @@
 
 
 export interface HolidayRequest { 
-    title: string;
+    label: string;
     startDate: string;
     endDate?: string;
+    type: HolidayRequest.TypeEnum;
     academicYearId: number;
 }
+export namespace HolidayRequest {
+    export const TypeEnum = {
+        PublicHoliday: 'PUBLIC_HOLIDAY',
+        SchoolBreak: 'SCHOOL_BREAK',
+        Exceptional: 'EXCEPTIONAL'
+    } as const;
+    export type TypeEnum = typeof TypeEnum[keyof typeof TypeEnum];
+}
+
 

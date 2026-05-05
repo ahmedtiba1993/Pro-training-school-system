@@ -1,6 +1,7 @@
 package com.tiba.pts.modules.academicyear.domain.entity;
 
 import com.tiba.pts.core.domain.BaseEntity;
+import com.tiba.pts.modules.academicyear.domain.enums.HolidayType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -20,31 +21,26 @@ public class Holiday extends BaseEntity {
   private Long id;
 
   @Column(nullable = false)
-  private String title;
+  private String label;
 
   @Column(nullable = false)
   private LocalDate startDate;
 
   @Column private LocalDate endDate;
 
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private Long numberOfDays;
+  private HolidayType type;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "academic_year_id", nullable = false)
   private AcademicYear academicYear;
 
-@PrePersist
-  @PreUpdate
-  public void calculateNumberOfDays() {
-    if (startDate != null) {
-      if (endDate != null) {
-        // Case 1: Vacation period (e.g., 3 days)
-        this.numberOfDays = ChronoUnit.DAYS.between(startDate, endDate) + 1;
-      } else {
-        // Case 2: Single public holiday (endDate is null)
-        this.numberOfDays = 1L;
-      }
+  @Transient
+  public long getNumberOfDays() {
+    if (startDate == null || endDate == null) {
+      return 0;
     }
+    return ChronoUnit.DAYS.between(startDate, endDate) + 1;
   }
 }

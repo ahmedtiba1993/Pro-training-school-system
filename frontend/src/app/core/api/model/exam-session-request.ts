@@ -14,7 +14,6 @@ export interface ExamSessionRequest {
     sessionType: ExamSessionRequest.SessionTypeEnum;
     startDate: string;
     endDate: string;
-    status: ExamSessionRequest.StatusEnum;
     periodId: number;
 }
 export namespace ExamSessionRequest {
@@ -23,12 +22,6 @@ export namespace ExamSessionRequest {
         Retake: 'RETAKE'
     } as const;
     export type SessionTypeEnum = typeof SessionTypeEnum[keyof typeof SessionTypeEnum];
-    export const StatusEnum = {
-        Open: 'OPEN',
-        Closed: 'CLOSED',
-        Locked: 'LOCKED'
-    } as const;
-    export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
 }
 
 

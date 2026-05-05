@@ -49,11 +49,20 @@ export class AcademicYearsPeriod implements OnInit {
   selectedPeriodIdForSession = signal<number | null>(null);
   editingSessionId = signal<number | null>(null);
 
+  // --- TOGGLE LOCK (PERIOD) MODAL STATES ---
+  showToggleLockModal = signal<boolean>(false);
+  selectedPeriodForToggleLock = signal<PeriodResponse | null>(null);
+  isTogglingLock = signal<boolean>(false);
+
+  // --- TOGGLE LOCK (SESSION) MODAL STATES (ADDED) ---
+  showSessionLockModal = signal<boolean>(false);
+  selectedSessionForLock = signal<ExamSessionResponse | null>(null);
+  isTogglingSessionLock = signal<boolean>(false);
+
   // --- FORMS  ---
   sessionForm = this.fb.group({
     label: ['', [Validators.required]],
     sessionType: ['MAIN', [Validators.required]],
-    status: ['OPEN', [Validators.required]],
     startDate: ['', [Validators.required]],
     endDate: ['', [Validators.required]]
   });
@@ -179,23 +188,20 @@ export class AcademicYearsPeriod implements OnInit {
   // EXAM SESSION ACTIONS (MODAL)
   openSessionModal(periodId: number) {
     this.selectedPeriodIdForSession.set(periodId);
-    this.editingSessionId.set(null); // Mode Création
+    this.editingSessionId.set(null); // Creation Mode
     this.sessionForm.reset({
-      sessionType: 'MAIN',
-      status: 'OPEN'
+      sessionType: 'MAIN'
     });
     this.showSessionModal.set(true);
   }
 
-  // Opens the modal in edit mode with pre-filled data
   editSession(session: ExamSessionResponse, periodId: number) {
-    this.selectedPeriodIdForSession.set(periodId); // Use the periodId passed from the HTML
-    this.editingSessionId.set(session.id!); // Edit mode
+    this.selectedPeriodIdForSession.set(periodId);
+    this.editingSessionId.set(session.id!);
 
     this.sessionForm.patchValue({
       label: session.label,
       sessionType: session.sessionType,
-      status: session.status,
       startDate: session.startDate,
       endDate: session.endDate
     });
@@ -223,7 +229,6 @@ export class AcademicYearsPeriod implements OnInit {
     const payload: ExamSessionRequest = {
       label: this.sessionForm.value.label!,
       sessionType: this.sessionForm.value.sessionType as ExamSessionRequest.SessionTypeEnum,
-      status: this.sessionForm.value.status as ExamSessionRequest.StatusEnum,
       startDate: this.sessionForm.value.startDate!,
       endDate: this.sessionForm.value.endDate!,
       periodId: periodId
@@ -232,7 +237,6 @@ export class AcademicYearsPeriod implements OnInit {
     const sessionId = this.editingSessionId();
 
     if (sessionId) {
-      // UPDATE MODE
       this.examSessionApi.updateExamSession(sessionId, payload).subscribe({
         next: () => {
           this.isSaving.set(false);
@@ -240,13 +244,9 @@ export class AcademicYearsPeriod implements OnInit {
           this.loadPeriods();
           this.toast.success('Session modifiée avec succès !');
         },
-        error: err => {
-          this.isSaving.set(false);
-          this.handleSessionError(err);
-        }
+        error: err => this.handleSessionError(err)
       });
     } else {
-      // CREATION MODE
       this.examSessionApi.createExamSession(payload).subscribe({
         next: () => {
           this.isSaving.set(false);
@@ -254,10 +254,7 @@ export class AcademicYearsPeriod implements OnInit {
           this.loadPeriods();
           this.toast.success('Session ajoutée avec succès !');
         },
-        error: err => {
-          this.isSaving.set(false);
-          this.handleSessionError(err);
-        }
+        error: err => this.handleSessionError(err)
       });
     }
   }
@@ -265,32 +262,173 @@ export class AcademicYearsPeriod implements OnInit {
   // ==========================================
   // ERROR HANDLING
   // ==========================================
+
   private handleBackendError(err: any) {
     this.isSaving.set(false);
     const errorBody = err?.error;
-    if (errorBody && errorBody.errorCode === 'ENTITY_ALREADY_EXISTS') {
-      if (errorBody.message === 'PERIOD_LABEL_ALREADY_EXISTS_IN_THIS_YEAR') {
-        this.toast.error('Le nom de cette période existe déjà pour cette année.');
+
+    if (errorBody?.errors) {
+      for (const erreur of errorBody.errors) {
+        if (erreur.message === 'END_DATE_MUST_BE_AFTER_START_DATE') {
+          this.toast.error('La date de fin doit être postérieure à la date de début.');
+        }
       }
-    } else if (errorBody?.message === 'END_DATE_MUST_BE_AFTER_START_DATE') {
-      this.toast.error('La date de fin doit être après la date de début.');
+    } else if (errorBody?.message === 'PERIOD_LABEL_ALREADY_EXISTS_IN_THIS_YEAR') {
+      this.toast.error('Le nom de cette période existe déjà pour cette année.');
+    } else if (errorBody?.message === 'PERIOD_DATES_MUST_BE_WITHIN_ACADEMIC_YEAR_DATES') {
+      this.toast.error(
+        "Les dates de la période doivent être comprises dans celles de l'année scolaire."
+      );
+    } else if (errorBody?.message === 'PERIOD_DATES_OVERLAP_EXISTING_PERIOD') {
+      this.toast.error('Les dates se chevauchent avec une autre période déjà existante.');
     } else {
       this.toast.error('Une erreur inattendue est survenue.');
+      console.error('API Error:', err);
     }
   }
 
   private handleSessionError(err: any) {
-    const message = err?.error?.message;
-    if (message === 'EXAM_SESSION_TYPE_ALREADY_EXISTS_IN_THIS_PERIOD') {
-      this.toast.error('Une session de ce type existe déjà pour cette période.');
-    } else if (message === 'AN_OPEN_SESSION_ALREADY_EXISTS_IN_THIS_PERIOD') {
-      this.toast.error(
-        "Il y a déjà une session ouverte. Veuillez la fermer avant d'en ouvrir une nouvelle."
-      );
-    } else if (message === 'EXAM_SESSION_LABEL_ALREADY_EXISTS_IN_THIS_PERIOD') {
-      this.toast.error('Ce nom de session existe déjà dans cette période.');
-    } else {
-      this.toast.error("Erreur lors de l'opération sur la session.");
+    this.isSaving.set(false);
+    const errorBody = err?.error;
+
+    // Handling validation errors array (e.g.: END_DATE_MUST_BE_AFTER_START_DATE)
+    if (errorBody?.errors) {
+      for (const erreur of errorBody.errors) {
+        if (erreur.message === 'END_DATE_MUST_BE_AFTER_START_DATE') {
+          this.toast.error('La date de fin de session doit être postérieure à la date de début.');
+        }
+      }
+      return;
     }
+
+    // Dictionary of Session-specific errors
+    const errorMessages: Record<string, string> = {
+      // Period / Year related errors
+      CREATION_FORBIDDEN_YEAR_IS_COMPLETED:
+        "Impossible d'ajouter une session : l'année scolaire est clôturée.",
+      CANNOT_CREATE_MAIN_SESSION_IN_LOCKED_PERIOD:
+        "Impossible d'ajouter une session dans une période verrouillée.",
+
+      // Duplication errors
+      MAIN_SESSION_ALREADY_EXISTS_FOR_THIS_PERIOD:
+        'Une session Principale existe déjà pour cette période.',
+      RETAKE_SESSION_ALREADY_EXISTS_FOR_THIS_PERIOD:
+        'Une session de Rattrapage existe déjà pour cette période.',
+      EXAM_SESSION_LABEL_ALREADY_EXISTS_IN_THIS_PERIOD:
+        'Ce nom de session existe déjà dans cette période.',
+
+      // Date errors (Main Session)
+      MAIN_SESSION_DATES_MUST_BE_WITHIN_PERIOD_DATES:
+        'Les dates de la session Principale doivent être comprises dans celles de la période.',
+
+      // Retake rules
+      CANNOT_CREATE_RETAKE_WITHOUT_MAIN_SESSION:
+        "Vous devez d'abord créer une session Principale avant d'ajouter un Rattrapage.",
+      RETAKE_START_DATE_MUST_BE_AFTER_MAIN_SESSION_END_DATE:
+        'Le Rattrapage doit obligatoirement commencer après la fin de la session Principale.'
+    };
+
+    // Display the translated message if found in the dictionary
+    const errorCode = errorBody?.message;
+    if (errorCode && errorMessages[errorCode]) {
+      this.toast.error(errorMessages[errorCode]);
+    }
+    // Default error message
+    else {
+      this.toast.error("Erreur inattendue lors de l'opération sur la session.");
+      console.error('Session API Error:', err);
+    }
+  }
+
+  // ==========================================
+  // LOCK / UNLOCK ACTIONS (PERIOD)
+  // ==========================================
+  openToggleLockModal(period: PeriodResponse) {
+    this.selectedPeriodForToggleLock.set(period);
+    this.showToggleLockModal.set(true);
+  }
+
+  closeToggleLockModal() {
+    this.showToggleLockModal.set(false);
+    this.selectedPeriodForToggleLock.set(null);
+  }
+
+  confirmToggleLock() {
+    const period = this.selectedPeriodForToggleLock();
+    if (!period || !period.id) return;
+
+    this.isTogglingLock.set(true);
+
+    this.periodApi.togglePeriodLock(period.id).subscribe({
+      next: () => {
+        const actionMessage = period.isLocked ? 'déverrouillée' : 'verrouillée';
+        this.toast.success(`La période ${period.label} a été ${actionMessage} avec succès.`);
+        this.isTogglingLock.set(false);
+        this.closeToggleLockModal();
+        this.loadPeriods();
+      },
+      error: err => {
+        this.isTogglingLock.set(false);
+        this.closeToggleLockModal();
+
+        const errorMessage = err?.error?.message;
+
+        if (errorMessage === 'CANNOT_LOCK_PERIOD_BEFORE_ITS_END_DATE') {
+          this.toast.error('Impossible de verrouiller cette période avant sa date de fin.');
+        } else if (errorMessage === 'CANNOT_UNLOCK_PERIOD_OF_COMPLETED_YEAR') {
+          this.toast.error(
+            "Impossible de déverrouiller une période si l'année scolaire est définitivement terminée."
+          );
+        } else {
+          this.toast.error('Erreur lors de la modification du verrouillage de la période.');
+        }
+        console.error('Erreur API ToggleLock Période:', err);
+      }
+    });
+  }
+
+  // ==========================================
+  // LOCK / UNLOCK ACTIONS (SESSION)
+  // ==========================================
+  openToggleSessionLockModal(session: ExamSessionResponse) {
+    this.selectedSessionForLock.set(session);
+    this.showSessionLockModal.set(true);
+  }
+
+  closeToggleSessionLockModal() {
+    this.showSessionLockModal.set(false);
+    this.selectedSessionForLock.set(null);
+  }
+
+  confirmToggleSessionLock() {
+    const session = this.selectedSessionForLock();
+    if (!session || !session.id) return;
+
+    this.isTogglingSessionLock.set(true);
+
+    this.examSessionApi.toggleSessionLock(session.id).subscribe({
+      next: () => {
+        const actionMessage = session.isLocked ? 'déverrouillée' : 'verrouillée';
+        this.toast.success(`La session a été ${actionMessage} avec succès.`);
+        this.isTogglingSessionLock.set(false);
+        this.closeToggleSessionLockModal();
+        this.loadPeriods();
+      },
+      error: err => {
+        this.isTogglingSessionLock.set(false);
+        this.closeToggleSessionLockModal();
+
+        const errorMessage = err?.error?.message;
+
+        if (errorMessage === 'CANNOT_LOCK_SESSION_BEFORE_ITS_END_DATE') {
+          this.toast.error('Impossible de verrouiller cette session avant sa date de fin.');
+        } else if (errorMessage === 'CANNOT_MODIFY_LOCK_ON_COMPLETED_YEAR') {
+          this.toast.error("Impossible de modifier une session car l'année est terminée.");
+        } else {
+          this.toast.error('Erreur lors de la modification du verrouillage de la session.');
+        }
+        console.error('Erreur API ToggleSessionLock:', err);
+      }
+    });
   }
 }

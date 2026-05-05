@@ -1,21 +1,20 @@
 package com.tiba.pts.modules.academicyear.dto.response;
 
-import lombok.Builder;
-import lombok.Data;
+import com.tiba.pts.modules.academicyear.domain.enums.YearStatus;
 
 import java.time.LocalDate;
 
-@Data
-@Builder
-public class ActiveAcademicYearResponse {
+public record ActiveAcademicYearResponse(
+    Long id,
+    String label,
+    LocalDate startDate,
+    LocalDate endDate,
+    YearStatus status,
 
-  private String label;
+    // --- Global Statistics ---
+    long remainingDaysInYear, // Days before the end of the school year
 
-  private LocalDate startDate;
-
-  private LocalDate endDate;
-
-  private String currentPeriod;
-
-  private long daysRemaining;
-}
+    // --- Current Period Statistics ---
+    String currentPeriodLabel,
+    int periodProgress,
+    long remainingDaysInCurrentPeriod) {}
