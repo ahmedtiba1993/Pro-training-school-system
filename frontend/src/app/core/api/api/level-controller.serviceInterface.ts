@@ -48,4 +48,13 @@ export interface LevelControllerServiceInterface {
      */
     updateLevel(id: number, levelRequest: LevelRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
 
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/levels/{id}/status
+     * @param id 
+     * @param isActive 
+     */
+    updateLevelStatus(id: number, isActive: boolean, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
 }

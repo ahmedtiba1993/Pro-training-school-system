@@ -48,7 +48,6 @@ model/api-response-academic-year-response.ts
 model/api-response-accelerated-promotion-response.ts
 model/api-response-accredited-promotion-response.ts
 model/api-response-active-academic-year-response.ts
-model/api-response-boolean.ts
 model/api-response-continuous-promotion-response.ts
 model/api-response-enrollment-response.ts
 model/api-response-exam-session-response.ts

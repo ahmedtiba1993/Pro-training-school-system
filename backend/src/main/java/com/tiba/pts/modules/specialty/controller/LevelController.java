@@ -46,4 +46,15 @@ public class LevelController {
     ApiResponse<Long> response = ApiResponse.success("LEVEL_UPDATED_SUCCESSFULLY", updatedId);
     return ResponseEntity.ok(response);
   }
+
+  @PatchMapping("/{id}/status")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<Long>> updateLevelStatus(
+      @PathVariable Long id, @RequestParam boolean isActive) {
+
+    Long updatedId = levelService.updateStatus(id, isActive);
+    ApiResponse<Long> response =
+        ApiResponse.success("LEVEL_STATUS_UPDATED_SUCCESSFULLY", updatedId);
+    return ResponseEntity.ok(response);
+  }
 }

@@ -8,6 +8,7 @@ export interface LevelDto {
   code: string;
   label: string;
   accessLevel?: string;
+  isActive: boolean;
 }
 
 @Component({
@@ -27,10 +28,13 @@ export class Level implements OnInit {
   isModalOpen = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
 
-  // Signal to store the ID of the level being edited (null if adding)
+  // --- Signals for the status confirmation modal ---
+  isConfirmModalOpen = signal<boolean>(false);
+  levelToToggle = signal<LevelDto | null>(null);
+  isToggling = signal<boolean>(false);
+
   editingLevelId = signal<number | null>(null);
 
-  // Access level translation dictionary
   private accessLevelTranslations: Record<string, string> = {
     GRADE_9: '9ème Année de Base accomplie ou équivalant',
     SECONDARY_1: '1ère Année Secondaire accomplie ou équivalent',
@@ -69,32 +73,83 @@ export class Level implements OnInit {
     });
   }
 
-  // --- OPEN MODAL FOR ADDING ---
+  // --- OPEN THE CONFIRMATION MODAL ---
+  openToggleConfirmModal(level: LevelDto): void {
+    this.levelToToggle.set(level);
+    this.isConfirmModalOpen.set(true);
+  }
+
+  // --- CLOSE THE CONFIRMATION MODAL ---
+  closeConfirmModal(): void {
+    this.isConfirmModalOpen.set(false);
+    this.levelToToggle.set(null);
+  }
+
+  // --- CONFIRM AND CALL THE API ---
+  confirmToggleLevelStatus(): void {
+    const level = this.levelToToggle();
+    if (!level) return;
+
+    this.isToggling.set(true);
+    const newStatus = !level.isActive;
+
+    this.levelService.updateLevelStatus(level.id, newStatus).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.toastService.success(`Niveau ${newStatus ? 'activé' : 'désactivé'} avec succès`);
+          this.levels.update(currentLevels =>
+            currentLevels.map(l => (l.id === level.id ? { ...l, isActive: newStatus } : l))
+          );
+          this.closeConfirmModal();
+        } else {
+          this.toastService.error(res.message || 'Erreur lors du changement de statut');
+        }
+        this.isToggling.set(false);
+      },
+      error: err => {
+        this.toastService.error('Erreur de connexion au serveur');
+        this.isToggling.set(false);
+      }
+    });
+  }
+
   openAddModal(): void {
-    this.editingLevelId.set(null); // On s'assure qu'aucun ID n'est stocké
+    this.editingLevelId.set(null);
     this.levelForm.reset({ accessLevel: '' });
     this.levelForm.markAsUntouched();
     this.isModalOpen.set(true);
   }
 
-  // --- OPEN MODAL FOR EDITING---
   openEditModal(level: LevelDto): void {
     this.editingLevelId.set(level.id);
-
-    // Fill form with existing data
     this.levelForm.patchValue({
       code: level.code,
       label: level.label,
       accessLevel: level.accessLevel || ''
     });
-
     this.levelForm.markAsUntouched();
     this.isModalOpen.set(true);
   }
 
   closeModal(): void {
     this.isModalOpen.set(false);
-    this.editingLevelId.set(null); // Reset ID on close
+    this.editingLevelId.set(null);
+  }
+
+  private handleBackendErrors(payload: any): void {
+    if (payload && payload.errors && Array.isArray(payload.errors)) {
+      payload.errors.forEach((err: any) => {
+        if (err.message === 'CODE_ALREADY_EXISTS') {
+          this.toastService.error('Ce code existe déjà.');
+        } else if (err.message === 'LABEL_ALREADY_EXISTS') {
+          this.toastService.error('Ce nom existe déjà.');
+        } else {
+          this.toastService.error(err.message || 'Une erreur est survenue.');
+        }
+      });
+    } else {
+      this.toastService.error(payload?.message || 'Erreur lors de la sauvegarde.');
+    }
   }
 
   onSubmit(): void {
@@ -108,7 +163,6 @@ export class Level implements OnInit {
     const currentId = this.editingLevelId();
 
     if (currentId !== null) {
-      // UPDATE LOGIC
       this.levelService.updateLevel(currentId, request).subscribe({
         next: (res: any) => {
           if (res.success) {
@@ -116,17 +170,16 @@ export class Level implements OnInit {
             this.closeModal();
             this.loadLevels();
           } else {
-            this.toastService.error(res.message || 'Erreur lors de la modification');
+            this.handleBackendErrors(res);
           }
           this.isSubmitting.set(false);
         },
         error: err => {
-          this.toastService.error('Erreur lors de la modification du niveau');
+          this.handleBackendErrors(err.error);
           this.isSubmitting.set(false);
         }
       });
     } else {
-      // ADD LOGIC
       this.levelService.createLevel(request).subscribe({
         next: (res: any) => {
           if (res.success) {
@@ -134,22 +187,20 @@ export class Level implements OnInit {
             this.closeModal();
             this.loadLevels();
           } else {
-            this.toastService.error(res.message || 'Erreur lors de la création');
+            this.handleBackendErrors(res);
           }
           this.isSubmitting.set(false);
         },
         error: err => {
-          this.toastService.error('Erreur lors de la création du niveau');
+          this.handleBackendErrors(err.error);
           this.isSubmitting.set(false);
         }
       });
     }
   }
 
-  //Method to get translated label in HTML
   getAccessLevelLabel(code: string | undefined): string {
     if (!code) return 'Non défini';
-    // Returns translation if it exists, otherwise displays raw code
     return this.accessLevelTranslations[code] || code;
   }
 }

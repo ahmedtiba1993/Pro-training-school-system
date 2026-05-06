@@ -13,9 +13,7 @@
       (click)="openAddModal()"
       class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm"
     >
-      <svg class="w-6 h-6" stroke-width="2">
-        <use href="icons.svg#icon-plus-circle"></use>
-      </svg>
+      <svg class="w-6 h-6" stroke-width="2"><use href="icons.svg#icon-plus-circle"></use></svg>
       Ajouter un Niveau
     </button>
   </header>
@@ -29,24 +27,29 @@
           <tr>
             <th class="px-6 py-4">Code / Niveau</th>
             <th class="px-6 py-4">Niveau d'accès</th>
+            <th class="px-6 py-4">Statut</th>
             <th class="px-6 py-4 text-right">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
           @if (isLoading()) {
           <tr>
-            <td colspan="3" class="px-6 py-8 text-center text-slate-500">Chargement...</td>
+            <td colspan="4" class="px-6 py-8 text-center text-slate-500">Chargement...</td>
           </tr>
           } @else { @for (level of levels(); track level.id) {
-          <tr class="hover:bg-slate-50 transition-colors">
+          <tr class="hover:bg-slate-50 transition-colors" [class.opacity-60]="!level.isActive">
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
                 <div
                   class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs uppercase"
+                  [class.bg-slate-100]="!level.isActive"
+                  [class.text-slate-500]="!level.isActive"
                 >
                   {{ level.code }}
                 </div>
-                <span class="font-semibold text-slate-700">{{ level.label }}</span>
+                <span class="font-semibold text-slate-700" [class.text-slate-500]="!level.isActive">
+                  {{ level.label }}
+                </span>
               </div>
             </td>
             <td class="px-6 py-4">
@@ -56,15 +59,67 @@
                 {{ getAccessLevelLabel(level.accessLevel) }}
               </span>
             </td>
+            <td class="px-6 py-4">
+              @if (level.isActive) {
+              <span
+                class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 w-fit"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Actif
+              </span>
+              } @else {
+              <span
+                class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 w-fit"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Inactif
+              </span>
+              }
+            </td>
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-2">
-                <!-- Bouton Modifier -->
+                <button
+                  (click)="openToggleConfirmModal(level)"
+                  class="p-2 transition-colors rounded-lg hover:bg-slate-100"
+                  [class.text-rose-500]="level.isActive"
+                  [class.text-emerald-600]="!level.isActive"
+                  [title]="level.isActive ? 'Désactiver ce niveau' : 'Activer ce niveau'"
+                >
+                  @if (level.isActive) {
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                    />
+                  </svg>
+                  } @else {
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  }
+                </button>
+
                 <button
                   (click)="openEditModal(level)"
-                  class="p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+                  class="p-2 text-slate-400 hover:text-indigo-600 transition-colors rounded-lg hover:bg-slate-100"
                   title="Modifier"
                 >
-                  <svg class="w-6 h-6" stroke-width="2">
+                  <svg class="w-5 h-5" stroke="currentColor" stroke-width="2">
                     <use href="icons.svg#icon-edit"></use>
                   </svg>
                 </button>
@@ -73,7 +128,7 @@
           </tr>
           } @empty {
           <tr>
-            <td colspan="3" class="px-6 py-8 text-center text-slate-500">Aucun niveau trouvé.</td>
+            <td colspan="4" class="px-6 py-8 text-center text-slate-500">Aucun niveau trouvé.</td>
           </tr>
           } }
         </tbody>
@@ -82,7 +137,7 @@
   </div>
 </main>
 
-<!-- Shared Modal (Add / Edit) -->
+<!-- === ADD / EDIT MODAL === -->
 @if (isModalOpen()) {
 <div
   class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
@@ -98,13 +153,9 @@
           class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
         >
           @if (editingLevelId()) {
-          <svg class="w-5 h-5" stroke-width="2">
-            <use href="icons.svg#icon-edit-alt"></use>
-          </svg>
+          <svg class="w-5 h-5" stroke-width="2"><use href="icons.svg#icon-edit-alt"></use></svg>
           } @else {
-          <svg class="w-5 h-5" stroke-width="2">
-            <use href="icons.svg#icon-settings"></use>
-          </svg>
+          <svg class="w-5 h-5" stroke-width="2"><use href="icons.svg#icon-settings"></use></svg>
           }
         </div>
         <h3 class="font-bold text-slate-800 text-lg">
@@ -117,15 +168,12 @@
         (click)="closeModal()"
         class="text-slate-400 hover:text-slate-600 transition-colors"
       >
-        <svg class="w-6 h-6" stroke-width="2">
-          <use href="icons.svg#icon-close"></use>
-        </svg>
+        <svg class="w-6 h-6" stroke-width="2"><use href="icons.svg#icon-close"></use></svg>
       </button>
     </div>
 
     <!-- FORM CONTENT -->
     <div class="p-6 space-y-6">
-      <!--Level Code and Name -->
       <div class="grid grid-cols-3 gap-4">
         <div class="col-span-1">
           <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider"
@@ -175,7 +223,6 @@
         </div>
       </div>
 
-      <!-- Required Access Level-->
       <div>
         <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider"
           >Niveau d'accès *</label
@@ -219,25 +266,98 @@
       >
         Annuler
       </button>
-
       <button
         type="submit"
         [disabled]="levelForm.invalid || isSubmitting()"
         class="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         @if (isSubmitting()) {
-        <svg class="animate-spin h-4 w-4 text-white">
-          <use href="icons.svg#icon-spinner"></use>
-        </svg>
+        <svg class="animate-spin h-4 w-4 text-white"><use href="icons.svg#icon-spinner"></use></svg>
         {{ editingLevelId() ? 'Modification...' : 'Enregistrement...' }}
         } @else {
-        <svg class="w-6 h-6" stroke-width="2">
-          <use href="icons.svg#icon-save"></use>
-        </svg>
+        <svg class="w-6 h-6" stroke-width="2"><use href="icons.svg#icon-save"></use></svg>
         {{ editingLevelId() ? 'Modifier' : 'Enregistrer' }}
         }
       </button>
     </div>
   </form>
+</div>
+}
+
+<!-- === STATUS CONFIRMATION MODAL === -->
+@if (isConfirmModalOpen() && levelToToggle()) {
+<div
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+>
+  <div
+    class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform transition-all"
+  >
+    <div class="p-6 text-center">
+      <!-- Warning icon depending on status -->
+      <div
+        class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4"
+        [class.bg-rose-100]="levelToToggle()!.isActive"
+        [class.text-rose-600]="levelToToggle()!.isActive"
+        [class.bg-emerald-100]="!levelToToggle()!.isActive"
+        [class.text-emerald-600]="!levelToToggle()!.isActive"
+      >
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+      </div>
+
+      <h3 class="text-lg font-bold text-slate-800 mb-2">
+        {{ levelToToggle()!.isActive ? 'Désactiver le niveau ?' : 'Activer le niveau ?' }}
+      </h3>
+      <p class="text-sm text-slate-500">
+        Êtes-vous sûr de vouloir {{ levelToToggle()!.isActive ? 'désactiver' : 'activer' }} le
+        niveau <strong class="text-slate-800">{{ levelToToggle()!.code }}</strong> ?
+      </p>
+    </div>
+
+    <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
+      <button
+        type="button"
+        (click)="closeConfirmModal()"
+        [disabled]="isToggling()"
+        class="flex-1 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-colors disabled:opacity-50"
+      >
+        Annuler
+      </button>
+
+      <button
+        type="button"
+        (click)="confirmToggleLevelStatus()"
+        [disabled]="isToggling()"
+        class="flex-1 py-2.5 text-white rounded-xl text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        [class.bg-rose-600]="levelToToggle()!.isActive"
+        [class.hover:bg-rose-700]="levelToToggle()!.isActive"
+        [class.bg-emerald-600]="!levelToToggle()!.isActive"
+        [class.hover:bg-emerald-700]="!levelToToggle()!.isActive"
+      >
+        @if (isToggling()) {
+        <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        Patientez... } @else { Confirmer }
+      </button>
+    </div>
+  </div>
 </div>
 }

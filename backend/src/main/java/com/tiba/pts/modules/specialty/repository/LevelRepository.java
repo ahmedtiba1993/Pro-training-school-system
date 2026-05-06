@@ -10,4 +10,8 @@ public interface LevelRepository extends JpaRepository<Level, Long> {
   boolean existsByCode(String code);
 
   boolean existsByCodeAndIdNot(String code, Long id);
+
+  boolean existsByLabel(String label);
+
+  boolean existsByLabelAndIdNot(String label, Long id);
 }

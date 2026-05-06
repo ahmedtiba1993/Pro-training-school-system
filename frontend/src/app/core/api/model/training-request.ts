@@ -10,9 +10,11 @@
 
 
 export interface TrainingRequest { 
+    description?: string;
     trainingType: TrainingRequest.TrainingTypeEnum;
-    durationInMonths: number;
-    isActive: boolean;
+    durationValue: number;
+    status?: TrainingRequest.StatusEnum;
+    durationUnit: TrainingRequest.DurationUnitEnum;
     levelId: number;
     specialtyId: number;
 }
@@ -23,6 +25,21 @@ export namespace TrainingRequest {
         Accredited: 'ACCREDITED'
     } as const;
     export type TrainingTypeEnum = typeof TrainingTypeEnum[keyof typeof TrainingTypeEnum];
+    export const StatusEnum = {
+        Draft: 'DRAFT',
+        Active: 'ACTIVE',
+        Suspended: 'SUSPENDED',
+        Archived: 'ARCHIVED'
+    } as const;
+    export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
+    export const DurationUnitEnum = {
+        Years: 'YEARS',
+        Months: 'MONTHS',
+        Weeks: 'WEEKS',
+        Days: 'DAYS',
+        Hours: 'HOURS'
+    } as const;
+    export type DurationUnitEnum = typeof DurationUnitEnum[keyof typeof DurationUnitEnum];
 }
 
 

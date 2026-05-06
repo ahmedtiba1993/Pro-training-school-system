@@ -37,8 +37,8 @@ public class SpecialtyService {
             .orElseThrow(() -> new ResourceNotFoundException("SPECIALTY_NOT_FOUND"));
 
     // Update basic fields of the specialty
-    specialty.setLabel(request.getLabel());
-    specialty.setCode(request.getCode());
+    specialty.setLabel(request.label());
+    specialty.setCode(request.code());
 
     return specialtyRepository.save(specialty).getId();
   }
@@ -47,29 +47,25 @@ public class SpecialtyService {
     List<ErrorDetail> erreurs = new ArrayList<>();
 
     // Check if the specialty name already exists
-    // If specialtyId is null → creation case
-    // Otherwise → update case, excluding the current specialty ID
     boolean nameExists =
         (specialtyId == null)
-            ? specialtyRepository.existsByLabelIgnoreCase(request.getLabel())
-            : specialtyRepository.existsByLabelIgnoreCaseAndIdNot(request.getLabel(), specialtyId);
+            ? specialtyRepository.existsByLabelIgnoreCase(request.label())
+            : specialtyRepository.existsByLabelIgnoreCaseAndIdNot(request.label(), specialtyId);
 
     if (nameExists) {
       erreurs.add(new ErrorDetail("name", "SPECIALTY_NAME_ALREADY_EXISTS"));
     }
 
     // Check if the specialty code already exists
-    // Same logic: exclude the current ID during update
     boolean codeExists =
         (specialtyId == null)
-            ? specialtyRepository.existsByCodeIgnoreCase(request.getCode())
-            : specialtyRepository.existsByCodeIgnoreCaseAndIdNot(request.getCode(), specialtyId);
+            ? specialtyRepository.existsByCodeIgnoreCase(request.code())
+            : specialtyRepository.existsByCodeIgnoreCaseAndIdNot(request.code(), specialtyId);
 
     if (codeExists) {
       erreurs.add(new ErrorDetail("code", "SPECIALTY_CODE_ALREADY_EXISTS"));
     }
 
-    // Throw a validation exception if any errors were found
     if (!erreurs.isEmpty()) {
       throw new DuplicateResourceException("VALIDATION_ERREUR", erreurs);
     }

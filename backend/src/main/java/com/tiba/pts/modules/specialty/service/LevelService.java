@@ -10,6 +10,8 @@ import com.tiba.pts.modules.specialty.mapper.LevelMapper;
 import com.tiba.pts.modules.specialty.repository.LevelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class LevelService {
   }
 
   public List<LevelResponse> getAll() {
-    return levelRepository.findAll().stream().map(levelMapper::toReponse).toList();
+    return levelRepository.findAll().stream().map(levelMapper::toResponse).toList();
   }
 
   public Long update(Long id, LevelRequest request) {
@@ -35,19 +37,45 @@ public class LevelService {
         levelRepository
             .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("LEVEL_NOT_FOUND"));
+
     validateLevel(request, id);
+
     levelMapper.updateEntityFromDto(request, existingLevel);
     return levelRepository.save(existingLevel).getId();
   }
 
+  public Long updateStatus(Long id, boolean isActive) {
+    Level existingLevel =
+        levelRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("LEVEL_NOT_FOUND"));
+
+    existingLevel.setIsActive(isActive);
+    return levelRepository.save(existingLevel).getId();
+  }
+
+  // --- MULTIPLE VALIDATION ---
   private void validateLevel(LevelRequest request, Long id) {
     List<ErrorDetail> conflicts = new ArrayList<>();
-    boolean exists =
+
+    // Code verification
+    boolean codeExists =
         (id == null)
-            ? levelRepository.existsByCode(request.getCode()) // create
-            : levelRepository.existsByCodeAndIdNot(request.getCode(), id); // update
-    if (exists) {
+            ? levelRepository.existsByCode(request.code())
+            : levelRepository.existsByCodeAndIdNot(request.code(), id);
+
+    if (codeExists) {
       conflicts.add(new ErrorDetail("code", "CODE_ALREADY_EXISTS"));
+    }
+
+    // Label verification
+    boolean labelExists =
+        (id == null)
+            ? levelRepository.existsByLabel(request.label())
+            : levelRepository.existsByLabelAndIdNot(request.label(), id);
+
+    if (labelExists) {
+      conflicts.add(new ErrorDetail("label", "LABEL_ALREADY_EXISTS"));
     }
 
     if (!conflicts.isEmpty()) {

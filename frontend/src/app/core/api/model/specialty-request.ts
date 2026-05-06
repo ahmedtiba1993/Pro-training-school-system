@@ -10,7 +10,7 @@
 
 
 export interface SpecialtyRequest { 
-    label: string;
     code: string;
+    label: string;
 }
 

@@ -11,7 +11,6 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { ApiResponseBoolean } from '../model/models';
 import { ApiResponseListTrainingResponse } from '../model/models';
 import { ApiResponseListTrainingTypeCountResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
@@ -30,14 +29,6 @@ export interface TrainingControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint patch /api/v1/trainings/{id}/change-activation
-     * @param id 
-     */
-    changeTrainingActivation(id: number, extraHttpRequestParams?: any): Observable<ApiResponseBoolean>;
-
-    /**
-     * 
-     * 
      * @endpoint post /api/v1/trainings
      * @param trainingRequest 
      */
@@ -46,14 +37,14 @@ export interface TrainingControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint get /api/v1/trainings/stats/active-by-type
+     * @endpoint get /api/v1/trainings/stats/active
      */
     getActiveTrainingStats(extraHttpRequestParams?: any): Observable<ApiResponseListTrainingTypeCountResponse>;
 
     /**
      * 
      * 
-     * @endpoint get /api/v1/trainings/level/{levelId}/active
+     * @endpoint get /api/v1/trainings/active/level/{levelId}
      * @param levelId 
      */
     getActiveTrainingsByLevel(levelId: number, extraHttpRequestParams?: any): Observable<ApiResponseListTrainingResponse>;
@@ -83,5 +74,14 @@ export interface TrainingControllerServiceInterface {
      * @param trainingRequest 
      */
     updateTraining(id: number, trainingRequest: TrainingRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/trainings/{id}/status
+     * @param id 
+     * @param status 
+     */
+    updateTrainingStatus(id: number, status: 'DRAFT' | 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED', extraHttpRequestParams?: any): Observable<ApiResponseLong>;
 
 }

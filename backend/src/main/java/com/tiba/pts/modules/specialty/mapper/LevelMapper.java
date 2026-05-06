@@ -12,7 +12,7 @@ public interface LevelMapper {
 
   Level toEntity(LevelRequest request);
 
-  LevelResponse toReponse(Level level);
+  LevelResponse toResponse(Level level);
 
   @Mapping(target = "id", ignore = true)
   void updateEntityFromDto(LevelRequest request, @MappingTarget Level level);

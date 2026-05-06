@@ -9,7 +9,6 @@ export * from './api-response-academic-year-response';
 export * from './api-response-accelerated-promotion-response';
 export * from './api-response-accredited-promotion-response';
 export * from './api-response-active-academic-year-response';
-export * from './api-response-boolean';
 export * from './api-response-continuous-promotion-response';
 export * from './api-response-enrollment-response';
 export * from './api-response-exam-session-response';

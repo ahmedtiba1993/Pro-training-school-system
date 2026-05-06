@@ -1,18 +1,21 @@
 package com.tiba.pts.modules.specialty.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import jakarta.validation.constraints.Size;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class SpecialtyRequest {
+public record SpecialtyRequest(
+    @NotBlank(message = "SPECIALTY_CODE_REQUIRED") @Size(max = 10, message = "CODE_TOO_LONG")
+        String code,
+    @NotBlank(message = "SPECIALTY_LABEL_REQUIRED") @Size(max = 100, message = "LABEL_TOO_LONG")
+        String label) {
 
-  @NotBlank(message = "SPECIALTY_LABEL_REQUIRED")
-  private String label;
+  public SpecialtyRequest {
+    if (code != null) {
+      code = code.trim().toUpperCase();
+    }
 
-  @NotBlank(message = "SPECIALTY_CODE_REQUIRED")
-  private String code;
+    if (label != null) {
+      label = label.trim();
+    }
+  }
 }

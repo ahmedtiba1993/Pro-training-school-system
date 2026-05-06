@@ -8,5 +8,6 @@ public class LevelResponse {
   private Long id;
   private String code;
   private String label;
+  private Boolean isActive;
   private AccessLevel accessLevel;
 }

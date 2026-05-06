@@ -13,6 +13,7 @@ export interface LevelResponse {
     id?: number;
     code?: string;
     label?: string;
+    isActive?: boolean;
     accessLevel?: LevelResponse.AccessLevelEnum;
 }
 export namespace LevelResponse {

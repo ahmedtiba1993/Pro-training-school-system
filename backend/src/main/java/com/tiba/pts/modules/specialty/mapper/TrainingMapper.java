@@ -25,14 +25,11 @@ public interface TrainingMapper {
   @Mapping(source = "specialty.id", target = "specialtyId")
   @Mapping(source = "specialty.code", target = "specialtyCode")
   @Mapping(source = "specialty.label", target = "specialtyLabel")
-  TrainingResponse toResponse(Training entity);
+  TrainingResponse toResponse(Training training);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "level", ignore = true)
   @Mapping(target = "specialty", ignore = true)
-  @Mapping(
-      target = "createdDate",
-      ignore = true)
   void updateEntityFromRequest(TrainingRequest requestDTO, @MappingTarget Training training);
 
   TrainingTypeCountResponse toTrainingTypeCountResponse(TrainingTypeCountProjection projection);

@@ -27,6 +27,10 @@ public class Level extends BaseEntity {
   @Column(nullable = false)
   private String label;
 
+  @Column(nullable = false)
+  @Builder.Default
+  private Boolean isActive = true;
+
   @Enumerated(EnumType.STRING)
   private AccessLevel accessLevel;
 

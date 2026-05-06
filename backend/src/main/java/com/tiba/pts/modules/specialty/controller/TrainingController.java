@@ -2,14 +2,13 @@ package com.tiba.pts.modules.specialty.controller;
 
 import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.core.dto.PageResponse;
+import com.tiba.pts.modules.specialty.domain.enums.TrainingStatus;
 import com.tiba.pts.modules.specialty.domain.enums.TrainingType;
 import com.tiba.pts.modules.specialty.dto.request.TrainingRequest;
 import com.tiba.pts.modules.specialty.dto.response.TrainingResponse;
 import com.tiba.pts.modules.specialty.dto.response.TrainingTypeCountResponse;
 import com.tiba.pts.modules.specialty.service.TrainingService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +27,7 @@ public class TrainingController {
   private final TrainingService trainingService;
 
   @PostMapping
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<Long>> createTraining(
       @Valid @RequestBody TrainingRequest request) {
     Long trainingId = trainingService.createTraining(request);
@@ -37,38 +36,46 @@ public class TrainingController {
   }
 
   @GetMapping
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<PageResponse<TrainingResponse>>> getAllPaged(
-      @RequestParam(defaultValue = "0") @Min(0) int page,
-      @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
-    PageResponse<TrainingResponse> paginatedData = trainingService.getAllPaged(page, size);
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    PageResponse<TrainingResponse> pageResult = trainingService.getAllPaged(page, size);
     ApiResponse<PageResponse<TrainingResponse>> response =
-        ApiResponse.success("TRAINING_LIST_RETRIEVED", paginatedData);
+        ApiResponse.success("TRAININGS_PAGED_RETRIEVED", pageResult);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/active")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<List<TrainingResponse>>> getAllActiveTrainings(
       @RequestParam(required = false) TrainingType type) {
-    List<TrainingResponse> activeTrainings = trainingService.getAllActive(type);
+    List<TrainingResponse> data = trainingService.getAllActive(type);
     ApiResponse<List<TrainingResponse>> response =
-        ApiResponse.success("ACTIVE_TRAINING_LIST_RETRIEVED", activeTrainings);
+        ApiResponse.success("ACTIVE_TRAININGS_RETRIEVED", data);
     return ResponseEntity.ok(response);
   }
 
-  @PatchMapping("/{id}/change-activation")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<Boolean>> changeTrainingActivation(@PathVariable Long id) {
-    boolean newStatus = trainingService.changeActivation(id);
-    String message =
-        newStatus ? "TRAINING_ACTIVATED_SUCCESSFULLY" : "TRAINING_DEACTIVATED_SUCCESSFULLY";
-    ApiResponse<Boolean> response = ApiResponse.success(message);
+  @GetMapping("/active/level/{levelId}")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<TrainingResponse>>> getActiveTrainingsByLevel(
+      @PathVariable Long levelId) {
+    List<TrainingResponse> data = trainingService.getActiveTrainingsByLevelId(levelId);
+    ApiResponse<List<TrainingResponse>> response =
+        ApiResponse.success("ACTIVE_TRAININGS_BY_LEVEL_RETRIEVED", data);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/stats/active")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<TrainingTypeCountResponse>>> getActiveTrainingStats() {
+    List<TrainingTypeCountResponse> stats = trainingService.getActiveTrainingStats();
+    ApiResponse<List<TrainingTypeCountResponse>> response =
+        ApiResponse.success("ACTIVE_TRAINING_STATS_RETRIEVED", stats);
     return ResponseEntity.ok(response);
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<Long>> updateTraining(
       @PathVariable Long id, @Valid @RequestBody TrainingRequest request) {
     Long updatedId = trainingService.updateTraining(id, request);
@@ -76,25 +83,13 @@ public class TrainingController {
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/stats/active-by-type")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<List<TrainingTypeCountResponse>>> getActiveTrainingStats() {
-    List<TrainingTypeCountResponse> stats = trainingService.getActiveTrainingStats();
-    ApiResponse<List<TrainingTypeCountResponse>> response =
-        ApiResponse.success("TRAINING_STATS_RETRIEVED", stats);
-    return ResponseEntity.ok(response);
-  }
-
-  @GetMapping("/level/{levelId}/active")
-  @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<ApiResponse<List<TrainingResponse>>> getActiveTrainingsByLevel(
-      @PathVariable Long levelId) {
-
-    List<TrainingResponse> trainings = trainingService.getActiveTrainingsByLevelId(levelId);
-
-    ApiResponse<List<TrainingResponse>> response =
-        ApiResponse.success("ACTIVE_TRAININGS_BY_LEVEL_RETRIEVED", trainings);
-
+  @PatchMapping("/{id}/status")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIAT')")
+  public ResponseEntity<ApiResponse<Long>> updateTrainingStatus(
+      @PathVariable Long id, @RequestParam TrainingStatus status) {
+    Long updatedId = trainingService.updateStatus(id, status);
+    ApiResponse<Long> response =
+        ApiResponse.success("TRAINING_STATUS_UPDATED_SUCCESSFULLY", updatedId);
     return ResponseEntity.ok(response);
   }
 }

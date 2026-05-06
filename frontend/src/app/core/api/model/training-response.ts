@@ -11,15 +11,18 @@
 
 export interface TrainingResponse { 
     id?: number;
+    code?: string;
+    description?: string;
     trainingType?: TrainingResponse.TrainingTypeEnum;
-    durationInMonths?: number;
+    durationValue?: number;
+    durationUnit?: TrainingResponse.DurationUnitEnum;
+    status?: TrainingResponse.StatusEnum;
     levelId?: number;
     levelCode?: string;
     levelLabel?: string;
     specialtyId?: number;
     specialtyCode?: string;
     specialtyLabel?: string;
-    active?: boolean;
 }
 export namespace TrainingResponse {
     export const TrainingTypeEnum = {
@@ -28,6 +31,21 @@ export namespace TrainingResponse {
         Accredited: 'ACCREDITED'
     } as const;
     export type TrainingTypeEnum = typeof TrainingTypeEnum[keyof typeof TrainingTypeEnum];
+    export const DurationUnitEnum = {
+        Years: 'YEARS',
+        Months: 'MONTHS',
+        Weeks: 'WEEKS',
+        Days: 'DAYS',
+        Hours: 'HOURS'
+    } as const;
+    export type DurationUnitEnum = typeof DurationUnitEnum[keyof typeof DurationUnitEnum];
+    export const StatusEnum = {
+        Draft: 'DRAFT',
+        Active: 'ACTIVE',
+        Suspended: 'SUSPENDED',
+        Archived: 'ARCHIVED'
+    } as const;
+    export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
 }
 
 
