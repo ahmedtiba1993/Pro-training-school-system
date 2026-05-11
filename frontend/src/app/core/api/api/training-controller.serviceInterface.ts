@@ -46,8 +46,9 @@ export interface TrainingControllerServiceInterface {
      * 
      * @endpoint get /api/v1/trainings/active/level/{levelId}
      * @param levelId 
+     * @param type 
      */
-    getActiveTrainingsByLevel(levelId: number, extraHttpRequestParams?: any): Observable<ApiResponseListTrainingResponse>;
+    getActiveTrainingsByLevel(levelId: number, type?: 'CONTINUOUS' | 'ACCELERATED' | 'ACCREDITED', extraHttpRequestParams?: any): Observable<ApiResponseListTrainingResponse>;
 
     /**
      * 

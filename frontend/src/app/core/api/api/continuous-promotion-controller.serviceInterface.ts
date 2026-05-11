@@ -14,6 +14,7 @@ import { Observable }                                        from 'rxjs';
 import { ApiResponseContinuousPromotionResponse } from '../model/models';
 import { ApiResponseListContinuousPromotionResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
+import { ApiResponseMapPromotionStatusLong } from '../model/models';
 import { ApiResponsePageResponseContinuousPromotionResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
 import { ContinuousPromotionRequest } from '../model/models';
@@ -26,6 +27,15 @@ import { Configuration }                                     from '../configurat
 export interface ContinuousPromotionControllerServiceInterface {
     defaultHeaders: HttpHeaders;
     configuration: Configuration;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/promotions/continuous/{id}/status
+     * @param id 
+     * @param status 
+     */
+    changeContinuousStatus(id: number, status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 
@@ -50,7 +60,7 @@ export interface ContinuousPromotionControllerServiceInterface {
      * @endpoint get /api/v1/promotions/continuous/{id}
      * @param id 
      */
-    getById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseContinuousPromotionResponse>;
+    getContinuousPromotionById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseContinuousPromotionResponse>;
 
     /**
      * 
@@ -59,7 +69,14 @@ export interface ContinuousPromotionControllerServiceInterface {
      * @param status 
      * @param limit 
      */
-    getPromotionsByStatus(status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', limit?: number, extraHttpRequestParams?: any): Observable<ApiResponseListContinuousPromotionResponse>;
+    getContinuousPromotionByStatus(status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', limit?: number, extraHttpRequestParams?: any): Observable<ApiResponseListContinuousPromotionResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/promotions/continuous/status/counts
+     */
+    getContinuousPromotionStatusCounts(extraHttpRequestParams?: any): Observable<ApiResponseMapPromotionStatusLong>;
 
     /**
      * 
@@ -69,14 +86,5 @@ export interface ContinuousPromotionControllerServiceInterface {
      * @param continuousPromotionRequest 
      */
     updateContinuousPromotion(id: number, continuousPromotionRequest: ContinuousPromotionRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
-
-    /**
-     * 
-     * 
-     * @endpoint patch /api/v1/promotions/continuous/{id}/status
-     * @param id 
-     * @param status 
-     */
-    updatePromotionStatus(id: number, status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
 }

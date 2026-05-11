@@ -17,6 +17,7 @@ import com.tiba.pts.modules.specialty.mapper.TrainingMapper;
 import com.tiba.pts.modules.specialty.repository.LevelRepository;
 import com.tiba.pts.modules.specialty.repository.SpecialtyRepository;
 import com.tiba.pts.modules.specialty.repository.TrainingRepository;
+import com.tiba.pts.modules.trainingsession.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +36,7 @@ public class TrainingService {
   private final TrainingMapper trainingMapper;
   private final LevelRepository levelRepository;
   private final SpecialtyRepository specialtyRepository;
+  private final PromotionRepository promotionRepository;
 
   @Transactional
   public Long createTraining(TrainingRequest request) {
@@ -74,13 +76,23 @@ public class TrainingService {
     return activeTrainings.stream().map(trainingMapper::toResponse).toList();
   }
 
-  public List<TrainingResponse> getActiveTrainingsByLevelId(Long levelId) {
+  public List<TrainingResponse> getActiveTrainingsByLevelId(Long levelId, TrainingType type) {
+    // Check level existence
     if (!levelRepository.existsById(levelId)) {
       throw new ResourceNotFoundException("LEVEL_NOT_FOUND");
     }
-    return trainingRepository.findAllByStatusAndLevelId(TrainingStatus.ACTIVE, levelId).stream()
-        .map(trainingMapper::toResponse)
-        .toList();
+
+    // Conditional retrieval
+    List<Training> trainings;
+    if (type != null) {
+      trainings =
+          trainingRepository.findAllByStatusAndLevelIdAndTrainingType(
+              TrainingStatus.ACTIVE, levelId, type);
+    } else {
+      trainings = trainingRepository.findAllByStatusAndLevelId(TrainingStatus.ACTIVE, levelId);
+    }
+
+    return trainings.stream().map(trainingMapper::toResponse).toList();
   }
 
   public List<TrainingTypeCountResponse> getActiveTrainingStats() {
@@ -98,12 +110,12 @@ public class TrainingService {
 
     TrainingStatus currentStatus = existingTraining.getStatus();
 
-    //  ARCHIVED -> Update Total
+    //  ARCHIVED -> Update total
     if (currentStatus == TrainingStatus.ARCHIVED) {
       return trainingRepository.save(existingTraining).getId();
     }
 
-    // ACTIVE / SUSPENDED -> Haute Surveillance
+    // ACTIVE / SUSPENDED -> High supervision
     if (currentStatus == TrainingStatus.ACTIVE || currentStatus == TrainingStatus.SUSPENDED) {
       if (isCoreFieldsModified(existingTraining, request)) {
         throw new BusinessValidationException("ACTIVE_TRAINING_CORE_FIELDS_LOCKED");
@@ -112,7 +124,13 @@ public class TrainingService {
       return trainingRepository.save(existingTraining).getId();
     }
 
-    // Total freedom
+    // Check if there are promotions linked to this training
+    boolean hasPromotions = promotionRepository.existsByTrainingId(existingTraining.getId());
+    if (hasPromotions) {
+      throw new BusinessValidationException("PROMOTIONS_CANNOT_CHANGE_TYPE");
+    }
+
+    // Full freedom
     if (currentStatus == TrainingStatus.DRAFT) {
       Level level = getActiveLevelOrThrow(request.levelId());
       Specialty specialty = getSpecialtyOrThrow(request.specialtyId());
@@ -120,7 +138,7 @@ public class TrainingService {
       validateDurationRules(request.trainingType(), request.durationUnit());
       checkUniqueness(level.getId(), specialty.getId(), request.trainingType(), id);
 
-      // Manual update
+      // Manually update fields
       existingTraining.setDescription(request.description());
       existingTraining.setTrainingType(request.trainingType());
       existingTraining.setDurationValue(request.durationValue());

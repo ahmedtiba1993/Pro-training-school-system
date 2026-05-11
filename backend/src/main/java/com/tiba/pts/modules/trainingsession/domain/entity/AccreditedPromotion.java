@@ -1,9 +1,7 @@
 package com.tiba.pts.modules.trainingsession.domain.entity;
 
 import com.tiba.pts.modules.academicyear.domain.entity.AcademicYear;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,10 +16,16 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class AccreditedPromotion extends Promotion {
 
-  private LocalDate registrationOpeningDate;
-  private LocalDate registrationDeadline;
-
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "academic_year_id", nullable = false)
   private AcademicYear academicYear;
+
+  @PrePersist
+  @PreUpdate
+  public void syncDatesWithAcademicYear() {
+    if (this.academicYear != null) {
+      this.setStartDate(this.academicYear.getStartDate());
+      this.setEndDate(this.academicYear.getEndDate());
+    }
+  }
 }

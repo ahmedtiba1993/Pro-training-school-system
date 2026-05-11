@@ -12,8 +12,11 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { AccreditedPromotionRequest } from '../model/models';
+import { AccreditedPromotionUpdateRequest } from '../model/models';
 import { ApiResponseAccreditedPromotionResponse } from '../model/models';
 import { ApiResponseListAccreditedPromotionResponse } from '../model/models';
+import { ApiResponseListAccreditedPromotionStatsResponse } from '../model/models';
+import { ApiResponseListOngoingPromotionResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ApiResponsePageResponseAccreditedPromotionResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
@@ -30,10 +33,34 @@ export interface AccreditedPromotionControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint patch /api/v1/promotions/accredited/{id}/status
+     * @param id 
+     * @param status 
+     */
+    changePromotionStatus(id: number, status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
      * @endpoint post /api/v1/promotions/accredited
      * @param accreditedPromotionRequest 
      */
     createAccreditedPromotion(accreditedPromotionRequest: AccreditedPromotionRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/promotions/accredited/{id}
+     * @param id 
+     */
+    getAccreditedPromotionById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseAccreditedPromotionResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/promotions/accredited/statistics
+     */
+    getAccreditedPromotionStatistics(extraHttpRequestParams?: any): Observable<ApiResponseListAccreditedPromotionStatsResponse>;
 
     /**
      * 
@@ -47,10 +74,10 @@ export interface AccreditedPromotionControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint get /api/v1/promotions/accredited/{id}
-     * @param id 
+     * @endpoint get /api/v1/promotions/accredited/ongoing
+     * @param limit 
      */
-    getById1(id: number, extraHttpRequestParams?: any): Observable<ApiResponseAccreditedPromotionResponse>;
+    getOngoingPromotions(limit?: number, extraHttpRequestParams?: any): Observable<ApiResponseListOngoingPromotionResponse>;
 
     /**
      * 
@@ -59,24 +86,15 @@ export interface AccreditedPromotionControllerServiceInterface {
      * @param status 
      * @param limit 
      */
-    getPromotionsByStatus1(status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', limit?: number, extraHttpRequestParams?: any): Observable<ApiResponseListAccreditedPromotionResponse>;
+    getPromotionsByStatus(status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', limit?: number, extraHttpRequestParams?: any): Observable<ApiResponseListAccreditedPromotionResponse>;
 
     /**
      * 
      * 
      * @endpoint put /api/v1/promotions/accredited/{id}
      * @param id 
-     * @param accreditedPromotionRequest 
+     * @param accreditedPromotionUpdateRequest 
      */
-    updateAccreditedPromotion(id: number, accreditedPromotionRequest: AccreditedPromotionRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
-
-    /**
-     * 
-     * 
-     * @endpoint patch /api/v1/promotions/accredited/{id}/status
-     * @param id 
-     * @param status 
-     */
-    updatePromotionStatus1(id: number, status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+    updateAccreditedPromotion(id: number, accreditedPromotionUpdateRequest: AccreditedPromotionUpdateRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
 
 }

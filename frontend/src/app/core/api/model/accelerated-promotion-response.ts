@@ -16,22 +16,36 @@ export interface AcceleratedPromotionResponse {
     startDate?: string;
     endDate?: string;
     status?: AcceleratedPromotionResponse.StatusEnum;
-    fee?: number;
+    registrationFee?: number;
+    tuitionFee?: number;
+    registrationDeadline?: string;
+    registrationOpeningDate?: string;
     trainingId?: number;
     trainingLabel?: string;
     specialityLabel?: string;
     enrollmentCount?: number;
-    numberOfHours?: number;
-    level?: string;
+    durationValue?: number;
+    durationUnit?: AcceleratedPromotionResponse.DurationUnitEnum;
+    capacity?: number;
 }
 export namespace AcceleratedPromotionResponse {
     export const StatusEnum = {
-        Planned: 'PLANNED',
-        EnrollmentOpen: 'ENROLLMENT_OPEN',
+        Draft: 'DRAFT',
+        Enrollment: 'ENROLLMENT',
         InProgress: 'IN_PROGRESS',
-        Closed: 'CLOSED'
+        Evaluation: 'EVALUATION',
+        Completed: 'COMPLETED',
+        Cancelled: 'CANCELLED'
     } as const;
     export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
+    export const DurationUnitEnum = {
+        Hours: 'HOURS',
+        Days: 'DAYS',
+        Weeks: 'WEEKS',
+        Months: 'MONTHS',
+        Years: 'YEARS'
+    } as const;
+    export type DurationUnitEnum = typeof DurationUnitEnum[keyof typeof DurationUnitEnum];
 }
 
 

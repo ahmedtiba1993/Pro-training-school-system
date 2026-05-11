@@ -6,13 +6,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface ContinuousPromotionRepository extends JpaRepository<ContinuousPromotion, Long> {
-  // To retrieve with a limit
   Page<ContinuousPromotion> findByStatus(PromotionStatus status, Pageable pageable);
 
-  // To retrieve all of a status
   List<ContinuousPromotion> findByStatus(PromotionStatus status, Sort sort);
+
+  long countByStatus(PromotionStatus status);
+
+  boolean existsByNameIgnoreCase(String name);
 }

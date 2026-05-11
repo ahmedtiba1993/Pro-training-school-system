@@ -9,25 +9,17 @@
  */
 
 
-export interface AccreditedPromotionResponse { 
+export interface OngoingPromotionResponse { 
     id?: number;
-    name?: string;
     code?: string;
-    startDate?: string;
-    endDate?: string;
-    status?: AccreditedPromotionResponse.StatusEnum;
-    registrationFee?: number;
-    tuitionFee?: number;
-    registrationDeadline?: string;
-    registrationOpeningDate?: string;
-    trainingId?: number;
-    trainingLabel?: string;
-    specialityLabel?: string;
+    name?: string;
     enrollmentCount?: number;
-    academicYearId?: number;
-    academicYearLabel?: string;
+    capacity?: number;
+    status?: OngoingPromotionResponse.StatusEnum;
+    registrationOpeningDate?: string;
+    registrationDeadline?: string;
 }
-export namespace AccreditedPromotionResponse {
+export namespace OngoingPromotionResponse {
     export const StatusEnum = {
         Draft: 'DRAFT',
         Enrollment: 'ENROLLMENT',

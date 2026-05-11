@@ -14,6 +14,7 @@ import lombok.Setter;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Formula;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -21,7 +22,6 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public abstract class Promotion extends BaseEntity {
 
   @Id
@@ -31,22 +31,34 @@ public abstract class Promotion extends BaseEntity {
 
   private String name;
 
-  @Column(unique = true, nullable = false)
+  @Column(unique = true, nullable = false, updatable = false)
   private String code;
 
   private LocalDate startDate;
 
   private LocalDate endDate;
 
+  private LocalDate registrationOpeningDate;
+
+  private LocalDate registrationDeadline;
+
+  @Column(nullable = false)
+  private Integer enrollmentCount = 0;
+
   @Enumerated(EnumType.STRING)
-  private PromotionStatus status;
+  @Column(nullable = false)
+  private PromotionStatus status = PromotionStatus.DRAFT;
 
-  private Double fee;
+  @Column(precision = 10, scale = 2, nullable = false)
+  private BigDecimal registrationFee;
 
-  @Formula("0")
-  private Integer enrollmentCount;
+  @Column(precision = 10, scale = 2, nullable = false)
+  private BigDecimal tuitionFee;
 
-  @ManyToOne
+  @Column(nullable = false)
+  private Integer capacity;
+
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "training_id", nullable = false)
   private Training training;
 }

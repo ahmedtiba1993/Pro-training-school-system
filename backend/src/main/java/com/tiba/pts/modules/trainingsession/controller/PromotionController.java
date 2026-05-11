@@ -20,26 +20,20 @@ public class PromotionController {
   private final PromotionService promotionService;
 
   @GetMapping("/statistics")
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SECRETARIAT')")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<PromotionStatisticsResponse>> getPromotionStatistics(
       @RequestParam(required = false) TrainingType trainingType) {
-
     PromotionStatisticsResponse stats = promotionService.getStatistics(trainingType);
-
     ApiResponse<PromotionStatisticsResponse> response =
         ApiResponse.success("PROMOTION_STATISTICS_RETRIEVED_SUCCESSFULLY", stats);
-
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/training/{trainingId}/open-enrollment/lookup")
-  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<ApiResponse<List<PromotionLookupResponse>>> getOpenPromotionsLookup(
       @PathVariable Long trainingId) {
-
     List<PromotionLookupResponse> lookupData =
         promotionService.getOpenPromotionsLookupByTrainingId(trainingId);
-
     return ResponseEntity.ok(ApiResponse.success("PROMOTION_LOOKUP_RETRIEVED", lookupData));
   }
 }

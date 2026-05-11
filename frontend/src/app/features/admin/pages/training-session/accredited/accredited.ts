@@ -1,14 +1,14 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit, computed, inject, signal, DestroyRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, forkJoin } from 'rxjs';
+
 import {
   AccreditedPromotionControllerService,
-  AccreditedPromotionResponse,
-  AccreditedPromotionRequest,
-  PromotionControllerService,
-  TrainingControllerService,
-  TrainingResponse,
-  AcademicYearControllerService
+  AcademicYearControllerService,
+  LevelControllerService,
+  TrainingControllerService
 } from '../../../../../core/api';
 import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
 import { ToastService } from '../../../../../shared/services/toast.service';
@@ -16,399 +16,508 @@ import { ToastService } from '../../../../../shared/services/toast.service';
 @Component({
   selector: 'app-accredited',
   standalone: true,
-  imports: [CommonModule, DatePipe, PaginationComponent, ReactiveFormsModule],
-  templateUrl: './accredited.html',
-  styleUrl: './accredited.css'
+  imports: [CommonModule, ReactiveFormsModule, PaginationComponent],
+  templateUrl: './accredited.html'
 })
 export class Accredited implements OnInit {
-  private accreditedService = inject(AccreditedPromotionControllerService);
-  private promotionService = inject(PromotionControllerService);
-  private trainingService = inject(TrainingControllerService);
+  private promotionService = inject(AccreditedPromotionControllerService);
   private academicYearService = inject(AcademicYearControllerService);
+  private levelService = inject(LevelControllerService);
+  private trainingService = inject(TrainingControllerService);
   private fb = inject(FormBuilder);
-  private toastService = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
+  private toast = inject(ToastService);
 
-  sessions = signal<AccreditedPromotionResponse[]>([]);
-  activeSessions = signal<AccreditedPromotionResponse[]>([]);
-  trainings = signal<TrainingResponse[]>([]);
-  academicYears = signal<any[]>([]);
-  isLoading = signal<boolean>(true);
+  promotions = signal<any[]>([]);
+  isLoading = signal<boolean>(false);
+  error = signal<string | null>(null);
 
-  isModalOpen = signal<boolean>(false);
-  isSubmitting = signal<boolean>(false);
-  isEditMode = signal<boolean>(false);
-  editingSessionId = signal<number | null>(null);
+  currentPage = signal<number>(0); // Current page for pagination
+  pageSize = signal<number>(5); // Number of items per page
+  totalElements = signal<number>(0); // Total number of elements
 
-  statistics = signal({
-    activeSessionsCount: 0,
-    plannedSessionsCount: 0,
-    closedSessionsCount: 0,
-    activeLearnersCount: 0
+  hasData = computed(() => this.promotions().length > 0);
+
+  // STATISTIQUES
+  isStatsLoading = signal<boolean>(false);
+  promotionStats = signal<{ [key: string]: { count: number; enrollments: number } }>({
+    DRAFT: { count: 0, enrollments: 0 },
+    ENROLLMENT: { count: 0, enrollments: 0 },
+    IN_PROGRESS: { count: 0, enrollments: 0 },
+    EVALUATION: { count: 0, enrollments: 0 }
   });
 
-  currentPage = signal<number>(0);
-  pageSize = signal<number>(3);
-  totalElements = signal<number>(0);
+  // PROMOTIONS ACTUELLES (ONGOING - Dashboard limit 4)
+  ongoingPromotions = signal<any[]>([]);
+  isOngoingLoading = signal<boolean>(false);
+
+  // 🔵 NEW: ALL ACTIVE PROMOTIONS (Modal)
+  isOngoingModalOpen = signal<boolean>(false);
+  isAllOngoingLoading = signal<boolean>(false);
+  allOngoingPromotions = signal<any[]>([]);
+
+  // --- MODALS STATES ---
+  isModalOpen = signal<boolean>(false);
+  isModalLoading = signal<boolean>(false);
+  openAcademicYears = signal<any[]>([]);
+  activeLevels = signal<any[]>([]);
+  activeTrainings = signal<any[]>([]);
+  isTrainingsLoading = signal<boolean>(false);
+  createForm!: FormGroup;
 
   isDetailsModalOpen = signal<boolean>(false);
-  selectedSession = signal<AccreditedPromotionResponse | null>(null);
+  isDetailsLoading = signal<boolean>(false);
+  selectedPromotion = signal<any | null>(null);
 
-  isActiveSessionsModalOpen = signal<boolean>(false);
-  allActiveSessions = signal<AccreditedPromotionResponse[]>([]);
-  isLoadingAllActive = signal<boolean>(false);
+  isEditModalOpen = signal<boolean>(false);
+  isEditLoading = signal<boolean>(false);
+  isEditFetching = signal<boolean>(false);
+  currentEditId = signal<number | null>(null);
+  editForm!: FormGroup;
 
-  isConfirmStatusModalOpen = signal<boolean>(false);
-  pendingStatus = signal<'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED' | null>(null);
-  isChangingStatus = signal<boolean>(false);
-
-  sessionForm = this.fb.nonNullable.group({
-    name: ['', [Validators.required, Validators.minLength(3)]],
-    code: ['', [Validators.required]],
-    trainingId: [null as number | null, [Validators.required]],
-    academicYearId: [null as number | null, [Validators.required]],
-    registrationOpeningDate: ['', [Validators.required]],
-    registrationDeadline: ['', [Validators.required]],
-    startDate: ['', [Validators.required]],
-    endDate: ['', [Validators.required]],
-    fee: [null as number | null, [Validators.required, Validators.min(0)]],
-    status: ['PLANNED', [Validators.required]]
-  });
+  isConfirmModalOpen = signal<boolean>(false);
+  isStatusChanging = signal<boolean>(false);
+  confirmData = signal<{ id: number; status: string; label: string } | null>(null);
 
   ngOnInit(): void {
-    this.loadSessions();
+    this.initForm();
+    this.setupFormListeners();
+    this.refreshData();
+  }
+
+  refreshData(): void {
+    this.loadPromotions();
     this.loadStatistics();
-    this.loadTrainings();
-    this.loadAcademicYears();
-    this.loadActiveSessions();
-    this.setupAcademicYearListener();
+    this.loadOngoingPromotions();
   }
 
-  // Listen for changes on the Academic Year to auto-fill dates
-  setupAcademicYearListener(): void {
-    this.sessionForm.get('academicYearId')?.valueChanges.subscribe(yearId => {
-      if (yearId) {
-        const selectedYear = this.academicYears().find(y => y.id === yearId);
-        if (selectedYear) {
-          // Formatting YYYY-MM-DD
-          const start = selectedYear.startDate
-            ? new Date(selectedYear.startDate).toISOString().split('T')[0]
-            : '';
-          const end = selectedYear.endDate
-            ? new Date(selectedYear.endDate).toISOString().split('T')[0]
-            : '';
+  initForm(): void {
+    this.createForm = this.fb.group({
+      name: ['', Validators.required],
+      levelId: ['', Validators.required],
+      trainingId: [{ value: '', disabled: true }, Validators.required],
+      academicYearId: ['', Validators.required],
+      capacity: ['', [Validators.required, Validators.min(1)]],
+      registrationFee: ['', [Validators.required, Validators.min(0)]],
+      tuitionFee: ['', [Validators.required, Validators.min(0)]],
+      registrationOpeningDate: ['', Validators.required],
+      registrationDeadline: ['', Validators.required]
+    });
 
-          this.sessionForm.patchValue({
-            startDate: start,
-            endDate: end
-          });
-        }
-      } else {
-        // Reset if no year is selected
-        this.sessionForm.patchValue({
-          startDate: '',
-          endDate: ''
-        });
-      }
+    this.editForm = this.fb.group({
+      name: ['', Validators.required],
+      capacity: ['', [Validators.required, Validators.min(1)]],
+      fee: ['', [Validators.required, Validators.min(0)]],
+      registrationOpeningDate: ['', Validators.required],
+      registrationDeadline: ['', Validators.required]
     });
   }
 
-  loadAcademicYears(): void {
-    this.academicYearService.getAllAcademicYears().subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.academicYears.set(response.data.content || response.data);
-        }
-      },
-      error: err => console.error('Erreur chargement des années de formation', err)
-    });
-  }
-
-  loadActiveSessions(): void {
-    this.accreditedService.getPromotionsByStatus1('IN_PROGRESS', 4).subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.activeSessions.set(response.data);
-        }
-      },
-      error: err => console.error('Erreur chargement des sessions actives en vedette', err)
-    });
-  }
-
-  openActiveSessionsModal(): void {
-    this.isActiveSessionsModalOpen.set(true);
-    this.isLoadingAllActive.set(true);
-
-    this.accreditedService.getPromotionsByStatus1('IN_PROGRESS', undefined as any).subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.allActiveSessions.set(response.data);
-        }
-        this.isLoadingAllActive.set(false);
-      },
-      error: err => {
-        console.error('Erreur chargement de toutes les sessions actives', err);
-        this.isLoadingAllActive.set(false);
-      }
-    });
-  }
-
-  closeActiveSessionsModal(): void {
-    this.isActiveSessionsModalOpen.set(false);
-  }
-
-  loadStatistics(): void {
-    this.promotionService.getPromotionStatistics().subscribe({
-      next: (response: any) => {
-        if (response.success && response.data) {
-          this.statistics.set(response.data);
-        }
-      },
-      error: err => console.error('Erreur stats', err)
-    });
-  }
-
-  loadSessions(): void {
-    this.isLoading.set(true);
-    this.accreditedService
-      .getAllAccreditedPromotions(this.currentPage(), this.pageSize())
-      .subscribe({
-        next: (response: any) => {
-          if (response.success) {
-            this.sessions.set(response.data.content);
-            this.totalElements.set(response.data?.totalElements || 0);
-          }
-          this.isLoading.set(false);
-        },
-        error: err => {
-          console.error('Erreur', err);
-          this.isLoading.set(false);
+  setupFormListeners(): void {
+    this.createForm
+      .get('levelId')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(id => {
+        if (id) this.loadTrainingsByLevel(id);
+        else {
+          this.activeTrainings.set([]);
+          this.createForm.get('trainingId')?.disable({ emitEvent: false });
+          this.createForm.get('trainingId')?.setValue('');
         }
       });
   }
 
-  loadTrainings(): void {
-    this.trainingService.getAllActiveTrainings('ACCREDITED').subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.trainings.set(response.data.content || response.data);
-        }
-      },
-      error: err => console.error('Erreur formations', err)
-    });
+  loadOngoingPromotions(): void {
+    this.isOngoingLoading.set(true);
+    this.promotionService
+      .getOngoingPromotions(4)
+      .pipe(finalize(() => this.isOngoingLoading.set(false)))
+      .subscribe({
+        next: (response: any) => {
+          if (response.success && response.data) {
+            this.ongoingPromotions.set(response.data);
+          }
+        },
+        error: (err: any) => console.error('Erreur chargement Ongoing', err)
+      });
+  }
+
+  loadStatistics(): void {
+    this.isStatsLoading.set(true);
+    this.promotionService
+      .getAccreditedPromotionStatistics()
+      .pipe(finalize(() => this.isStatsLoading.set(false)))
+      .subscribe({
+        next: (response: any) => {
+          if (response.success && response.data) {
+            const newStats = {
+              DRAFT: { count: 0, enrollments: 0 },
+              ENROLLMENT: { count: 0, enrollments: 0 },
+              IN_PROGRESS: { count: 0, enrollments: 0 },
+              EVALUATION: { count: 0, enrollments: 0 }
+            };
+            response.data.forEach((stat: any) => {
+              const statusKey = stat.status.toUpperCase();
+              if (newStats[statusKey as keyof typeof newStats]) {
+                newStats[statusKey as keyof typeof newStats].count = stat.promotionCount;
+                newStats[statusKey as keyof typeof newStats].enrollments = stat.totalEnrollments;
+              }
+            });
+            this.promotionStats.set(newStats);
+          }
+        },
+        error: (err: any) => console.error('Erreur stats', err)
+      });
+  }
+
+  loadPromotions(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.promotionService
+      .getAllAccreditedPromotions(this.currentPage(), this.pageSize())
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (response: any) => {
+          if (response.success && response.data) {
+            this.promotions.set(response.data.content || []);
+            this.totalElements.set(response.data.totalElements || 0);
+          }
+        },
+        error: () => this.error.set('Impossible de charger les données.')
+      });
   }
 
   onPageChange(newPage: number) {
     this.currentPage.set(newPage);
-    this.loadSessions();
+    this.loadPromotions();
   }
 
-  openModal(session?: AccreditedPromotionResponse) {
-    if (session) {
-      this.isEditMode.set(true);
-      this.editingSessionId.set(session.id || null);
+  openOngoingModal(): void {
+    this.isOngoingModalOpen.set(true);
+    this.loadAllOngoingPromotions();
+  }
 
-      const formattedOpeningDate = (session as any).registrationOpeningDate
-        ? new Date((session as any).registrationOpeningDate).toISOString().split('T')[0]
-        : '';
-      const formattedDeadline = (session as any).registrationDeadline
-        ? new Date((session as any).registrationDeadline).toISOString().split('T')[0]
-        : '';
-      const formattedStartDate = session.startDate
-        ? new Date(session.startDate).toISOString().split('T')[0]
-        : '';
-      const formattedEndDate = session.endDate
-        ? new Date(session.endDate).toISOString().split('T')[0]
-        : '';
+  closeOngoingModal(): void {
+    this.isOngoingModalOpen.set(false);
+    this.allOngoingPromotions.set([]);
+  }
 
-      this.sessionForm.patchValue({
-        name: session.name,
-        code: session.code,
-        trainingId: (session as any).trainingId || null,
-        academicYearId: (session as any).academicYearId || null,
-        registrationOpeningDate: formattedOpeningDate,
-        registrationDeadline: formattedDeadline,
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
-        fee: session.fee,
-        status: session.status || 'PLANNED'
+  loadAllOngoingPromotions(): void {
+    this.isAllOngoingLoading.set(true);
+    this.promotionService
+      .getOngoingPromotions(1000)
+      .pipe(finalize(() => this.isAllOngoingLoading.set(false)))
+      .subscribe({
+        next: (response: any) => {
+          if (response.success && response.data) {
+            this.allOngoingPromotions.set(response.data);
+          }
+        },
+        error: (err: any) => console.error('Erreur chargement de toutes les sessions actives', err)
       });
-    } else {
-      this.isEditMode.set(false);
-      this.editingSessionId.set(null);
-      this.sessionForm.reset({ status: 'PLANNED' });
-    }
+  }
+
+  openModal(): void {
     this.isModalOpen.set(true);
+    if (this.openAcademicYears().length === 0 || this.activeLevels().length === 0)
+      this.loadModalInitialData();
   }
 
-  closeModal() {
+  closeModal(): void {
     this.isModalOpen.set(false);
-    this.sessionForm.reset();
-    this.isEditMode.set(false);
-    this.editingSessionId.set(null);
+    this.createForm.reset({
+      name: '',
+      levelId: '',
+      academicYearId: '',
+      capacity: '',
+      registrationFee: '',
+      tuitionFee: '',
+      registrationOpeningDate: '',
+      registrationDeadline: ''
+    });
+    this.activeTrainings.set([]);
+    this.createForm.get('trainingId')?.setValue('');
+    this.createForm.get('trainingId')?.disable({ emitEvent: false });
   }
 
-  onSubmit() {
-    if (this.sessionForm.invalid) {
-      this.sessionForm.markAllAsTouched();
+  loadModalInitialData(): void {
+    this.isModalLoading.set(true);
+    forkJoin({
+      academicYears: this.academicYearService.getOpenAcademicYears(),
+      levels: this.levelService.getActiveLevels()
+    })
+      .pipe(finalize(() => this.isModalLoading.set(false)))
+      .subscribe({
+        next: (res: any) => {
+          if (res.academicYears?.success) this.openAcademicYears.set(res.academicYears.data);
+          if (res.levels?.success) this.activeLevels.set(res.levels.data);
+        }
+      });
+  }
+
+  loadTrainingsByLevel(levelId: number): void {
+    this.isTrainingsLoading.set(true);
+    this.createForm.get('trainingId')?.disable({ emitEvent: false });
+    this.trainingService
+      .getActiveTrainingsByLevel(levelId, 'ACCREDITED' as any)
+      .pipe(
+        finalize(() => {
+          this.isTrainingsLoading.set(false);
+          this.createForm.get('trainingId')?.enable({ emitEvent: false });
+        })
+      )
+      .subscribe({
+        next: (res: any) => {
+          if (res.success) this.activeTrainings.set(res.data);
+        }
+      });
+  }
+
+  onSubmit(): void {
+    if (this.createForm.invalid) {
+      this.createForm.markAllAsTouched();
+      this.toast.error('Veuillez remplir tous les champs obligatoires.');
       return;
     }
-
-    this.isSubmitting.set(true);
-    const currentId = this.editingSessionId();
-
-    if (currentId !== null) {
-      const updateRequest = this.buildPromotionRequest();
-
-      this.accreditedService.updateAccreditedPromotion(currentId, updateRequest).subscribe({
-        next: (res: any) =>
-          this.handleSuccessResponse(
-            res,
-            'Session modifiée avec succès',
-            'Erreur lors de la modification'
-          ),
-        error: err => this.handleErrorResponse(err, 'Erreur lors de la modification de la session')
+    this.isModalLoading.set(true);
+    this.promotionService
+      .createAccreditedPromotion(this.createForm.getRawValue())
+      .pipe(finalize(() => this.isModalLoading.set(false)))
+      .subscribe({
+        next: () => {
+          this.toast.success('Session créée avec succès !');
+          this.closeModal();
+          this.refreshData();
+        },
+        error: (err: any) => {
+          let msg = 'Erreur lors de la création.';
+          if (err.error?.message === 'ACCREDITED_PROMOTION_ALREADY_EXISTS_FOR_THIS_YEAR')
+            msg = 'Une session existe déjà pour cette formation et année.';
+          this.toast.error(msg);
+        }
       });
-    } else {
-      const createRequest = this.buildPromotionRequest();
-
-      this.accreditedService.createAccreditedPromotion(createRequest).subscribe({
-        next: (res: any) =>
-          this.handleSuccessResponse(
-            res,
-            'Session ajoutée avec succès',
-            'Erreur lors de la création'
-          ),
-        error: err => this.handleErrorResponse(err, 'Erreur lors de la création de la session')
-      });
-    }
   }
 
-  openDetailsModal(session: AccreditedPromotionResponse) {
-    this.selectedSession.set(session);
-    this.isDetailsModalOpen.set(true);
-  }
-
-  closeDetailsModal() {
-    this.isDetailsModalOpen.set(false);
-    this.selectedSession.set(null);
-  }
-
-  openConfirmStatusModal(newStatus: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED') {
-    this.pendingStatus.set(newStatus);
-    this.isConfirmStatusModalOpen.set(true);
-  }
-
-  closeConfirmStatusModal() {
-    this.isConfirmStatusModalOpen.set(false);
-    this.pendingStatus.set(null);
-  }
-
-  confirmStatusChange() {
-    const session = this.selectedSession();
-    const status = this.pendingStatus();
-
-    if (session?.id && status) {
-      this.changeStatus(session.id, status);
-    }
-  }
-
-  getStatusLabel(status: string | null): string {
-    switch (status) {
-      case 'ENROLLMENT_OPEN':
-        return 'Inscriptions Ouvertes';
-      case 'IN_PROGRESS':
-        return 'En cours';
-      case 'CLOSED':
-        return 'Clôturée';
-      case 'PLANNED':
-        return 'Planifiée';
-      default:
-        return 'Inconnu';
-    }
-  }
-
-  changeStatus(id: number, newStatus: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED') {
-    this.isChangingStatus.set(true);
-
-    this.accreditedService.updatePromotionStatus1(id, newStatus).subscribe({
-      next: (res: any) => {
-        this.isChangingStatus.set(false);
-        if (res.success) {
-          this.toastService.success('Statut de la session mis à jour avec succès');
-
-          this.loadSessions();
-          this.loadStatistics();
-          this.loadActiveSessions();
-
-          if (this.selectedSession()?.id === id) {
-            this.selectedSession.set({
-              ...this.selectedSession()!,
-              status: newStatus
+  openEditModal(id: number): void {
+    this.currentEditId.set(id);
+    this.isEditModalOpen.set(true);
+    this.isEditFetching.set(true);
+    this.promotionService
+      .getAccreditedPromotionById(id)
+      .pipe(finalize(() => this.isEditFetching.set(false)))
+      .subscribe({
+        next: (response: any) => {
+          if (response.success && response.data) {
+            const data = response.data;
+            this.editForm.patchValue({
+              name: data.name,
+              capacity: data.capacity || 1,
+              fee: data.fee || data.tuitionFee || 0,
+              registrationOpeningDate: data.registrationOpeningDate,
+              registrationDeadline: data.registrationDeadline
             });
           }
-
-          if (this.isActiveSessionsModalOpen()) {
-            this.openActiveSessionsModal();
-          }
-
-          this.closeConfirmStatusModal();
-        } else {
-          this.toastService.error(res.message || 'Erreur lors du changement de statut');
+        },
+        error: () => {
+          this.toast.error('Erreur lors du chargement des données.');
+          this.closeEditModal();
         }
-      },
-      error: err => {
-        this.isChangingStatus.set(false);
-        console.error(err);
-        this.toastService.error('Erreur lors du changement de statut de la session');
-      }
+      });
+  }
+
+  closeEditModal(): void {
+    this.isEditModalOpen.set(false);
+    this.editForm.reset({
+      name: '',
+      capacity: '',
+      fee: '',
+      registrationOpeningDate: '',
+      registrationDeadline: ''
     });
+    this.currentEditId.set(null);
   }
 
-  private buildPromotionRequest(): AccreditedPromotionRequest {
-    return {
-      name: this.sessionForm.value.name!,
-      code: this.sessionForm.value.code!,
-      trainingId: this.sessionForm.value.trainingId!,
-      academicYearId: this.sessionForm.value.academicYearId!,
-      registrationOpeningDate: this.sessionForm.value.registrationOpeningDate!,
-      registrationDeadline: this.sessionForm.value.registrationDeadline!,
-      startDate: this.sessionForm.value.startDate!,
-      endDate: this.sessionForm.value.endDate!,
-      fee: this.sessionForm.value.fee!
-    };
-  }
-
-  private handleSuccessResponse(
-    res: any,
-    successMessage: string,
-    defaultErrorMessage: string
-  ): void {
-    if (res.success) {
-      this.toastService.success(successMessage);
-      this.closeModal();
-      this.loadSessions();
-      this.loadStatistics();
-      this.loadActiveSessions();
-    } else {
-      this.toastService.error(res.message || defaultErrorMessage);
+  onEditSubmit(): void {
+    if (this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
+      return;
     }
-    this.isSubmitting.set(false);
+    const id = this.currentEditId();
+    if (!id) return;
+    this.isEditLoading.set(true);
+    this.promotionService
+      .updateAccreditedPromotion(id, this.editForm.getRawValue())
+      .pipe(finalize(() => this.isEditLoading.set(false)))
+      .subscribe({
+        next: () => {
+          this.toast.success('Session mise à jour !');
+          this.closeEditModal();
+          this.refreshData();
+        },
+        error: (err: any) => this.toast.error(err.error?.message || 'Erreur.')
+      });
   }
 
-  private handleErrorResponse(err: any, defaultErrorMessage: string): void {
-    const errorMessage = err?.error?.message;
-    const errorDateMessage = err?.error?.errors?.[0]?.message || err?.error?.message;
+  openDetailsModal(id: number): void {
+    this.isDetailsModalOpen.set(true);
+    this.isDetailsLoading.set(true);
+    this.selectedPromotion.set(null);
+    this.promotionService
+      .getAccreditedPromotionById(id)
+      .pipe(finalize(() => this.isDetailsLoading.set(false)))
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) this.selectedPromotion.set(response.data);
+        },
+        error: () => this.toast.error('Impossible de charger les détails.')
+      });
+  }
 
-    if (errorDateMessage === 'START_DATE_MUST_BE_BEFORE_END_DATE') {
-      this.toastService.error('La date de début doit être antérieure à la date de fin.');
-    } else if (errorDateMessage === 'REGISTRATION_DEADLINE_MUST_BE_AFTER_OPENING_DATE') {
-      this.toastService.error("La date limite d'inscription doit être après la date d'ouverture.");
-    } else if (errorMessage === 'PROMOTION_CODE_ALREADY_EXISTS') {
-      this.toastService.error('Ce code de promotion existe déjà.');
-    } else {
-      this.toastService.error(defaultErrorMessage);
+  closeDetailsModal(): void {
+    this.isDetailsModalOpen.set(false);
+    this.selectedPromotion.set(null);
+  }
+
+  requestStatusChange(id: number, newStatus: string): void {
+    this.confirmData.set({ id, status: newStatus, label: this.getStatusLabel(newStatus) });
+    this.isConfirmModalOpen.set(true);
+  }
+
+  closeConfirmModal(): void {
+    this.isConfirmModalOpen.set(false);
+    this.confirmData.set(null);
+  }
+
+  confirmStatusChange(): void {
+    const data = this.confirmData();
+    if (!data) return;
+
+    this.isStatusChanging.set(true);
+    this.promotionService
+      .changePromotionStatus(data.id, data.status as any)
+      .pipe(
+        finalize(() => {
+          this.isStatusChanging.set(false);
+          this.closeConfirmModal();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.toast.success(`Le statut a été passé en "${data.label}" avec succès !`);
+          this.openDetailsModal(data.id);
+          this.refreshData();
+        },
+        error: (err: any) => {
+          this.toast.error(err.error?.message || 'Erreur lors du changement de statut.');
+        }
+      });
+  }
+
+  // Dynamically applies one of the 4 theme colors based on the index
+  getCardTheme(index: number) {
+    const themes = [
+      {
+        border: 'border-indigo-500',
+        bg: 'bg-indigo-500',
+        lightBg: 'bg-indigo-50',
+        text: 'text-indigo-600',
+        hoverBg: 'hover:bg-indigo-100'
+      },
+      {
+        border: 'border-amber-500',
+        bg: 'bg-amber-500',
+        lightBg: 'bg-amber-50',
+        text: 'text-amber-600',
+        hoverBg: 'hover:bg-amber-100'
+      },
+      {
+        border: 'border-emerald-500',
+        bg: 'bg-emerald-500',
+        lightBg: 'bg-emerald-50',
+        text: 'text-emerald-600',
+        hoverBg: 'hover:bg-emerald-100'
+      },
+      {
+        border: 'border-rose-500',
+        bg: 'bg-rose-500',
+        lightBg: 'bg-rose-50',
+        text: 'text-rose-600',
+        hoverBg: 'hover:bg-rose-100'
+      }
+    ];
+    return themes[index % 4];
+  }
+
+  // Calculates progress (0 to 100%) based on start and end dates
+  calculateProgress(start: string, end: string): number {
+    if (!start || !end) return 0;
+    const startDate = new Date(start).getTime();
+    const endDate = new Date(end).getTime();
+    const now = new Date().getTime();
+
+    if (now <= startDate) return 0;
+    if (now >= endDate) return 100;
+
+    const total = endDate - startDate;
+    const current = now - startDate;
+    return Math.round((current / total) * 100);
+  }
+
+  // Calculates the number of remaining days
+  getRemainingDays(end: string): number | string {
+    if (!end) return '?';
+    const endDate = new Date(end).getTime();
+    const now = new Date().getTime();
+    const diff = endDate - now;
+    if (diff < 0) return 0;
+    return Math.ceil(diff / (1000 * 3600 * 24));
+  }
+
+  getCapacityPercentage(enrollment: number, capacity: number): number {
+    if (!capacity || capacity <= 0) return 0;
+    const percent = (enrollment / capacity) * 100;
+    return percent > 100 ? 100 : percent;
+  }
+
+  getStatusStyle(status: string | null | undefined): string {
+    if (!status) return 'bg-gray-100 text-gray-500 border-gray-200';
+    switch (status.toUpperCase()) {
+      case 'DRAFT':
+        return 'bg-slate-100 text-slate-600 border-slate-200';
+      case 'OPEN':
+      case 'ENROLLMENT':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'IN_PROGRESS':
+        return 'bg-indigo-50 text-indigo-700 border-indigo-100';
+      case 'EVALUATION':
+        return 'bg-purple-50 text-purple-700 border-purple-200';
+      case 'CLOSED':
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+      case 'CANCELLED':
+        return 'bg-rose-50 text-rose-700 border-rose-200';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200';
     }
+  }
 
-    this.isSubmitting.set(false);
+  getStatusLabel(status: string | null | undefined): string {
+    if (!status) return 'Non défini';
+    switch (status.toUpperCase()) {
+      case 'DRAFT':
+        return 'Brouillon';
+      case 'OPEN':
+      case 'ENROLLMENT':
+        return 'Inscriptions Ouvertes';
+      case 'IN_PROGRESS':
+        return 'En Cours';
+      case 'EVALUATION':
+        return 'En Évaluation';
+      case 'CLOSED':
+        return 'Clôturée';
+      case 'CANCELLED':
+        return 'Annulée';
+      default:
+        return status;
+    }
   }
 }

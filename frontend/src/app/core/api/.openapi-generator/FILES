@@ -43,6 +43,8 @@ model/accelerated-promotion-request.ts
 model/accelerated-promotion-response.ts
 model/accredited-promotion-request.ts
 model/accredited-promotion-response.ts
+model/accredited-promotion-stats-response.ts
+model/accredited-promotion-update-request.ts
 model/active-academic-year-response.ts
 model/api-response-academic-year-response.ts
 model/api-response-accelerated-promotion-response.ts
@@ -55,17 +57,20 @@ model/api-response-holiday-response.ts
 model/api-response-list-academic-year-response.ts
 model/api-response-list-accelerated-promotion-response.ts
 model/api-response-list-accredited-promotion-response.ts
+model/api-response-list-accredited-promotion-stats-response.ts
 model/api-response-list-continuous-promotion-response.ts
 model/api-response-list-enrollment-document-response.ts
 model/api-response-list-exam-session-response.ts
 model/api-response-list-holiday-response.ts
 model/api-response-list-level-response.ts
+model/api-response-list-ongoing-promotion-response.ts
 model/api-response-list-period-response.ts
 model/api-response-list-promotion-lookup-response.ts
 model/api-response-list-specialty-response.ts
 model/api-response-list-training-response.ts
 model/api-response-list-training-type-count-response.ts
 model/api-response-long.ts
+model/api-response-map-promotion-status-long.ts
 model/api-response-page-response-academic-year-response.ts
 model/api-response-page-response-accelerated-promotion-response.ts
 model/api-response-page-response-accredited-promotion-response.ts
@@ -92,6 +97,7 @@ model/level-request.ts
 model/level-response.ts
 model/level-summary-response.ts
 model/models.ts
+model/ongoing-promotion-response.ts
 model/page-response-academic-year-response.ts
 model/page-response-accelerated-promotion-response.ts
 model/page-response-accredited-promotion-response.ts

@@ -1,8 +1,10 @@
 package com.tiba.pts.modules.trainingsession.domain.enums;
 
 public enum PromotionStatus {
-  PLANNED,
-  ENROLLMENT_OPEN,
+  DRAFT,
+  ENROLLMENT,
   IN_PROGRESS,
-  CLOSED
+  EVALUATION,
+  COMPLETED,
+  CANCELLED
 }

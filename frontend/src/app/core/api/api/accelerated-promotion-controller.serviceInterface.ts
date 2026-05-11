@@ -15,6 +15,7 @@ import { AcceleratedPromotionRequest } from '../model/models';
 import { ApiResponseAcceleratedPromotionResponse } from '../model/models';
 import { ApiResponseListAcceleratedPromotionResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
+import { ApiResponseMapPromotionStatusLong } from '../model/models';
 import { ApiResponsePageResponseAcceleratedPromotionResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
 
@@ -30,10 +31,27 @@ export interface AcceleratedPromotionControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint patch /api/v1/promotions/accelerated/{id}/status
+     * @param id 
+     * @param status 
+     */
+    changeAcceleratedStatus(id: number, status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
      * @endpoint post /api/v1/promotions/accelerated
      * @param acceleratedPromotionRequest 
      */
     createAcceleratedPromotion(acceleratedPromotionRequest: AcceleratedPromotionRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/promotions/accelerated/{id}
+     * @param id 
+     */
+    getAcceleratedPromotionById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseAcceleratedPromotionResponse>;
 
     /**
      * 
@@ -47,19 +65,18 @@ export interface AcceleratedPromotionControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint get /api/v1/promotions/accelerated/{id}
-     * @param id 
-     */
-    getById2(id: number, extraHttpRequestParams?: any): Observable<ApiResponseAcceleratedPromotionResponse>;
-
-    /**
-     * 
-     * 
      * @endpoint get /api/v1/promotions/accelerated/status/{status}
      * @param status 
      * @param limit 
      */
-    getPromotionsByStatus2(status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', limit?: number, extraHttpRequestParams?: any): Observable<ApiResponseListAcceleratedPromotionResponse>;
+    getPromotionsByStatus1(status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', limit?: number, extraHttpRequestParams?: any): Observable<ApiResponseListAcceleratedPromotionResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/promotions/accelerated/status/counts
+     */
+    getStatusCounts(extraHttpRequestParams?: any): Observable<ApiResponseMapPromotionStatusLong>;
 
     /**
      * 
@@ -69,14 +86,5 @@ export interface AcceleratedPromotionControllerServiceInterface {
      * @param acceleratedPromotionRequest 
      */
     updateAcceleratedPromotion(id: number, acceleratedPromotionRequest: AcceleratedPromotionRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
-
-    /**
-     * 
-     * 
-     * @endpoint patch /api/v1/promotions/accelerated/{id}/status
-     * @param id 
-     * @param status 
-     */
-    updatePromotionStatus2(id: number, status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
 }

@@ -19,9 +19,15 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { AccreditedPromotionRequest } from '../model/accredited-promotion-request';
 // @ts-ignore
+import { AccreditedPromotionUpdateRequest } from '../model/accredited-promotion-update-request';
+// @ts-ignore
 import { ApiResponseAccreditedPromotionResponse } from '../model/api-response-accredited-promotion-response';
 // @ts-ignore
 import { ApiResponseListAccreditedPromotionResponse } from '../model/api-response-list-accredited-promotion-response';
+// @ts-ignore
+import { ApiResponseListAccreditedPromotionStatsResponse } from '../model/api-response-list-accredited-promotion-stats-response';
+// @ts-ignore
+import { ApiResponseListOngoingPromotionResponse } from '../model/api-response-list-ongoing-promotion-response';
 // @ts-ignore
 import { ApiResponseLong } from '../model/api-response-long';
 // @ts-ignore
@@ -46,6 +52,80 @@ export class AccreditedPromotionControllerService extends BaseService implements
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
+    }
+
+    /**
+     * @endpoint patch /api/v1/promotions/accredited/{id}/status
+     * @param id 
+     * @param status 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public changePromotionStatus(id: number, status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseVoid>;
+    public changePromotionStatus(id: number, status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseVoid>>;
+    public changePromotionStatus(id: number, status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseVoid>>;
+    public changePromotionStatus(id: number, status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling changePromotionStatus.');
+        }
+        if (status === null || status === undefined) {
+            throw new Error('Required parameter status was null or undefined when calling changePromotionStatus.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'status',
+            <any>status,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/promotions/accredited/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/status`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseVoid>('patch', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
     }
 
     /**
@@ -106,6 +186,118 @@ export class AccreditedPromotionControllerService extends BaseService implements
             {
                 context: localVarHttpContext,
                 body: accreditedPromotionRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/v1/promotions/accredited/{id}
+     * @param id 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getAccreditedPromotionById(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseAccreditedPromotionResponse>;
+    public getAccreditedPromotionById(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseAccreditedPromotionResponse>>;
+    public getAccreditedPromotionById(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseAccreditedPromotionResponse>>;
+    public getAccreditedPromotionById(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getAccreditedPromotionById.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/promotions/accredited/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseAccreditedPromotionResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/v1/promotions/accredited/statistics
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getAccreditedPromotionStatistics(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListAccreditedPromotionStatsResponse>;
+    public getAccreditedPromotionStatistics(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListAccreditedPromotionStatsResponse>>;
+    public getAccreditedPromotionStatistics(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListAccreditedPromotionStatsResponse>>;
+    public getAccreditedPromotionStatistics(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/promotions/accredited/statistics`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseListAccreditedPromotionStatsResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -194,19 +386,27 @@ export class AccreditedPromotionControllerService extends BaseService implements
     }
 
     /**
-     * @endpoint get /api/v1/promotions/accredited/{id}
-     * @param id 
+     * @endpoint get /api/v1/promotions/accredited/ongoing
+     * @param limit 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getById1(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseAccreditedPromotionResponse>;
-    public getById1(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseAccreditedPromotionResponse>>;
-    public getById1(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseAccreditedPromotionResponse>>;
-    public getById1(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling getById1.');
-        }
+    public getOngoingPromotions(limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListOngoingPromotionResponse>;
+    public getOngoingPromotions(limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListOngoingPromotionResponse>>;
+    public getOngoingPromotions(limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListOngoingPromotionResponse>>;
+    public getOngoingPromotions(limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'limit',
+            <any>limit,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -236,11 +436,12 @@ export class AccreditedPromotionControllerService extends BaseService implements
             }
         }
 
-        let localVarPath = `/api/v1/promotions/accredited/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/api/v1/promotions/accredited/ongoing`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseAccreditedPromotionResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseListOngoingPromotionResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -259,12 +460,12 @@ export class AccreditedPromotionControllerService extends BaseService implements
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getPromotionsByStatus1(status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListAccreditedPromotionResponse>;
-    public getPromotionsByStatus1(status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListAccreditedPromotionResponse>>;
-    public getPromotionsByStatus1(status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListAccreditedPromotionResponse>>;
-    public getPromotionsByStatus1(status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getPromotionsByStatus(status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListAccreditedPromotionResponse>;
+    public getPromotionsByStatus(status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListAccreditedPromotionResponse>>;
+    public getPromotionsByStatus(status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListAccreditedPromotionResponse>>;
+    public getPromotionsByStatus(status: 'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED', limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (status === null || status === undefined) {
-            throw new Error('Required parameter status was null or undefined when calling getPromotionsByStatus1.');
+            throw new Error('Required parameter status was null or undefined when calling getPromotionsByStatus.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -306,7 +507,7 @@ export class AccreditedPromotionControllerService extends BaseService implements
             }
         }
 
-        let localVarPath = `/api/v1/promotions/accredited/status/${this.configuration.encodeParam({name: "status", value: status, in: "path", style: "simple", explode: false, dataType: "'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED'", dataFormat: undefined})}`;
+        let localVarPath = `/api/v1/promotions/accredited/status/${this.configuration.encodeParam({name: "status", value: status, in: "path", style: "simple", explode: false, dataType: "'DRAFT' | 'ENROLLMENT' | 'IN_PROGRESS' | 'EVALUATION' | 'COMPLETED' | 'CANCELLED'", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ApiResponseListAccreditedPromotionResponse>('get', `${basePath}${localVarPath}`,
             {
@@ -325,20 +526,20 @@ export class AccreditedPromotionControllerService extends BaseService implements
     /**
      * @endpoint put /api/v1/promotions/accredited/{id}
      * @param id 
-     * @param accreditedPromotionRequest 
+     * @param accreditedPromotionUpdateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateAccreditedPromotion(id: number, accreditedPromotionRequest: AccreditedPromotionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
-    public updateAccreditedPromotion(id: number, accreditedPromotionRequest: AccreditedPromotionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
-    public updateAccreditedPromotion(id: number, accreditedPromotionRequest: AccreditedPromotionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
-    public updateAccreditedPromotion(id: number, accreditedPromotionRequest: AccreditedPromotionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateAccreditedPromotion(id: number, accreditedPromotionUpdateRequest: AccreditedPromotionUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
+    public updateAccreditedPromotion(id: number, accreditedPromotionUpdateRequest: AccreditedPromotionUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
+    public updateAccreditedPromotion(id: number, accreditedPromotionUpdateRequest: AccreditedPromotionUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
+    public updateAccreditedPromotion(id: number, accreditedPromotionUpdateRequest: AccreditedPromotionUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling updateAccreditedPromotion.');
         }
-        if (accreditedPromotionRequest === null || accreditedPromotionRequest === undefined) {
-            throw new Error('Required parameter accreditedPromotionRequest was null or undefined when calling updateAccreditedPromotion.');
+        if (accreditedPromotionUpdateRequest === null || accreditedPromotionUpdateRequest === undefined) {
+            throw new Error('Required parameter accreditedPromotionUpdateRequest was null or undefined when calling updateAccreditedPromotion.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -383,81 +584,7 @@ export class AccreditedPromotionControllerService extends BaseService implements
         return this.httpClient.request<ApiResponseLong>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: accreditedPromotionRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint patch /api/v1/promotions/accredited/{id}/status
-     * @param id 
-     * @param status 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public updatePromotionStatus1(id: number, status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseVoid>;
-    public updatePromotionStatus1(id: number, status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseVoid>>;
-    public updatePromotionStatus1(id: number, status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseVoid>>;
-    public updatePromotionStatus1(id: number, status: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling updatePromotionStatus1.');
-        }
-        if (status === null || status === undefined) {
-            throw new Error('Required parameter status was null or undefined when calling updatePromotionStatus1.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'status',
-            <any>status,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (bearerAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/v1/promotions/accredited/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/status`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseVoid>('patch', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
+                body: accreditedPromotionUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

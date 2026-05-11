@@ -2,18 +2,20 @@ package com.tiba.pts.modules.trainingsession.service;
 
 import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.core.exception.BusinessValidationException;
+import com.tiba.pts.core.exception.DuplicateResourceException;
 import com.tiba.pts.core.exception.EntityAlreadyExistsException;
-import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.specialty.domain.entity.Training;
 import com.tiba.pts.modules.specialty.domain.enums.TrainingType;
 import com.tiba.pts.modules.specialty.repository.TrainingRepository;
 import com.tiba.pts.modules.trainingsession.domain.entity.ContinuousPromotion;
+import com.tiba.pts.modules.trainingsession.domain.enums.DurationUnit;
 import com.tiba.pts.modules.trainingsession.domain.enums.PromotionStatus;
 import com.tiba.pts.modules.trainingsession.dto.request.ContinuousPromotionRequest;
 import com.tiba.pts.modules.trainingsession.dto.response.ContinuousPromotionResponse;
 import com.tiba.pts.modules.trainingsession.mapper.ContinuousPromotionMapper;
 import com.tiba.pts.modules.trainingsession.repository.ContinuousPromotionRepository;
 import com.tiba.pts.modules.trainingsession.repository.PromotionRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,105 +24,107 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class ContinuousPromotionService {
 
-  private final ContinuousPromotionRepository repository;
+  private final ContinuousPromotionRepository continuousPromotionRepository;
   private final ContinuousPromotionMapper mapper;
   private final TrainingRepository trainingRepository;
   private final PromotionRepository promotionRepository;
 
   @Transactional
-  public Long createContinuousPromotion(ContinuousPromotionRequest request) {
-    // Check that the training exists
+  public Long create(ContinuousPromotionRequest request) {
+    if (continuousPromotionRepository.existsByNameIgnoreCase(request.getName())) {
+      throw new EntityAlreadyExistsException("PROMOTION_NAME_ALREADY_EXISTS");
+    }
+
     Training training =
         trainingRepository
             .findById(request.getTrainingId())
-            .orElseThrow(() -> new ResourceNotFoundException("TRAINING_NOT_FOUND"));
+            .orElseThrow(() -> new EntityNotFoundException("TRAINING_NOT_FOUND"));
 
-    // Check the consistency of the training type
+    if (training.getStatus() == null || !training.getStatus().name().equals("ACTIVE")) {
+      throw new BusinessValidationException("TRAINING_MUST_BE_ACTIVE");
+    }
+
     if (training.getTrainingType() != TrainingType.CONTINUOUS) {
-      throw new BusinessValidationException("INVALID_TRAINING_TYPE_MUST_BE_CONTINUOUS");
+      throw new BusinessValidationException("TRAINING_TYPE_MUST_BE_CONTINUOUS");
     }
 
-    // Check uniqueness of the code
-    if (promotionRepository.existsByCode(request.getCode())) {
-      throw new EntityAlreadyExistsException("PROMOTION_CODE_ALREADY_EXISTS");
-    }
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-yyyy");
+    String baseCode =
+        String.format("%s-%s", training.getCode(), request.getStartDate().format(formatter));
+    String uniqueCode = generateUniqueCode(baseCode);
 
-    // Map the DTO to Entity
-    ContinuousPromotion entityToSave = mapper.toEntity(request);
+    ContinuousPromotion promotion = mapper.toEntity(request);
+    promotion.setTraining(training);
+    promotion.setCode(uniqueCode);
+    promotion.setStatus(PromotionStatus.DRAFT);
+    promotion.setEnrollmentCount(0);
+    promotion.setDurationUnit(DurationUnit.valueOf(training.getDurationUnit().name()));
+    promotion.setDurationValue(training.getDurationValue());
 
-    // Assign the relationship and initial status
-    entityToSave.setTraining(training);
-    entityToSave.setStatus(PromotionStatus.PLANNED);
-
-    // Save and return the ID
-    return repository.save(entityToSave).getId();
+    return continuousPromotionRepository.save(promotion).getId();
   }
 
   @Transactional(readOnly = true)
   public PageResponse<ContinuousPromotionResponse> getAllPaged(int page, int size) {
     Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
-    Page<ContinuousPromotion> pageResult = repository.findAll(pageable);
+    Page<ContinuousPromotion> pageResult = continuousPromotionRepository.findAll(pageable);
     return PageResponse.of(pageResult, mapper::toResponse);
   }
 
   @Transactional(readOnly = true)
   public ContinuousPromotionResponse getById(Long id) {
     ContinuousPromotion promotion =
-        repository
+        continuousPromotionRepository
             .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("PROMOTION_NOT_FOUND"));
+            .orElseThrow(() -> new EntityNotFoundException("PROMOTION_NOT_FOUND"));
     return mapper.toResponse(promotion);
   }
 
   @Transactional
   public Long update(Long id, ContinuousPromotionRequest request) {
-    // Retrieve the existing entity
-    ContinuousPromotion existingPromotion =
-        repository
+    ContinuousPromotion promotion =
+        continuousPromotionRepository
             .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("PROMOTION_NOT_FOUND"));
+            .orElseThrow(() -> new EntityNotFoundException("PROMOTION_NOT_FOUND"));
 
-    // Check the uniqueness of the code if it has been modified
-    if (!existingPromotion.getCode().equals(request.getCode())
-        && promotionRepository.existsByCode(request.getCode())) {
-      throw new EntityAlreadyExistsException("PROMOTION_CODE_ALREADY_EXISTS");
+    if (!promotion.getName().equalsIgnoreCase(request.getName())
+        && continuousPromotionRepository.existsByNameIgnoreCase(request.getName())) {
+      throw new EntityAlreadyExistsException("PROMOTION_NAME_ALREADY_EXISTS");
     }
 
-    // Check and update the training if it has changed
-    if (!existingPromotion.getTraining().getId().equals(request.getTrainingId())) {
-      Training training =
-          trainingRepository
-              .findById(request.getTrainingId())
-              .orElseThrow(() -> new ResourceNotFoundException("TRAINING_NOT_FOUND"));
+    if (promotion.getStatus() == PromotionStatus.COMPLETED
+        || promotion.getStatus() == PromotionStatus.CANCELLED) {
+      throw new BusinessValidationException("PROMOTION_CANNOT_BE_MODIFIED_IN_CURRENT_STATUS");
+    }
 
-      if (training.getTrainingType() != TrainingType.CONTINUOUS) {
-        throw new BusinessValidationException("INVALID_TRAINING_TYPE_MUST_BE_CONTINUOUS");
+    if (promotion.getEnrollmentCount() > 0) {
+      boolean isRegistrationFeeChanged =
+          request.getRegistrationFee().compareTo(promotion.getRegistrationFee()) != 0;
+      boolean isTuitionFeeChanged =
+          request.getTuitionFee().compareTo(promotion.getTuitionFee()) != 0;
+
+      if (isRegistrationFeeChanged || isTuitionFeeChanged) {
+        throw new BusinessValidationException("CANNOT_MODIFY_FEES_WITH_ACTIVE_ENROLLMENTS");
       }
-      existingPromotion.setTraining(training);
     }
 
-    // Update the other fields via MapStruct
-    mapper.updateEntityFromRequest(request, existingPromotion);
+    if (promotion.getStatus() == PromotionStatus.IN_PROGRESS
+        && !request.getStartDate().isEqual(promotion.getStartDate())) {
+      throw new BusinessValidationException("CANNOT_MODIFY_START_DATE_WHEN_IN_PROGRESS");
+    }
 
-    // Save
-    return repository.save(existingPromotion).getId();
-  }
+    mapper.updateEntityFromRequest(request, promotion);
 
-  @Transactional
-  public void updateStatus(Long id, PromotionStatus newStatus) {
-    ContinuousPromotion existingPromotion =
-        repository
-            .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("PROMOTION_NOT_FOUND"));
-
-    existingPromotion.setStatus(newStatus);
-    repository.save(existingPromotion);
+    return continuousPromotionRepository.save(promotion).getId();
   }
 
   @Transactional(readOnly = true)
@@ -130,14 +134,72 @@ public class ContinuousPromotionService {
     List<ContinuousPromotion> promotions;
 
     if (limit != null && limit > 0) {
-      // DB optimization: we only request 'limit' results
       Pageable pageable = PageRequest.of(0, limit, sort);
-      promotions = repository.findByStatus(status, pageable).getContent();
+      promotions = continuousPromotionRepository.findByStatus(status, pageable).getContent();
     } else {
-      // Retrieves everything
-      promotions = repository.findByStatus(status, sort);
+      promotions = continuousPromotionRepository.findByStatus(status, sort);
     }
 
     return promotions.stream().map(mapper::toResponse).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public Map<PromotionStatus, Long> getSpecificStatusCounts() {
+    List<PromotionStatus> targetStatuses =
+        List.of(
+            PromotionStatus.DRAFT,
+            PromotionStatus.ENROLLMENT,
+            PromotionStatus.IN_PROGRESS,
+            PromotionStatus.EVALUATION);
+
+    Map<PromotionStatus, Long> statusCounts = new EnumMap<>(PromotionStatus.class);
+
+    for (PromotionStatus status : targetStatuses) {
+      statusCounts.put(status, continuousPromotionRepository.countByStatus(status));
+    }
+
+    return statusCounts;
+  }
+
+  @Transactional
+  public void changeStatus(Long id, PromotionStatus status) {
+    ContinuousPromotion promotion =
+        continuousPromotionRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("PROMOTION_NOT_FOUND"));
+
+    PromotionStatus currentStatus = promotion.getStatus();
+    if (currentStatus == status) return;
+
+    if (!isValidStatusTransition(currentStatus, status)) {
+      throw new BusinessValidationException("INVALID_STATUS_TRANSITION");
+    }
+
+    promotion.setStatus(status);
+    continuousPromotionRepository.save(promotion);
+  }
+
+  private boolean isValidStatusTransition(PromotionStatus current, PromotionStatus target) {
+    if (current == null || target == null) return false;
+    return switch (current) {
+      case DRAFT -> target == PromotionStatus.ENROLLMENT || target == PromotionStatus.CANCELLED;
+      case ENROLLMENT ->
+          target == PromotionStatus.IN_PROGRESS || target == PromotionStatus.CANCELLED;
+      case IN_PROGRESS ->
+          target == PromotionStatus.EVALUATION || target == PromotionStatus.CANCELLED;
+      case EVALUATION -> target == PromotionStatus.COMPLETED;
+      case COMPLETED, CANCELLED -> false;
+      default -> false;
+    };
+  }
+
+  private String generateUniqueCode(String baseCode) {
+    String finalCode = baseCode;
+    int counter = 0;
+    while (promotionRepository.existsByCodeIgnoreCase(finalCode)) {
+      finalCode = baseCode + counter;
+      counter++;
+    }
+    return finalCode;
   }
 }

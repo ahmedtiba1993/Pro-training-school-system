@@ -4,6 +4,7 @@ import com.tiba.pts.modules.specialty.domain.entity.Training;
 import com.tiba.pts.modules.trainingsession.domain.entity.AcceleratedPromotion;
 import com.tiba.pts.modules.trainingsession.dto.request.AcceleratedPromotionRequest;
 import com.tiba.pts.modules.trainingsession.dto.response.AcceleratedPromotionResponse;
+import com.tiba.pts.modules.trainingsession.dto.response.OngoingAcceleratedPromotionResponse;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,8 +14,11 @@ import org.mapstruct.MappingTarget;
 public interface AcceleratedPromotionMapper {
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "code", ignore = true)
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "enrollmentCount", ignore = true)
   @Mapping(target = "training", ignore = true)
-  AcceleratedPromotion toEntity(AcceleratedPromotionRequest dto);
+  AcceleratedPromotion toEntity(AcceleratedPromotionRequest request);
 
   @Mapping(source = "training.id", target = "trainingId")
   @Mapping(source = "training", target = "trainingLabel")
@@ -22,7 +26,12 @@ public interface AcceleratedPromotionMapper {
   AcceleratedPromotionResponse toResponse(AcceleratedPromotion entity);
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "code", ignore = true)
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "enrollmentCount", ignore = true)
   @Mapping(target = "training", ignore = true)
+  @Mapping(target = "durationValue", ignore = true)
+  @Mapping(target = "durationUnit", ignore = true)
   void updateEntityFromRequest(
       AcceleratedPromotionRequest request, @MappingTarget AcceleratedPromotion entity);
 

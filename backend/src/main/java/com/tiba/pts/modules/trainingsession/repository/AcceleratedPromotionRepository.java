@@ -17,4 +17,6 @@ public interface AcceleratedPromotionRepository extends JpaRepository<Accelerate
 
   // To retrieve all of a status
   List<AcceleratedPromotion> findByStatus(PromotionStatus status, Sort sort);
+
+  long countByStatus(PromotionStatus status);
 }

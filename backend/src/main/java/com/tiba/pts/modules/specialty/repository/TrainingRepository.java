@@ -37,4 +37,7 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
           + "GROUP BY t.trainingType")
   List<TrainingTypeCountProjection> countTrainingsByTypeAndStatus(
       @Param("status") TrainingStatus status);
+
+  List<Training> findAllByStatusAndLevelIdAndTrainingType(
+      TrainingStatus status, Long levelId, TrainingType type);
 }

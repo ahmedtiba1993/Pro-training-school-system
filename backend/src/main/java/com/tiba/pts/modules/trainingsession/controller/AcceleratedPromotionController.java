@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/promotions/accelerated")
@@ -26,14 +27,12 @@ public class AcceleratedPromotionController {
   private final AcceleratedPromotionService service;
 
   @PostMapping
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> createAcceleratedPromotion(
       @Valid @RequestBody AcceleratedPromotionRequest request) {
-    ApiResponse<Long> response =
-        ApiResponse.success(
-            "ACCELERATED_PROMOTION_CREATED_SUCCESSFULLY",
-            service.createAcceleratedPromotion(request));
-    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    Long response = service.create(request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.success("ACCELERATED_PROMOTION_CREATED_SUCCESSFULLY", response));
   }
 
   @GetMapping
@@ -50,7 +49,8 @@ public class AcceleratedPromotionController {
 
   @GetMapping("/{id}")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<AcceleratedPromotionResponse>> getById(@PathVariable Long id) {
+  public ResponseEntity<ApiResponse<AcceleratedPromotionResponse>> getAcceleratedPromotionById(
+      @PathVariable Long id) {
     ApiResponse<AcceleratedPromotionResponse> response =
         ApiResponse.success("ACCELERATED_PROMOTION_RETRIEVED_SUCCESSFULLY", service.getById(id));
     return ResponseEntity.ok(response);
@@ -68,22 +68,35 @@ public class AcceleratedPromotionController {
 
   @PatchMapping("/{id}/status")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<Void>> updatePromotionStatus(
+  public ResponseEntity<ApiResponse<Void>> changeAcceleratedStatus(
       @PathVariable Long id,
-      @RequestParam @Valid @NotNull(message = "STATUS_IS_REQUIRED") PromotionStatus status) {
-    service.updateStatus(id, status);
+      @RequestParam @NotNull(message = "STATUS_REQUIRED") PromotionStatus status) {
+
+    // Appel de la méthode existante dans le service
+    service.changeStatus(id, status);
+
+    // Le service renvoie void, donc on passe null à ApiResponse.success
     ApiResponse<Void> response = ApiResponse.success("PROMOTION_STATUS_UPDATED_SUCCESSFULLY", null);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/status/{status}")
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SECRETARIAT')")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<List<AcceleratedPromotionResponse>>> getPromotionsByStatus(
       @PathVariable PromotionStatus status, @RequestParam(required = false) @Min(1) Integer limit) {
     List<AcceleratedPromotionResponse> data = service.getPromotionsByStatus(status, limit);
     ApiResponse<List<AcceleratedPromotionResponse>> response =
         ApiResponse.success("ACCELERATED_PROMOTIONS_RETRIEVED_SUCCESSFULLY", data);
 
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/status/counts")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<Map<PromotionStatus, Long>>> getStatusCounts() {
+    Map<PromotionStatus, Long> counts = service.getSpecificStatusCounts();
+    ApiResponse<Map<PromotionStatus, Long>> response =
+        ApiResponse.success("PROMOTION_STATUS_COUNTS_RETRIEVED_SUCCESSFULLY", counts);
     return ResponseEntity.ok(response);
   }
 }

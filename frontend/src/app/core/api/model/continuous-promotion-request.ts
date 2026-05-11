@@ -11,11 +11,26 @@
 
 export interface ContinuousPromotionRequest { 
     name: string;
-    code: string;
+    registrationOpeningDate: string;
+    registrationDeadline: string;
+    registrationFee: number;
+    tuitionFee: number;
+    capacity: number;
+    trainingId: number;
     startDate: string;
     endDate: string;
-    fee: number;
-    trainingId: number;
-    duration: number;
+    durationValue: number;
+    durationUnit: ContinuousPromotionRequest.DurationUnitEnum;
 }
+export namespace ContinuousPromotionRequest {
+    export const DurationUnitEnum = {
+        Hours: 'HOURS',
+        Days: 'DAYS',
+        Weeks: 'WEEKS',
+        Months: 'MONTHS',
+        Years: 'YEARS'
+    } as const;
+    export type DurationUnitEnum = typeof DurationUnitEnum[keyof typeof DurationUnitEnum];
+}
+
 

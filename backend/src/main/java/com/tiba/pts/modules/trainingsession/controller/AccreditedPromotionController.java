@@ -4,7 +4,10 @@ import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.modules.trainingsession.domain.enums.PromotionStatus;
 import com.tiba.pts.modules.trainingsession.dto.request.AccreditedPromotionRequest;
+import com.tiba.pts.modules.trainingsession.dto.request.AccreditedPromotionUpdateRequest;
 import com.tiba.pts.modules.trainingsession.dto.response.AccreditedPromotionResponse;
+import com.tiba.pts.modules.trainingsession.dto.response.AccreditedPromotionStatsResponse;
+import com.tiba.pts.modules.trainingsession.dto.response.OngoingPromotionResponse;
 import com.tiba.pts.modules.trainingsession.service.AccreditedPromotionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -40,8 +43,7 @@ public class AccreditedPromotionController {
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<PageResponse<AccreditedPromotionResponse>>>
       getAllAccreditedPromotions(
-          @RequestParam(defaultValue = "0") @Min(0) int page,
-          @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
+          @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     PageResponse<AccreditedPromotionResponse> paginatedData = service.getAllPaged(page, size);
     ApiResponse<PageResponse<AccreditedPromotionResponse>> response =
         ApiResponse.success("ACCREDITED_PROMOTION_LIST_RETRIEVED", paginatedData);
@@ -50,7 +52,8 @@ public class AccreditedPromotionController {
 
   @GetMapping("/{id}")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<AccreditedPromotionResponse>> getById(@PathVariable Long id) {
+  public ResponseEntity<ApiResponse<AccreditedPromotionResponse>> getAccreditedPromotionById(
+      @PathVariable Long id) {
     ApiResponse<AccreditedPromotionResponse> response =
         ApiResponse.success("ACCREDITED_PROMOTION_RETRIEVED_SUCCESSFULLY", service.getById(id));
     return ResponseEntity.ok(response);
@@ -59,20 +62,10 @@ public class AccreditedPromotionController {
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<Long>> updateAccreditedPromotion(
-      @PathVariable Long id, @Valid @RequestBody AccreditedPromotionRequest request) {
+      @PathVariable Long id, @Valid @RequestBody AccreditedPromotionUpdateRequest request) {
+    service.updateAccreditedPromotion(id, request);
     ApiResponse<Long> response =
-        ApiResponse.success(
-            "ACCREDITED_PROMOTION_UPDATED_SUCCESSFULLY", service.update(id, request));
-    return ResponseEntity.ok(response);
-  }
-
-  @PatchMapping("/{id}/status")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<Void>> updatePromotionStatus(
-      @PathVariable Long id,
-      @RequestParam @Valid @NotNull(message = "STATUS_IS_REQUIRED") PromotionStatus status) {
-    service.updateStatus(id, status);
-    ApiResponse<Void> response = ApiResponse.success("PROMOTION_STATUS_UPDATED_SUCCESSFULLY", null);
+        ApiResponse.success("ACCREDITED_PROMOTION_UPDATED_SUCCESSFULLY", id);
     return ResponseEntity.ok(response);
   }
 
@@ -83,6 +76,37 @@ public class AccreditedPromotionController {
     List<AccreditedPromotionResponse> data = service.getPromotionsByStatus(status, limit);
     ApiResponse<List<AccreditedPromotionResponse>> response =
         ApiResponse.success("ACCREDITED_PROMOTIONS_RETRIEVED_SUCCESSFULLY", data);
+    return ResponseEntity.ok(response);
+  }
+
+  @PatchMapping("/{id}/status")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> changePromotionStatus(
+      @PathVariable Long id,
+      @RequestParam @Valid @NotNull(message = "STATUS_IS_REQUIRED") PromotionStatus status) {
+    service.changeStatus(id, status);
+    ApiResponse<Void> response = ApiResponse.success("PROMOTION_STATUS_UPDATED_SUCCESSFULLY", null);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/statistics")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIAT')")
+  public ResponseEntity<ApiResponse<List<AccreditedPromotionStatsResponse>>>
+      getAccreditedPromotionStatistics() {
+    List<AccreditedPromotionStatsResponse> data = service.getPromotionStatistics();
+    ApiResponse<List<AccreditedPromotionStatsResponse>> response =
+        ApiResponse.success("PROMOTION_STATISTICS_RETRIEVED_SUCCESSFULLY", data);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/ongoing")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<OngoingPromotionResponse>>> getOngoingPromotions(
+      @RequestParam(required = false) @Min(value = 1, message = "LIMIT_MUST_BE_POSITIVE")
+          Integer limit) {
+    List<OngoingPromotionResponse> data = service.getOngoingPromotions(limit);
+    ApiResponse<List<OngoingPromotionResponse>> response =
+        ApiResponse.success("ONGOING_PROMOTIONS_RETRIEVED_SUCCESSFULLY", data);
     return ResponseEntity.ok(response);
   }
 }

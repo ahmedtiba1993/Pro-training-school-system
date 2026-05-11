@@ -1,41 +1,55 @@
 package com.tiba.pts.modules.trainingsession.dto.request;
 
-import com.tiba.pts.modules.trainingsession.domain.enums.PromotionStatus;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class BasePromotionRequest {
 
-  @NotBlank(message = "NAME_IS_REQUIRED")
+  @NotBlank(message = "NAME_REQUIRED")
   private String name;
 
-  @NotBlank(message = "CODE_IS_REQUIRED")
-  private String code;
+  @NotNull(message = "REGISTRATION_OPENING_DATE_REQUIRED")
+  private LocalDate registrationOpeningDate;
 
-  @NotNull(message = "START_DATE_IS_REQUIRED")
-  private LocalDate startDate;
+  @NotNull(message = "REGISTRATION_DEADLINE_REQUIRED")
+  private LocalDate registrationDeadline;
 
-  @NotNull(message = "END_DATE_IS_REQUIRED")
-  private LocalDate endDate;
+  @NotNull(message = "REGISTRATION_FEE_REQUIRED")
+  @DecimalMin(value = "0.0", inclusive = true, message = "FEE_MUST_BE_POSITIVE")
+  private BigDecimal registrationFee;
 
-  @NotNull(message = "FEE_IS_REQUIRED")
-  @Positive(message = "FEE_MUST_BE_POSITIVE")
-  private Double fee;
+  @NotNull(message = "TUITION_FEE_REQUIRED")
+  @DecimalMin(value = "0.0", inclusive = true, message = "FEE_MUST_BE_POSITIVE")
+  private BigDecimal tuitionFee;
 
-  @NotNull(message = "TRAINING_ID_IS_REQUIRED")
+  @NotNull(message = "CAPACITY_REQUIRED")
+  @Min(value = 1, message = "CAPACITY_MUST_BE_STRICTLY_POSITIVE")
+  private Integer capacity;
+
+  @NotNull(message = "TRAINING_ID_REQUIRED")
   private Long trainingId;
 
-  @AssertTrue(message = "START_DATE_MUST_BE_BEFORE_END_DATE")
-  private boolean isDateValid() {
-    if (startDate == null || endDate == null) {
+  // --- Surcharge des Setters pour le formatage (Trim & Majuscules) ---
+  public void setName(String name) {
+    this.name = (name != null) ? name.trim() : null;
+  }
+
+  // --- Validation Métier ---
+  @JsonIgnore
+  @AssertTrue(message = "REGISTRATION_DEADLINE_MUST_BE_AFTER_OPENING_DATE")
+  public boolean isDateRangeValid() {
+    if (registrationOpeningDate == null || registrationDeadline == null) {
       return true;
     }
-    return !startDate.isAfter(endDate);
+    return registrationDeadline.isAfter(registrationOpeningDate);
   }
 }

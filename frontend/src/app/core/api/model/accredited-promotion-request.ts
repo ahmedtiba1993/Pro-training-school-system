@@ -11,13 +11,12 @@
 
 export interface AccreditedPromotionRequest { 
     name: string;
-    code: string;
-    startDate: string;
-    endDate: string;
-    fee: number;
-    trainingId: number;
     registrationOpeningDate: string;
     registrationDeadline: string;
+    registrationFee: number;
+    tuitionFee: number;
+    capacity: number;
+    trainingId: number;
     academicYearId: number;
 }
 

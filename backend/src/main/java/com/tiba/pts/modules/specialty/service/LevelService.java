@@ -54,6 +54,10 @@ public class LevelService {
     return levelRepository.save(existingLevel).getId();
   }
 
+  public List<LevelResponse> getAllActive() {
+    return levelRepository.findByIsActiveTrue().stream().map(levelMapper::toResponse).toList();
+  }
+
   // --- MULTIPLE VALIDATION ---
   private void validateLevel(LevelRequest request, Long id) {
     List<ErrorDetail> conflicts = new ArrayList<>();

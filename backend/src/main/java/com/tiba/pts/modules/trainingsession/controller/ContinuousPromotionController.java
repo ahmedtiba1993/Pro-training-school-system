@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/promotions/continuous")
@@ -26,63 +27,69 @@ public class ContinuousPromotionController {
   private final ContinuousPromotionService service;
 
   @PostMapping
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> createContinuousPromotion(
       @Valid @RequestBody ContinuousPromotionRequest request) {
-    ApiResponse<Long> response =
-        ApiResponse.success(
-            "CONTINUOUS_PROMOTION_CREATED_SUCCESSFULLY",
-            service.createContinuousPromotion(request));
-    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    Long response = service.create(request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.success("CONTINUOUS_PROMOTION_CREATED_SUCCESSFULLY", response));
   }
 
   @GetMapping
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN')")
   public ResponseEntity<ApiResponse<PageResponse<ContinuousPromotionResponse>>>
       getAllContinuousPromotions(
           @RequestParam(defaultValue = "0") @Min(0) int page,
           @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
     PageResponse<ContinuousPromotionResponse> paginatedData = service.getAllPaged(page, size);
-    ApiResponse<PageResponse<ContinuousPromotionResponse>> response =
-        ApiResponse.success("CONTINUOUS_PROMOTION_LIST_RETRIEVED", paginatedData);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(
+        ApiResponse.success("CONTINUOUS_PROMOTION_LIST_RETRIEVED", paginatedData));
   }
 
   @GetMapping("/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<ContinuousPromotionResponse>> getById(@PathVariable Long id) {
-    ApiResponse<ContinuousPromotionResponse> response =
-        ApiResponse.success("CONTINUOUS_PROMOTION_RETRIEVED_SUCCESSFULLY", service.getById(id));
-    return ResponseEntity.ok(response);
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<ContinuousPromotionResponse>> getContinuousPromotionById(
+      @PathVariable Long id) {
+    ContinuousPromotionResponse data = service.getById(id);
+    return ResponseEntity.ok(
+        ApiResponse.success("CONTINUOUS_PROMOTION_RETRIEVED_SUCCESSFULLY", data));
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> updateContinuousPromotion(
       @PathVariable Long id, @Valid @RequestBody ContinuousPromotionRequest request) {
-    ApiResponse<Long> response =
-        ApiResponse.success(
-            "CONTINUOUS_PROMOTION_UPDATED_SUCCESSFULLY", service.update(id, request));
-    return ResponseEntity.ok(response);
+    Long response = service.update(id, request);
+    return ResponseEntity.ok(
+        ApiResponse.success("CONTINUOUS_PROMOTION_UPDATED_SUCCESSFULLY", response));
   }
 
   @PatchMapping("/{id}/status")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<Void>> updatePromotionStatus(
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> changeContinuousStatus(
       @PathVariable Long id,
-      @RequestParam @Valid @NotNull(message = "STATUS_IS_REQUIRED") PromotionStatus status) {
-    service.updateStatus(id, status);
-    ApiResponse<Void> response = ApiResponse.success("PROMOTION_STATUS_UPDATED_SUCCESSFULLY", null);
-    return ResponseEntity.ok(response);
+      @RequestParam @NotNull(message = "STATUS_REQUIRED") PromotionStatus status) {
+    service.changeStatus(id, status);
+    return ResponseEntity.ok(ApiResponse.success("PROMOTION_STATUS_UPDATED_SUCCESSFULLY", null));
   }
 
   @GetMapping("/status/{status}")
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SECRETARIAT')")
-  public ResponseEntity<ApiResponse<List<ContinuousPromotionResponse>>> getPromotionsByStatus(
-      @PathVariable PromotionStatus status, @RequestParam(required = false) @Min(1) Integer limit) {
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<List<ContinuousPromotionResponse>>>
+      getContinuousPromotionByStatus(
+          @PathVariable PromotionStatus status,
+          @RequestParam(required = false) @Min(1) Integer limit) {
     List<ContinuousPromotionResponse> data = service.getPromotionsByStatus(status, limit);
-    ApiResponse<List<ContinuousPromotionResponse>> response =
-        ApiResponse.success("CONTINUOUS_PROMOTIONS_RETRIEVED_SUCCESSFULLY", data);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(
+        ApiResponse.success("CONTINUOUS_PROMOTIONS_RETRIEVED_SUCCESSFULLY", data));
+  }
+
+  @GetMapping("/status/counts")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Map<PromotionStatus, Long>>>
+      getContinuousPromotionStatusCounts() {
+    Map<PromotionStatus, Long> counts = service.getSpecificStatusCounts();
+    return ResponseEntity.ok(
+        ApiResponse.success("PROMOTION_STATUS_COUNTS_RETRIEVED_SUCCESSFULLY", counts));
   }
 }

@@ -13,4 +13,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
   long countByStatusAndTraining_TrainingType(PromotionStatus status, TrainingType trainingType);
 
   List<Promotion> findByTrainingIdAndStatus(Long trainingId, PromotionStatus status);
+
+  boolean existsByTrainingId(Long id);
+
+  boolean existsByCodeIgnoreCase(String generatedCode);
 }

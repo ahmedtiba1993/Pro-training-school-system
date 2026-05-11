@@ -35,6 +35,13 @@ export interface LevelControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/levels/active
+     */
+    getActiveLevels(extraHttpRequestParams?: any): Observable<ApiResponseListLevelResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/levels
      */
     getAllLevels(extraHttpRequestParams?: any): Observable<ApiResponseListLevelResponse>;

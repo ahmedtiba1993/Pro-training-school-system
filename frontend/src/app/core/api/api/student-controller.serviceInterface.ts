@@ -37,6 +37,6 @@ export interface StudentControllerServiceInterface {
      * @endpoint get /api/v1/profiles/students/{id}
      * @param id 
      */
-    getById3(id: number, extraHttpRequestParams?: any): Observable<StudentResponse>;
+    getById(id: number, extraHttpRequestParams?: any): Observable<StudentResponse>;
 
 }

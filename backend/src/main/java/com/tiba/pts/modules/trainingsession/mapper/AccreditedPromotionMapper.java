@@ -3,7 +3,9 @@ package com.tiba.pts.modules.trainingsession.mapper;
 import com.tiba.pts.modules.specialty.domain.entity.Training;
 import com.tiba.pts.modules.trainingsession.domain.entity.AccreditedPromotion;
 import com.tiba.pts.modules.trainingsession.dto.request.AccreditedPromotionRequest;
+import com.tiba.pts.modules.trainingsession.dto.request.AccreditedPromotionUpdateRequest;
 import com.tiba.pts.modules.trainingsession.dto.response.AccreditedPromotionResponse;
+import com.tiba.pts.modules.trainingsession.dto.response.OngoingPromotionResponse;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,9 +15,12 @@ import org.mapstruct.MappingTarget;
 public interface AccreditedPromotionMapper {
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "code", ignore = true)
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "enrollmentCount", ignore = true)
   @Mapping(target = "training", ignore = true)
   @Mapping(target = "academicYear", ignore = true)
-  AccreditedPromotion toEntity(AccreditedPromotionRequest dto);
+  AccreditedPromotion toEntity(AccreditedPromotionRequest request);
 
   @Mapping(source = "training.id", target = "trainingId")
   @Mapping(source = "training", target = "trainingLabel")
@@ -25,10 +30,23 @@ public interface AccreditedPromotionMapper {
   AccreditedPromotionResponse toResponse(AccreditedPromotion entity);
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "code", ignore = true)
+  @Mapping(target = "enrollmentCount", ignore = true)
+  @Mapping(target = "training", ignore = true)
+  @Mapping(target = "academicYear", ignore = true)
+  @Mapping(target = "startDate", ignore = true)
+  @Mapping(target = "endDate", ignore = true)
+  void updateEntity(
+      AccreditedPromotionUpdateRequest request, @MappingTarget AccreditedPromotion entity);
+
+  @Mapping(target = "id", ignore = true)
   @Mapping(target = "training", ignore = true)
   @Mapping(target = "academicYear", ignore = true)
   void updateEntityFromRequest(
       AccreditedPromotionRequest request, @MappingTarget AccreditedPromotion entity);
+
+  OngoingPromotionResponse toOngoingResponse(AccreditedPromotion entity);
 
   // Custom method to concatenate Level + Specialty
   default String mapTrainingLabel(Training training) {

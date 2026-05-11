@@ -9,15 +9,12 @@
  */
 
 
-export interface AcceleratedPromotionRequest { 
+export interface AccreditedPromotionUpdateRequest { 
     name: string;
     registrationOpeningDate: string;
     registrationDeadline: string;
     registrationFee: number;
     tuitionFee: number;
     capacity: number;
-    trainingId: number;
-    startDate: string;
-    endDate: string;
 }
 

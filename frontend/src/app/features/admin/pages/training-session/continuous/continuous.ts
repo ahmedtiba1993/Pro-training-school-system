@@ -1,133 +1,87 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
 import {
   ContinuousPromotionControllerService,
   ContinuousPromotionResponse,
-  ContinuousPromotionRequest,
-  PromotionControllerService,
   TrainingControllerService,
   TrainingResponse
 } from '../../../../../core/api';
-import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
-import { ToastService } from '../../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-continuous',
   standalone: true,
-  imports: [CommonModule, DatePipe, PaginationComponent, ReactiveFormsModule],
+  imports: [CommonModule, DatePipe, CurrencyPipe, ReactiveFormsModule, PaginationComponent],
   templateUrl: './continuous.html',
   styleUrl: './continuous.css'
 })
 export class Continuous implements OnInit {
+  // --- INJECTIONS ---
   private continuousService = inject(ContinuousPromotionControllerService);
-  private promotionService = inject(PromotionControllerService);
   private trainingService = inject(TrainingControllerService);
   private fb = inject(FormBuilder);
-  private toastService = inject(ToastService);
 
+  // --- STATE : LIST ---
   sessions = signal<ContinuousPromotionResponse[]>([]);
-  activeSessions = signal<ContinuousPromotionResponse[]>([]);
-  trainings = signal<TrainingResponse[]>([]);
   isLoading = signal<boolean>(true);
 
-  // Main Modal Management
-  isModalOpen = signal<boolean>(false);
-  isSubmitting = signal<boolean>(false);
-  isEditMode = signal<boolean>(false);
-  editingSessionId = signal<number | null>(null);
+  // --- STATE : STATISTICS ---
+  statusCounts = signal<Record<string, number>>({});
+  draftCount = computed(() => this.statusCounts()['DRAFT'] || 0);
+  enrollmentCount = computed(() => this.statusCounts()['ENROLLMENT'] || 0);
+  inProgressCount = computed(() => this.statusCounts()['IN_PROGRESS'] || 0);
+  evaluationCount = computed(() => this.statusCounts()['EVALUATION'] || 0);
 
-  statistics = signal({
-    activeSessionsCount: 0,
-    plannedSessionsCount: 0,
-    closedSessionsCount: 0,
-    activeLearnersCount: 0
-  });
-
+  // --- PAGINATION ---
   currentPage = signal<number>(0);
-  pageSize = signal<number>(3);
+  pageSize = signal<number>(10);
   totalElements = signal<number>(0);
 
-  // State for the Details modal
+  // --- STATE : DETAILS MODAL & WORKFLOW ---
   isDetailsModalOpen = signal<boolean>(false);
+  isLoadingDetails = signal<boolean>(false);
   selectedSession = signal<ContinuousPromotionResponse | null>(null);
+
+  isConfirmModalOpen = signal<boolean>(false);
+  pendingStatusChange = signal<string | null>(null);
+  isChangingStatus = signal<boolean>(false);
+
+  // --- STATE : FORM MODAL (CREATION / MODIFICATION) ---
+  isFormModalOpen = signal<boolean>(false);
+  isSubmitting = signal<boolean>(false);
+  editingSessionId = signal<number | null>(null);
+  currentEditSession = signal<ContinuousPromotionResponse | null>(null);
+  activeTrainings = signal<TrainingResponse[]>([]);
 
   // State for the modal listing ALL active sessions
   isActiveSessionsModalOpen = signal<boolean>(false);
   allActiveSessions = signal<ContinuousPromotionResponse[]>([]);
   isLoadingAllActive = signal<boolean>(false);
+  activeSessions = signal<ContinuousPromotionResponse[]>([]);
 
-  // States for the status confirmation modal
-  isConfirmStatusModalOpen = signal<boolean>(false);
-  pendingStatus = signal<'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED' | null>(null);
-  isChangingStatus = signal<boolean>(false);
-
-  // Modification here: durationInMonths instead of numberOfHours
-  sessionForm = this.fb.nonNullable.group({
+  // Reactive Form
+  sessionForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
-    code: ['', [Validators.required]],
-    trainingId: [null as number | null, [Validators.required]],
-    level: [''],
+    trainingId: ['', [Validators.required]],
     startDate: ['', [Validators.required]],
     endDate: ['', [Validators.required]],
-    duration: [null as number | null, [Validators.required, Validators.min(1)]],
-    fee: [null as number | null, [Validators.required, Validators.min(0)]],
-    status: ['PLANNED', [Validators.required]]
+    registrationOpeningDate: ['', [Validators.required]],
+    registrationDeadline: ['', [Validators.required]],
+    registrationFee: [0, [Validators.required, Validators.min(0)]],
+    tuitionFee: [0, [Validators.required, Validators.min(0)]],
+    capacity: [0, [Validators.required, Validators.min(1)]]
   });
 
   ngOnInit(): void {
     this.loadSessions();
-    this.loadStatistics();
-    this.loadTrainings();
+    this.loadStatusCounts();
     this.loadActiveSessions();
   }
 
-  loadActiveSessions(): void {
-    // Load only 4 sessions for the featured cards
-    this.continuousService.getPromotionsByStatus('IN_PROGRESS', 4).subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.activeSessions.set(response.data);
-        }
-      },
-      error: err => console.error('Erreur chargement des sessions actives en vedette', err)
-    });
-  }
-
-  // Opening of the modal listing all active sessions
-  openActiveSessionsModal(): void {
-    this.isActiveSessionsModalOpen.set(true);
-    this.isLoadingAllActive.set(true);
-
-    // Call without limit (or undefined) to retrieve everything
-    this.continuousService.getPromotionsByStatus('IN_PROGRESS', undefined as any).subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.allActiveSessions.set(response.data);
-        }
-        this.isLoadingAllActive.set(false);
-      },
-      error: err => {
-        console.error('Erreur chargement de toutes les sessions actives', err);
-        this.isLoadingAllActive.set(false);
-      }
-    });
-  }
-
-  closeActiveSessionsModal(): void {
-    this.isActiveSessionsModalOpen.set(false);
-  }
-
-  loadStatistics(): void {
-    this.promotionService.getPromotionStatistics('CONTINUOUS').subscribe({
-      next: (response: any) => {
-        if (response.success && response.data) {
-          this.statistics.set(response.data);
-        }
-      },
-      error: err => console.error('Erreur stats', err)
-    });
-  }
+  // ==========================================
+  // API READ (GET)
+  // ==========================================
 
   loadSessions(): void {
     this.isLoading.set(true);
@@ -135,262 +89,337 @@ export class Continuous implements OnInit {
       .getAllContinuousPromotions(this.currentPage(), this.pageSize())
       .subscribe({
         next: (response: any) => {
-          if (response.success) {
+          if (response.success && response.data) {
             this.sessions.set(response.data.content);
-            this.totalElements.set(response.data?.totalElements || 0);
+            this.totalElements.set(response.data.totalElements || 0);
           }
           this.isLoading.set(false);
         },
         error: err => {
-          console.error('Erreur', err);
+          console.error('Erreur chargement des sessions continues', err);
           this.isLoading.set(false);
+          this.sessions.set([]);
         }
       });
   }
 
-  loadTrainings(): void {
-    this.trainingService.getAllActiveTrainings('CONTINUOUS').subscribe({
+  loadStatusCounts(): void {
+    this.continuousService.getContinuousPromotionStatusCounts().subscribe({
       next: (response: any) => {
-        if (response.success) {
-          this.trainings.set(response.data.content || response.data);
+        if (response.success && response.data) {
+          this.statusCounts.set(response.data);
         }
-      },
-      error: err => console.error('Erreur formations', err)
+      }
     });
   }
 
-  onPageChange(newPage: number) {
+  // Limited to 4 for featured display via the "limit" API parameter
+  loadActiveSessions(): void {
+    this.continuousService.getContinuousPromotionByStatus('IN_PROGRESS' as any, 4).subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          // L'API renvoie directement une List<> pour ce endpoint
+          this.activeSessions.set(response.data);
+        }
+      },
+      error: err => console.error('Erreur chargement des sessions actives en vedette', err)
+    });
+  }
+
+  // Displays all active sessions in the modal
+  openActiveSessionsModal(): void {
+    this.isActiveSessionsModalOpen.set(true);
+    this.isLoadingAllActive.set(true);
+
+    this.continuousService
+      .getContinuousPromotionByStatus('IN_PROGRESS' as any, undefined)
+      .subscribe({
+        next: (response: any) => {
+          if (response.success && response.data) {
+            this.allActiveSessions.set(response.data);
+          }
+          this.isLoadingAllActive.set(false);
+        },
+        error: err => {
+          console.error('Erreur chargement de toutes les sessions actives', err);
+          this.isLoadingAllActive.set(false);
+        }
+      });
+  }
+
+  closeActiveSessionsModal(): void {
+    this.isActiveSessionsModalOpen.set(false);
+  }
+
+  loadActiveTrainings(): void {
+    // Change here: 'CONTINUOUS' level instead of 'ACCELERATED'
+    this.trainingService.getActiveTrainingsByLevel(1, 'CONTINUOUS' as any).subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          this.activeTrainings.set(response.data);
+        }
+      },
+      error: err => console.error('Erreur chargement formations', err)
+    });
+  }
+
+  onPageChange(newPage: number): void {
     this.currentPage.set(newPage);
     this.loadSessions();
   }
 
-  openModal(session?: ContinuousPromotionResponse) {
-    if (session) {
-      this.isEditMode.set(true);
-      this.editingSessionId.set(session.id || null);
+  // ==========================================
+  // MODAL : FORM (POST / PUT)
+  // ==========================================
 
-      const formattedStartDate = session.startDate
-        ? new Date(session.startDate).toISOString().split('T')[0]
-        : '';
-      const formattedEndDate = session.endDate
-        ? new Date(session.endDate).toISOString().split('T')[0]
-        : '';
-
-      this.sessionForm.patchValue({
-        name: session.name,
-        code: session.code,
-        trainingId: (session as any).trainingId || null,
-        level: (session as any).level || '',
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
-        duration: (session as any).duration,
-        fee: session.fee,
-        status: session.status || 'PLANNED'
-      });
-    } else {
-      this.isEditMode.set(false);
-      this.editingSessionId.set(null);
-      this.sessionForm.reset({ status: 'PLANNED' });
-    }
-    this.isModalOpen.set(true);
-  }
-
-  closeModal() {
-    this.isModalOpen.set(false);
-    this.sessionForm.reset();
-    this.isEditMode.set(false);
+  openCreateModal(): void {
     this.editingSessionId.set(null);
+    this.currentEditSession.set(null);
+
+    this.sessionForm.enable();
+    this.sessionForm.reset({
+      name: '',
+      trainingId: '',
+      startDate: '',
+      endDate: '',
+      registrationOpeningDate: '',
+      registrationDeadline: '',
+      registrationFee: 0,
+      tuitionFee: 0, // Default value adjusted for continuous training
+      capacity: 0
+    });
+
+    this.loadActiveTrainings();
+    this.isFormModalOpen.set(true);
   }
 
-  onSubmit() {
+  openEditModal(session: ContinuousPromotionResponse): void {
+    if (session.status === 'COMPLETED' || session.status === 'CANCELLED') return;
+
+    this.editingSessionId.set(session.id!);
+    this.currentEditSession.set(session);
+    this.sessionForm.enable();
+
+    this.sessionForm.patchValue({
+      name: session.name,
+      trainingId: session.trainingId,
+      startDate: this.formatDateForInput(session.startDate),
+      endDate: this.formatDateForInput(session.endDate),
+      registrationOpeningDate: this.formatDateForInput(session.registrationOpeningDate),
+      registrationDeadline: this.formatDateForInput(session.registrationDeadline),
+      registrationFee: session.registrationFee,
+      tuitionFee: session.tuitionFee,
+      capacity: session.capacity
+    });
+
+    if (session.enrollmentCount! > 0) {
+      this.sessionForm.get('registrationFee')?.disable();
+      this.sessionForm.get('tuitionFee')?.disable();
+    }
+    if (session.status !== 'DRAFT' && session.status !== 'ENROLLMENT') {
+      this.sessionForm.get('startDate')?.disable();
+    }
+
+    this.loadActiveTrainings();
+    this.isDetailsModalOpen.set(false);
+    this.isFormModalOpen.set(true);
+  }
+
+  closeFormModal(): void {
+    this.isFormModalOpen.set(false);
+  }
+
+  submitForm(): void {
     if (this.sessionForm.invalid) {
       this.sessionForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting.set(true);
-    const currentId = this.editingSessionId();
+    const payload = this.sessionForm.getRawValue();
 
-    if (currentId !== null) {
-      const updateRequest = this.buildPromotionRequest();
-
-      this.continuousService.updateContinuousPromotion(currentId, updateRequest).subscribe({
-        next: (res: any) =>
-          this.handleSuccessResponse(
-            res,
-            'Session modifiée avec succès',
-            'Erreur lors de la modification'
-          ),
-        error: err => this.handleErrorResponse(err, 'Erreur lors de la modification de la session')
-      });
+    if (this.editingSessionId()) {
+      this.continuousService
+        .updateContinuousPromotion(this.editingSessionId()!, payload)
+        .subscribe({
+          next: (response: any) => {
+            if (response.success) {
+              this.loadSessions();
+              this.closeFormModal();
+            }
+            this.isSubmitting.set(false);
+          },
+          error: err => {
+            console.error('Erreur lors de la modification', err);
+            this.isSubmitting.set(false);
+          }
+        });
     } else {
-      const createRequest = this.buildPromotionRequest();
-
-      this.continuousService.createContinuousPromotion(createRequest).subscribe({
-        next: (res: any) =>
-          this.handleSuccessResponse(
-            res,
-            'Session ajoutée avec succès',
-            'Erreur lors de la création'
-          ),
-        error: err => this.handleErrorResponse(err, 'Erreur lors de la création de la session')
+      this.continuousService.createContinuousPromotion(payload).subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.loadSessions();
+            this.loadStatusCounts();
+            this.closeFormModal();
+          }
+          this.isSubmitting.set(false);
+        },
+        error: err => {
+          console.error('Erreur lors de la création', err);
+          this.isSubmitting.set(false);
+        }
       });
     }
   }
 
-  openDetailsModal(session: ContinuousPromotionResponse) {
-    this.selectedSession.set(session);
+  // ==========================================
+  // MODAL : DETAILS & WORKFLOW (PATCH)
+  // ==========================================
+
+  openDetailsModal(session: ContinuousPromotionResponse): void {
     this.isDetailsModalOpen.set(true);
-  }
-
-  closeDetailsModal() {
-    this.isDetailsModalOpen.set(false);
+    this.isLoadingDetails.set(true);
     this.selectedSession.set(null);
+
+    this.continuousService.getContinuousPromotionById(session.id!).subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          this.selectedSession.set(response.data);
+        }
+        this.isLoadingDetails.set(false);
+      },
+      error: () => this.isLoadingDetails.set(false)
+    });
   }
 
-  // ==========================================
-  // ==========================================
-
-  openConfirmStatusModal(newStatus: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED') {
-    this.pendingStatus.set(newStatus);
-    this.isConfirmStatusModalOpen.set(true);
+  closeDetailsModal(): void {
+    this.isDetailsModalOpen.set(false);
+    setTimeout(() => this.selectedSession.set(null), 300);
   }
 
-  closeConfirmStatusModal() {
-    this.isConfirmStatusModalOpen.set(false);
-    this.pendingStatus.set(null);
-  }
-
-  confirmStatusChange() {
-    const session = this.selectedSession();
-    const status = this.pendingStatus();
-
-    if (session?.id && status) {
-      this.changeStatus(session.id, status);
-    }
-  }
-
-  getStatusLabel(status: string | null): string {
-    switch (status) {
-      case 'ENROLLMENT_OPEN':
-        return 'Inscriptions Ouvertes';
+  getAvailableNextStatuses(currentStatus: string): string[] {
+    switch (currentStatus) {
+      case 'DRAFT':
+        return ['ENROLLMENT', 'CANCELLED'];
+      case 'ENROLLMENT':
+        return ['IN_PROGRESS', 'CANCELLED'];
       case 'IN_PROGRESS':
-        return 'En cours';
-      case 'CLOSED':
-        return 'Clôturée';
-      case 'PLANNED':
-        return 'Planifiée';
+        return ['EVALUATION', 'CANCELLED'];
+      case 'EVALUATION':
+        return ['COMPLETED'];
       default:
-        return 'Inconnu';
+        return [];
     }
   }
 
-  changeStatus(id: number, newStatus: 'PLANNED' | 'ENROLLMENT_OPEN' | 'IN_PROGRESS' | 'CLOSED') {
+  getActionLabel(targetStatus: string): string {
+    switch (targetStatus) {
+      case 'ENROLLMENT':
+        return 'Ouvrir les inscriptions';
+      case 'IN_PROGRESS':
+        return 'Démarrer la session';
+      case 'EVALUATION':
+        return 'Passer en évaluation';
+      case 'COMPLETED':
+        return 'Clôturer la session';
+      case 'CANCELLED':
+        return 'Annuler la session';
+      default:
+        return targetStatus;
+    }
+  }
+
+  getActionStyle(targetStatus: string): string {
+    if (targetStatus === 'CANCELLED')
+      return 'bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700';
+    if (targetStatus === 'COMPLETED') return 'bg-emerald-600 text-white hover:bg-emerald-700';
+    return 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm';
+  }
+
+  promptStatusChange(targetStatus: string): void {
+    this.pendingStatusChange.set(targetStatus);
+    this.isConfirmModalOpen.set(true);
+  }
+
+  closeConfirmModal(): void {
+    this.isConfirmModalOpen.set(false);
+    setTimeout(() => this.pendingStatusChange.set(null), 200);
+  }
+
+  confirmStatusChange(): void {
+    const targetStatus = this.pendingStatusChange();
+    const session = this.selectedSession();
+
+    if (!session || !session.id || !targetStatus) return;
     this.isChangingStatus.set(true);
 
-    this.continuousService.updatePromotionStatus(id, newStatus).subscribe({
-      next: (res: any) => {
+    // The Java API expects 'status' as a @RequestParam
+    this.continuousService.changeContinuousStatus(session.id, targetStatus as any).subscribe({
+      next: () => {
+        this.selectedSession.set({
+          ...session,
+          status: targetStatus as ContinuousPromotionResponse['status']
+        });
+        this.loadSessions();
+        this.loadStatusCounts();
         this.isChangingStatus.set(false);
-        if (res.success) {
-          this.toastService.success('Statut de la session mis à jour avec succès');
-
-          this.loadSessions();
-          this.loadStatistics();
-          this.loadActiveSessions(); // Refresh cards
-
-          if (this.selectedSession()?.id === id) {
-            this.selectedSession.set({
-              ...this.selectedSession()!,
-              status: newStatus
-            });
-          }
-
-          // Update the main list if the modal is open
-          if (this.isActiveSessionsModalOpen()) {
-            this.openActiveSessionsModal();
-          }
-
-          this.closeConfirmStatusModal();
-        } else {
-          this.toastService.error(res.message || 'Erreur lors du changement de statut');
-        }
+        this.closeConfirmModal();
+        this.loadActiveSessions();
       },
       error: err => {
+        console.error('Erreur changement statut', err);
         this.isChangingStatus.set(false);
-        console.error(err);
-        this.toastService.error('Erreur lors du changement de statut de la session');
       }
     });
   }
 
-  calculateProgress(startDate: string | undefined, endDate: string | undefined): number {
-    if (!startDate || !endDate) return 0;
-
-    const start = new Date(startDate).getTime();
-    const end = new Date(endDate).getTime();
-    const now = new Date().getTime();
-
-    if (now <= start) return 0;
-    if (now >= end) return 100;
-
-    const totalDuration = end - start;
-    const elapsed = now - start;
-    return Math.round((elapsed / totalDuration) * 100);
-  }
-
-  getRemainingDays(endDate: string | undefined): number {
-    if (!endDate) return 0;
-    const end = new Date(endDate).getTime();
-    const now = new Date().getTime();
-    if (now >= end) return 0;
-    return Math.ceil((end - now) / (1000 * 60 * 60 * 24));
-  }
-
   // ==========================================
-  // PRIVATE METHODS
+  // UTILS & HELPERS
   // ==========================================
 
-  private buildPromotionRequest(): ContinuousPromotionRequest {
-    return {
-      name: this.sessionForm.value.name!,
-      code: this.sessionForm.value.code!,
-      trainingId: this.sessionForm.value.trainingId!,
-      startDate: this.sessionForm.value.startDate!,
-      endDate: this.sessionForm.value.endDate!,
-      duration: this.sessionForm.value.duration!, // Modification here
-      fee: this.sessionForm.value.fee!
-    };
+  private formatDateForInput(dateVal: any): string {
+    if (!dateVal) return '';
+    if (typeof dateVal === 'string') return dateVal.split('T')[0];
+    if (dateVal instanceof Date) {
+      const y = dateVal.getFullYear();
+      const m = String(dateVal.getMonth() + 1).padStart(2, '0');
+      const d = String(dateVal.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return '';
   }
 
-  private handleSuccessResponse(
-    res: any,
-    successMessage: string,
-    defaultErrorMessage: string
-  ): void {
-    if (res.success) {
-      this.toastService.success(successMessage);
-      this.closeModal();
-      this.loadSessions();
-      this.loadStatistics();
-      this.loadActiveSessions();
-    } else {
-      this.toastService.error(res.message || defaultErrorMessage);
+  getStatusConfig(status: string) {
+    switch (status) {
+      case 'DRAFT':
+        return { label: 'Brouillon', classes: 'bg-slate-100 text-slate-700 border-slate-200' };
+      case 'ENROLLMENT':
+        return { label: 'Inscriptions', classes: 'bg-sky-50 text-sky-700 border-sky-200' };
+      case 'IN_PROGRESS':
+        return { label: 'En cours', classes: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+      case 'EVALUATION':
+        return { label: 'Évaluation', classes: 'bg-amber-50 text-amber-700 border-amber-200' };
+      case 'COMPLETED':
+        return { label: 'Terminée', classes: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+      case 'CANCELLED':
+        return { label: 'Annulée', classes: 'bg-rose-50 text-rose-700 border-rose-200' };
+      default:
+        return { label: status, classes: 'bg-gray-50 text-gray-700 border-gray-200' };
     }
-    this.isSubmitting.set(false);
   }
 
-  private handleErrorResponse(err: any, defaultErrorMessage: string): void {
-    const errorMessage = err?.error?.message;
-    const errorDateMessage = err?.error?.errors?.[0]?.message || err?.error?.message;
-
-    if (errorDateMessage === 'START_DATE_MUST_BE_BEFORE_END_DATE') {
-      this.toastService.error('La date de début doit être antérieure à la date de fin.');
-    } else if (errorMessage === 'PROMOTION_CODE_ALREADY_EXISTS') {
-      this.toastService.error('Ce code de promotion existe déjà.');
-    } else {
-      this.toastService.error(defaultErrorMessage);
+  getDurationTranslation(unit: string): string {
+    switch (unit) {
+      case 'MONTHS':
+        return 'Mois';
+      case 'WEEKS':
+        return 'Semaines';
+      case 'DAYS':
+        return 'Jours';
+      case 'HOURS':
+        return 'Heures';
+      default:
+        return unit;
     }
-
-    this.isSubmitting.set(false);
   }
 }

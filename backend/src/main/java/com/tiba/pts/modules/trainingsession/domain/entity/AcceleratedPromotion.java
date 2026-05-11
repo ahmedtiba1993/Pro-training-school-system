@@ -1,6 +1,7 @@
 package com.tiba.pts.modules.trainingsession.domain.entity;
 
-import jakarta.persistence.Entity;
+import com.tiba.pts.modules.trainingsession.domain.enums.DurationUnit;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AcceleratedPromotion extends Promotion {
 
-  private Integer numberOfHours;
-  private String level;
+  @Column(nullable = false)
+  private Integer durationValue;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private DurationUnit durationUnit;
 }

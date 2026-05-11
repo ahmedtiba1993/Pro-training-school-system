@@ -58,8 +58,9 @@ public class TrainingController {
   @GetMapping("/active/level/{levelId}")
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<List<TrainingResponse>>> getActiveTrainingsByLevel(
-      @PathVariable Long levelId) {
-    List<TrainingResponse> data = trainingService.getActiveTrainingsByLevelId(levelId);
+      @PathVariable Long levelId, @RequestParam(required = false) TrainingType type) {
+
+    List<TrainingResponse> data = trainingService.getActiveTrainingsByLevelId(levelId, type);
     ApiResponse<List<TrainingResponse>> response =
         ApiResponse.success("ACTIVE_TRAININGS_BY_LEVEL_RETRIEVED", data);
     return ResponseEntity.ok(response);
@@ -84,7 +85,7 @@ public class TrainingController {
   }
 
   @PatchMapping("/{id}/status")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIAT')")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<Long>> updateTrainingStatus(
       @PathVariable Long id, @RequestParam TrainingStatus status) {
     Long updatedId = trainingService.updateStatus(id, status);

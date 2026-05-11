@@ -16,7 +16,7 @@ import com.tiba.pts.modules.academicyear.repository.AcademicYearRepository;
 import com.tiba.pts.modules.academicyear.repository.ExamSessionRepository;
 import com.tiba.pts.modules.academicyear.repository.HolidayRepository;
 import com.tiba.pts.modules.academicyear.repository.PeriodRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.tiba.pts.modules.trainingsession.service.AccreditedPromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +39,7 @@ public class AcademicYearService {
   private final PeriodRepository periodRepository;
   private final ExamSessionRepository examSessionRepository;
   private final HolidayRepository holidayRepository;
+  private final AccreditedPromotionService accreditedPromotionService;
 
   @Transactional
   public Long createAcademicYear(AcademicYearRequest request) {
@@ -146,6 +147,8 @@ public class AcademicYearService {
       default -> throw new RuntimeException("INVALID_STATUS_TRANSITION");
     }
     academicYearRepository.save(targetYear);
+
+    accreditedPromotionService.syncStatusWithAcademicYear(id, newStatus);
   }
 
   @Transactional

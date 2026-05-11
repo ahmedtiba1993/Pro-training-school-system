@@ -25,29 +25,31 @@ public class PromotionService {
 
   @Transactional(readOnly = true)
   public PromotionStatisticsResponse getStatistics(TrainingType trainingType) {
-    return PromotionStatisticsResponse.builder()
-        .activeSessionsCount(
-            promotionRepository.countByStatusAndTraining_TrainingType(
-                PromotionStatus.IN_PROGRESS, trainingType))
-        .plannedSessionsCount(
-            promotionRepository.countByStatusAndTraining_TrainingType(
-                PromotionStatus.PLANNED, trainingType))
-        .closedSessionsCount(
-            promotionRepository.countByStatusAndTraining_TrainingType(
-                PromotionStatus.CLOSED, trainingType))
-        .activeLearnersCount(0L)
-        .build();
+    return null; /*
+                 return PromotionStatisticsResponse.builder()
+                     .activeSessionsCount(
+                         promotionRepository.countByStatusAndTraining_TrainingType(
+                             PromotionStatus.IN_PROGRESS, trainingType))
+                     .plannedSessionsCount(
+                         promotionRepository.countByStatusAndTraining_TrainingType(
+                             PromotionStatus.PLANNED, trainingType))
+                     .closedSessionsCount(
+                         promotionRepository.countByStatusAndTraining_TrainingType(
+                             PromotionStatus.CLOSED, trainingType))
+                     .activeLearnersCount(0L)
+                     .build();*/
   }
 
   @Transactional(readOnly = true)
   public List<PromotionLookupResponse> getOpenPromotionsLookupByTrainingId(Long trainingId) {
-    if (!trainingRepository.existsById(trainingId)) {
+    /*if (!trainingRepository.existsById(trainingId)) {
       throw new ResourceNotFoundException("TRAINING_NOT_FOUND");
     }
 
     List<Promotion> promotions =
         promotionRepository.findByTrainingIdAndStatus(trainingId, PromotionStatus.ENROLLMENT_OPEN);
 
-    return promotions.stream().map(promotionMapper::toLookupResponse).toList();
+    return promotions.stream().map(promotionMapper::toLookupResponse).toList();*/
+    return null;
   }
 }

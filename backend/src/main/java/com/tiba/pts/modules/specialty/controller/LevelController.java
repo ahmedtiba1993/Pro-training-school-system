@@ -57,4 +57,13 @@ public class LevelController {
         ApiResponse.success("LEVEL_STATUS_UPDATED_SUCCESSFULLY", updatedId);
     return ResponseEntity.ok(response);
   }
+
+  @GetMapping("/active")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<LevelResponse>>> getActiveLevels() {
+    List<LevelResponse> data = levelService.getAllActive();
+    ApiResponse<List<LevelResponse>> response =
+        ApiResponse.success("ACTIVE_LEVEL_LIST_RETRIEVED", data);
+    return ResponseEntity.ok(response);
+  }
 }
