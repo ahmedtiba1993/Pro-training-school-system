@@ -19,18 +19,5 @@ export interface ContinuousPromotionRequest {
     trainingId: number;
     startDate: string;
     endDate: string;
-    durationValue: number;
-    durationUnit: ContinuousPromotionRequest.DurationUnitEnum;
 }
-export namespace ContinuousPromotionRequest {
-    export const DurationUnitEnum = {
-        Hours: 'HOURS',
-        Days: 'DAYS',
-        Weeks: 'WEEKS',
-        Months: 'MONTHS',
-        Years: 'YEARS'
-    } as const;
-    export type DurationUnitEnum = typeof DurationUnitEnum[keyof typeof DurationUnitEnum];
-}
-
 

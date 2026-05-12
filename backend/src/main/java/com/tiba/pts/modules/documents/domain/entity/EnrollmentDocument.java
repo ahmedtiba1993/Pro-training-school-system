@@ -6,6 +6,7 @@ import com.tiba.pts.modules.documents.domain.enums.DocumentNature;
 import com.tiba.pts.modules.specialty.domain.entity.Level;
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,8 +23,14 @@ public class EnrollmentDocument extends BaseEntity {
   @SequenceGenerator(name = "registration_document_seq", sequenceName = "registration_document_seq")
   private Long id;
 
+  @Column(nullable = false, unique = true, updatable = false, length = 50)
+  private String code;
+
   @Column(nullable = false)
-  private String name;
+  private String label;
+
+  @Column(nullable = false)
+  private String labelAr;
 
   @Column(nullable = false)
   private Integer quantity;

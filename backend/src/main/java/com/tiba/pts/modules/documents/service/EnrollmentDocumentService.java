@@ -1,6 +1,10 @@
 package com.tiba.pts.modules.documents.service;
 
+import com.tiba.pts.core.exception.EntityAlreadyExistsException;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
+import com.tiba.pts.core.service.PdfGeneratorService;
+import com.tiba.pts.modules.academicyear.domain.entity.AcademicYear;
+import com.tiba.pts.modules.academicyear.repository.AcademicYearRepository;
 import com.tiba.pts.modules.documents.domain.entity.EnrollmentDocument;
 import com.tiba.pts.modules.documents.dto.request.EnrollmentDocumentRequest;
 import com.tiba.pts.modules.documents.dto.response.EnrollmentDocumentResponse;
@@ -11,9 +15,12 @@ import com.tiba.pts.modules.specialty.repository.LevelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,12 +30,19 @@ public class EnrollmentDocumentService {
   private final EnrollmentDocumentRepository documentRepository;
   private final EnrollmentDocumentMapper mapper;
   private final LevelRepository levelRepository;
+  private final PdfGeneratorService pdfGeneratorService;
+  private final AcademicYearRepository academicYearRepository;
 
   @Transactional
   public Long addDocument(EnrollmentDocumentRequest request) {
 
-    if (documentRepository.existsByNameIgnoreCase(request.getName())) {
-      throw new ResourceNotFoundException("DOCUMENT_NAME_ALREADY_EXISTS");
+    if (documentRepository.existsByLabelIgnoreCase(request.getLabel())) {
+      throw new ResourceNotFoundException("DOCUMENT_LABEL_ALREADY_EXISTS");
+    }
+
+    // Vérification de l'existence du Code (Ajout demandé)
+    if (documentRepository.existsByCodeIgnoreCase(request.getCode())) {
+      throw new EntityAlreadyExistsException("DOCUMENT_CODE_ALREADY_EXISTS");
     }
 
     // Convert the Request DTO to Entity
@@ -66,13 +80,13 @@ public class EnrollmentDocumentService {
             .orElseThrow(() -> new ResourceNotFoundException("DOCUMENT_NOT_FOUND"));
 
     // Check name uniqueness (only if the name has been modified)
-    if (!document.getName().equalsIgnoreCase(request.getName())
-        && documentRepository.existsByNameIgnoreCase(request.getName())) {
+    if (!document.getLabel().equalsIgnoreCase(request.getLabel())
+        && documentRepository.existsByLabelIgnoreCase(request.getLabel())) {
       throw new ResourceNotFoundException("DOCUMENT_NAME_ALREADY_EXISTS");
     }
 
     // Update simple properties
-    document.setName(request.getName());
+    document.setLabel(request.getLabel());
     document.setQuantity(request.getQuantity());
     document.setNature(request.getNature());
     document.setCondition(request.getCondition());
@@ -114,5 +128,22 @@ public class EnrollmentDocumentService {
 
     // Mapping Entity -> DTO via MapStruct and return the list of responses
     return documents.stream().map(mapper::toResponse).collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public byte[] exportArabicEnrollmentForm() {
+    List<EnrollmentDocumentResponse> documents = this.getAll();
+
+    // Retrieve the default academic year; otherwise, set to null
+    String currentAcademicYear =
+        academicYearRepository.findByIsDefaultTrue().map(AcademicYear::getLabel).orElse(null);
+
+    Map<String, Object> data = new HashMap<>();
+    data.put("documents", documents);
+    data.put("academicYear", currentAcademicYear);
+
+    data.put("registrationFees", "150 دينار");
+
+    return pdfGeneratorService.generateArPdf("enrollment-documents-ar", data);
   }
 }

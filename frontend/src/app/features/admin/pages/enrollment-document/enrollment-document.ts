@@ -1,5 +1,7 @@
 import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { finalize } from 'rxjs';
 import {
   EnrollmentDocumentControllerService,
   LevelControllerService,
@@ -22,6 +24,7 @@ export class EnrollmentDocumentComponent implements OnInit {
   private readonly levelService = inject(LevelControllerService);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
+  private readonly http = inject(HttpClient);
 
   // Signals (State)
   documents = signal<EnrollmentDocumentResponse[]>([]);
@@ -29,21 +32,21 @@ export class EnrollmentDocumentComponent implements OnInit {
 
   isLoading = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
+  isExporting = signal<boolean>(false);
   isModalOpen = signal<boolean>(false);
 
   // Track currently edited document
   selectedDocId = signal<number | null>(null);
 
-  // Computed to determine if in edit mode
-  isEditMode = computed(() => this.selectedDocId() !== null);
-
   // Computed
+  isEditMode = computed(() => this.selectedDocId() !== null);
   totalDocuments = computed(() => this.documents().length);
   mandatoryDocuments = computed(() => this.documents().filter(doc => doc.mandatory).length);
 
   // Form
   documentForm: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(3)]],
+    code: ['', [Validators.required, Validators.minLength(2)]],
+    label: ['', [Validators.required, Validators.minLength(3)]],
     quantity: [1, [Validators.required, Validators.min(1)]],
     nature: ['ORIGINAL', Validators.required],
     condition: ['ALL_REGISTRATIONS', Validators.required],
@@ -72,14 +75,16 @@ export class EnrollmentDocumentComponent implements OnInit {
 
   loadDocuments(): void {
     this.isLoading.set(true);
-    this.documentService.getAllDocuments().subscribe({
-      next: (response: any) => {
-        const data = response.data || response;
-        this.documents.set(data);
-      },
-      error: () => this.toastService.error('Erreur lors du chargement des documents'),
-      complete: () => this.isLoading.set(false)
-    });
+    this.documentService
+      .getAllDocuments()
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (response: any) => {
+          const data = response.data || response;
+          this.documents.set(data);
+        },
+        error: () => this.toastService.error('Erreur lors du chargement des documents')
+      });
   }
 
   loadLevels(): void {
@@ -92,27 +97,58 @@ export class EnrollmentDocumentComponent implements OnInit {
     });
   }
 
-  // Gère la création ET la modification
+  exportArabicPdf(): void {
+    this.isExporting.set(true);
+
+    this.documentService
+      .exportArabicForm()
+      .pipe(finalize(() => this.isExporting.set(false)))
+      .subscribe({
+        next: (response: any) => {
+          const blob = new Blob([response], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'fiche_inscription.pdf';
+
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          window.URL.revokeObjectURL(url);
+          this.toastService.success('Fichier PDF téléchargé avec succès');
+        },
+        error: err => {
+          console.error('Erreur Export PDF:', err);
+        }
+      });
+  }
+
   openModal(doc?: EnrollmentDocumentResponse): void {
     if (doc) {
-      // EDIT MODE: Store the ID and pre-fill the form
+      // EDIT MODE
       this.selectedDocId.set(doc.id!);
-
-      // Need to extract level IDs from the list of objects returned by the API
       const extractedLevelIds = doc.levels ? doc.levels.map(l => l.id) : [];
 
       this.documentForm.patchValue({
-        name: doc.name,
+        code: doc.code,
+        label: doc.label,
         quantity: doc.quantity,
         nature: doc.nature,
         condition: doc.condition,
         levelIds: extractedLevelIds,
         mandatory: doc.mandatory
       });
+      this.documentForm.get('code')?.disable();
     } else {
-      // CREATE MODE: Reset to empty
+      // CREATE MODE
       this.selectedDocId.set(null);
+      // Enable the field for a new document
+      this.documentForm.get('code')?.enable();
+
       this.documentForm.reset({
+        code: '',
         quantity: 1,
         nature: 'ORIGINAL',
         condition: 'ALL_REGISTRATIONS',
@@ -128,7 +164,6 @@ export class EnrollmentDocumentComponent implements OnInit {
     this.selectedDocId.set(null);
   }
 
-  // Handle Create or Update call
   onSubmit(): void {
     if (this.documentForm.invalid) {
       this.documentForm.markAllAsTouched();
@@ -137,40 +172,44 @@ export class EnrollmentDocumentComponent implements OnInit {
     }
 
     this.isSubmitting.set(true);
-    const request: EnrollmentDocumentRequest = { ...this.documentForm.value };
+    // Use getRawValue() to ensure the `code` is retrieved
+    // even if it is disabled (disable() ignores values with .value).
+    const request: EnrollmentDocumentRequest = { ...this.documentForm.getRawValue() };
 
     if (this.isEditMode()) {
-      // API UPDATE
-      this.documentService.updateDocument(this.selectedDocId()!, request).subscribe({
-        next: () => {
-          this.toastService.success('Document mis à jour avec succès');
-          this.closeModal();
-          this.loadDocuments();
-        },
-        error: err => {
-          console.error(err);
-          this.toastService.error('Erreur lors de la mise à jour');
-        },
-        complete: () => this.isSubmitting.set(false)
-      });
+      this.documentService
+        .updateDocument(this.selectedDocId()!, request)
+        .pipe(finalize(() => this.isSubmitting.set(false)))
+        .subscribe({
+          next: () => {
+            this.toastService.success('Document mis à jour avec succès');
+            this.closeModal();
+            this.loadDocuments();
+          },
+          error: err => {
+            console.error(err);
+            this.toastService.error('Erreur lors de la mise à jour');
+          }
+        });
     } else {
-      // API CREATE
-      this.documentService.createDocument(request).subscribe({
-        next: () => {
-          this.toastService.success('Document ajouté avec succès');
-          this.closeModal();
-          this.loadDocuments();
-        },
-        error: err => {
-          console.error(err);
-          this.toastService.error("Erreur lors de l'enregistrement");
-        },
-        complete: () => this.isSubmitting.set(false)
-      });
+      this.documentService
+        .createDocument(request)
+        .pipe(finalize(() => this.isSubmitting.set(false)))
+        .subscribe({
+          next: () => {
+            this.toastService.success('Document ajouté avec succès');
+            this.closeModal();
+            this.loadDocuments();
+          },
+          error: err => {
+            console.error(err);
+            this.toastService.error("Erreur lors de l'enregistrement");
+          }
+        });
     }
   }
 
-  // --- Checkbox management ---
+  // Level checkboxes
   onLevelChange(event: Event, levelId: number): void {
     const checkbox = event.target as HTMLInputElement;
     const currentLevelIds = this.documentForm.get('levelIds')?.value as number[];

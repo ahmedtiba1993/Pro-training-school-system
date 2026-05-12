@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page {
+            size: A4;
+            margin: 0.5mm; /* Ultra-thin page margins */
+        }
+
+        body {
+            font-family: 'NotoSans', 'Arial', sans-serif;
+            direction: rtl;
+            color: #000000;
+            margin: 0;
+            padding: 0;
+            font-size: 11px;
+        }
+
+        .half-page {
+            height: 145mm; /* Height adjusted to fit 2 sections per A4 page */
+            width: 100%;
+            padding: 5mm 10mm; /* Reduced internal padding */
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px dashed #ccc; /* Subtle cut line */
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .main-title {
+            font-size: 18px; /* Reduced title size */
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 5px;
+        }
+
+        .year-title {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .content-section {
+            margin-top: 10px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 8px;
+        }
+
+        .requirements-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .requirements-table th, .requirements-table td {
+            border: 1px solid #000; /* Thinner borders */
+            padding: 5px 8px; /* Compact cells */
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .requirements-table th {
+            background-color: #f5f5f5;
+        }
+
+        .col-qty {
+            width: 50px;
+            text-align: center;
+        }
+
+        .col-doc {
+            text-align: right;
+        }
+
+        .cut-marker {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loop to generate two copies per page -->
+<div th:each="i : ${#numbers.sequence(1, 2)}" class="half-page">
+    <div class="header-section">
+        <div class="main-title">معهد بولي الكترونيك للتكوين المهني بالمنستير</div>
+        <div class="year-title" th:if="${academicYear != null}" th:text="'السنة التكوينية ' + ${academicYear}">
+            2025-2026
+        </div>
+    </div>
+
+    <div class="content-section">
+        <div class="subtitle">الوثائق الازمة للترسيم</div>
+        <table class="requirements-table">
+            <thead>
+            <tr>
+                <th class="col-qty">العدد</th>
+                <th class="col-doc">الوثيقة</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="doc : ${documents}">
+                <td class="col-qty" th:text="${doc.quantity}">2</td>
+                <td class="col-doc" th:text="${doc.labelAr}">نسخة من الشهادة المدرسية</td>
+            </tr>
+            <tr>
+                <td class="col-qty">-</td>
+                <td class="col-doc" th:text="'معلوم التسجيل: ' + ${registrationFees}">150 دينار</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Cut line marker displayed only between the two sections -->
+    <div class="cut-marker" th:if="${i == 1}">
+        ✂ ---------------------------------------------------------------
+    </div>
+</div>
+
+</body>
+</html>

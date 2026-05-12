@@ -35,6 +35,13 @@ export interface EnrollmentDocumentControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/enrollment-documents/export/arabic-pdf
+     */
+    exportArabicForm(extraHttpRequestParams?: any): Observable<string>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/enrollment-documents
      */
     getAllDocuments(extraHttpRequestParams?: any): Observable<ApiResponseListEnrollmentDocumentResponse>;

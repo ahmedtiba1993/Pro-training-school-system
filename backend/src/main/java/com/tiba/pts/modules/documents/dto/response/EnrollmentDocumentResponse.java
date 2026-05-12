@@ -12,7 +12,9 @@ import java.util.Set;
 @Data
 public class EnrollmentDocumentResponse {
   private Long id;
-  private String name;
+  private String code;
+  private String label;
+  private String labelAr;
   private Integer quantity;
   private DocumentNature nature;
   private DocumentCondition condition;

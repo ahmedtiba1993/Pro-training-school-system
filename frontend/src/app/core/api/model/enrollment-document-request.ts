@@ -10,7 +10,9 @@
 
 
 export interface EnrollmentDocumentRequest { 
-    name: string;
+    label: string;
+    labelAr?: string;
+    code: string;
     quantity: number;
     nature: EnrollmentDocumentRequest.NatureEnum;
     condition: EnrollmentDocumentRequest.ConditionEnum;

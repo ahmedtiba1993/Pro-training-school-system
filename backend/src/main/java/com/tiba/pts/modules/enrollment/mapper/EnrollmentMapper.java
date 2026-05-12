@@ -8,7 +8,6 @@ import com.tiba.pts.modules.profiles.domain.entity.Student;
 import com.tiba.pts.modules.profiles.domain.entity.StudentSibling;
 import com.tiba.pts.modules.trainingsession.domain.entity.Promotion;
 
-
 import com.tiba.pts.modules.profiles.dto.request.ParentRequest;
 import com.tiba.pts.modules.profiles.dto.request.StudentParentRequest;
 import com.tiba.pts.modules.profiles.dto.request.StudentRequest;
@@ -35,7 +34,7 @@ public interface EnrollmentMapper {
   EnrollmentDocumentSubmission toSubmittedDocument(SubmittedDocumentRequest request);
 
   @Mapping(target = "enrollmentDocumentId", source = "document.id")
-  @Mapping(target = "documentName", source = "document.name")
+  @Mapping(target = "documentLabel", source = "document.label")
   SubmittedDocumentResponse toSubmittedDocumentResponse(EnrollmentDocumentSubmission entity);
 
   // ==============================================================================================

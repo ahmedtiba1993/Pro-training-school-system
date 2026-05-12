@@ -12,7 +12,9 @@ import { LevelSummaryResponse } from './level-summary-response';
 
 export interface EnrollmentDocumentResponse { 
     id?: number;
-    name?: string;
+    code?: string;
+    label?: string;
+    labelAr?: string;
     quantity?: number;
     nature?: EnrollmentDocumentResponse.NatureEnum;
     condition?: EnrollmentDocumentResponse.ConditionEnum;

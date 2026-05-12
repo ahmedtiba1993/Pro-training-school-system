@@ -6,7 +6,9 @@ import com.tiba.pts.modules.documents.dto.response.EnrollmentDocumentResponse;
 import com.tiba.pts.modules.documents.service.EnrollmentDocumentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -55,12 +57,19 @@ public class EnrollmentDocumentController {
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<ApiResponse<List<EnrollmentDocumentResponse>>> getDocumentsByLevel(
       @PathVariable Long levelId) {
-
     List<EnrollmentDocumentResponse> documents = documentService.getDocumentsByLevelId(levelId);
-
     ApiResponse<List<EnrollmentDocumentResponse>> response =
         ApiResponse.success("REGISTRATION_DOCUMENTS_BY_LEVEL_RETRIEVED", documents);
-
     return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/export/arabic-pdf")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<byte[]> exportArabicForm() {
+    byte[] pdfBytes = documentService.exportArabicEnrollmentForm();
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDispositionFormData("attachment", "fiche_inscription.pdf");
+    return ResponseEntity.ok().headers(headers).body(pdfBytes);
   }
 }

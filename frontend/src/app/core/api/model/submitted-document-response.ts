@@ -12,7 +12,7 @@
 export interface SubmittedDocumentResponse { 
     id?: number;
     enrollmentDocumentId?: number;
-    documentName?: string;
+    documentLabel?: string;
     provided?: boolean;
 }
 

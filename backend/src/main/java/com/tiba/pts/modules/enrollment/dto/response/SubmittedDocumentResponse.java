@@ -6,6 +6,6 @@ import lombok.Data;
 public class SubmittedDocumentResponse {
   private Long id;
   private Long enrollmentDocumentId;
-  private String documentName;
+  private String documentLabel;
   private boolean provided;
 }
