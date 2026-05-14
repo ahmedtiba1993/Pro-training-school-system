@@ -489,8 +489,6 @@
                 }"
               >
                 <option value="">Sélectionner une spécialité...</option>
-
-                <!-- CORRECTION ICI : On utilise plusieurs fallbacks pour être sûr d'afficher le bon champ Swagger -->
                 @for (spec of specialities(); track spec.id) {
                 <option [value]="spec.id">{{
                   spec.specialtyLabel || spec.name || spec.label

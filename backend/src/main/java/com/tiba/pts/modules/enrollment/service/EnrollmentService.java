@@ -235,7 +235,7 @@ public class EnrollmentService {
         "trainingType", enrollment.getPromotion().getTraining().getTrainingType().getLabelFr());
     // ---- DYNAMIC USERNAME RETRIEVAL ----
     // Search for the user linked to this Student (Person).
-    // If the account hasn't been created yet, display "NON_DEFINI" (or your preference).
+    // If the account hasn't been created yet, display "NOT_DEFINED" (or your preference).
     String username =
         userService
             .findByPersonId(enrollment.getStudent().getId())
@@ -271,6 +271,9 @@ public class EnrollmentService {
     if (!isValidTransition(currentStatus, newStatus)) {
       throw new BusinessValidationException("INVALID_STATUS_TRANSITION");
     }
+
+    // --- PROMOTION ENROLLMENT COUNT UPDATE ---
+    updatePromotionSeatCount(enrollment.getPromotion(), currentStatus, newStatus);
 
     enrollment.setStatus(newStatus);
     enrollmentRepository.save(enrollment);
@@ -381,5 +384,35 @@ public class EnrollmentService {
         userService.createUser(accountRequest);
       }
     }
+  }
+
+  // Private method to manage Promotion capacity.
+  private void updatePromotionSeatCount(
+      Promotion promotion, EnrollmentStatus oldStatus, EnrollmentStatus newStatus) {
+    boolean oldStatusOccupiesSeat = occupiesSeat(oldStatus);
+    boolean newStatusOccupiesSeat = occupiesSeat(newStatus);
+
+    // Transition (+1 seat)
+    if (!oldStatusOccupiesSeat && newStatusOccupiesSeat) {
+      promotion.setEnrollmentCount(promotion.getEnrollmentCount() + 1);
+      promotionRepository.save(promotion);
+    }
+    // Transition  (-1 seat)
+    else if (oldStatusOccupiesSeat && !newStatusOccupiesSeat) {
+      // Math.max security to avoid a negative count in the database
+      promotion.setEnrollmentCount(Math.max(0, promotion.getEnrollmentCount() - 1));
+      promotionRepository.save(promotion);
+    }
+    // If (0 -> 0) or (1 -> 1), we don't change anything (0)
+  }
+
+  /** Defines if the enrollment status effectively occupies a seat in the promotion (Group 1). */
+  private boolean occupiesSeat(EnrollmentStatus status) {
+    return List.of(
+            EnrollmentStatus.CONDITIONALLY_VALIDATED,
+            EnrollmentStatus.VALIDATED,
+            EnrollmentStatus.SUSPENDED,
+            EnrollmentStatus.COMPLETED)
+        .contains(status);
   }
 }

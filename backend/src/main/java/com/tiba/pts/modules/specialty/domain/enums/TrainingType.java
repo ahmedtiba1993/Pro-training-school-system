@@ -1,5 +1,8 @@
 package com.tiba.pts.modules.specialty.domain.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum TrainingType {
   CONTINUOUS("Continue"),
   ACCELERATED("Accélérée"),

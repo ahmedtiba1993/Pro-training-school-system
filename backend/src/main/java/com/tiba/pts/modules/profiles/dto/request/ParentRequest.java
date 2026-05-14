@@ -1,6 +1,5 @@
 package com.tiba.pts.modules.profiles.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
