@@ -1,5 +1,6 @@
 package com.tiba.pts.modules.user.entity;
 
+import com.tiba.pts.modules.profiles.domain.entity.Person;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,6 +31,10 @@ public class User implements UserDetails {
 
   @Enumerated(EnumType.STRING)
   private Role role;
+
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "person_id", referencedColumnName = "id", unique = true)
+  private Person person;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

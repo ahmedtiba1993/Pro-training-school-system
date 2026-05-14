@@ -79,6 +79,7 @@ public interface EnrollmentMapper {
 
   // Deep navigation (Deep Mapping) MapStruct handles this all by itself!
   @Mapping(target = "promotionName", source = "promotion.name")
+  @Mapping(target = "levelCode", source = "promotion.training.level.code")
   @Mapping(target = "levelLabel", source = "promotion.training.level.label")
   @Mapping(target = "specialityLabel", source = "promotion.training.specialty.label")
 
@@ -91,10 +92,16 @@ public interface EnrollmentMapper {
     if (student == null || student.getParents() == null) {
       return null;
     }
+
     return student.getParents().stream()
-        .filter(com.tiba.pts.modules.profiles.domain.entity.StudentParent::isLegalGuardian)
-        .map(sp -> sp.getParent().getPhone())
-        .findFirst()
-        .orElse(null);
+        .filter(sp -> sp != null && sp.isLegalGuardian())
+        .findFirst() // First we find the StudentParent object (which is never null)
+        .map(
+            com.tiba.pts.modules.profiles.domain.entity.StudentParent
+                ::getParent) // Extract the parent (if it exists)
+        .map(
+            com.tiba.pts.modules.profiles.domain.entity.Parent
+                ::getPhone) // Extract the phone (even if it is null, Optional absorbs it)
+        .orElse(null); // If any previous step is null or empty, we return null cleanly
   }
 }

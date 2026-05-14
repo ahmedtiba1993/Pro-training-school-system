@@ -159,7 +159,7 @@ export class Accelerated implements OnInit {
   }
 
   loadActiveTrainings(): void {
-    this.trainingService.getActiveTrainingsByLevel(1, 'ACCELERATED' as any).subscribe({
+    this.trainingService.getAllActiveTrainings('ACCELERATED' as any).subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
           this.activeTrainings.set(response.data);

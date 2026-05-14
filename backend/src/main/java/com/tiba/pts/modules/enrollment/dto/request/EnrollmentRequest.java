@@ -1,7 +1,9 @@
 package com.tiba.pts.modules.enrollment.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tiba.pts.modules.enrollment.domain.enums.EnrollmentType;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -22,7 +24,16 @@ public class EnrollmentRequest {
   @NotEmpty(message = "ENROLLMENT_SUBMITTED_DOCUMENTS_REQUIRED")
   private List<SubmittedDocumentRequest> enrollmentSubmittedDocuments;
 
-  @NotNull(message = "STUDENT_DATA_REQUIRED")
-  @Valid
-  private StudentInfoRequest studentInfo;
+  private Long existingStudentId;
+
+  @Valid private StudentInfoRequest studentInfo;
+
+  @JsonIgnore
+  @AssertTrue(message = "YOU_MUST_PROVIDE_EITHER_EXISTING_ID_OR_NEW_STUDENT_INFO")
+  public boolean isStudentDataProvided() {
+    boolean hasExistingId = (existingStudentId != null);
+    boolean hasNewStudent = (studentInfo != null);
+
+    return hasExistingId ^ hasNewStudent;
+  }
 }

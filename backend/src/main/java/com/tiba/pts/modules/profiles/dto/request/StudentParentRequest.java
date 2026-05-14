@@ -1,8 +1,10 @@
 package com.tiba.pts.modules.profiles.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tiba.pts.modules.profiles.domain.enums.ParentalLink;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -15,7 +17,19 @@ public class StudentParentRequest {
   @JsonProperty("isLegalGuardian")
   private boolean isLegalGuardian;
 
-  @Valid
-  @NotNull(message = "PARENT_INFO_REQUIRED")
-  private ParentRequest parent;
+  // The ID of the parent if they already exist in the database
+  private Long existingParentId;
+
+  // The parent's information if they are new (Note: @NotNull is removed)
+  @Valid private ParentRequest parent;
+
+  @JsonIgnore
+  @AssertTrue(message = "YOU_MUST_PROVIDE_EITHER_EXISTING_PARENT_ID_OR_NEW_PARENT_INFO")
+  public boolean isParentDataProvided() {
+    boolean hasExistingId = (existingParentId != null);
+    boolean hasNewParent = (parent != null);
+
+    // XOR: Returns true IF AND ONLY IF one of the two is provided
+    return hasExistingId ^ hasNewParent;
+  }
 }

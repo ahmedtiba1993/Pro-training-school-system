@@ -7,6 +7,5 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ParentInfoRequest extends PersonInfoRequest {
-  @NotBlank(message = "PROFESSION_REQUIRED")
   private String profession;
 }

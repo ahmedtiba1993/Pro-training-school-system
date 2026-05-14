@@ -18,7 +18,6 @@ import java.util.Set;
 @SuperBuilder
 public class Parent extends Person {
 
-  @Column(nullable = false)
   private String profession;
 
   @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)

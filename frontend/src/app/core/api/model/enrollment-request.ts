@@ -16,7 +16,8 @@ export interface EnrollmentRequest {
     observation?: string;
     promotionId: number;
     enrollmentSubmittedDocuments: Array<SubmittedDocumentRequest>;
-    studentInfo: StudentInfoRequest;
+    existingStudentId?: number;
+    studentInfo?: StudentInfoRequest;
 }
 export namespace EnrollmentRequest {
     export const TypeEnum = {

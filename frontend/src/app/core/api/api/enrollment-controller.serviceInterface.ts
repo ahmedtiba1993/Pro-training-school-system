@@ -11,10 +11,12 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ApiResponseBoolean } from '../model/models';
 import { ApiResponseEnrollmentResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
 import { EnrollmentRequest } from '../model/models';
 import { EnrollmentResponse } from '../model/models';
+import { EnrollmentSearchRequest } from '../model/models';
 import { PageResponseEnrollmentListResponse } from '../model/models';
 
 
@@ -29,6 +31,15 @@ export interface EnrollmentControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/enrollments/check-existence
+     * @param studentId 
+     * @param promotionId 
+     */
+    checkStudentEnrollmentExistence(studentId: number, promotionId: number, extraHttpRequestParams?: any): Observable<ApiResponseBoolean>;
+
+    /**
+     * 
+     * 
      * @endpoint post /api/v1/enrollments
      * @param enrollmentRequest 
      */
@@ -37,11 +48,18 @@ export interface EnrollmentControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint get /api/v1/enrollments
-     * @param page 
-     * @param size 
+     * @endpoint get /api/v1/enrollments/{id}/export/pdf
+     * @param id 
      */
-    getAllEnrollmentPaged(page?: number, size?: number, extraHttpRequestParams?: any): Observable<PageResponseEnrollmentListResponse>;
+    exportPdf(id: number, extraHttpRequestParams?: any): Observable<string>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/enrollments
+     * @param filterRequest 
+     */
+    getAllEnrollments(filterRequest: EnrollmentSearchRequest, extraHttpRequestParams?: any): Observable<PageResponseEnrollmentListResponse>;
 
     /**
      * 
@@ -66,6 +84,6 @@ export interface EnrollmentControllerServiceInterface {
      * @param id 
      * @param status 
      */
-    updateStatus(id: number, status: 'PRE_ENROLLED' | 'INCOMPLETE' | 'VALIDATED' | 'REJECTED' | 'CANCELLED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+    updateStatus(id: number, status: 'PRE_ENROLLED' | 'INCOMPLETE' | 'WAITLISTED' | 'CONDITIONALLY_VALIDATED' | 'VALIDATED' | 'SUSPENDED' | 'DROPPED_OUT' | 'REJECTED' | 'CANCELLED' | 'COMPLETED', extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
 }

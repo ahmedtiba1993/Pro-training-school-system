@@ -19,6 +19,7 @@ export interface StudentInfoRequest {
     email?: string;
     phone?: string;
     cin?: string;
+    id?: number;
     birthDate: string;
     birthPlace?: string;
     governorate?: string;

@@ -1,6 +1,7 @@
 package com.tiba.pts.modules.profiles.domain.entity;
 
 import com.tiba.pts.core.domain.BaseEntity;
+import com.tiba.pts.modules.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -38,4 +39,7 @@ public abstract class Person extends BaseEntity {
 
   @Column(unique = true)
   private String cin;
+
+  @OneToOne(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private User user;
 }

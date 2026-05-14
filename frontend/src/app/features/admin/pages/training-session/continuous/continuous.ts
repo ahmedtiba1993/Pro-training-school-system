@@ -153,7 +153,7 @@ export class Continuous implements OnInit {
 
   loadActiveTrainings(): void {
     // Change here: 'CONTINUOUS' level instead of 'ACCELERATED'
-    this.trainingService.getActiveTrainingsByLevel(1, 'CONTINUOUS' as any).subscribe({
+    this.trainingService.getAllActiveTrainings('CONTINUOUS' as any).subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
           this.activeTrainings.set(response.data);

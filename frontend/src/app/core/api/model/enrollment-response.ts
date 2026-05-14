@@ -32,9 +32,14 @@ export namespace EnrollmentResponse {
     export const StatusEnum = {
         PreEnrolled: 'PRE_ENROLLED',
         Incomplete: 'INCOMPLETE',
+        Waitlisted: 'WAITLISTED',
+        ConditionallyValidated: 'CONDITIONALLY_VALIDATED',
         Validated: 'VALIDATED',
+        Suspended: 'SUSPENDED',
+        DroppedOut: 'DROPPED_OUT',
         Rejected: 'REJECTED',
-        Cancelled: 'CANCELLED'
+        Cancelled: 'CANCELLED',
+        Completed: 'COMPLETED'
     } as const;
     export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
 }

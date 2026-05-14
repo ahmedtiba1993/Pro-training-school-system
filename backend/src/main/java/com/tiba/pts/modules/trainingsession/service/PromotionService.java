@@ -42,14 +42,28 @@ public class PromotionService {
 
   @Transactional(readOnly = true)
   public List<PromotionLookupResponse> getOpenPromotionsLookupByTrainingId(Long trainingId) {
-    /*if (!trainingRepository.existsById(trainingId)) {
+    if (!trainingRepository.existsById(trainingId)) {
       throw new ResourceNotFoundException("TRAINING_NOT_FOUND");
     }
 
     List<Promotion> promotions =
-        promotionRepository.findByTrainingIdAndStatus(trainingId, PromotionStatus.ENROLLMENT_OPEN);
+        promotionRepository.findByTrainingIdAndStatusOrRegistrationOpen(
+            trainingId, PromotionStatus.ENROLLMENT);
 
-    return promotions.stream().map(promotionMapper::toLookupResponse).toList();*/
-    return null;
+    return promotions.stream().map(promotionMapper::toLookupResponse).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public List<PromotionLookupResponse> getActivePromotionsLookup() {
+    List<PromotionStatus> targetStatuses =
+        List.of(
+            PromotionStatus.ENROLLMENT,
+            PromotionStatus.IN_PROGRESS,
+            PromotionStatus.EVALUATION,
+            PromotionStatus.COMPLETED);
+
+    List<Promotion> promotions = promotionRepository.findByStatusIn(targetStatuses);
+
+    return promotions.stream().map(promotionMapper::toLookupResponse).toList();
   }
 }

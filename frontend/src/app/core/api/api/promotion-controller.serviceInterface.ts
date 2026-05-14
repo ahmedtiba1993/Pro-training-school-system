@@ -26,6 +26,13 @@ export interface PromotionControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/promotions/active/lookup
+     */
+    getActivePromotionsLookup(extraHttpRequestParams?: any): Observable<ApiResponseListPromotionLookupResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/promotions/training/{trainingId}/open-enrollment/lookup
      * @param trainingId 
      */

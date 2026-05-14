@@ -29,7 +29,7 @@ public class Enrollment extends BaseEntity {
   private String enrollmentNumber;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @Column(nullable = false, columnDefinition = "varchar(30) default 'PRE_ENROLLED'")
   private EnrollmentStatus status;
 
   @Enumerated(EnumType.STRING)

@@ -36,4 +36,14 @@ public class PromotionController {
         promotionService.getOpenPromotionsLookupByTrainingId(trainingId);
     return ResponseEntity.ok(ApiResponse.success("PROMOTION_LOOKUP_RETRIEVED", lookupData));
   }
+
+  @GetMapping("/active/lookup")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<PromotionLookupResponse>>> getActivePromotionsLookup() {
+
+    List<PromotionLookupResponse> lookupData = promotionService.getActivePromotionsLookup();
+
+    return ResponseEntity.ok(
+        ApiResponse.success("ACTIVE_PROMOTIONS_RETRIEVED_SUCCESSFULLY", lookupData));
+  }
 }

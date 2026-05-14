@@ -1,5 +1,5 @@
-<main class="flex-1 flex flex-col h-screen overflow-hidden">
-  <!-- Header -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50">
+  <!-- HEADER -->
   <header
     class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
   >
@@ -22,28 +22,196 @@
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="w-4 h-4"
         >
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
-        Inscrire un élève
+        Nouvelle Inscription
       </a>
     </div>
   </header>
 
-  <!-- Zone défilable -->
-  <div class="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50/50 flex flex-col gap-4">
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-fit">
-      <div class="overflow-x-auto">
+  <!-- SCROLLABLE CONTENT AREA (The only true vertical scroll of the page) -->
+  <div class="flex-1 overflow-y-auto p-4 lg:p-8 flex flex-col gap-4">
+    <!-- FILTER BAR WITH SEARCH BUTTON -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 shrink-0">
+      <!-- Fields Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <!-- Text Search -->
+        <div class="relative">
+          <label
+            class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1"
+            >Mots-clés</label
+          >
+          <div class="absolute bottom-0 left-0 pl-3 pb-2.5 flex items-center pointer-events-none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="text-slate-400"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="keyword"
+            (keyup.enter)="onSearch()"
+            placeholder="Nom, CIN, Matricule..."
+            class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors placeholder:text-slate-400"
+          />
+        </div>
+
+        <!-- Level -->
+        <div>
+          <label
+            class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1"
+            >Niveau</label
+          >
+          <select
+            [(ngModel)]="levelId"
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors cursor-pointer"
+          >
+            <option [ngValue]="null">Tous les niveaux</option>
+
+            <!-- Loop over the levels() Signal and display level.code -->
+            @for (level of levels(); track level.id) {
+            <option [ngValue]="level.id">{{ level.code }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Specialty -->
+        <div>
+          <label
+            class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1"
+            >Spécialité</label
+          >
+          <select
+            [(ngModel)]="specialtyId"
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors cursor-pointer"
+          >
+            <option [ngValue]="null">Toutes spécialités</option>
+
+            <!-- Loop over the specialities() Computed Signal -->
+            @for (spec of specialities(); track spec.id) {
+            <option [ngValue]="spec.id">{{ spec.label }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Promotion -->
+        <div>
+          <label
+            class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1"
+            >Promotion</label
+          >
+          <select
+            [(ngModel)]="promotionId"
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors cursor-pointer"
+          >
+            <option [ngValue]="null">Toutes promotions</option>
+
+            <!-- Loop over the promotions() signal and display promo.name -->
+            @for (promo of promotions(); track promo.id) {
+            <option [ngValue]="promo.id">{{ promo.name }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Status -->
+        <div>
+          <label
+            class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1"
+            >Statut</label
+          >
+          <select
+            [(ngModel)]="status"
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors cursor-pointer"
+          >
+            <option value="">Tous les statuts</option>
+            @for (statusItem of statusList; track statusItem.value) {
+            <option [value]="statusItem.value">{{ statusItem.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Actions Row (Buttons) -->
+      <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+        <button
+          (click)="clearFilters()"
+          class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center gap-2"
+        >
+          Réinitialiser
+        </button>
+        <button
+          (click)="onSearch()"
+          [disabled]="isLoading()"
+          class="px-6 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-900 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          @if (isLoading()) {
+          <svg
+            class="animate-spin h-4 w-4 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          Recherche... } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          Rechercher }
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN TABLE AND PAGINATION CONTAINER -->
+    <!-- Adding "shrink-0" prevents the card from crushing vertically -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden shrink-0">
+      <!-- TABLE AREA -->
+      <!-- Adding "overflow-y-hidden" removes internal vertical scroll -->
+      <div class="overflow-x-auto overflow-y-hidden w-full">
         <table class="w-full text-left text-sm whitespace-nowrap">
           <thead
             class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
           >
             <tr>
-              <th class="px-6 py-4">Élève & Type</th>
-              <th class="px-6 py-4">Contacts (Élève / Tuteur)</th>
-              <th class="px-6 py-4">Formation & Cohorte</th>
+              <th class="px-6 py-4">Apprenti</th>
+              <th class="px-6 py-4">Contacts (Apprenti / Tuteur)</th>
+              <th class="px-6 py-4">Formation & Promotion</th>
               <th class="px-6 py-4">Date Inscription</th>
               <th class="px-6 py-4">Statut</th>
               <th class="px-6 py-4 text-right">Actions</th>
@@ -55,7 +223,7 @@
               <td colspan="6" class="px-6 py-12 text-center">
                 <div class="flex flex-col items-center justify-center gap-2">
                   <svg
-                    class="animate-spin h-6 w-6 text-indigo-600"
+                    class="animate-spin h-6 w-6 text-slate-800"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -112,7 +280,7 @@
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    class="w-3.5 h-3.5 text-slate-400"
+                    class="text-slate-400"
                   >
                     <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
                     <line x1="12" y1="18" x2="12.01" y2="18"></line>
@@ -130,7 +298,7 @@
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    class="w-3.5 h-3.5 text-slate-400"
+                    class="text-slate-400"
                   >
                     <path
                       d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
@@ -141,11 +309,13 @@
               </td>
 
               <td class="px-6 py-4">
-                <p class="font-bold text-slate-700 text-xs">{{ enrollment.specialityLabel }}</p>
+                <p class="font-bold text-slate-700 text-xs">
+                  {{ enrollment.levelCode }} - {{ enrollment.specialityLabel }}
+                </p>
                 <p
                   class="text-[10px] text-indigo-600 bg-indigo-50 inline-block px-1.5 py-0.5 rounded mt-1 font-medium"
                 >
-                  {{ enrollment.levelLabel }} - {{ enrollment.promotionName }}
+                  {{ enrollment.promotionName }}
                 </p>
               </td>
 
@@ -191,18 +361,23 @@
             } @empty {
             <tr>
               <td colspan="6" class="px-6 py-12 text-center text-slate-500">
-                Aucune inscription trouvée.
+                Aucune inscription trouvée pour ces critères de recherche.
               </td>
             </tr>
             } }
           </tbody>
         </table>
+      </div>
+
+      <!-- PAGINATION COMPONENT -->
+      <div class="bg-white border-t border-slate-100 p-4">
         <app-pagination
           [currentPage]="currentPage()"
           [total]="totalElements()"
           [limit]="pageSize()"
           (changePage)="onPageChange($event)"
-        ></app-pagination>
+        >
+        </app-pagination>
       </div>
     </div>
   </div>

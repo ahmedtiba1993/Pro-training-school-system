@@ -17,6 +17,8 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { ApiResponseBoolean } from '../model/api-response-boolean';
+// @ts-ignore
 import { ApiResponseEnrollmentResponse } from '../model/api-response-enrollment-response';
 // @ts-ignore
 import { ApiResponseVoid } from '../model/api-response-void';
@@ -24,6 +26,8 @@ import { ApiResponseVoid } from '../model/api-response-void';
 import { EnrollmentRequest } from '../model/enrollment-request';
 // @ts-ignore
 import { EnrollmentResponse } from '../model/enrollment-response';
+// @ts-ignore
+import { EnrollmentSearchRequest } from '../model/enrollment-search-request';
 // @ts-ignore
 import { PageResponseEnrollmentListResponse } from '../model/page-response-enrollment-list-response';
 
@@ -44,6 +48,89 @@ export class EnrollmentControllerService extends BaseService implements Enrollme
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
+    }
+
+    /**
+     * @endpoint get /api/v1/enrollments/check-existence
+     * @param studentId 
+     * @param promotionId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public checkStudentEnrollmentExistence(studentId: number, promotionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseBoolean>;
+    public checkStudentEnrollmentExistence(studentId: number, promotionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseBoolean>>;
+    public checkStudentEnrollmentExistence(studentId: number, promotionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseBoolean>>;
+    public checkStudentEnrollmentExistence(studentId: number, promotionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (studentId === null || studentId === undefined) {
+            throw new Error('Required parameter studentId was null or undefined when calling checkStudentEnrollmentExistence.');
+        }
+        if (promotionId === null || promotionId === undefined) {
+            throw new Error('Required parameter promotionId was null or undefined when calling checkStudentEnrollmentExistence.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'studentId',
+            <any>studentId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'promotionId',
+            <any>promotionId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/enrollments/check-existence`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseBoolean>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
     }
 
     /**
@@ -115,33 +202,84 @@ export class EnrollmentControllerService extends BaseService implements Enrollme
     }
 
     /**
-     * @endpoint get /api/v1/enrollments
-     * @param page 
-     * @param size 
+     * @endpoint get /api/v1/enrollments/{id}/export/pdf
+     * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAllEnrollmentPaged(page?: number, size?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageResponseEnrollmentListResponse>;
-    public getAllEnrollmentPaged(page?: number, size?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageResponseEnrollmentListResponse>>;
-    public getAllEnrollmentPaged(page?: number, size?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageResponseEnrollmentListResponse>>;
-    public getAllEnrollmentPaged(page?: number, size?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public exportPdf(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public exportPdf(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public exportPdf(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public exportPdf(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling exportPdf.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/enrollments/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/export/pdf`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/v1/enrollments
+     * @param filterRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getAllEnrollments(filterRequest: EnrollmentSearchRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageResponseEnrollmentListResponse>;
+    public getAllEnrollments(filterRequest: EnrollmentSearchRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageResponseEnrollmentListResponse>>;
+    public getAllEnrollments(filterRequest: EnrollmentSearchRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageResponseEnrollmentListResponse>>;
+    public getAllEnrollments(filterRequest: EnrollmentSearchRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (filterRequest === null || filterRequest === undefined) {
+            throw new Error('Required parameter filterRequest was null or undefined when calling getAllEnrollments.');
+        }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
-            'page',
-            <any>page,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'size',
-            <any>size,
+            'filterRequest',
+            <any>filterRequest,
             QueryParamStyle.Form,
             true,
         );
@@ -315,10 +453,10 @@ export class EnrollmentControllerService extends BaseService implements Enrollme
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateStatus(id: number, status: 'PRE_ENROLLED' | 'INCOMPLETE' | 'VALIDATED' | 'REJECTED' | 'CANCELLED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseVoid>;
-    public updateStatus(id: number, status: 'PRE_ENROLLED' | 'INCOMPLETE' | 'VALIDATED' | 'REJECTED' | 'CANCELLED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseVoid>>;
-    public updateStatus(id: number, status: 'PRE_ENROLLED' | 'INCOMPLETE' | 'VALIDATED' | 'REJECTED' | 'CANCELLED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseVoid>>;
-    public updateStatus(id: number, status: 'PRE_ENROLLED' | 'INCOMPLETE' | 'VALIDATED' | 'REJECTED' | 'CANCELLED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateStatus(id: number, status: 'PRE_ENROLLED' | 'INCOMPLETE' | 'WAITLISTED' | 'CONDITIONALLY_VALIDATED' | 'VALIDATED' | 'SUSPENDED' | 'DROPPED_OUT' | 'REJECTED' | 'CANCELLED' | 'COMPLETED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseVoid>;
+    public updateStatus(id: number, status: 'PRE_ENROLLED' | 'INCOMPLETE' | 'WAITLISTED' | 'CONDITIONALLY_VALIDATED' | 'VALIDATED' | 'SUSPENDED' | 'DROPPED_OUT' | 'REJECTED' | 'CANCELLED' | 'COMPLETED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseVoid>>;
+    public updateStatus(id: number, status: 'PRE_ENROLLED' | 'INCOMPLETE' | 'WAITLISTED' | 'CONDITIONALLY_VALIDATED' | 'VALIDATED' | 'SUSPENDED' | 'DROPPED_OUT' | 'REJECTED' | 'CANCELLED' | 'COMPLETED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseVoid>>;
+    public updateStatus(id: number, status: 'PRE_ENROLLED' | 'INCOMPLETE' | 'WAITLISTED' | 'CONDITIONALLY_VALIDATED' | 'VALIDATED' | 'SUSPENDED' | 'DROPPED_OUT' | 'REJECTED' | 'CANCELLED' | 'COMPLETED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling updateStatus.');
         }
@@ -354,7 +492,7 @@ export class EnrollmentControllerService extends BaseService implements Enrollme
             }
         }
 
-        let localVarPath = `/api/v1/enrollments/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/status/${this.configuration.encodeParam({name: "status", value: status, in: "path", style: "simple", explode: false, dataType: "'PRE_ENROLLED' | 'INCOMPLETE' | 'VALIDATED' | 'REJECTED' | 'CANCELLED'", dataFormat: undefined})}`;
+        let localVarPath = `/api/v1/enrollments/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/status/${this.configuration.encodeParam({name: "status", value: status, in: "path", style: "simple", explode: false, dataType: "'PRE_ENROLLED' | 'INCOMPLETE' | 'WAITLISTED' | 'CONDITIONALLY_VALIDATED' | 'VALIDATED' | 'SUSPENDED' | 'DROPPED_OUT' | 'REJECTED' | 'CANCELLED' | 'COMPLETED'", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ApiResponseVoid>('patch', `${basePath}${localVarPath}`,
             {

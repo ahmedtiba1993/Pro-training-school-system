@@ -15,6 +15,8 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class StudentInfoRequest extends PersonInfoRequest {
+  private Long id;
+
   @NotNull(message = "BIRTH_DATE_REQUIRED")
   private LocalDate birthDate;
 

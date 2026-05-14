@@ -11,6 +11,8 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ApiResponseExistenceCheckResponse } from '../model/models';
+import { ApiResponseListStudentResponse } from '../model/models';
 import { StudentRequest } from '../model/models';
 import { StudentResponse } from '../model/models';
 
@@ -22,6 +24,16 @@ import { Configuration }                                     from '../configurat
 export interface StudentControllerServiceInterface {
     defaultHeaders: HttpHeaders;
     configuration: Configuration;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/profiles/students/check-existence
+     * @param cin 
+     * @param email 
+     * @param phone 
+     */
+    checkExistence(cin?: string, email?: string, phone?: string, extraHttpRequestParams?: any): Observable<ApiResponseExistenceCheckResponse>;
 
     /**
      * 
@@ -38,5 +50,13 @@ export interface StudentControllerServiceInterface {
      * @param id 
      */
     getById(id: number, extraHttpRequestParams?: any): Observable<StudentResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/profiles/students/search
+     * @param keyword 
+     */
+    searchStudents(keyword?: string, extraHttpRequestParams?: any): Observable<ApiResponseListStudentResponse>;
 
 }

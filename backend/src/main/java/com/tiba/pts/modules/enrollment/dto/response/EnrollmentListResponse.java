@@ -19,6 +19,7 @@ public class EnrollmentListResponse {
 
   // Promotion & Training Info
   private String promotionName;
+  private String levelCode;
   private String levelLabel;
   private String specialityLabel;
 

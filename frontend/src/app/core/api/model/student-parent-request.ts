@@ -12,7 +12,8 @@ import { ParentRequest } from './parent-request';
 
 export interface StudentParentRequest { 
     link: StudentParentRequest.LinkEnum;
-    parent: ParentRequest;
+    existingParentId?: number;
+    parent?: ParentRequest;
     legalGuardian?: boolean;
     isLegalGuardian?: boolean;
 }

@@ -83,7 +83,7 @@
   } @else if (enrollment()) {
   <!-- Header -->
   <header
-    class="bg-white border-b border-slate-200 shrink-0 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-10"
+    class="bg-white border-b border-slate-200 shrink-0 px-6 py-4 flex flex-col xl:flex-row xl:items-center justify-between gap-4 sticky top-0 z-10"
   >
     <div class="flex items-center gap-4">
       <a
@@ -158,7 +158,7 @@
           </span>
         </div>
         <p class="text-xs text-slate-500 mt-1">
-          Dossier de l'élève
+          Dossier de l'apprenti
           <strong
             >{{ student()?.firstName | titlecase }} {{ student()?.lastName | titlecase }}</strong
           >
@@ -166,8 +166,56 @@
       </div>
     </div>
 
-    <!-- HEADER ACTION BUTTON (Modify status) -->
-    <div>
+    <!-- HEADER ACTION BUTTONS -->
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        (click)="exportToPdf()"
+        [disabled]="isExportingPdf()"
+        class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-sm rounded-xl text-xs font-bold transition-colors flex items-center gap-2 disabled:opacity-70"
+      >
+        @if (isExportingPdf()) {
+        <svg
+          class="animate-spin h-4 w-4 text-slate-500"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        Exportation en cours... } @else {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-red-500"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <path d="M14 2v6h6"></path>
+          <path d="M16 13H8"></path>
+          <path d="M16 17H8"></path>
+          <path d="M10 9H8"></path>
+        </svg>
+        Exporter en PDF }
+      </button>
+
       <button
         (click)="openStatusModal()"
         class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition-colors flex items-center gap-2"
@@ -191,7 +239,7 @@
     </div>
   </header>
 
-  <!-- Zone défilable -->
+  <!-- Scrollable Area -->
   <div class="flex-1 overflow-y-auto p-4 lg:p-8">
     <div class="max-w-6xl mx-auto grid grid-cols-1 xl:grid-cols-3 gap-6">
       <!-- LEFT COLUMN (Student & Parents) -->
@@ -247,7 +295,7 @@
                     <line x1="10" y1="3" x2="8" y2="21"></line>
                     <line x1="16" y1="3" x2="14" y2="21"></line>
                   </svg>
-                  Code Élève: {{ student()?.studentCode }}
+                  Code Apprenti : {{ student()?.studentCode }}
                 </span>
                 <span class="flex items-center gap-1.5">
                   <svg
@@ -811,7 +859,7 @@
     class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
   >
     <div
-      class="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
+      class="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200 relative"
     >
       <!-- Modal Header -->
       <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
@@ -859,59 +907,148 @@
         </button>
       </div>
 
-      <!-- Modal Body (Radio Buttons) -->
-      <div class="p-6 space-y-3">
+      <!-- Modal Body -->
+      <div class="p-6">
+        <!-- STEP 1: SELECTION -->
+        @if (!isConfirmingStatus()) {
         <p class="text-sm text-slate-500 mb-4">
           Sélectionnez le nouveau statut pour l'inscription
           <strong>{{ enrollment().enrollmentNumber }}</strong> :
         </p>
 
-        @for (status of availableStatuses; track status) {
-        <label
-          class="flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all hover:bg-slate-50"
-          [ngClass]="
-            selectedStatusToUpdate() === status
-              ? 'border-indigo-500 bg-indigo-50/30'
-              : 'border-slate-200 bg-white'
-          "
-        >
-          <div class="relative flex items-center">
-            <input
-              type="radio"
-              name="statusSelection"
-              [value]="status"
-              (change)="selectedStatusToUpdate.set(status)"
-              [checked]="selectedStatusToUpdate() === status"
-              class="w-5 h-5 text-indigo-600 border-slate-300 focus:ring-indigo-500"
-            />
+        <div class="space-y-3">
+          @if (allowedStatusesToUpdate().length > 0) { @for (status of allowedStatusesToUpdate();
+          track status) {
+          <label
+            class="flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all hover:bg-slate-50"
+            [ngClass]="
+              selectedStatusToUpdate() === status
+                ? 'border-indigo-500 bg-indigo-50/30'
+                : 'border-slate-200 bg-white'
+            "
+          >
+            <div class="relative flex items-center">
+              <input
+                type="radio"
+                name="statusSelection"
+                [value]="status"
+                (change)="selectedStatusToUpdate.set(status)"
+                [checked]="selectedStatusToUpdate() === status"
+                class="w-5 h-5 text-indigo-600 border-slate-300 focus:ring-indigo-500"
+              />
+            </div>
+            <div class="flex-1 flex items-center justify-between">
+              <span class="font-bold text-sm text-slate-800">{{
+                getStatusConfig(status).label
+              }}</span>
+              <span
+                [class]="getStatusConfig(status).classes"
+                class="px-2 py-0.5 border rounded-md text-[9px] font-bold uppercase tracking-wider"
+              >
+                {{ status }}
+              </span>
+            </div>
+          </label>
+          } } @else {
+          <div
+            class="p-4 bg-slate-50 text-slate-500 rounded-xl text-center text-sm border border-slate-200"
+          >
+            Aucune transition de statut n'est possible depuis l'état actuel (<strong>{{
+              getStatusConfig(enrollment().status).label
+            }}</strong
+            >).
           </div>
-          <div class="flex-1 flex items-center justify-between">
-            <span class="font-bold text-sm text-slate-800">{{
-              getStatusConfig(status).label
-            }}</span>
-            <span
-              [class]="getStatusConfig(status).classes"
-              class="px-2 py-0.5 border rounded-md text-[9px] font-bold uppercase tracking-wider"
+          }
+        </div>
+        }
+
+        <!-- STEP 2: CONFIRMATION -->
+        @else {
+        <div class="text-center py-2">
+          <div
+            class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-5"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
             >
-              {{ status }}
+              <path
+                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+              ></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <h4 class="text-xl font-bold text-slate-800 mb-2">Confirmation requise</h4>
+          <p class="text-sm text-slate-600 mb-6">
+            Vous êtes sur le point de passer l'inscription au statut :
+          </p>
+          <div class="inline-block p-4 border rounded-xl bg-slate-50 shadow-inner mb-2 w-full">
+            <span
+              class="font-bold text-lg"
+              [class]="
+                getStatusConfig(selectedStatusToUpdate()!)
+                  .classes.replace('bg-', 'text-')
+                  .split(' ')[1]
+              "
+            >
+              {{ getStatusConfig(selectedStatusToUpdate()!).label }}
             </span>
           </div>
-        </label>
+        </div>
         }
       </div>
 
       <!-- Modal Footer -->
       <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-3">
+        @if (!isConfirmingStatus()) {
         <button
           (click)="closeStatusModal()"
           class="flex-1 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors"
         >
           Annuler
         </button>
+        @if (allowedStatusesToUpdate().length > 0) {
+        <button
+          (click)="proceedToStatusConfirmation()"
+          [disabled]="!selectedStatusToUpdate()"
+          class="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          Suivant
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </button>
+        } } @else {
+        <button
+          (click)="isConfirmingStatus.set(false)"
+          [disabled]="isUpdatingStatus()"
+          class="flex-1 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors disabled:opacity-50"
+        >
+          Retour
+        </button>
         <button
           (click)="updateStatus()"
           [disabled]="isUpdatingStatus()"
-          class="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          class="flex-[2] px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
           @if (isUpdatingStatus()) {
           <svg
@@ -934,10 +1071,25 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          Enregistrement... } @else { Confirmer }
+          Mise à jour... } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Oui, Confirmer }
         </button>
+        }
       </div>
     </div>
   </div>
-  } }
+  }}
 </main>

@@ -23,6 +23,8 @@ api/holiday-controller.service.ts
 api/holiday-controller.serviceInterface.ts
 api/level-controller.service.ts
 api/level-controller.serviceInterface.ts
+api/parent-controller.service.ts
+api/parent-controller.serviceInterface.ts
 api/period-controller.service.ts
 api/period-controller.serviceInterface.ts
 api/promotion-controller.service.ts
@@ -50,9 +52,11 @@ model/api-response-academic-year-response.ts
 model/api-response-accelerated-promotion-response.ts
 model/api-response-accredited-promotion-response.ts
 model/api-response-active-academic-year-response.ts
+model/api-response-boolean.ts
 model/api-response-continuous-promotion-response.ts
 model/api-response-enrollment-response.ts
 model/api-response-exam-session-response.ts
+model/api-response-existence-check-response.ts
 model/api-response-holiday-response.ts
 model/api-response-list-academic-year-response.ts
 model/api-response-list-accelerated-promotion-response.ts
@@ -64,9 +68,11 @@ model/api-response-list-exam-session-response.ts
 model/api-response-list-holiday-response.ts
 model/api-response-list-level-response.ts
 model/api-response-list-ongoing-promotion-response.ts
+model/api-response-list-parent-response.ts
 model/api-response-list-period-response.ts
 model/api-response-list-promotion-lookup-response.ts
 model/api-response-list-specialty-response.ts
+model/api-response-list-student-response.ts
 model/api-response-list-training-response.ts
 model/api-response-list-training-type-count-response.ts
 model/api-response-long.ts
@@ -88,9 +94,11 @@ model/enrollment-document-response.ts
 model/enrollment-list-response.ts
 model/enrollment-request.ts
 model/enrollment-response.ts
+model/enrollment-search-request.ts
 model/error-detail.ts
 model/exam-session-request.ts
 model/exam-session-response.ts
+model/existence-check-response.ts
 model/holiday-request.ts
 model/holiday-response.ts
 model/level-request.ts

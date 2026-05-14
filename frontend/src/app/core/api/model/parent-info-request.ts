@@ -17,6 +17,6 @@ export interface ParentInfoRequest {
     email?: string;
     phone?: string;
     cin?: string;
-    profession: string;
+    profession?: string;
 }
 

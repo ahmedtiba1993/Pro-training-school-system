@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @page {
+        size: A4;
+        margin: 15mm;
+        background-color: white;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        color: black;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid black;
+        padding-bottom: 15px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: 0;
+      }
+
+      .header h2 {
+        font-size: 18px;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin: 5px 0 0 0;
+      }
+
+      .title-wrapper {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .title {
+        font-size: 20px;
+        font-weight: bold;
+        border: 2px solid black;
+        display: inline-block;
+        padding: 8px 32px;
+        text-transform: uppercase;
+      }
+
+      .section {
+        margin-bottom: 25px;
+      }
+
+      .section-title {
+        font-size: 16px;
+        font-weight: bold;
+        border-bottom: 1px solid black;
+        padding-bottom: 4px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+      }
+
+      .grid-2 {
+        display: table;
+        width: 100%;
+      }
+
+      .grid-2-col {
+        display: table-cell;
+        width: 50%;
+        padding-bottom: 8px;
+        font-size: 14px;
+      }
+
+      .label {
+        font-weight: bold;
+      }
+
+      .value {
+        margin-left: 8px;
+      }
+
+      .badge {
+        border: 1px solid black;
+        padding: 2px 6px;
+        margin-left: 8px;
+      }
+
+      .row {
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+
+      .dotted-line {
+        border-bottom: 1px dotted black;
+        display: inline-block;
+        width: 300px;
+        font-weight: bold;
+        margin-left: 8px;
+      }
+
+      .border-box {
+        border: 1px solid black;
+        padding: 15px;
+        display: table;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .border-box-vertical {
+        border: 1px solid black;
+        padding: 15px;
+        box-sizing: border-box;
+      }
+
+      .box-col {
+        display: table-cell;
+        width: 25%;
+      }
+
+      .box-label {
+        display: block;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 11px;
+        margin-bottom: 4px;
+      }
+
+      .box-value {
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .system-box {
+        border: 1px solid black;
+        padding: 15px;
+      }
+
+      .system-label {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+
+      .system-value {
+        font-size: 20px;
+        font-family: monospace;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+
+      .footer {
+        margin-top: 50px;
+        display: table;
+        width: 100%;
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .footer-col {
+        display: table-cell;
+        width: 50%;
+      }
+
+      .signature-line {
+        border-top: 1px solid black;
+        width: 75%;
+        margin: 60px auto 0 auto;
+        padding-top: 4px;
+        font-weight: normal;
+      }
+
+      .bottom-note {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 11px;
+        border-top: 1px solid black;
+        padding-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Institut Poly Eléctronique</h1>
+        <h2>de Formation Professionnelle</h2>
+      </div>
+
+      <div class="title-wrapper">
+        <div class="title">Fiche d'Inscription</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">1. Informations de l'Inscription</div>
+        <div class="grid-2">
+          <div class="grid-2-col">
+            <span class="label">N° d'Inscription :</span
+            ><span class="value" th:text="${enrollmentNumber}"></span>
+          </div>
+          <div class="grid-2-col">
+            <span class="label">Date :</span
+            ><span class="value" th:text="${enrollmentDate}"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">2. Identité de l'Étudiant</div>
+        <div class="row">
+          <span class="label" style="display: inline-block; width: 150px"
+            >Nom et Prénom :</span
+          >
+          <span
+            class="dotted-line"
+            style="font-size: 16px; text-transform: uppercase"
+            th:text="${studentName}"
+          ></span>
+        </div>
+        <div class="row">
+          <span class="label" style="display: inline-block; width: 150px"
+            >Matricule :</span
+          >
+          <span class="dotted-line" th:text="${studentMatricule}"></span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">3. Affectation Pédagogique</div>
+        <div class="border-box-vertical">
+          <div class="row">
+            <span class="label" style="display: inline-block; width: 180px"
+              >Niveau :</span
+            >
+            <span
+              class="value"
+              style="font-weight: bold; text-transform: uppercase"
+              th:text="${levelName}"
+            ></span>
+          </div>
+          <div class="row">
+            <span class="label" style="display: inline-block; width: 180px"
+              >Spécialité :</span
+            >
+            <span
+              class="value"
+              style="font-weight: bold; text-transform: uppercase"
+              th:text="${specialtyName}"
+            ></span>
+          </div>
+          <div class="row">
+            <span class="label" style="display: inline-block; width: 180px"
+              >Session / Promotion :</span
+            >
+            <span
+              class="value"
+              style="font-weight: bold; text-transform: uppercase"
+              th:text="${promotionName}"
+            ></span>
+          </div>
+          <div class="row" style="margin-bottom: 0">
+            <span class="label" style="display: inline-block; width: 180px"
+              >Type de Formation :</span
+            >
+            <span
+              class="value"
+              style="font-weight: bold; text-transform: uppercase"
+              th:text="${trainingType}"
+            ></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">4. Accès au Système</div>
+        <div class="system-box">
+          <div class="system-label">
+            Identifiant de connexion au portail étudiant :
+          </div>
+          <div class="system-value">
+            <!-- User icon + identifier -->
+            <span
+              style="font-size: 22px; vertical-align: middle; margin-right: 8px"
+              >👤</span
+            >
+            <span style="vertical-align: middle" th:text="${username}"></span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bottom-note"
+        th:text="'Document officiel - Généré le ' + ${currentDate}"
+      ></div>
+    </div>
+  </body>
+</html>

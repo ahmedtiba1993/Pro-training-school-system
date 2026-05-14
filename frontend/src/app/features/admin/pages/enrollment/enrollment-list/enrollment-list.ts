@@ -1,77 +1,160 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { ToastService } from '../../../../../shared/services/toast.service';
-import { EnrollmentControllerService, EnrollmentListResponse } from '../../../../../core/api';
-import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
+import {Component, inject, OnInit, signal, computed} from '@angular/core';
+import {DatePipe, KeyValuePipe} from '@angular/common';
+import {RouterLink} from '@angular/router';
+import {FormsModule} from '@angular/forms';
+
+import {ToastService} from '../../../../../shared/services/toast.service';
+import {PaginationComponent} from '../../../../../shared/components/pagination/pagination';
+
+import {
+  EnrollmentControllerService,
+  EnrollmentListResponse,
+  EnrollmentSearchRequest,
+  LevelControllerService,
+  LevelResponse,
+  TrainingControllerService,
+  TrainingResponse,
+  PromotionControllerService,
+  PromotionLookupResponse
+} from '../../../../../core/api';
 
 @Component({
   selector: 'app-enrollment-list',
   standalone: true,
-  imports: [DatePipe, RouterLink, PaginationComponent],
+  imports: [DatePipe, RouterLink, PaginationComponent, FormsModule],
   templateUrl: './enrollment-list.html',
   styleUrl: './enrollment-list.css'
 })
 export class EnrollmentList implements OnInit {
-  // Injections
   private readonly enrollmentService = inject(EnrollmentControllerService);
+  private readonly levelService = inject(LevelControllerService);
+  private readonly trainingService = inject(TrainingControllerService);
+  private readonly promotionService = inject(PromotionControllerService); // <-- Injection
   private readonly toastService = inject(ToastService);
 
-  // State (Signals)
+  // --- STATE (Table Data) ---
   enrollments = signal<EnrollmentListResponse[]>([]);
   isLoading = signal<boolean>(true);
 
-  // --- PAGINATION  ---
+  // --- STATE (Pagination) ---
   currentPage = signal<number>(0);
-  pageSize = signal<number>(10);
+  pageSize = signal<number>(5);
   totalElements = signal<number>(0);
 
-  // Configuration dynamique des statuts alignée sur ton Enum Java
+  // --- STATE (Filters) ---
+  keyword = signal<string>('');
+  levelId = signal<number | null>(null);
+  specialtyId = signal<number | null>(null);
+  promotionId = signal<number | null>(null);
+  status = signal<EnrollmentSearchRequest.StatusEnum | ''>('');
+
+  // --- DYNAMIC DATA (API) ---
+  levels = signal<LevelResponse[]>([]);
+  trainings = signal<TrainingResponse[]>([]);
+  promotions = signal<PromotionLookupResponse[]>([]);
+
+  // Computed to extract a unique list of Specialties from Trainings
+  specialities = computed(() => {
+    const allTrainings = this.trainings();
+    const uniqueSpecs = new Map<number, string>();
+
+    allTrainings.forEach(training => {
+      if (training.specialtyId && training.specialtyLabel) {
+        uniqueSpecs.set(training.specialtyId, training.specialtyLabel);
+      }
+    });
+
+    return Array.from(uniqueSpecs.entries()).map(([id, label]) => ({id, label}));
+  });
+
+  // --- STATUS CONFIGURATION ---
   readonly statusConfig: Record<string, { label: string; classes: string }> = {
-    PRE_ENROLLED: {
-      label: 'Pré-inscrit',
-      classes: 'bg-amber-50 text-amber-700 border-amber-100'
+    PRE_ENROLLED: {label: 'Pré-inscrit', classes: 'bg-amber-50 text-amber-700 border-amber-100'},
+    INCOMPLETE: {label: 'Incomplet', classes: 'bg-orange-50 text-orange-700 border-orange-100'},
+    WAITLISTED: {
+      label: "Liste d'attente",
+      classes: 'bg-purple-50 text-purple-700 border-purple-100'
     },
-    INCOMPLETE: {
-      label: 'Incomplet',
-      classes: 'bg-orange-50 text-orange-700 border-orange-100'
+    CONDITIONALLY_VALIDATED: {
+      label: 'Validé (Conditions)',
+      classes: 'bg-teal-50 text-teal-700 border-teal-100'
     },
-    VALIDATED: {
-      label: 'Validé',
-      classes: 'bg-emerald-50 text-emerald-700 border-emerald-100'
-    },
-    REJECTED: {
-      label: 'Rejeté',
-      classes: 'bg-red-50 text-red-700 border-red-100'
-    },
-    CANCELLED: {
-      label: 'Annulé',
-      classes: 'bg-rose-50 text-rose-700 border-rose-100'
-    }
+    VALIDATED: {label: 'Validé', classes: 'bg-emerald-50 text-emerald-700 border-emerald-100'},
+    SUSPENDED: {label: 'Suspendu', classes: 'bg-slate-100 text-slate-700 border-slate-200'},
+    DROPPED_OUT: {label: 'Abandon', classes: 'bg-rose-100 text-rose-700 border-rose-200'},
+    REJECTED: {label: 'Rejeté', classes: 'bg-red-50 text-red-700 border-red-100'},
+    CANCELLED: {label: 'Annulé', classes: 'bg-zinc-100 text-zinc-600 border-zinc-200'},
+    COMPLETED: {label: 'Terminé', classes: 'bg-blue-50 text-blue-700 border-blue-100'}
   };
 
-  // NOUVEAU: Configuration des Types d'inscription (Avec les beaux badges inset-ring)
-  readonly typeConfig: Record<string, { label: string; classes: string }> = {
-    NEW: {
-      label: 'Nouvelle Inscription',
-      classes:
-        'inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 inset-ring inset-ring-blue-400/30'
-    },
-    RE_ENROLLMENT: {
-      label: 'Réinscription',
-      classes:
-        'inline-flex items-center rounded-md bg-indigo-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-700 inset-ring inset-ring-indigo-400/30'
-    }
-  };
+  readonly statusList = [
+    {value: 'PRE_ENROLLED', label: 'Pré-inscrit'},
+    {value: 'INCOMPLETE', label: 'Incomplet'},
+    {value: 'WAITLISTED', label: "Liste d'attente"},
+    {value: 'CONDITIONALLY_VALIDATED', label: 'Validé (Conditions)'},
+    {value: 'VALIDATED', label: 'Validé'},
+    {value: 'SUSPENDED', label: 'Suspendu'},
+    {value: 'DROPPED_OUT', label: 'Abandon'},
+    {value: 'REJECTED', label: 'Rejeté'},
+    {value: 'CANCELLED', label: 'Annulé'},
+    {value: 'COMPLETED', label: 'Terminé'}
+  ];
 
   ngOnInit(): void {
+    this.loadLevels();
+    this.loadTrainings();
+    this.loadPromotions();
     this.loadEnrollments();
+  }
+
+  // --- API CALLS ---
+
+  loadLevels(): void {
+    this.levelService.getActiveLevels().subscribe({
+      next: (response: any) => this.levels.set(response.data || []),
+      error: err => {
+        console.error(err);
+        this.toastService.error('Erreur lors du chargement des niveaux');
+      }
+    });
+  }
+
+  loadTrainings(): void {
+    this.trainingService.getAllActiveTrainings().subscribe({
+      next: (response: any) => this.trainings.set(response.data || []),
+      error: err => {
+        console.error(err);
+        this.toastService.error('Erreur lors du chargement des spécialités');
+      }
+    });
+  }
+
+  loadPromotions(): void {
+    this.promotionService.getActivePromotionsLookup().subscribe({
+      next: (response: any) => {
+        this.promotions.set(response.data || []);
+      },
+      error: err => {
+        console.error(err);
+        this.toastService.error('Erreur lors du chargement des promotions');
+      }
+    });
   }
 
   loadEnrollments(): void {
     this.isLoading.set(true);
 
-    this.enrollmentService.getAllEnrollmentPaged(this.currentPage(), this.pageSize()).subscribe({
+    const filterRequest: EnrollmentSearchRequest = {
+      keyword: this.keyword() || undefined,
+      levelId: this.levelId() ?? undefined,
+      specialtyId: this.specialtyId() ?? undefined,
+      promotionId: this.promotionId() ?? undefined,
+      status: (this.status() as EnrollmentSearchRequest.StatusEnum) || undefined,
+      page: this.currentPage(),
+      size: this.pageSize()
+    };
+
+    this.enrollmentService.getAllEnrollments(filterRequest).subscribe({
       next: (response: any) => {
         this.enrollments.set(response.content || []);
         this.totalElements.set(response?.totalElements || 0);
@@ -85,6 +168,31 @@ export class EnrollmentList implements OnInit {
     });
   }
 
+  // --- FILTER ACTIONS ---
+
+  onSearch(): void {
+    this.currentPage.set(0);
+    this.loadEnrollments();
+  }
+
+  clearFilters(): void {
+    this.keyword.set('');
+    this.levelId.set(null);
+    this.specialtyId.set(null);
+    this.promotionId.set(null);
+    this.status.set('');
+
+    this.currentPage.set(0);
+    this.loadEnrollments();
+  }
+
+  onPageChange(newPage: number) {
+    this.currentPage.set(newPage);
+    this.loadEnrollments();
+  }
+
+  // --- UI HELPERS ---
+
   getInitials(firstName?: string, lastName?: string): string {
     const first = firstName ? firstName.charAt(0).toUpperCase() : '';
     const last = lastName ? lastName.charAt(0).toUpperCase() : '';
@@ -92,37 +200,13 @@ export class EnrollmentList implements OnInit {
   }
 
   getStatusConfig(status?: string) {
-    if (!status) {
-      return { label: 'Inconnu', classes: 'bg-slate-50 text-slate-500 border-slate-200' };
-    }
+    if (!status)
+      return {label: 'Inconnu', classes: 'bg-slate-50 text-slate-500 border-slate-200'};
     return (
       this.statusConfig[status] || {
         label: status,
         classes: 'bg-slate-50 text-slate-700 border-slate-200'
       }
     );
-  }
-
-  // NOUVEAU: Helper pour les types d'inscriptions
-  getTypeConfig(type?: string) {
-    if (!type) {
-      return {
-        label: 'Type Inconnu',
-        classes:
-          'inline-flex items-center rounded-md bg-gray-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-600 inset-ring inset-ring-gray-400/20'
-      };
-    }
-    return (
-      this.typeConfig[type] || {
-        label: type,
-        classes:
-          'inline-flex items-center rounded-md bg-slate-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-700 inset-ring inset-ring-slate-400/20'
-      }
-    );
-  }
-
-  onPageChange(newPage: number) {
-    this.currentPage.set(newPage);
-    this.loadEnrollments();
   }
 }
