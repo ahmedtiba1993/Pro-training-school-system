@@ -1,0 +1,636 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+  <!-- Header -->
+  <header
+    class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+  >
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Comptes Utilisateurs</h1>
+      <p class="text-xs text-slate-500">
+        Gérez les accès, les rôles et le statut des utilisateurs du système
+      </p>
+    </div>
+    <button
+      (click)="loadUsers()"
+      [disabled]="isLoading()"
+      class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+    >
+      @if (isLoading()) {
+      <span
+        class="w-4 h-4 border-2 border-slate-300 border-t-indigo-600 rounded-full animate-spin"
+      ></span>
+      } @else {
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+        <path d="M3 3v5h5"></path>
+        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
+        <path d="M16 21v-5h5"></path>
+      </svg>
+      } Rafraîchir
+    </button>
+  </header>
+
+  <!-- Scrollable Area -->
+  <div class="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50/50">
+    @if (error()) {
+    <div
+      class="mb-4 p-4 bg-red-50 text-red-700 rounded-xl border border-red-100 flex items-center gap-3"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="shrink-0"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <p class="text-sm font-medium">{{ error() }}</p>
+    </div>
+    }
+
+    <!-- Filters & Search -->
+    <div class="bg-white rounded-t-2xl border border-slate-200 border-b-0 p-5 shadow-sm">
+      <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+        <!-- Search Input -->
+        <div class="relative w-full lg:w-96">
+          <svg
+            class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            [value]="searchKeyword()"
+            (input)="updateKeyword($event)"
+            (keyup.enter)="onSearch()"
+            placeholder="Rechercher par nom, email, ID..."
+            class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+          />
+        </div>
+
+        <!-- Selectors & Button -->
+        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+          <!-- Role Filter -->
+          <select
+            [value]="searchRole()"
+            (change)="updateRole($event)"
+            class="px-3 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-600 font-medium bg-slate-50"
+          >
+            <option value="">Tous les Rôles</option>
+            <option value="ROLE_ADMIN">Administrateur</option>
+            <option value="ROLE_STUDENT">Apprenti</option>
+            <option value="ROLE_PARENT">Parent</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select
+            [value]="searchStatus()"
+            (change)="updateStatus($event)"
+            class="px-3 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-600 font-medium bg-slate-50"
+          >
+            <option value="">Tous les Statuts</option>
+            <option value="ACTIVE">Actif</option>
+            <option value="PENDING">En attente</option>
+            <option value="SUSPENDED">Suspendu</option>
+            <option value="ARCHIVED">Archivé</option>
+          </select>
+
+          <!-- Search Button -->
+          <button
+            (click)="onSearch()"
+            class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2 shadow-sm shadow-indigo-600/20"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            Rechercher
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div
+      class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative flex flex-col"
+    >
+      @if (isLoading() && users().length > 0) {
+      <div
+        class="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center"
+      >
+        <span
+          class="w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"
+        ></span>
+      </div>
+      }
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+          <thead
+            class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
+          >
+          <tr>
+            <th class="px-6 py-4">Utilisateur</th>
+            <th class="px-6 py-4">Rôle Système</th>
+            <th class="px-6 py-4">Statut</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+          @for (user of users(); track user.id) {
+          <tr class="hover:bg-slate-50/50 transition-colors group">
+            <!-- USER -->
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center justify-center font-bold text-xs shrink-0 shadow-sm"
+                >
+                  {{ getInitials(user) }}
+                </div>
+                <div>
+                  <p class="font-bold text-slate-800">{{ getFullName(user) }}</p>
+                  <p class="text-[11px] text-slate-500 mt-0.5 font-mono">{{ user.username }}</p>
+                </div>
+              </div>
+            </td>
+
+            <!-- ROLE -->
+            <td class="px-6 py-4">
+                <span
+                  class="px-2.5 py-1 border rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 w-max"
+                  [ngClass]="getRoleFormat(user.role).class"
+                >
+                  {{ getRoleFormat(user.role).label }}
+                </span>
+            </td>
+
+            <!-- STATUS -->
+            <td class="px-6 py-4">
+                <span
+                  class="px-2.5 py-1 border rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 w-max"
+                  [ngClass]="getStatusFormat(user.status).class"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    @switch (user.status) { @case ('ACTIVE') {
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                    } @case ('PENDING') {
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                    } @case ('SUSPENDED') {
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                    } @case ('ARCHIVED') {
+                    <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                    <rect x="1" y="3" width="22" height="5"></rect>
+                    <line x1="10" y1="12" x2="14" y2="12"></line>
+                    } @default {
+                    <circle cx="12" cy="12" r="10"></circle>
+                    } }
+                  </svg>
+                  {{ getStatusFormat(user.status).label }}
+                </span>
+            </td>
+
+            <!-- ACTIONS -->
+            <td class="px-6 py-4 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <!-- Password -->
+                <button
+                  (click)="openPasswordModal(user.id!)"
+                  [disabled]="processingUserId() === user.id"
+                  class="p-1.5 rounded-lg transition-all hover:bg-slate-100 disabled:opacity-50"
+                  [ngClass]="
+                      user.forcePasswordChange
+                        ? 'text-amber-500 hover:text-amber-600'
+                        : 'text-slate-400 hover:text-indigo-600'
+                    "
+                  title="Changer le mot de passe"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"
+                    ></path>
+                  </svg>
+                </button>
+
+                <div class="w-px h-4 bg-slate-200 mx-1"></div>
+
+                <!-- Suspend OR Reactivate -->
+                @if (user.status === 'SUSPENDED') {
+                <button
+                  (click)="openConfirmModal('REACTIVATE', user.id!)"
+                  [disabled]="processingUserId() === user.id"
+                  class="p-1.5 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all disabled:opacity-50"
+                  title="Réactiver le compte"
+                >
+                  @if (processingUserId() === user.id) {
+                  <span
+                    class="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin block"
+                  ></span>
+                  } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  }
+                </button>
+                } @else if (user.status !== 'ARCHIVED') {
+                <button
+                  (click)="openConfirmModal('SUSPEND', user.id!)"
+                  [disabled]="processingUserId() === user.id"
+                  class="p-1.5 text-orange-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all disabled:opacity-50"
+                  title="Suspendre le compte"
+                >
+                  @if (processingUserId() === user.id) {
+                  <span
+                    class="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin block"
+                  ></span>
+                  } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                  </svg>
+                  }
+                </button>
+                }
+
+                <!-- Archive -->
+                @if (user.status !== 'ARCHIVED') {
+                <button
+                  (click)="openConfirmModal('ARCHIVE', user.id!)"
+                  [disabled]="processingUserId() === user.id"
+                  class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
+                  title="Archiver le compte"
+                >
+                  @if (processingUserId() === user.id) {
+                  <span
+                    class="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin block"
+                  ></span>
+                  } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                    <rect x="1" y="3" width="22" height="5"></rect>
+                    <line x1="10" y1="12" x2="14" y2="12"></line>
+                  </svg>
+                  }
+                </button>
+                }
+              </div>
+            </td>
+          </tr>
+          } @if (users().length === 0) {
+          <tr>
+            <td colspan="4" class="px-6 py-12 text-center text-slate-500">
+              @if (isLoading()) { Chargement des utilisateurs... } @else { Aucun utilisateur
+              trouvé. }
+            </td>
+          </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="bg-white border-t border-slate-100 rounded-b-xl mt-auto w-full z-10 relative">
+        <app-pagination
+          class="block w-full"
+          [currentPage]="currentPage()"
+          [total]="totalElements()"
+          [limit]="pageSize()"
+          (changePage)="onPageChange($event)"
+        ></app-pagination>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================== -->
+  <!-- PASSWORD CHANGE MODAL                 -->
+  <!-- ===================================== -->
+  @if (isPasswordModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+    <div
+      class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+      (click)="closePasswordModal()"
+    ></div>
+    <div
+      class="relative bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+    >
+      <div
+        class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50"
+      >
+        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-indigo-600"
+          >
+            <path
+              d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"
+            ></path>
+          </svg>
+          Nouveau mot de passe
+        </h3>
+        <button
+          type="button"
+          (click)="closePasswordModal()"
+          class="text-slate-400 hover:text-red-500 hover:bg-red-50 p-1 rounded transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="passwordForm" (ngSubmit)="submitPasswordChange()" class="p-6 space-y-5">
+        @if (passwordError()) {
+        <div
+          class="p-3 bg-red-50 text-red-700 rounded-lg text-sm flex items-start gap-2 border border-red-100"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="mt-0.5 shrink-0"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <p>{{ passwordError() }}</p>
+        </div>
+        }
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nouveau mot de passe</label>
+          <input
+            type="password"
+            formControlName="newPassword"
+            class="w-full px-4 py-2 border rounded-xl text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
+            [ngClass]="{
+              'border-red-300':
+                passwordForm.get('newPassword')?.invalid &&
+                passwordForm.get('newPassword')?.touched,
+              'border-slate-200': !(
+                passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched
+              )
+            }"
+            placeholder="Min. 6 caractères"
+          />
+          @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched)
+          { @if (passwordForm.get('newPassword')?.hasError('required')) {
+          <p class="text-xs text-red-500 mt-1">Ce champ est requis.</p>
+          } @if (passwordForm.get('newPassword')?.hasError('minlength')) {
+          <p class="text-xs text-red-500 mt-1">
+            Le mot de passe doit contenir au moins 6 caractères.
+          </p>
+          } }
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1"
+          >Confirmer le mot de passe</label
+          >
+          <input
+            type="password"
+            formControlName="confirmNewPasswd"
+            class="w-full px-4 py-2 border rounded-xl text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
+            [ngClass]="{
+              'border-red-300':
+                passwordForm.get('confirmNewPasswd')?.invalid &&
+                passwordForm.get('confirmNewPasswd')?.touched,
+              'border-slate-200': !(
+                passwordForm.get('confirmNewPasswd')?.invalid &&
+                passwordForm.get('confirmNewPasswd')?.touched
+              )
+            }"
+            placeholder="Confirmer"
+          />
+          @if (passwordForm.get('confirmNewPasswd')?.touched) { @if
+          (passwordForm.get('confirmNewPasswd')?.hasError('required')) {
+          <p class="text-xs text-red-500 mt-1">Ce champ est requis.</p>
+          } @else if (passwordForm.get('confirmNewPasswd')?.hasError('passwordMismatch')) {
+          <p class="text-xs text-red-500 mt-1">Les mots de passe ne correspondent pas.</p>
+          } }
+        </div>
+        <div class="pt-2 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            (click)="closePasswordModal()"
+            [disabled]="isChangingPassword()"
+            class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors disabled:opacity-50"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            [disabled]="isChangingPassword() || passwordForm.invalid"
+            class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2 shadow-sm shadow-indigo-600/20"
+          >
+            @if (isChangingPassword()) {
+            <span
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+            ></span>
+            } Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+
+  <!-- ===================================== -->
+  <!-- CONFIRMATION MODAL                    -->
+  <!-- ===================================== -->
+  @if (confirmModal().isOpen) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+    <div
+      class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+      (click)="closeConfirmModal()"
+    ></div>
+    <div
+      class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200 p-6 text-center"
+    >
+      <!-- Dynamic icon based on action -->
+      <div
+        class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"
+        [ngClass]="{
+          'bg-orange-100 text-orange-600': confirmModal().type === 'SUSPEND',
+          'bg-emerald-100 text-emerald-600': confirmModal().type === 'REACTIVATE',
+          'bg-red-100 text-red-600': confirmModal().type === 'ARCHIVE'
+        }"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          @if (confirmModal().type === 'SUSPEND') {
+          <rect x="6" y="4" width="4" height="16"></rect>
+          <rect x="14" y="4" width="4" height="16"></rect>
+          } @else if (confirmModal().type === 'REACTIVATE') {
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          } @else if (confirmModal().type === 'ARCHIVE') {
+          <path
+            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+          ></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          }
+        </svg>
+      </div>
+
+      <!-- Dynamic texts -->
+      <h3 class="text-lg font-bold text-slate-900 mb-2">
+        @switch (confirmModal().type) { @case ('SUSPEND') { Suspendre le compte } @case
+        ('REACTIVATE') { Réactiver le compte } @case ('ARCHIVE') { Archiver le compte } }
+      </h3>
+      <p class="text-sm text-slate-500 mb-6">
+        @switch (confirmModal().type) { @case ('SUSPEND') { L'utilisateur ne pourra plus se
+        connecter à la plateforme. } @case ('REACTIVATE') { L'utilisateur retrouvera immédiatement
+        tous ses accès. } @case ('ARCHIVE') { Cette action va clôturer définitivement le compte.
+        Cette action est irréversible. } }
+      </p>
+
+      <!-- Buttons -->
+      <div class="flex items-center justify-center gap-3">
+        <button
+          type="button"
+          (click)="closeConfirmModal()"
+          class="w-full px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="executeConfirmAction()"
+          class="w-full px-4 py-2.5 text-sm font-medium text-white rounded-xl transition-colors shadow-sm"
+          [ngClass]="{
+            'bg-orange-500 hover:bg-orange-600 shadow-orange-500/20':
+              confirmModal().type === 'SUSPEND',
+            'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20':
+              confirmModal().type === 'REACTIVATE',
+            'bg-red-500 hover:bg-red-600 shadow-red-500/20': confirmModal().type === 'ARCHIVE'
+          }"
+        >
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</main>

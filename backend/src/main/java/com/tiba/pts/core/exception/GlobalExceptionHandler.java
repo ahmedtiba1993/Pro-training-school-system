@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -128,5 +130,21 @@ public class GlobalExceptionHandler {
       EntityAlreadyExistsException ex) {
     ApiResponse<Void> response = ApiResponse.error(ex.getMessage(), "ENTITY_ALREADY_EXISTS");
     return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+  }
+
+  /** Catcher for ARCHIVED status (isAccountNonExpired / isEnabled = false) */
+  @ExceptionHandler(DisabledException.class)
+  public ResponseEntity<ApiResponse<Void>> handleDisabledException(DisabledException ex) {
+    ApiResponse<Void> response =
+        ApiResponse.error("User account is disabled or archived", "ACCOUNT_DISABLED");
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+  }
+
+  /** Catcher for SUSPENDED status (isAccountNonLocked = false) */
+  @ExceptionHandler(LockedException.class)
+  public ResponseEntity<ApiResponse<Void>> handleLockedException(LockedException ex) {
+    ApiResponse<Void> response =
+        ApiResponse.error("User account is temporarily suspended", "ACCOUNT_SUSPENDED");
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
   }
 }

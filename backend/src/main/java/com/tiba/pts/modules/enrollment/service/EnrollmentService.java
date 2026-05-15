@@ -2,7 +2,6 @@ package com.tiba.pts.modules.enrollment.service;
 
 import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.core.exception.BusinessValidationException;
-import com.tiba.pts.core.exception.EntityAlreadyExistsException;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.core.service.PdfGeneratorService;
 import com.tiba.pts.modules.documents.domain.entity.EnrollmentDocument;
@@ -26,9 +25,10 @@ import com.tiba.pts.modules.profiles.repository.StudentRepository;
 import com.tiba.pts.modules.profiles.service.StudentService;
 import com.tiba.pts.modules.trainingsession.domain.entity.Promotion;
 import com.tiba.pts.modules.trainingsession.repository.PromotionRepository;
+import com.tiba.pts.modules.user.domain.enums.UserStatus;
 import com.tiba.pts.modules.user.dto.request.UserCreateRequest;
-import com.tiba.pts.modules.user.entity.Role;
-import com.tiba.pts.modules.user.entity.User;
+import com.tiba.pts.modules.user.domain.enums.Role;
+import com.tiba.pts.modules.user.domain.entity.User;
 import com.tiba.pts.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -288,6 +288,9 @@ public class EnrollmentService {
 
     // --- STUDENT STATUS SYNCHRONIZATION ---
     syncStudentStatusBasedOnEnrollment(enrollment.getStudent(), newStatus);
+
+    // --- USER ACCOUNT SYNCHRONIZATION (USER) ---
+    syncUserAccountBasedOnEnrollment(enrollment.getStudent(), newStatus);
   }
 
   /** Private method to validate the state machine rules for EnrollmentStatus. */
@@ -435,5 +438,53 @@ public class EnrollmentService {
 
     // Call to the StudentService method
     studentService.updateStudentStatus(student.getId(), mappedStudentStatus);
+  }
+
+  /** Logic to create or update the User account based on enrollment. */
+  private void syncUserAccountBasedOnEnrollment(
+      Student student, EnrollmentStatus newEnrollmentStatus) {
+
+    // Case 2: The student loses their active enrollment, we check if access should be cut
+    if (List.of(
+            EnrollmentStatus.SUSPENDED,
+            EnrollmentStatus.DROPPED_OUT,
+            EnrollmentStatus.CANCELLED,
+            EnrollmentStatus.REJECTED)
+        .contains(newEnrollmentStatus)) {
+
+      // If they have other active enrollments, we don't touch their User account
+      if (hasOtherActiveEnrollments(student.getId())) {
+        return;
+      }
+
+      // Otherwise, we apply the deactivation rule
+      UserStatus targetUserStatus =
+          determineTargetUserStatusForInactiveEnrollment(newEnrollmentStatus);
+
+      // Student update
+      userService.updateUserStatusByPersonIdSafe(student.getId(), targetUserStatus);
+    }
+  }
+
+  /** Determines if the student has at least one active enrollment. */
+  private boolean hasOtherActiveEnrollments(Long studentId) {
+    List<EnrollmentStatus> activeStatuses =
+        List.of(
+            EnrollmentStatus.VALIDATED,
+            EnrollmentStatus.CONDITIONALLY_VALIDATED,
+            EnrollmentStatus.COMPLETED);
+    return enrollmentRepository.existsByStudentIdAndStatusIn(studentId, activeStatuses);
+  }
+
+  /** Maps the inactive enrollment status to the appropriate user account status. */
+  private UserStatus determineTargetUserStatusForInactiveEnrollment(
+      EnrollmentStatus enrollmentStatus) {
+    return switch (enrollmentStatus) {
+      case SUSPENDED, DROPPED_OUT -> UserStatus.SUSPENDED;
+      case CANCELLED, REJECTED -> UserStatus.ARCHIVED;
+      default ->
+          throw new BusinessValidationException(
+              "Unexpected status for account deactivation: " + enrollmentStatus);
+    };
   }
 }

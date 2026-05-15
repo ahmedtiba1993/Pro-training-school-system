@@ -1,7 +1,7 @@
 package com.tiba.pts.modules.profiles.domain.entity;
 
 import com.tiba.pts.core.domain.BaseEntity;
-import com.tiba.pts.modules.user.entity.User;
+import com.tiba.pts.modules.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

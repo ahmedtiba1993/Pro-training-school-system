@@ -1,7 +1,7 @@
 package com.tiba.pts.core.config;
 
-import com.tiba.pts.modules.user.entity.Role;
-import com.tiba.pts.modules.user.entity.User;
+import com.tiba.pts.modules.user.domain.enums.Role;
+import com.tiba.pts.modules.user.domain.entity.User;
 import com.tiba.pts.modules.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;

@@ -1,8 +1,11 @@
-package com.tiba.pts.modules.user.entity;
+package com.tiba.pts.modules.user.domain.entity;
 
 import com.tiba.pts.modules.profiles.domain.entity.Person;
+import com.tiba.pts.modules.user.domain.enums.Role;
+import com.tiba.pts.modules.user.domain.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,23 +35,31 @@ public class User implements UserDetails {
   @Enumerated(EnumType.STRING)
   private Role role;
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  @ColumnDefault("'PENDING'")
+  private UserStatus status;
+
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "person_id", referencedColumnName = "id", unique = true)
   private Person person;
+
+  @Column(nullable = false)
+  @ColumnDefault("true")
+  private boolean forcePasswordChange;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(new SimpleGrantedAuthority(role.name()));
   }
 
-  @Override
   public boolean isAccountNonExpired() {
-    return true;
+    return status != UserStatus.ARCHIVED;
   }
 
   @Override
   public boolean isAccountNonLocked() {
-    return true;
+    return status != UserStatus.SUSPENDED;
   }
 
   @Override
@@ -58,6 +69,6 @@ public class User implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return true;
+    return status == UserStatus.ACTIVE || status == UserStatus.PENDING;
   }
 }

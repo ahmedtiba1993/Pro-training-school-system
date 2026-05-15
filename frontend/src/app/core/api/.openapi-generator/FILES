@@ -35,6 +35,8 @@ api/student-controller.service.ts
 api/student-controller.serviceInterface.ts
 api/training-controller.service.ts
 api/training-controller.serviceInterface.ts
+api/user-controller.service.ts
+api/user-controller.serviceInterface.ts
 configuration.ts
 encoder.ts
 git_push.sh
@@ -48,6 +50,7 @@ model/accredited-promotion-response.ts
 model/accredited-promotion-stats-response.ts
 model/accredited-promotion-update-request.ts
 model/active-academic-year-response.ts
+model/admin-change-password-request.ts
 model/api-response-academic-year-response.ts
 model/api-response-accelerated-promotion-response.ts
 model/api-response-accredited-promotion-response.ts
@@ -83,6 +86,7 @@ model/api-response-page-response-accredited-promotion-response.ts
 model/api-response-page-response-continuous-promotion-response.ts
 model/api-response-page-response-student-list-response.ts
 model/api-response-page-response-training-response.ts
+model/api-response-page-response-user-response.ts
 model/api-response-period-response.ts
 model/api-response-promotion-statistics-response.ts
 model/api-response-student-response.ts
@@ -116,6 +120,7 @@ model/page-response-continuous-promotion-response.ts
 model/page-response-enrollment-list-response.ts
 model/page-response-student-list-response.ts
 model/page-response-training-response.ts
+model/page-response-user-response.ts
 model/parent-info-request.ts
 model/parent-request.ts
 model/parent-response.ts
@@ -144,6 +149,7 @@ model/submitted-document-response.ts
 model/training-request.ts
 model/training-response.ts
 model/training-type-count-response.ts
+model/user-response.ts
 param.ts
 provide-api.ts
 query.params.ts

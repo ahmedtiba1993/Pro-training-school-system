@@ -46,4 +46,7 @@ export * from './student-controller.serviceInterface';
 export * from './training-controller.service';
 import { TrainingControllerService } from './training-controller.service';
 export * from './training-controller.serviceInterface';
-export const APIS = [AcademicYearControllerService, AcceleratedPromotionControllerService, AccreditedPromotionControllerService, AuthControllerService, ContinuousPromotionControllerService, EnrollmentControllerService, EnrollmentDocumentControllerService, ExamSessionControllerService, HolidayControllerService, LevelControllerService, ParentControllerService, PeriodControllerService, PromotionControllerService, SpecialtyControllerService, StudentControllerService, TrainingControllerService];
+export * from './user-controller.service';
+import { UserControllerService } from './user-controller.service';
+export * from './user-controller.serviceInterface';
+export const APIS = [AcademicYearControllerService, AcceleratedPromotionControllerService, AccreditedPromotionControllerService, AuthControllerService, ContinuousPromotionControllerService, EnrollmentControllerService, EnrollmentDocumentControllerService, ExamSessionControllerService, HolidayControllerService, LevelControllerService, ParentControllerService, PeriodControllerService, PromotionControllerService, SpecialtyControllerService, StudentControllerService, TrainingControllerService, UserControllerService];

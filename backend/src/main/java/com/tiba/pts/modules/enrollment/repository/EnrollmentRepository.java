@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,10 +20,7 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
   boolean existsByStudentIdAndPromotionId(Long id, Long id1);
 
-  /**
-   * Paged multi-criteria filter with EntityGraph to optimize performance (avoids N+1
-   * selects).
-   */
+  /** Paged multi-criteria filter with EntityGraph to optimize performance (avoids N+1 selects). */
   @EntityGraph(
       attributePaths = {
         "student",
@@ -51,4 +49,6 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
       @Param("promotionId") Long promotionId,
       @Param("status") EnrollmentStatus status,
       Pageable pageable);
+
+  boolean existsByStudentIdAndStatusIn(Long studentId, List<EnrollmentStatus> statuses);
 }

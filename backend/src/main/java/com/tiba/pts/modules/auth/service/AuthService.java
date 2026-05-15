@@ -5,7 +5,7 @@ import com.tiba.pts.modules.auth.dto.AuthRequest;
 import com.tiba.pts.modules.auth.dto.AuthResponse;
 import com.tiba.pts.modules.auth.dto.UserInfo;
 import com.tiba.pts.core.security.jwt.JwtService;
-import com.tiba.pts.modules.user.entity.User;
+import com.tiba.pts.modules.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;

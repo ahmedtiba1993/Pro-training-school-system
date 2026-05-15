@@ -2,7 +2,6 @@ package com.tiba.pts.modules.profiles.controller;
 
 import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.core.dto.PageResponse;
-import com.tiba.pts.modules.academicyear.dto.response.AcademicYearResponse;
 import com.tiba.pts.modules.profiles.domain.enums.StudentStatus;
 import com.tiba.pts.modules.profiles.dto.request.ExistenceCheckResponse;
 import com.tiba.pts.modules.profiles.dto.request.StudentRequest;

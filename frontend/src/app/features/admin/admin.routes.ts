@@ -17,6 +17,7 @@ import { EnrollmentDocumentComponent } from './pages/enrollment-document/enrollm
 import { EnrollmentDetail } from './pages/enrollment/enrollment-detail/enrollment-detail';
 import { StudentList } from './pages/profile/students/student-list/student-list';
 import { StudentDetail } from './pages/profile/students/student-detail/student-detail';
+import { AccountList } from './pages/account/account-list/account-list';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -39,7 +40,8 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'promotions/continuous', component: Continuous },
       { path: 'promotions/accredited', component: Accredited },
       { path: 'students', component: StudentList },
-      { path: 'students/details/:id', component: StudentDetail }
+      { path: 'students/details/:id', component: StudentDetail },
+      { path: 'account', component: AccountList }
     ]
   }
 ];

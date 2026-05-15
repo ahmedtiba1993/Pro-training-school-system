@@ -1,4 +1,4 @@
-package com.tiba.pts.modules.user.entity;
+package com.tiba.pts.modules.user.domain.enums;
 
 public enum Role {
   ROLE_ADMIN,

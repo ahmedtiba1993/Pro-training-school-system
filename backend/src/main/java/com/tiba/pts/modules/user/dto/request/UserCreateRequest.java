@@ -1,6 +1,6 @@
 package com.tiba.pts.modules.user.dto.request;
 
-import com.tiba.pts.modules.user.entity.Role;
+import com.tiba.pts.modules.user.domain.enums.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
