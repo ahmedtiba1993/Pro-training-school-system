@@ -11,6 +11,7 @@ import { ParentResponse } from './parent-response';
 
 
 export interface StudentParentResponse { 
+    id?: number;
     link?: StudentParentResponse.LinkEnum;
     parent?: ParentResponse;
     legalGuardian?: boolean;

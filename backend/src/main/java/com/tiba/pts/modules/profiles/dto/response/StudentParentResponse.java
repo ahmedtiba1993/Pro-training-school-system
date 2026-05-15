@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class StudentParentResponse {
+  private Long id;
   private ParentalLink link;
   private boolean isLegalGuardian;
   private ParentResponse parent;

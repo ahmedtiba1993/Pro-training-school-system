@@ -15,6 +15,8 @@ import { Continuous } from './pages/training-session/continuous/continuous';
 import { Accredited } from './pages/training-session/accredited/accredited';
 import { EnrollmentDocumentComponent } from './pages/enrollment-document/enrollment-document';
 import { EnrollmentDetail } from './pages/enrollment/enrollment-detail/enrollment-detail';
+import { StudentList } from './pages/profile/students/student-list/student-list';
+import { StudentDetail } from './pages/profile/students/student-detail/student-detail';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -35,7 +37,9 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'training', component: Training },
       { path: 'promotions/accelerated', component: Accelerated },
       { path: 'promotions/continuous', component: Continuous },
-      { path: 'promotions/accredited', component: Accredited }
+      { path: 'promotions/accredited', component: Accredited },
+      { path: 'students', component: StudentList },
+      { path: 'students/details/:id', component: StudentDetail }
     ]
   }
 ];

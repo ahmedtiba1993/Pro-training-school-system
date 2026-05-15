@@ -9,19 +9,33 @@
  */
 import { StudentParentResponse } from './student-parent-response';
 import { StudentSiblingResponse } from './student-sibling-response';
+import { GraduationRecordResponse } from './graduation-record-response';
 
 
 export interface StudentResponse { 
     id?: number;
     firstName?: string;
     lastName?: string;
-    studentCode?: string;
+    firstNameAr?: string;
+    lastNameAr?: string;
+    email?: string;
+    phone?: string;
     cin?: string;
+    studentCode?: string;
     birthDate?: string;
+    birthPlace?: string;
+    governorate?: string;
+    delegation?: string;
+    residenceAddress?: string;
+    correspondenceAddress?: string;
     residence?: StudentResponse.ResidenceEnum;
     parentsSituation?: StudentResponse.ParentsSituationEnum;
+    hasChronicDisease?: boolean;
+    diseaseDescription?: string;
+    status?: StudentResponse.StatusEnum;
     studentSiblings?: Array<StudentSiblingResponse>;
     parents?: Array<StudentParentResponse>;
+    graduations?: Array<GraduationRecordResponse>;
 }
 export namespace StudentResponse {
     export const ResidenceEnum = {
@@ -39,6 +53,14 @@ export namespace StudentResponse {
         BothDeceased: 'BOTH_DECEASED'
     } as const;
     export type ParentsSituationEnum = typeof ParentsSituationEnum[keyof typeof ParentsSituationEnum];
+    export const StatusEnum = {
+        Prospect: 'PROSPECT',
+        Active: 'ACTIVE',
+        Suspended: 'SUSPENDED',
+        DroppedOut: 'DROPPED_OUT',
+        Alumni: 'ALUMNI'
+    } as const;
+    export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
 }
 
 

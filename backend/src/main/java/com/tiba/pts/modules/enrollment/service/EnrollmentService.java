@@ -20,6 +20,7 @@ import com.tiba.pts.modules.enrollment.repository.EnrollmentRepository;
 import com.tiba.pts.modules.profiles.domain.entity.Parent;
 import com.tiba.pts.modules.profiles.domain.entity.Student;
 import com.tiba.pts.modules.profiles.domain.entity.StudentParent;
+import com.tiba.pts.modules.profiles.domain.enums.StudentStatus;
 import com.tiba.pts.modules.profiles.dto.request.StudentRequest;
 import com.tiba.pts.modules.profiles.repository.StudentRepository;
 import com.tiba.pts.modules.profiles.service.StudentService;
@@ -125,7 +126,7 @@ public class EnrollmentService {
         .collect(Collectors.toList());
   }
 
-  /** Private method to generate the enrollment number: INS-YYYY-XXX */
+  /** Private method to generate the enrollment number: INSYYYYXXXX */
   private String generateEnrollmentNumber() {
     int currentYear = LocalDate.now().getYear();
     String prefix = "INS" + currentYear; // Ex: "INS-2026-"
@@ -284,6 +285,9 @@ public class EnrollmentService {
       createStudentAccountSafe(enrollment.getStudent());
       createParentAccountsSafe(enrollment.getStudent());
     }
+
+    // --- STUDENT STATUS SYNCHRONIZATION ---
+    syncStudentStatusBasedOnEnrollment(enrollment.getStudent(), newStatus);
   }
 
   /** Private method to validate the state machine rules for EnrollmentStatus. */
@@ -414,5 +418,22 @@ public class EnrollmentService {
             EnrollmentStatus.SUSPENDED,
             EnrollmentStatus.COMPLETED)
         .contains(status);
+  }
+
+  /** Synchronizes the overall student status based on the new enrollment status. */
+  private void syncStudentStatusBasedOnEnrollment(
+      Student student, EnrollmentStatus newEnrollmentStatus) {
+
+    StudentStatus mappedStudentStatus =
+        switch (newEnrollmentStatus) {
+          case CONDITIONALLY_VALIDATED, VALIDATED -> StudentStatus.ACTIVE;
+          case SUSPENDED -> StudentStatus.SUSPENDED;
+          case DROPPED_OUT, CANCELLED -> StudentStatus.DROPPED_OUT;
+          case REJECTED, PRE_ENROLLED, WAITLISTED, INCOMPLETE -> StudentStatus.PROSPECT;
+          case COMPLETED -> StudentStatus.ALUMNI;
+        };
+
+    // Call to the StudentService method
+    studentService.updateStudentStatus(student.getId(), mappedStudentStatus);
   }
 }

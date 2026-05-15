@@ -2,6 +2,7 @@ package com.tiba.pts.modules.profiles.domain.entity;
 
 import com.tiba.pts.modules.profiles.domain.enums.ParentsSituation;
 import com.tiba.pts.modules.profiles.domain.enums.StudentResidence;
+import com.tiba.pts.modules.profiles.domain.enums.StudentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -46,9 +47,21 @@ public class Student extends Person {
   @Column(name = "disease_description", length = 500)
   private String diseaseDescription;
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  @lombok.Builder.Default
+  private StudentStatus status = StudentStatus.PROSPECT;
+
   @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StudentSibling> studentSiblings = new ArrayList<>();
 
   @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StudentParent> parents = new ArrayList<>();
+
+  @ElementCollection
+  @CollectionTable(
+      name = "student_obtained_degrees",
+      joinColumns = @JoinColumn(name = "student_id"))
+  @Builder.Default
+  private List<GraduationRecord> graduations = new ArrayList<>();
 }

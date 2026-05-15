@@ -9,14 +9,9 @@
  */
 
 
-export interface ParentRequest { 
-    firstName: string;
-    lastName: string;
-    firstNameAr?: string;
-    lastNameAr?: string;
-    email?: string;
-    phone?: string;
-    cin?: string;
-    profession?: string;
+export interface GraduationRecordResponse { 
+    degreeName?: string;
+    graduationYear?: string;
+    mention?: string;
 }
 

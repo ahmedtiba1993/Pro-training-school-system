@@ -7,8 +7,8 @@
       <p class="text-xs text-slate-500">
         {{
           enrollmentMode() === 'NEW'
-            ? 'Nouvelle inscription (Nouvel Apprenti)'
-            : 'Réinscription (Apprenti existant)'
+            ? 'Nouvelle inscription (Nouvel Apprenant)'
+            : 'Réinscription (Apprenant existant)'
         }}
       </p>
     </div>
@@ -75,9 +75,9 @@
         @if (activeStep().key === 'SEARCH') {
         <div class="animate-fade-in space-y-6">
           <div class="mb-8 text-center">
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">Recherche d'apprenti</h2>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Recherche d'Apprenant</h2>
             <p class="text-slate-500 text-sm">
-              Vérifiez si l'apprenti existe déjà dans la base de données pour une réinscription.
+              Vérifiez si l'Apprenant existe déjà dans la base de données pour une réinscription.
             </p>
           </div>
 
@@ -178,7 +178,7 @@
           <div
             class="mt-8 text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-500 text-sm"
           >
-            Aucun apprenti trouvé avec ces critères.
+            Aucun Apprenant trouvé avec ces critères.
           </div>
           }
 
@@ -210,7 +210,7 @@
                 <line x1="19" y1="8" x2="19" y2="14"></line>
                 <line x1="22" y1="11" x2="16" y2="11"></line>
               </svg>
-              Créer un nouveau dossier d'apprenti
+              Créer un nouveau dossier d'Apprenant
             </button>
           </div>
         </div>
@@ -220,7 +220,7 @@
         @if (activeStep().key === 'PROFILE') {
         <div formGroupName="studentInfo" class="animate-fade-in space-y-8">
           <div class="mb-4 border-b border-slate-100 pb-4">
-            <h2 class="text-xl font-bold text-slate-800 mb-2">Profil de l'Apprenti</h2>
+            <h2 class="text-xl font-bold text-slate-800 mb-2">Profil de l'Apprenant</h2>
             <p class="text-sm text-slate-500">Informations personnelles, coordonnées et santé.</p>
           </div>
 
@@ -388,7 +388,7 @@
                   class="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
                 />
                 <span class="text-sm font-bold text-rose-900"
-                  >L'apprenti souffre-t-il d'une maladie chronique ?</span
+                  >L'Apprenant souffre-t-il d'une maladie chronique ?</span
                 >
               </label>
               @if (enrollmentForm.get('studentInfo.hasChronicDisease')?.value) {
@@ -439,7 +439,7 @@
               <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
             <div>
-              <span class="font-bold block">Apprenti sélectionné avec succès !</span>
+              <span class="font-bold block">Apprenant sélectionné avec succès !</span>
               <span class="text-xs"
                 >{{ selectedStudent()?.firstName }} {{ selectedStudent()?.lastName }} (CIN:
                 {{ selectedStudent()?.cin || 'N/A' }})</span
@@ -451,7 +451,7 @@
           <div class="mb-8">
             <h2 class="text-xl font-bold text-slate-800 mb-2">Affectation Pédagogique</h2>
             <p class="text-sm text-slate-500">
-              Choisissez le niveau, la spécialité et la promotion cible de l'apprenti.
+              Choisissez le niveau, la spécialité et la promotion cible de l'Apprenant.
             </p>
           </div>
 
@@ -671,7 +671,7 @@
                       <input
                         type="text"
                         formControlName="relation"
-                        placeholder="Lien de parenté avec l'apprenti (ex: Oncle) *"
+                        placeholder="Lien de parenté avec l'Apprenant (ex: Oncle) *"
                         class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-500"
                         [ngClass]="{
                           'border-rose-500 bg-rose-50':
@@ -1200,7 +1200,7 @@
             <h4
               class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2"
             >
-              Identité & Contact Apprenti
+              Identité & Contact Apprenant
             </h4>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>

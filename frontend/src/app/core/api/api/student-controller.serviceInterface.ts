@@ -13,8 +13,10 @@ import { Observable }                                        from 'rxjs';
 
 import { ApiResponseExistenceCheckResponse } from '../model/models';
 import { ApiResponseListStudentResponse } from '../model/models';
+import { ApiResponseLong } from '../model/models';
+import { ApiResponsePageResponseStudentListResponse } from '../model/models';
+import { ApiResponseStudentResponse } from '../model/models';
 import { StudentRequest } from '../model/models';
-import { StudentResponse } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -38,6 +40,13 @@ export interface StudentControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/profiles/students/count/active
+     */
+    countActiveStudents(extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
      * @endpoint post /api/v1/profiles/students
      * @param studentRequest 
      */
@@ -49,7 +58,18 @@ export interface StudentControllerServiceInterface {
      * @endpoint get /api/v1/profiles/students/{id}
      * @param id 
      */
-    getById(id: number, extraHttpRequestParams?: any): Observable<StudentResponse>;
+    getStudentById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseStudentResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/profiles/students
+     * @param page 
+     * @param size 
+     * @param keyword 
+     * @param status 
+     */
+    getStudentsPaginated(page?: number, size?: number, keyword?: string, status?: 'PROSPECT' | 'ACTIVE' | 'SUSPENDED' | 'DROPPED_OUT' | 'ALUMNI', extraHttpRequestParams?: any): Observable<ApiResponsePageResponseStudentListResponse>;
 
     /**
      * 

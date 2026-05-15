@@ -1,22 +1,30 @@
 package com.tiba.pts.modules.profiles.service;
 
 import com.tiba.pts.core.dto.ErrorDetail;
+import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.core.exception.BusinessValidationException;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.profiles.domain.entity.Parent;
 import com.tiba.pts.modules.profiles.domain.entity.Student;
 import com.tiba.pts.modules.profiles.domain.entity.StudentParent;
 import com.tiba.pts.modules.profiles.domain.enums.ParentalLink;
+import com.tiba.pts.modules.profiles.domain.enums.StudentStatus;
 import com.tiba.pts.modules.profiles.dto.request.ExistenceCheckResponse;
 import com.tiba.pts.modules.profiles.dto.request.StudentParentRequest;
 import com.tiba.pts.modules.profiles.dto.request.StudentRequest;
+import com.tiba.pts.modules.profiles.dto.response.StudentListResponse;
 import com.tiba.pts.modules.profiles.dto.response.StudentResponse;
 import com.tiba.pts.modules.profiles.mapper.ParentMapper;
 import com.tiba.pts.modules.profiles.mapper.StudentMapper;
 import com.tiba.pts.modules.profiles.repository.ParentRepository;
 import com.tiba.pts.modules.profiles.repository.PersonRepository;
 import com.tiba.pts.modules.profiles.repository.StudentRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -219,5 +227,39 @@ public class StudentService {
         .emailExists(emailExists)
         .phoneExists(phoneExists)
         .build();
+  }
+
+  @Transactional(readOnly = true)
+  public PageResponse<StudentListResponse> getStudentsPaginated(
+      int page, int size, String keyword, StudentStatus status) {
+
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+
+    // Cleaning the keyword to avoid errors with empty spaces
+    String cleanKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+
+    // Call to the optimized query
+    Page<Student> studentPage =
+        studentRepository.findAllWithFilters(cleanKeyword, status, pageable);
+
+    // Mapping via MapStruct preserved
+    return PageResponse.of(studentPage, studentMapper::toListResponse);
+  }
+
+  @Transactional
+  public void updateStudentStatus(Long studentId, StudentStatus newStatus) {
+    Student student =
+        studentRepository
+            .findById(studentId)
+            .orElseThrow(() -> new EntityNotFoundException("STUDENT_NOT_FOUND"));
+    if (student.getStatus() != newStatus) {
+      student.setStatus(newStatus);
+      studentRepository.save(student);
+    }
+  }
+
+  @Transactional(readOnly = true)
+  public Long countActiveStudents() {
+    return studentRepository.countByStatus(StudentStatus.ACTIVE);
   }
 }

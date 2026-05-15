@@ -81,9 +81,11 @@ model/api-response-page-response-academic-year-response.ts
 model/api-response-page-response-accelerated-promotion-response.ts
 model/api-response-page-response-accredited-promotion-response.ts
 model/api-response-page-response-continuous-promotion-response.ts
+model/api-response-page-response-student-list-response.ts
 model/api-response-page-response-training-response.ts
 model/api-response-period-response.ts
 model/api-response-promotion-statistics-response.ts
+model/api-response-student-response.ts
 model/api-response-void.ts
 model/auth-request.ts
 model/auth-response.ts
@@ -99,6 +101,7 @@ model/error-detail.ts
 model/exam-session-request.ts
 model/exam-session-response.ts
 model/existence-check-response.ts
+model/graduation-record-response.ts
 model/holiday-request.ts
 model/holiday-response.ts
 model/level-request.ts
@@ -111,6 +114,7 @@ model/page-response-accelerated-promotion-response.ts
 model/page-response-accredited-promotion-response.ts
 model/page-response-continuous-promotion-response.ts
 model/page-response-enrollment-list-response.ts
+model/page-response-student-list-response.ts
 model/page-response-training-response.ts
 model/parent-info-request.ts
 model/parent-request.ts
@@ -124,6 +128,7 @@ model/promotion-summary-response.ts
 model/specialty-request.ts
 model/specialty-response.ts
 model/student-info-request.ts
+model/student-list-response.ts
 model/student-parent-info-request.ts
 model/student-parent-request.ts
 model/student-parent-response.ts
