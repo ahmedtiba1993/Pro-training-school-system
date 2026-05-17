@@ -18,6 +18,8 @@ import { EnrollmentDetail } from './pages/enrollment/enrollment-detail/enrollmen
 import { StudentList } from './pages/profile/students/student-list/student-list';
 import { StudentDetail } from './pages/profile/students/student-detail/student-detail';
 import { AccountList } from './pages/account/account-list/account-list';
+import { TeacherSpecialties } from './pages/profile/teacher/teacher-specialties/teacher-specialties';
+import { TeacherList } from './pages/profile/teacher/teacher-list/teacher-list';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -41,7 +43,9 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'promotions/accredited', component: Accredited },
       { path: 'students', component: StudentList },
       { path: 'students/details/:id', component: StudentDetail },
-      { path: 'account', component: AccountList }
+      { path: 'account', component: AccountList },
+      { path: 'teacher-specialties', component: TeacherSpecialties },
+      { path: 'teachers', component: TeacherList }
     ]
   }
 ];

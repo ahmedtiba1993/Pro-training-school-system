@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -7,10 +7,10 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import {DatePipe, NgClass} from '@angular/common';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {Router} from '@angular/router';
-import {forkJoin, Observable} from 'rxjs';
+import { DatePipe, NgClass } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { forkJoin, Observable } from 'rxjs';
 
 import {
   LevelControllerService,
@@ -24,7 +24,7 @@ import {
   ParentControllerService,
   ParentResponse
 } from '../../../../../core/api';
-import {ToastService} from '../../../../../shared/services/toast.service';
+import { ToastService } from '../../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-enrollment-create',
@@ -53,17 +53,17 @@ export class EnrollmentCreate implements OnInit {
   wizardSteps = computed(() => {
     if (this.enrollmentMode() === 'EXISTING') {
       return [
-        {key: 'SEARCH', title: 'Recherche', desc: "Vérification de l'apprenti "},
-        {key: 'AFFECTATION', title: 'Affectation', desc: 'Cursus & classe'},
-        {key: 'DOCUMENTS', title: 'Récapitulatif', desc: 'Validation & Envoi'}
+        { key: 'SEARCH', title: 'Recherche', desc: "Vérification de l'apprenti " },
+        { key: 'AFFECTATION', title: 'Affectation', desc: 'Cursus & classe' },
+        { key: 'DOCUMENTS', title: 'Récapitulatif', desc: 'Validation & Envoi' }
       ];
     }
     return [
-      {key: 'SEARCH', title: 'Recherche', desc: "Vérification de l'apprenti"},
-      {key: 'PROFILE', title: 'Profil Apprenti', desc: 'Identité & contact'},
-      {key: 'AFFECTATION', title: 'Affectation', desc: 'Cursus & classe'},
-      {key: 'FAMILY', title: 'Famille', desc: 'Parents & fratrie'},
-      {key: 'DOCUMENTS', title: 'Récapitulatif', desc: 'Validation finale'}
+      { key: 'SEARCH', title: 'Recherche', desc: "Vérification de l'apprenti" },
+      { key: 'PROFILE', title: 'Profil Apprenti', desc: 'Identité & contact' },
+      { key: 'AFFECTATION', title: 'Affectation', desc: 'Cursus & classe' },
+      { key: 'FAMILY', title: 'Famille', desc: 'Parents & fratrie' },
+      { key: 'DOCUMENTS', title: 'Récapitulatif', desc: 'Validation finale' }
     ];
   });
 
@@ -126,8 +126,8 @@ export class EnrollmentCreate implements OnInit {
     observation: [''],
 
     levelId: ['', Validators.required],
-    trainingId: [{value: '', disabled: true}, Validators.required],
-    promotionId: [{value: '', disabled: true}, Validators.required],
+    trainingId: [{ value: '', disabled: true }, Validators.required],
+    promotionId: [{ value: '', disabled: true }, Validators.required],
 
     studentInfo: this.fb.group({
       id: [null],
@@ -138,6 +138,7 @@ export class EnrollmentCreate implements OnInit {
       email: ['', [Validators.email]],
       phone: ['', [Validators.pattern('^[0-9]{8}$')]],
       cin: [''],
+      gender: ['', Validators.required],
       birthDate: ['', Validators.required],
       birthPlace: [''],
       governorate: [''],
@@ -284,17 +285,17 @@ export class EnrollmentCreate implements OnInit {
   selectExistingStudent(student: StudentResponse): void {
     this.selectedStudent.set(student);
     this.enrollmentMode.set('EXISTING');
-    this.enrollmentForm.patchValue({type: 'OLD', existingStudentId: student.id});
+    this.enrollmentForm.patchValue({ type: 'OLD', existingStudentId: student.id });
     this.currentStepIndex.set(1);
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   createNewStudent(): void {
     this.selectedStudent.set(null);
     this.enrollmentMode.set('NEW');
-    this.enrollmentForm.patchValue({type: 'NEW', existingStudentId: null});
+    this.enrollmentForm.patchValue({ type: 'NEW', existingStudentId: null });
     this.currentStepIndex.set(1);
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   onSearchFather(): void {
@@ -413,14 +414,14 @@ export class EnrollmentCreate implements OnInit {
   private proceedToNextStep(): void {
     if (this.currentStepIndex() < this.wizardSteps().length - 1) {
       this.currentStepIndex.update(i => i + 1);
-      window.scrollTo({top: 0, behavior: 'smooth'});
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
   previousStep(): void {
     if (this.currentStepIndex() > 0) {
       this.currentStepIndex.update(i => i - 1);
-      window.scrollTo({top: 0, behavior: 'smooth'});
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -433,20 +434,20 @@ export class EnrollmentCreate implements OnInit {
     const studentPhone = this.enrollmentForm.get('studentInfo.phone')?.value?.trim();
     const phones: { owner: string; phone: string }[] = [];
 
-    if (studentPhone) phones.push({owner: "l'Apprenti", phone: studentPhone});
+    if (studentPhone) phones.push({ owner: "l'Apprenti", phone: studentPhone });
 
     if (this.isParentsSectionEnabled()) {
       if (this.isFatherEnabled()) {
         const fPhone = this.fatherForm.get('phone')?.value?.trim();
-        if (fPhone) phones.push({owner: 'le Père', phone: fPhone});
+        if (fPhone) phones.push({ owner: 'le Père', phone: fPhone });
       }
       if (this.isMotherEnabled()) {
         const mPhone = this.motherForm.get('phone')?.value?.trim();
-        if (mPhone) phones.push({owner: 'la Mère', phone: mPhone});
+        if (mPhone) phones.push({ owner: 'la Mère', phone: mPhone });
       }
       if (this.enrollmentForm.get('studentInfo.legalGuardianRole')?.value === 'OTHER') {
         const oPhone = this.otherForm.get('phone')?.value?.trim();
-        if (oPhone) phones.push({owner: 'Autre Tuteur', phone: oPhone});
+        if (oPhone) phones.push({ owner: 'Autre Tuteur', phone: oPhone });
       }
     }
 
@@ -620,7 +621,7 @@ export class EnrollmentCreate implements OnInit {
     if (key === 'SEARCH') return this.enrollmentMode() === 'NEW' || this.selectedStudent() !== null;
     if (key === 'PROFILE') {
       const g = this.enrollmentForm.get('studentInfo') as FormGroup;
-      const baseFieldsValid = ['firstName', 'lastName', 'birthDate', 'residence'].every(
+      const baseFieldsValid = ['firstName', 'lastName', 'gender', 'birthDate', 'residence'].every(
         f => g.get(f)?.valid
       );
       const diseaseValid = !g.get('hasChronicDisease')?.value || g.get('diseaseDescription')?.valid;
@@ -654,9 +655,14 @@ export class EnrollmentCreate implements OnInit {
     const key = this.activeStep().key;
     if (key === 'PROFILE') {
       const g = this.enrollmentForm.get('studentInfo') as FormGroup;
-      ['firstName', 'lastName', 'birthDate', 'residence', 'diseaseDescription'].forEach(f =>
-        g.get(f)?.markAsTouched()
-      );
+      [
+        'firstName',
+        'lastName',
+        'birthDate',
+        'gender',
+        'residence',
+        'diseaseDescription'
+      ].forEach(f => g.get(f)?.markAsTouched());
     } else if (key === 'AFFECTATION') {
       ['levelId', 'trainingId', 'promotionId'].forEach(f =>
         this.enrollmentForm.get(f)?.markAsTouched()
@@ -790,7 +796,7 @@ export class EnrollmentCreate implements OnInit {
       this.documents.set(docs);
       docs.forEach((doc: any) =>
         this.documentsArray.push(
-          this.fb.group({enrollmentDocumentId: [doc.id], provided: [false]})
+          this.fb.group({ enrollmentDocumentId: [doc.id], provided: [false] })
         )
       );
     });

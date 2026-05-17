@@ -1,6 +1,7 @@
 package com.tiba.pts.modules.profiles.domain.entity;
 
 import com.tiba.pts.core.domain.BaseEntity;
+import com.tiba.pts.modules.profiles.domain.enums.Gender;
 import com.tiba.pts.modules.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,6 +40,9 @@ public abstract class Person extends BaseEntity {
 
   @Column(unique = true)
   private String cin;
+
+  @Enumerated(EnumType.STRING)
+  private Gender gender;
 
   @OneToOne(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private User user;

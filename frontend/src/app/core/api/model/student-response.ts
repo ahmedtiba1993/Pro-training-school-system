@@ -21,6 +21,7 @@ export interface StudentResponse {
     email?: string;
     phone?: string;
     cin?: string;
+    gender?: StudentResponse.GenderEnum;
     studentCode?: string;
     birthDate?: string;
     birthPlace?: string;
@@ -38,6 +39,11 @@ export interface StudentResponse {
     graduations?: Array<GraduationRecordResponse>;
 }
 export namespace StudentResponse {
+    export const GenderEnum = {
+        Male: 'MALE',
+        Female: 'FEMALE'
+    } as const;
+    export type GenderEnum = typeof GenderEnum[keyof typeof GenderEnum];
     export const ResidenceEnum = {
         WithBothParents: 'WITH_BOTH_PARENTS',
         WithFatherOnly: 'WITH_FATHER_ONLY',

@@ -1,5 +1,6 @@
 package com.tiba.pts.modules.profiles.dto.response;
 
+import com.tiba.pts.modules.profiles.domain.enums.Gender;
 import com.tiba.pts.modules.profiles.domain.enums.ParentsSituation;
 import com.tiba.pts.modules.profiles.domain.enums.StudentResidence;
 import com.tiba.pts.modules.profiles.domain.enums.StudentStatus;
@@ -26,6 +27,7 @@ public class StudentResponse {
   private String email;
   private String phone;
   private String cin;
+  private Gender gender;
 
   // --- Infos Student ---
   private String studentCode;

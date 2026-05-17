@@ -6,9 +6,9 @@
       <h1 class="text-xl font-bold text-slate-800">Dossier d'Inscription</h1>
       <p class="text-xs text-slate-500">
         {{
-          enrollmentMode() === 'NEW'
-            ? 'Nouvelle inscription (Nouvel Apprenant)'
-            : 'Réinscription (Apprenant existant)'
+        enrollmentMode() === 'NEW'
+        ? 'Nouvelle inscription (Nouvel Apprenant)'
+        : 'Réinscription (Apprenant existant)'
         }}
       </p>
     </div>
@@ -57,7 +57,7 @@
             <span
               class="text-xs font-bold mt-2 text-center"
               [ngClass]="idx <= currentStepIndex() ? 'text-slate-800' : 'text-slate-400'"
-              >{{ step.title }}</span
+            >{{ step.title }}</span
             >
           </div>
           }
@@ -139,38 +139,38 @@
           <div class="mt-8 border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
             <table class="w-full text-left text-sm">
               <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider font-bold">
-                <tr>
-                  <th class="px-5 py-3">Code</th>
-                  <th class="px-5 py-3">Nom & Prénom</th>
-                  <th class="px-5 py-3">CIN</th>
-                  <th class="px-5 py-3">Date Naissance</th>
-                  <th class="px-5 py-3 text-right">Action</th>
-                </tr>
+              <tr>
+                <th class="px-5 py-3">Code</th>
+                <th class="px-5 py-3">Nom & Prénom</th>
+                <th class="px-5 py-3">CIN</th>
+                <th class="px-5 py-3">Date Naissance</th>
+                <th class="px-5 py-3 text-right">Action</th>
+              </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
-                @for (student of searchResults(); track student.id) {
-                <tr class="hover:bg-slate-50 transition-colors">
-                  <td class="px-5 py-3 font-medium text-slate-700">
-                    {{ student.studentCode || '-' }}
-                  </td>
-                  <td class="px-5 py-3 font-bold text-indigo-700">
-                    {{ student.firstName }} {{ student.lastName }}
-                  </td>
-                  <td class="px-5 py-3 text-slate-600">{{ student.cin || '-' }}</td>
-                  <td class="px-5 py-3 text-slate-600">
-                    {{ student.birthDate | date: 'dd/MM/yyyy' }}
-                  </td>
-                  <td class="px-5 py-3 text-right">
-                    <button
-                      type="button"
-                      (click)="selectExistingStudent(student)"
-                      class="text-xs font-bold bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors"
-                    >
-                      Sélectionner
-                    </button>
-                  </td>
-                </tr>
-                }
+              @for (student of searchResults(); track student.id) {
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-5 py-3 font-medium text-slate-700">
+                  {{ student.studentCode || '-' }}
+                </td>
+                <td class="px-5 py-3 font-bold text-indigo-700">
+                  {{ student.firstName }} {{ student.lastName }}
+                </td>
+                <td class="px-5 py-3 text-slate-600">{{ student.cin || '-' }}</td>
+                <td class="px-5 py-3 text-slate-600">
+                  {{ student.birthDate | date: 'dd/MM/yyyy' }}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <button
+                    type="button"
+                    (click)="selectExistingStudent(student)"
+                    class="text-xs font-bold bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors"
+                  >
+                    Sélectionner
+                  </button>
+                </td>
+              </tr>
+              }
               </tbody>
             </table>
           </div>
@@ -227,7 +227,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Prénom (FR) <span class="text-rose-500">*</span></label
+              >Prénom (FR) <span class="text-rose-500">*</span></label
               >
               <input
                 type="text"
@@ -242,7 +242,7 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Nom (FR) <span class="text-rose-500">*</span></label
+              >Nom (FR) <span class="text-rose-500">*</span></label
               >
               <input
                 type="text"
@@ -258,7 +258,7 @@
             <div>
               <label
                 class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-right"
-                >Nom (AR)</label
+              >Nom (AR)</label
               >
               <input
                 type="text"
@@ -270,7 +270,7 @@
             <div>
               <label
                 class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-right"
-                >Prénom (AR)</label
+              >Prénom (AR)</label
               >
               <input
                 type="text"
@@ -280,9 +280,29 @@
               />
             </div>
 
+            <!-- GENDER ( MALE,FEMALE) -->
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >N° CIN / Passeport</label
+              >Genre <span class="text-rose-500">*</span></label
+              >
+              <select
+                formControlName="gender"
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all bg-white"
+                [ngClass]="{
+                  'border-rose-500 bg-rose-50':
+                    enrollmentForm.get('studentInfo.gender')?.invalid &&
+                    enrollmentForm.get('studentInfo.gender')?.touched
+                }"
+              >
+                <option value="" disabled selected>Sélectionner le genre...</option>
+                <option value="MALE">Masculin</option>
+                <option value="FEMALE">Féminin</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
+              >N° CIN / Passeport</label
               >
               <input
                 type="text"
@@ -292,18 +312,7 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Téléphone</label
-              >
-              <input
-                type="tel"
-                formControlName="phone"
-                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
-              />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Date de naissance <span class="text-rose-500">*</span></label
+              >Date de naissance <span class="text-rose-500">*</span></label
               >
               <input
                 type="date"
@@ -318,11 +327,21 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Lieu de naissance</label
+              >Lieu de naissance</label
               >
               <input
                 type="text"
                 formControlName="birthPlace"
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
+              >Téléphone</label
+              >
+              <input
+                type="tel"
+                formControlName="phone"
                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
               />
             </div>
@@ -331,7 +350,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
             <div class="sm:col-span-2">
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Email</label
+              >Email</label
               >
               <input
                 type="email"
@@ -341,7 +360,7 @@
             </div>
             <div class="sm:col-span-2">
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Adresse de Résidence</label
+              >Adresse de Résidence</label
               >
               <input
                 type="text"
@@ -352,7 +371,7 @@
 
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Résidence actuelle <span class="text-rose-500">*</span></label
+              >Résidence actuelle <span class="text-rose-500">*</span></label
               >
               <select
                 formControlName="residence"
@@ -366,7 +385,7 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Situation des parents</label
+              >Situation des parents</label
               >
               <select
                 formControlName="parentsSituation"
@@ -388,13 +407,13 @@
                   class="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
                 />
                 <span class="text-sm font-bold text-rose-900"
-                  >L'Apprenant souffre-t-il d'une maladie chronique ?</span
+                >L'Apprenant souffre-t-il d'une maladie chronique ?</span
                 >
               </label>
               @if (enrollmentForm.get('studentInfo.hasChronicDisease')?.value) {
               <div class="mt-4 animate-fade-in">
                 <label class="block text-xs font-bold text-rose-400 uppercase tracking-wider mb-2"
-                  >Description / Soins <span class="text-rose-500">*</span></label
+                >Description / Soins <span class="text-rose-500">*</span></label
                 >
                 <textarea
                   formControlName="diseaseDescription"
@@ -441,7 +460,7 @@
             <div>
               <span class="font-bold block">Apprenant sélectionné avec succès !</span>
               <span class="text-xs"
-                >{{ selectedStudent()?.firstName }} {{ selectedStudent()?.lastName }} (CIN:
+              >{{ selectedStudent()?.firstName }} {{ selectedStudent()?.lastName }} (CIN:
                 {{ selectedStudent()?.cin || 'N/A' }})</span
               >
             </div>
@@ -458,7 +477,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div class="sm:col-span-2">
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Niveau / Type <span class="text-rose-500">*</span></label
+              >Niveau / Type <span class="text-rose-500">*</span></label
               >
               <select
                 formControlName="levelId"
@@ -473,7 +492,7 @@
 
             <div class="sm:col-span-2">
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Spécialité <span class="text-rose-500">*</span></label
+              >Spécialité <span class="text-rose-500">*</span></label
               >
               <select
                 formControlName="trainingId"
@@ -492,14 +511,15 @@
                 @for (spec of specialities(); track spec.id) {
                 <option [value]="spec.id">{{
                   spec.specialtyLabel || spec.name || spec.label
-                }}</option>
+                  }}
+                </option>
                 }
               </select>
             </div>
 
             <div class="sm:col-span-2">
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-                >Promotion d'affectation <span class="text-rose-500">*</span></label
+              >Promotion d'affectation <span class="text-rose-500">*</span></label
               >
               <select
                 formControlName="promotionId"
@@ -628,7 +648,7 @@
                       class="px-3 py-2 hover:bg-slate-50 flex justify-between items-center text-sm transition-colors"
                     >
                       <span class="font-medium text-slate-700"
-                        >{{ p.firstName }} {{ p.lastName }}</span
+                      >{{ p.firstName }} {{ p.lastName }}</span
                       >
                       <button
                         type="button"
@@ -655,7 +675,7 @@
                     <div class="sm:col-span-2 flex justify-between items-center mb-2">
                       <span
                         class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded"
-                        >{{
+                      >{{
                           otherMode() === 'SELECTED' ? 'Tuteur Sélectionné' : 'Nouveau Tuteur'
                         }}</span
                       >
@@ -799,7 +819,7 @@
                       class="px-3 py-2 hover:bg-slate-50 flex justify-between items-center text-sm transition-colors"
                     >
                       <span class="font-medium text-slate-700"
-                        >{{ p.firstName }} {{ p.lastName }}</span
+                      >{{ p.firstName }} {{ p.lastName }}</span
                       >
                       <button
                         type="button"
@@ -863,7 +883,7 @@
                     <div class="flex justify-between items-center mb-2">
                       <span
                         class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded"
-                        >Nouveau Père</span
+                      >Nouveau Père</span
                       >
                       <button
                         type="button"
@@ -983,7 +1003,7 @@
                       class="px-3 py-2 hover:bg-slate-50 flex justify-between items-center text-sm transition-colors"
                     >
                       <span class="font-medium text-slate-700"
-                        >{{ p.firstName }} {{ p.lastName }}</span
+                      >{{ p.firstName }} {{ p.lastName }}</span
                       >
                       <button
                         type="button"
@@ -1047,7 +1067,7 @@
                     <div class="flex justify-between items-center mb-2">
                       <span
                         class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded"
-                        >Nouvelle Mère</span
+                      >Nouvelle Mère</span
                       >
                       <button
                         type="button"
@@ -1165,8 +1185,8 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <path d="M18 6 6 18" />
-                    <path d="m6 6 12 12" />
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
                   </svg>
                 </button>
               </div>
@@ -1202,7 +1222,7 @@
             >
               Identité & Contact Apprenant
             </h4>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div>
                 <span class="block text-[10px] text-slate-400 uppercase">Nom & Prénom</span>
                 <span class="font-bold text-slate-800 text-sm">
@@ -1212,6 +1232,24 @@
                       : enrollmentForm.value.studentInfo?.firstName +
                         ' ' +
                         enrollmentForm.value.studentInfo?.lastName
+                  }}
+                </span>
+              </div>
+              <div>
+                <span class="block text-[10px] text-slate-400 uppercase">Genre</span>
+                <span class="font-medium text-slate-700 text-sm">
+                  {{
+                    enrollmentMode() === 'EXISTING'
+                      ? selectedStudent()?.gender === 'FEMALE'
+                        ? 'Féminin'
+                        : selectedStudent()?.gender === 'MALE'
+                        ? 'Masculin'
+                        : 'N/A'
+                      : enrollmentForm.value.studentInfo?.gender === 'FEMALE'
+                      ? 'Féminin'
+                      : enrollmentForm.value.studentInfo?.gender === 'MALE'
+                      ? 'Masculin'
+                      : 'N/A'
                   }}
                 </span>
               </div>
@@ -1266,7 +1304,7 @@
               </div>
               <div>
                 <span class="block text-[10px] text-indigo-400 uppercase font-bold"
-                  >Spécialité</span
+                >Spécialité</span
                 >
                 <span class="font-bold text-indigo-900 text-sm">{{
                   getTrainingLabel(enrollmentForm.value.trainingId)
@@ -1290,7 +1328,7 @@
               Famille & Tuteurs
               <span
                 class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold"
-                >Tuteur Légal :
+              >Tuteur Légal :
                 {{ getGuardianLabel(enrollmentForm.value.studentInfo?.legalGuardianRole) }}</span
               >
             </h4>
@@ -1299,7 +1337,7 @@
               @if (isFatherEnabled()) {
               <div class="p-3 border border-slate-100 rounded-xl bg-slate-50">
                 <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1"
-                  >Le Père</span
+                >Le Père</span
                 >
                 <p class="text-sm font-bold text-slate-700">
                   {{ fatherForm.value.firstName }} {{ fatherForm.value.lastName }}
@@ -1311,7 +1349,7 @@
               } @if (isMotherEnabled()) {
               <div class="p-3 border border-slate-100 rounded-xl bg-slate-50">
                 <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1"
-                  >La Mère</span
+                >La Mère</span
                 >
                 <p class="text-sm font-bold text-slate-700">
                   {{ motherForm.value.firstName }} {{ motherForm.value.lastName }}
@@ -1323,7 +1361,7 @@
               } @if (enrollmentForm.value.studentInfo?.legalGuardianRole === 'OTHER') {
               <div class="p-3 border border-slate-100 rounded-xl bg-slate-50 md:col-span-2">
                 <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1"
-                  >Autre Tuteur ({{ otherForm.value.relation }})</span
+                >Autre Tuteur ({{ otherForm.value.relation }})</span
                 >
                 <p class="text-sm font-bold text-slate-700">
                   {{ otherForm.value.firstName }} {{ otherForm.value.lastName }}
@@ -1349,7 +1387,7 @@
               @for (sib of studentSiblingsArray.value; track $index) {
               <li class="text-sm text-slate-600">
                 <span class="font-medium text-slate-800">{{ sib.fullName }}</span> ({{
-                  sib.age
+                sib.age
                 }}
                 ans) - {{ sib.schoolOrWorkplace || 'N/A' }}
               </li>
@@ -1393,7 +1431,7 @@
               >
                 <p class="font-bold text-slate-700 text-sm">{{ doc.quantity }}x {{ doc.label }}</p>
                 <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" formControlName="provided" class="sr-only peer" />
+                  <input type="checkbox" formControlName="provided" class="sr-only peer"/>
                   <div
                     class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"
                   ></div>
@@ -1406,7 +1444,7 @@
           <!-- OBSERVATION -->
           <div>
             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2"
-              >Observation (Optionnel)</label
+            >Observation (Optionnel)</label
             >
             <textarea
               formControlName="observation"
@@ -1570,6 +1608,7 @@
       transform: translateY(0) scale(1);
     }
   }
+
   .animate-fade-in-up {
     animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }

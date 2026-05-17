@@ -17,6 +17,15 @@ export interface ParentRequest {
     email?: string;
     phone?: string;
     cin?: string;
+    gender?: ParentRequest.GenderEnum;
     profession?: string;
 }
+export namespace ParentRequest {
+    export const GenderEnum = {
+        Male: 'MALE',
+        Female: 'FEMALE'
+    } as const;
+    export type GenderEnum = typeof GenderEnum[keyof typeof GenderEnum];
+}
+
 

@@ -48,7 +48,7 @@ public class UserService {
 
     // Assign default role
     user.setRole(request.getRole());
-
+    user.setStatus(UserStatus.PENDING);
     // Link the Person (Student, Parent, etc.) if an ID is provided
     if (request.getPersonId() != null) {
       Person person =

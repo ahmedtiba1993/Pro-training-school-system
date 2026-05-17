@@ -203,12 +203,15 @@
       </div>
     </div>
 
-    <!-- USERS   -->
+    <!-- ===================================== -->
+    <!-- USERS -->
+    <!-- ===================================== -->
     <div>
       <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
         Utilisateurs
       </p>
       <div class="space-y-1">
+        <!-- Students / Apprentices -->
         <a
           routerLink="/admin/students"
           routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
@@ -219,6 +222,58 @@
           </svg>
           <span>Liste des Apprentis</span>
         </a>
+
+        <!-- Professors Dropdown -->
+        <div>
+          <button
+            (click)="toggleProfessors()"
+            [class.bg-indigo-50]="isProfessorsMenuOpen()"
+            [class.text-indigo-700]="isProfessorsMenuOpen()"
+            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900 focus:outline-none"
+          >
+            <div class="flex items-center space-x-3">
+              <svg class="w-5 h-5" stroke-width="1.5">
+                <use href="menu-icons.svg#menu-users"></use>
+              </svg>
+              <span [class.font-medium]="isProfessorsMenuOpen()">Enseignants</span>
+            </div>
+            <svg
+              [class.rotate-180]="isProfessorsMenuOpen()"
+              class="w-4 h-4 transition-transform duration-200"
+              stroke-width="2"
+            >
+              <use href="menu-icons.svg#menu-chevron-down"></use>
+            </svg>
+          </button>
+
+          @if (isProfessorsMenuOpen()) {
+          <div class="mt-1 mb-2 space-y-1 pl-11 pr-2">
+            <a
+              routerLink="/admin/teachers"
+              [routerLinkActiveOptions]="{ exact: true }"
+              routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
+              class="flex items-center px-4 py-2 text-sm rounded-lg transition-all text-slate-500 hover:text-slate-900 hover:bg-slate-50 relative"
+            >
+              <span
+                class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
+                routerLinkActive="bg-indigo-600"
+              ></span>
+              Les Enseignants
+            </a>
+            <a
+              routerLink="/admin/teacher-specialties"
+              routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
+              class="flex items-center px-4 py-2 text-sm rounded-lg transition-all text-slate-500 hover:text-slate-900 hover:bg-slate-50 relative"
+            >
+              <span
+                class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
+                routerLinkActive="bg-indigo-600"
+              ></span>
+              Spécialités
+            </a>
+          </div>
+          }
+        </div>
       </div>
     </div>
 
@@ -267,7 +322,7 @@
     </div>
 
     <!-- ===================================== -->
-    <!-- ADMINISTRATION         -->
+    <!-- ADMINISTRATION -->
     <!-- ===================================== -->
     <div>
       <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">
@@ -280,16 +335,18 @@
           class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
         >
           <svg
-            class="w-5 h-5"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
+              d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
             />
           </svg>
           <span>Comptes Utilisateurs</span>

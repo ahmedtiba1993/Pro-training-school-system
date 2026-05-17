@@ -1,0 +1,747 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+  <!-- Header -->
+  <header
+    class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+  >
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Corps Professoral</h1>
+      <p class="text-xs text-slate-500">
+        Annuaire de tous les enseignants, vacataires et formateurs experts
+      </p>
+    </div>
+    <div class="flex items-center gap-3 w-full sm:w-auto">
+      <button
+        (click)="openModal()"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm w-full sm:w-auto justify-center"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+          />
+        </svg>
+        Nouveau Formateur
+      </button>
+    </div>
+  </header>
+
+  <!-- Scrollable Area -->
+  <div class="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50/50 relative">
+    <!-- Quick Statistics -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div
+        class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4"
+      >
+        <div
+          class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Professeurs Actifs
+          </p>
+          @if (isActiveCountLoading()) {
+          <div class="h-8 w-16 bg-slate-200 rounded mt-1 animate-pulse"></div>
+          } @else {
+          <p class="text-2xl font-bold text-slate-800">{{ activeTeachersCount() }}</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div
+      class="bg-white rounded-t-2xl border border-slate-200 border-b-0 p-5 shadow-sm"
+      [formGroup]="filterForm"
+    >
+      <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+        <div class="relative w-full lg:w-96">
+          <svg
+            class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            type="text"
+            formControlName="keyword"
+            (keyup.enter)="onSearch()"
+            placeholder="Rechercher par nom, matricule..."
+            class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+          />
+        </div>
+        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+          <select
+            formControlName="specialtyId"
+            class="px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-600 font-medium bg-slate-50"
+          >
+            <option value="">Toutes les Spécialités</option>
+            @for(spec of specialties(); track spec.id) {
+            <option [value]="spec.id">{{ spec.label }}</option>
+            }
+          </select>
+          <select
+            formControlName="contractType"
+            class="px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-600 font-medium bg-slate-50"
+          >
+            <option value="">Type de Contrat</option>
+            <option value="CDI">CDI (Permanent)</option>
+            <option value="CDD">CDD</option>
+            <option value="FREELANCE">Freelance / Vacataire</option>
+            <option value="GUEST">Invité</option>
+          </select>
+          <select
+            formControlName="status"
+            class="px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-600 font-medium bg-slate-50"
+          >
+            <option value="">Tous les Statuts</option>
+            <option value="ACTIVE">Actif</option>
+            <option value="ONBOARDING">En intégration</option>
+            <option value="ON_LEAVE">En congé</option>
+            <option value="SUSPENDED">Suspendu</option>
+            <option value="DEPARTED">Parti</option>
+          </select>
+          <button
+            (click)="onSearch()"
+            class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center gap-2"
+          >
+            Rechercher
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trainers Table -->
+    <div class="bg-white rounded-b-2xl border border-slate-200 shadow-sm overflow-hidden relative">
+      @if (isLoading()) {
+      <div
+        class="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center"
+      >
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+      }
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+          <thead
+            class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
+          >
+          <tr>
+            <th class="px-6 py-4">Formateur</th>
+            <th class="px-6 py-4">Spécialité(s)</th>
+            <th class="px-6 py-4">Contrat</th>
+            <th class="px-6 py-4">Statut</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+          @for (teacher of teachers(); track teacher.id) {
+          <tr class="hover:bg-slate-50/50 transition-colors group">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold border border-indigo-200"
+                >
+                  {{ teacher.firstName?.charAt(0) }}{{ teacher.lastName?.charAt(0) }}
+                </div>
+                <div>
+                  <p class="font-bold text-slate-800">
+                    {{ teacher.firstName }} {{ teacher.lastName }}
+                  </p>
+                  <div class="flex items-center gap-2 mt-0.5 text-[10px] text-slate-500">
+                      <span
+                      >Matricule:
+                        <span class="font-semibold text-slate-700">{{ teacher.code }}</span></span
+                      >
+                    <span>•</span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                          />
+                        </svg>
+                        {{ teacher.phone }}
+                      </span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex flex-wrap gap-1.5 max-w-[200px]">
+                @for (spec of teacher.specialties; track spec.id) {
+                <span
+                  class="px-2 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-bold"
+                >{{ spec.label }}</span
+                >
+                } @if (teacher.specialties?.size === 0) {
+                <span class="text-slate-400 italic text-xs">Aucune</span>
+                }
+              </div>
+            </td>
+            <td class="px-6 py-4">
+                <span class="font-semibold text-slate-700">{{
+                  getContractLabel(teacher.contractType)
+                }}</span>
+            </td>
+            <td class="px-6 py-4">
+              @let statusConf = getStatusConfig(teacher.status!);
+              <span
+                class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 w-max border {{
+                    statusConf.classes
+                  }}"
+              >
+                  <svg
+                    class="w-3 h-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      [attr.d]="statusConf.icon"
+                    />
+                  </svg>
+                  {{ statusConf.label }}
+                </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div
+                class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <button
+                  (click)="openDetailsModal(teacher.id!)"
+                  class="p-1.5 text-slate-400 hover:text-indigo-600 bg-white border border-transparent hover:border-slate-200 rounded-lg transition-all"
+                  title="Voir le profil"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  (click)="openStatusModal(teacher)"
+                  class="p-1.5 text-slate-400 hover:text-amber-500 bg-white border border-transparent hover:border-slate-200 rounded-lg transition-all"
+                  title="Changer le statut"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          } @if (!isLoading() && teachers().length === 0) {
+          <tr>
+            <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+              Aucun formateur trouvé.
+            </td>
+          </tr>
+          }
+          </tbody>
+        </table>
+        <!-- Pagination -->
+        <app-pagination
+          [currentPage]="currentPage()"
+          [total]="totalElements()"
+          [limit]="pageSize()"
+          (changePage)="onPageChange($event)"
+        ></app-pagination>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ========================================== -->
+<!-- CREATION MODAL -->
+<!-- ========================================== -->
+@if (isModalOpen()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" (click)="closeModal()"></div>
+  <div
+    class="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-full"
+  >
+    <div
+      class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50"
+    >
+      <h2 class="text-lg font-bold text-slate-800">Nouveau Formateur</h2>
+      <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <form
+      [formGroup]="createForm"
+      (ngSubmit)="submitCreate()"
+      class="flex flex-col flex-1 overflow-y-auto"
+    >
+      <!-- ERROR BANNER -->
+      @if (errorMessage()) {
+      <div class="px-6 pt-6 pb-2">
+        <div class="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+          <svg
+            class="w-5 h-5 text-red-500 shrink-0 mt-0.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <div class="flex-1">
+            <h3 class="text-sm font-bold text-red-800">Opération impossible</h3>
+            <p class="text-xs text-red-600 mt-1">{{ errorMessage() }}</p>
+          </div>
+        </div>
+      </div>
+      }
+
+      <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Prénom</label>
+          <input
+            type="text"
+            formControlName="firstName"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nom</label>
+          <input
+            type="text"
+            formControlName="lastName"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email</label>
+          <input
+            type="email"
+            formControlName="email"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Téléphone</label>
+          <input
+            type="text"
+            formControlName="phone"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1"
+          >CIN / Passeport</label
+          >
+          <input
+            type="text"
+            formControlName="cin"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Sexe</label>
+          <select
+            formControlName="gender"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500"
+          >
+            <option value="MALE">Homme</option>
+            <option value="FEMALE">Femme</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Type Contrat</label>
+          <select
+            formControlName="contractType"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500"
+          >
+            <option value="CDI">CDI</option>
+            <option value="CDD">CDD</option>
+            <option value="FREELANCE">Freelance</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1"
+          >Date d'embauche</label
+          >
+          <input
+            type="date"
+            formControlName="hireDate"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500"
+          />
+        </div>
+
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1"
+          >Niveau d'étude</label
+          >
+          <select
+            formControlName="degree"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500"
+          >
+            <option value="BACHELOR">Licence (Bac+3)</option>
+            <option value="FOUR_YEAR_BACHELOR">Maîtrise (Bac+4)</option>
+            <option value="MASTER">Master (Bac+5)</option>
+            <option value="ENGINEERING_DEGREE">Diplôme d'Ingénieur</option>
+            <option value="DOCTORATE">Doctorat</option>
+          </select>
+        </div>
+
+        <!-- Specialties (Checkboxes) -->
+        <div class="col-span-1 md:col-span-2 mt-2">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-3"
+          >Spécialités de l'enseignant</label
+          >
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-48 overflow-y-auto p-1"
+          >
+            @for(spec of specialties(); track spec.id) {
+            <label
+              class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors shadow-sm"
+              [class.bg-indigo-50]="isSpecialtySelected(spec.id!)"
+              [class.border-indigo-200]="isSpecialtySelected(spec.id!)"
+              [class.bg-white]="!isSpecialtySelected(spec.id!)"
+              [class.border-slate-200]="!isSpecialtySelected(spec.id!)"
+            >
+              <input
+                type="checkbox"
+                [checked]="isSpecialtySelected(spec.id!)"
+                (change)="toggleSpecialty(spec.id!, $event)"
+                class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+              />
+              <div class="flex flex-col">
+                <span class="text-sm font-bold text-slate-800">{{ spec.label }}</span>
+                <span class="text-[10px] text-slate-400 font-semibold uppercase">{{
+                  spec.code
+                }}</span>
+              </div>
+            </label>
+            } @if (specialties().length === 0) {
+            <div class="col-span-full text-sm text-slate-500 py-4 text-center">
+              Aucune spécialité disponible.
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 shrink-0 mt-auto"
+      >
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="createForm.invalid || isSubmitting()"
+          class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-5 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center gap-2"
+        >
+          @if (isSubmitting()) {
+          <svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          } Enregistrer le formateur
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}
+
+<!-- ========================================== -->
+<!-- PROFESSOR DETAILS MODAL -->
+<!-- ========================================== -->
+@if (isDetailsModalOpen()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div
+    class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+    (click)="closeDetailsModal()"
+  ></div>
+  <div
+    class="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]"
+  >
+    <div
+      class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50"
+    >
+      <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+        <svg
+          class="w-5 h-5 text-indigo-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"
+          />
+        </svg>
+        Dossier du Formateur
+      </h2>
+      <button
+        (click)="closeDetailsModal()"
+        class="text-slate-400 hover:text-slate-600 transition-colors"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 overflow-y-auto">
+      @if (isDetailsLoading()) {
+      <div class="flex justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+      } @else if (selectedTeacher()) { @let teacher = selectedTeacher()!;
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Personal Info -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 border-b pb-2">
+            Informations Personnelles
+          </h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between border-b border-dashed border-slate-100 pb-2">
+              <span class="text-slate-500">Nom Complet</span>
+              <span class="font-bold text-slate-800"
+              >{{ teacher.firstName }} {{ teacher.lastName }}</span
+              >
+            </div>
+            <div class="flex justify-between border-b border-dashed border-slate-100 pb-2">
+              <span class="text-slate-500">Nom (Arabe)</span>
+              <span class="font-bold text-slate-800" dir="rtl"
+              >{{ teacher.firstNameAr }} {{ teacher.lastNameAr }}</span
+              >
+            </div>
+            <div class="flex justify-between border-b border-dashed border-slate-100 pb-2">
+              <span class="text-slate-500">CIN / Passeport</span>
+              <span class="font-medium text-slate-700">{{ teacher.cin }}</span>
+            </div>
+            <div class="flex justify-between border-b border-dashed border-slate-100 pb-2">
+              <span class="text-slate-500">Sexe</span>
+              <span class="font-medium text-slate-700">{{
+                teacher.gender === 'MALE' ? 'Homme' : 'Femme'
+              }}</span>
+            </div>
+            <div class="flex justify-between border-b border-dashed border-slate-100 pb-2">
+              <span class="text-slate-500">Email</span>
+              <span class="font-medium text-indigo-600">{{ teacher.email }}</span>
+            </div>
+            <div class="flex justify-between pb-2">
+              <span class="text-slate-500">Téléphone</span>
+              <span class="font-medium text-slate-700">{{ teacher.phone }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Info -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 border-b pb-2">
+            Profil Professionnel
+          </h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between border-b border-dashed border-slate-100 pb-2">
+              <span class="text-slate-500">Matricule</span>
+              <span class="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">{{
+                teacher.code
+              }}</span>
+            </div>
+            <div class="flex justify-between border-b border-dashed border-slate-100 pb-2">
+              <span class="text-slate-500">Contrat</span>
+              <span class="font-medium text-slate-700">{{
+                getContractLabel(teacher.contractType)
+              }}</span>
+            </div>
+            <div class="flex justify-between border-b border-dashed border-slate-100 pb-2">
+              <span class="text-slate-500">Niveau d'étude</span>
+              <span class="font-medium text-slate-700">{{ getDegreeLabel(teacher.degree) }}</span>
+            </div>
+            <div class="flex justify-between border-b border-dashed border-slate-100 pb-2">
+              <span class="text-slate-500">Date d'embauche</span>
+              <span class="font-medium text-slate-700">{{
+                teacher.hireDate | date: 'dd/MM/yyyy'
+              }}</span>
+            </div>
+            <div class="flex justify-between pb-2">
+              <span class="text-slate-500">Statut actuel</span>
+              @let sConf = getStatusConfig(teacher.status!);
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded {{ sConf.classes }} uppercase">
+                {{ sConf.label }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Specialties -->
+      <div class="mt-6 pt-4 border-t border-slate-100">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
+          Spécialités Enseignées
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          @for (spec of teacher.specialties; track spec.id) {
+          <div
+            class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2"
+          >
+            <span class="text-xs font-bold text-slate-700">{{ spec.label }}</span>
+            <span
+              class="text-[10px] text-slate-400 bg-white border border-slate-100 px-1 rounded"
+            >{{ spec.code }}</span
+            >
+          </div>
+          } @if (teacher.specialties?.size === 0) {
+          <span class="text-sm text-slate-400 italic">Aucune spécialité attribuée.</span>
+          }
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+}
+
+<!-- ========================================== -->
+<!-- STATUS MODIFICATION MODAL -->
+<!-- ========================================== -->
+@if (isStatusModalOpen()) {
+<div class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" (click)="closeStatusModal()"></div>
+  <div
+    class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden flex flex-col p-6"
+  >
+    <div class="flex items-center gap-3 mb-4">
+      <div
+        class="w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center shrink-0"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          />
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold text-slate-800">Changer le statut</h2>
+        <p class="text-xs text-slate-500">Mettez à jour la situation du formateur</p>
+      </div>
+    </div>
+
+    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Nouveau statut</label>
+    <select
+      [formControl]="statusControl"
+      class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all mb-6"
+    >
+      <option value="ONBOARDING">En intégration</option>
+      <option value="ACTIVE">Actif</option>
+      <option value="ON_LEAVE">En congé</option>
+      <option value="SUSPENDED">Suspendu</option>
+      <option value="DEPARTED">Parti</option>
+    </select>
+
+    <div class="flex items-center justify-end gap-3">
+      <button
+        (click)="closeStatusModal()"
+        class="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800"
+      >
+        Annuler
+      </button>
+      <button
+        (click)="submitStatus()"
+        [disabled]="isSubmitting() || statusControl.invalid"
+        class="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white px-5 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center gap-2"
+      >
+        @if (isSubmitting()) {
+        <svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        } Confirmer
+      </button>
+    </div>
+  </div>
+</div>
+}

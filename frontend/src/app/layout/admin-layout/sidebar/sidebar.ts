@@ -9,14 +9,16 @@ import {AuthService} from '../../../core/auth/auth.service';
   templateUrl: './sidebar.html'
 })
 export class Sidebar {
-  // Rétabli comme dans ton code d'origine
   private router = inject(Router);
   public authService = inject(AuthService);
 
-  // Using Signals for menu state
+  // Menu state managed
   isAnneeScolaireOpen = signal<boolean>(false);
   isPromotionsMenuOpen = signal<boolean>(false);
   isSpecialtiesMenuOpen = signal<boolean>(false);
+
+  // Signal for the professors menu
+  isProfessorsMenuOpen = signal<boolean>(false);
 
   togglePromotions(): void {
     this.isPromotionsMenuOpen.update(state => !state);
@@ -28,5 +30,10 @@ export class Sidebar {
 
   toggleAnneeScolaire(): void {
     this.isAnneeScolaireOpen.update(state => !state);
+  }
+
+  // the professors menu
+  toggleProfessors(): void {
+    this.isProfessorsMenuOpen.update(state => !state);
   }
 }

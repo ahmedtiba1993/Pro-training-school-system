@@ -1,5 +1,6 @@
 package com.tiba.pts.modules.profiles.dto.request;
 
+import com.tiba.pts.modules.profiles.domain.enums.Gender;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -17,4 +18,5 @@ public abstract class PersonRequest {
   private String email;
   private String phone;
   private String cin;
+  private Gender gender;
 }
