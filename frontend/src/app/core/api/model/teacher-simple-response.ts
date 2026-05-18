@@ -14,5 +14,6 @@ export interface TeacherSimpleResponse {
     firstName?: string;
     lastName?: string;
     phone?: string;
+    code?: string;
 }
 

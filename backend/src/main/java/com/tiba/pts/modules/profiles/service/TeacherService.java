@@ -178,6 +178,53 @@ public class TeacherService {
     return savedTeacher.getId();
   }
 
+  @Transactional
+  public Long updateTeacher(Long id, TeacherRequest request) {
+    // Retrieve the existing teacher
+    Teacher teacher =
+        teacherRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("TEACHER_NOT_FOUND"));
+
+    // Duplication check (Email, CIN and Phone) EXCLUDING the current ID
+    if (request.getEmail() != null
+        && !request.getEmail().isBlank()
+        && personRepository.existsByEmailAndIdNot(request.getEmail(), id)) {
+      throw new EntityAlreadyExistsException("EMAIL_ALREADY_EXISTS");
+    }
+
+    if (request.getCin() != null
+        && !request.getCin().isBlank()
+        && personRepository.existsByCinAndIdNot(request.getCin(), id)) {
+      throw new EntityAlreadyExistsException("CIN_ALREADY_EXISTS");
+    }
+
+    if (request.getPhone() != null
+        && !request.getPhone().isBlank()
+        && personRepository.existsByPhoneAndIdNot(request.getPhone(), id)) {
+      throw new EntityAlreadyExistsException("PHONE_NUMBER_ALREADY_EXISTS");
+    }
+
+    // Update basic fields via MapStruct
+    teacherMapper.updateEntityFromRequest(request, teacher);
+
+    // Update specialties
+    if (request.getSpecialtyIds() != null && !request.getSpecialtyIds().isEmpty()) {
+      Set<RefTeacherSpecialty> specialties =
+          specialtyRepository.findByIdIn(request.getSpecialtyIds());
+      if (specialties.size() != request.getSpecialtyIds().size()) {
+        throw new ResourceNotFoundException("ONE_OR_MORE_SPECIALTIES_NOT_FOUND");
+      }
+      teacher.setSpecialties(specialties);
+    } else {
+      teacher.getSpecialties().clear();
+    }
+
+    // Save
+    Teacher updatedTeacher = teacherRepository.save(teacher);
+    return updatedTeacher.getId();
+  }
+
   /**
    * Private business method to generate the trainer's code. Example return: PROF2026001,
    * PROF2026002...

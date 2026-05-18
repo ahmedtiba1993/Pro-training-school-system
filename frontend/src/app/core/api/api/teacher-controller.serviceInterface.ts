@@ -62,6 +62,15 @@ export interface TeacherControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint put /api/v1/teachers/{id}
+     * @param id 
+     * @param teacherRequest 
+     */
+    updateTeacher(id: number, teacherRequest: TeacherRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
      * @endpoint put /api/v1/teachers/{id}/status
      * @param id 
      * @param status 

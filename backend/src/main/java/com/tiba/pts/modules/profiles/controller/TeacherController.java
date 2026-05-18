@@ -1,7 +1,7 @@
 package com.tiba.pts.modules.profiles.controller;
 
 import com.tiba.pts.core.dto.ApiResponse;
-import com.tiba.pts.core.dto.PageResponse; // <-- L'import de ton DTO
+import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.modules.profiles.domain.enums.TeacherStatus;
 import com.tiba.pts.modules.profiles.dto.request.TeacherFiltreRequest;
 import com.tiba.pts.modules.profiles.dto.request.TeacherRequest;
@@ -71,5 +71,15 @@ public class TeacherController {
 
     Long updatedId = teacherService.updateTeacherStatus(id, status);
     return ResponseEntity.ok(ApiResponse.success("TEACHER_STATUS_UPDATED_SUCCESSFULLY", updatedId));
+  }
+
+  @PutMapping("/{id}")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<Long>> updateTeacher(
+      @PathVariable Long id, @Valid @RequestBody TeacherRequest request) {
+
+    Long updatedId = teacherService.updateTeacher(id, request);
+
+    return ResponseEntity.ok(ApiResponse.success("TEACHER_UPDATED_SUCCESSFULLY", updatedId));
   }
 }

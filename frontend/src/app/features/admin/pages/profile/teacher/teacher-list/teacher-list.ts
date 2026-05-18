@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal, computed} from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -6,18 +6,14 @@ import {
   Validators,
   FormControl
 } from '@angular/forms';
-import {DatePipe} from '@angular/common';
+import { DatePipe } from '@angular/common';
 
-import {TeacherControllerService} from '../../../../../../core/api/api/teacher-controller.service';
-import {
-  RefTeacherSpecialtyControllerService
-} from '../../../../../../core/api/api/ref-teacher-specialty-controller.service';
-import {TeacherResponse} from '../../../../../../core/api/model/teacher-response';
-import {
-  RefTeacherSpecialtySimpleResponse
-} from '../../../../../../core/api/model/ref-teacher-specialty-simple-response';
-import {TeacherRequest} from '../../../../../../core/api/model/teacher-request';
-import {PaginationComponent} from '../../../../../../shared/components/pagination/pagination';
+import { TeacherControllerService } from '../../../../../../core/api/api/teacher-controller.service';
+import { RefTeacherSpecialtyControllerService } from '../../../../../../core/api/api/ref-teacher-specialty-controller.service';
+import { TeacherResponse } from '../../../../../../core/api/model/teacher-response';
+import { RefTeacherSpecialtySimpleResponse } from '../../../../../../core/api/model/ref-teacher-specialty-simple-response';
+import { TeacherRequest } from '../../../../../../core/api/model/teacher-request';
+import { PaginationComponent } from '../../../../../../shared/components/pagination/pagination';
 
 @Component({
   selector: 'app-teacher-list',
@@ -31,7 +27,7 @@ export class TeacherList implements OnInit {
   private specialtyService = inject(RefTeacherSpecialtyControllerService);
   private fb = inject(FormBuilder);
 
-  // === GLOBAL STATE  ===
+  // === GLOBAL STATE ===
   teachers = signal<TeacherResponse[]>([]);
   specialties = signal<RefTeacherSpecialtySimpleResponse[]>([]);
   activeTeachersCount = signal<number>(0);
@@ -39,15 +35,17 @@ export class TeacherList implements OnInit {
   // === PAGINATION & LOADING ===
   isLoading = signal<boolean>(false);
   isActiveCountLoading = signal<boolean>(true);
-  // --- PAGINATION ---
   currentPage = signal<number>(0);
-  pageSize = signal<number>(5);
+  pageSize = signal<number>(15);
   totalElements = signal<number>(0);
 
   // === MODAL STATE ===
   isModalOpen = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
+
+  // Signal pour différencier Création (null) et Édition (ID du prof)
+  editingTeacherId = signal<number | null>(null);
 
   isDetailsModalOpen = signal<boolean>(false);
   isDetailsLoading = signal<boolean>(false);
@@ -80,7 +78,7 @@ export class TeacherList implements OnInit {
       status: ['ONBOARDING', Validators.required],
       hireDate: ['', Validators.required],
       degree: ['ENGINEERING_DEGREE', Validators.required],
-      specialtyIds: [[], Validators.required] // Array for checkboxes
+      specialtyIds: [[], Validators.required]
     });
 
     this.statusControl = this.fb.control('', Validators.required);
@@ -133,7 +131,7 @@ export class TeacherList implements OnInit {
         next: (res: any) => {
           const pageData = res.data;
           this.teachers.set(pageData.content || []);
-          this.totalElements.set(pageData?.data?.totalElements || 0);
+          this.totalElements.set(res?.data?.totalElements || 0);
           this.isLoading.set(false);
         },
         error: () => this.isLoading.set(false)
@@ -145,9 +143,10 @@ export class TeacherList implements OnInit {
     this.loadTeachers();
   }
 
-  // === CREATION MODAL & ERRORS MANAGEMENT ===
+  // === MODAL MANAGEMENT (CREATE & EDIT) ===
   openModal(): void {
     this.errorMessage.set(null);
+    this.editingTeacherId.set(null); // Mode Création
     this.createForm.reset({
       gender: 'MALE',
       contractType: 'CDI',
@@ -158,9 +157,47 @@ export class TeacherList implements OnInit {
     this.isModalOpen.set(true);
   }
 
+  openEditModal(teacher: TeacherResponse): void {
+    this.errorMessage.set(null);
+    this.editingTeacherId.set(teacher.id!); // Mode Édition
+
+    // Formatage de la date pour l'input type="date" (YYYY-MM-DD)
+    let formattedDate = '';
+    if (teacher.hireDate) {
+      formattedDate = new Date(teacher.hireDate).toISOString().split('T')[0];
+    }
+
+    // Gestion sécurisée de Set vs Array pour extraire les IDs
+    let specIds: number[] = [];
+    if (teacher.specialties) {
+      if (Array.isArray(teacher.specialties)) {
+        specIds = teacher.specialties.map(s => s.id!);
+      } else {
+        specIds = Array.from(teacher.specialties).map(s => s.id!);
+      }
+    }
+
+    this.createForm.patchValue({
+      firstName: teacher.firstName,
+      lastName: teacher.lastName,
+      email: teacher.email,
+      phone: teacher.phone,
+      cin: teacher.cin,
+      gender: teacher.gender,
+      contractType: teacher.contractType,
+      status: teacher.status,
+      hireDate: formattedDate,
+      degree: teacher.degree,
+      specialtyIds: specIds
+    });
+
+    this.isModalOpen.set(true);
+  }
+
   closeModal(): void {
     this.errorMessage.set(null);
     this.isModalOpen.set(false);
+    this.editingTeacherId.set(null);
   }
 
   private handleBackendError(err: any): void {
@@ -185,23 +222,38 @@ export class TeacherList implements OnInit {
     }
   }
 
-  submitCreate(): void {
+  // Gère l'ajout et la modification
+  submitTeacher(): void {
     if (this.createForm.invalid) return;
 
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
     const request: TeacherRequest = this.createForm.value;
+    const currentId = this.editingTeacherId();
 
-    this.teacherService.createTeacher(request).subscribe({
-      next: () => {
-        this.isSubmitting.set(false);
-        this.closeModal();
-        this.loadTeachers();
-        this.loadActiveCount();
-      },
-      error: err => this.handleBackendError(err)
-    });
+    if (currentId) {
+      // Mode Édition
+      this.teacherService.updateTeacher(currentId, request).subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.closeModal();
+          this.loadTeachers();
+        },
+        error: err => this.handleBackendError(err)
+      });
+    } else {
+      // Mode Création
+      this.teacherService.createTeacher(request).subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.closeModal();
+          this.loadTeachers();
+          this.loadActiveCount();
+        },
+        error: err => this.handleBackendError(err)
+      });
+    }
   }
 
   isSpecialtySelected(id: number): boolean {
@@ -213,7 +265,7 @@ export class TeacherList implements OnInit {
     const isChecked = (event.target as HTMLInputElement).checked;
     const currentSpecialties = (this.createForm.get('specialtyIds')?.value as number[]) || [];
     if (isChecked) {
-      this.createForm.patchValue({specialtyIds: [...currentSpecialties, id]});
+      this.createForm.patchValue({ specialtyIds: [...currentSpecialties, id] });
     } else {
       this.createForm.patchValue({
         specialtyIds: currentSpecialties.filter(specId => specId !== id)
@@ -301,7 +353,7 @@ export class TeacherList implements OnInit {
           'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'
       }
     };
-    return configs[status] || {label: status, classes: 'bg-slate-100 text-slate-700', icon: ''};
+    return configs[status] || { label: status, classes: 'bg-slate-100 text-slate-700', icon: '' };
   }
 
   getDegreeLabel(degree: string | undefined | null): string {

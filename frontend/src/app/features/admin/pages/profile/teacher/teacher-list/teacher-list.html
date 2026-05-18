@@ -197,7 +197,8 @@
                   class="px-2 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-bold"
                 >{{ spec.label }}</span
                 >
-                } @if (teacher.specialties?.size === 0) {
+                } @if (!teacher.specialties || teacher.specialties.size === 0 ||
+                teacher.specialties.size === 0) {
                 <span class="text-slate-400 italic text-xs">Aucune</span>
                 }
               </div>
@@ -234,6 +235,28 @@
               <div
                 class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
               >
+                <!-- BUTTON EDIT -->
+                <button
+                  (click)="openEditModal(teacher)"
+                  class="p-1.5 text-slate-400 hover:text-blue-600 bg-white border border-transparent hover:border-slate-200 rounded-lg transition-all"
+                  title="Modifier le profil"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>
+                </button>
+
+                <!-- BUTTON : DETAILS -->
                 <button
                   (click)="openDetailsModal(teacher.id!)"
                   class="p-1.5 text-slate-400 hover:text-indigo-600 bg-white border border-transparent hover:border-slate-200 rounded-lg transition-all"
@@ -258,6 +281,8 @@
                     />
                   </svg>
                 </button>
+
+                <!-- BUTTON : CHANGE STATUS -->
                 <button
                   (click)="openStatusModal(teacher)"
                   class="p-1.5 text-slate-400 hover:text-amber-500 bg-white border border-transparent hover:border-slate-200 rounded-lg transition-all"
@@ -302,7 +327,7 @@
 </main>
 
 <!-- ========================================== -->
-<!-- CREATION MODAL -->
+<!-- CREATION / EDITION MODAL -->
 <!-- ========================================== -->
 @if (isModalOpen()) {
 <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -313,7 +338,9 @@
     <div
       class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50"
     >
-      <h2 class="text-lg font-bold text-slate-800">Nouveau Formateur</h2>
+      <h2 class="text-lg font-bold text-slate-800">
+        {{ editingTeacherId() ? 'Modifier le Formateur' : 'Nouveau Formateur' }}
+      </h2>
       <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -323,7 +350,7 @@
 
     <form
       [formGroup]="createForm"
-      (ngSubmit)="submitCreate()"
+      (ngSubmit)="submitTeacher()"
       class="flex flex-col flex-1 overflow-y-auto"
     >
       <!-- ERROR BANNER -->
@@ -511,7 +538,8 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          } Enregistrer le formateur
+          }
+          {{ editingTeacherId() ? 'Mettre à jour' : 'Enregistrer le formateur' }}
         </button>
       </div>
     </form>
@@ -661,7 +689,8 @@
             >{{ spec.code }}</span
             >
           </div>
-          } @if (teacher.specialties?.size === 0) {
+          } @if (!teacher.specialties || teacher.specialties.size === 0 || teacher.specialties.size
+          === 0) {
           <span class="text-sm text-slate-400 italic">Aucune spécialité attribuée.</span>
           }
         </div>
