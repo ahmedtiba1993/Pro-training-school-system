@@ -40,4 +40,8 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
 
   List<Training> findAllByStatusAndLevelIdAndTrainingType(
       TrainingStatus status, Long levelId, TrainingType type);
+
+  List<Training> findAllByLevelId(Long levelId);
+
+  List<Training> findAllByLevelIdAndStatusIn(Long levelId, List<TrainingStatus> statuses);
 }

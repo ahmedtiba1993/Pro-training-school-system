@@ -48,3 +48,6 @@ jwt:
 app:
   cors:
     allowed-origins: http://localhost:4200
+  storage:
+    upload-dir: D:/uploads
+    subjects-dir: subjects/

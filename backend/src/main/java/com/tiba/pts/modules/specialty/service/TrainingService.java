@@ -167,6 +167,22 @@ public class TrainingService {
     return trainingRepository.save(training).getId();
   }
 
+  public List<TrainingResponse> getTrainingsByLevelAndStatuses(
+      Long levelId, List<TrainingStatus> statuses) {
+    if (!levelRepository.existsById(levelId)) {
+      throw new ResourceNotFoundException("LEVEL_NOT_FOUND");
+    }
+
+    List<Training> trainings;
+    if (statuses == null || statuses.isEmpty()) {
+      trainings = trainingRepository.findAllByLevelId(levelId);
+    } else {
+      trainings = trainingRepository.findAllByLevelIdAndStatusIn(levelId, statuses);
+    }
+
+    return trainings.stream().map(trainingMapper::toResponse).toList();
+  }
+
   // ==========================================
   // PRIVATE METHODS
   // ==========================================

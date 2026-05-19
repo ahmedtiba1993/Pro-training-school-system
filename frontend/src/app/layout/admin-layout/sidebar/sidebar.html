@@ -22,7 +22,7 @@
   <!-- NAVIGATION MENU -->
   <nav class="px-4 py-4 flex-1 space-y-6 overflow-y-auto">
     <!-- ===================================== -->
-    <!-- GENERAL -->
+    <!-- 1. GENERAL -->
     <!-- ===================================== -->
     <div class="space-y-1">
       <a
@@ -38,17 +38,118 @@
     </div>
 
     <!-- ===================================== -->
-    <!-- ACADEMIC MANAGEMENT -->
+    <!-- REFERENTIAL (School Catalog) -->
     <!-- ===================================== -->
     <div>
       <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-        Gestion Académique
+        Catalogue Pédagogique
+      </p>
+      <div class="space-y-1">
+        <!-- Study Level  -->
+        <a
+          routerLink="/admin/levels"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+          <span>Niveaux d'études</span>
+        </a>
+
+        <!-- Specialties  -->
+        <a
+          routerLink="/admin/specialties"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+            ></path>
+            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+          </svg>
+          <span>Spécialités</span>
+        </a>
+
+        <!-- Subjects & Modules  -->
+        <a
+          routerLink="/admin/modules"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+          <span>Matières & Modules</span>
+        </a>
+
+        <!-- Trainings -->
+        <a
+          routerLink="/admin/training"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span>Formations (Catalogue)</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ===================================== -->
+    <!-- PLANNING  -->
+    <!-- ===================================== -->
+    <div>
+      <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+        Planification Académique
       </p>
       <div class="space-y-1">
         <a
           routerLink="/admin/academic-years"
           routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50"
         >
           <svg class="w-5 h-5" stroke-width="1.5">
             <use href="menu-icons.svg#menu-academic"></use>
@@ -59,37 +160,27 @@
         <a
           routerLink="/admin/holidays"
           routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50"
         >
           <svg class="w-5 h-5" stroke-width="2">
             <use href="menu-icons.svg#menu-holiday"></use>
           </svg>
-          <span>Vacances</span>
+          <span>Vacances & Jours Fériés</span>
         </a>
-      </div>
-    </div>
 
-    <!-- ===================================== -->
-    <!-- TRAINING OFFER -->
-    <!-- ===================================== -->
-    <div>
-      <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-        Offre de Formation
-      </p>
-      <div class="space-y-1">
-        <!-- Promotions Dropdown -->
+        <!-- PROMOTIONS DROPDOWN -->
         <div>
           <button
             (click)="togglePromotions()"
             [class.bg-indigo-50]="isPromotionsMenuOpen()"
             [class.text-indigo-700]="isPromotionsMenuOpen()"
-            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900 focus:outline-none"
+            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 focus:outline-none"
           >
             <div class="flex items-center space-x-3">
               <svg class="w-5 h-5" stroke-width="1.5">
                 <use href="menu-icons.svg#menu-promotions"></use>
               </svg>
-              <span [class.font-medium]="isPromotionsMenuOpen()">Promotions</span>
+              <span [class.font-medium]="isPromotionsMenuOpen()">Promotions (Classes)</span>
             </div>
             <svg
               [class.rotate-180]="isPromotionsMenuOpen()"
@@ -110,8 +201,8 @@
               <span
                 class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
                 routerLinkActive="bg-indigo-600"
-              ></span>
-              Formation homologuée
+              ></span
+              >Homologuées
             </a>
             <a
               routerLink="/admin/promotions/continuous"
@@ -121,8 +212,8 @@
               <span
                 class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
                 routerLinkActive="bg-indigo-600"
-              ></span>
-              Formation continue
+              ></span
+              >Continues
             </a>
             <a
               routerLink="/admin/promotions/accelerated"
@@ -132,70 +223,8 @@
               <span
                 class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
                 routerLinkActive="bg-indigo-600"
-              ></span>
-              Formation accélérée
-            </a>
-          </div>
-          }
-        </div>
-
-        <!-- Specialties Dropdown -->
-        <div>
-          <button
-            (click)="toggleSpecialties()"
-            [class.bg-indigo-50]="isSpecialtiesMenuOpen()"
-            [class.text-indigo-700]="isSpecialtiesMenuOpen()"
-            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900 focus:outline-none"
-          >
-            <div class="flex items-center space-x-3">
-              <svg class="w-5 h-5" stroke-width="1.5">
-                <use href="menu-icons.svg#menu-specialties"></use>
-              </svg>
-              <span [class.font-medium]="isSpecialtiesMenuOpen()">Spécialités</span>
-            </div>
-            <svg
-              [class.rotate-180]="isSpecialtiesMenuOpen()"
-              class="w-4 h-4 transition-transform duration-200"
-              stroke-width="2"
-            >
-              <use href="menu-icons.svg#menu-chevron-down"></use>
-            </svg>
-          </button>
-
-          @if (isSpecialtiesMenuOpen()) {
-          <div class="mt-1 mb-2 space-y-1 pl-11 pr-2">
-            <a
-              routerLink="/admin/levels"
-              routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
-              class="flex items-center px-4 py-2 text-sm rounded-lg transition-all text-slate-500 hover:text-slate-900 hover:bg-slate-50 relative"
-            >
-              <span
-                class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
-                routerLinkActive="bg-indigo-600"
-              ></span>
-              Niveau de diplôme
-            </a>
-            <a
-              routerLink="/admin/specialties"
-              routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
-              class="flex items-center px-4 py-2 text-sm rounded-lg transition-all text-slate-500 hover:text-slate-900 hover:bg-slate-50 relative"
-            >
-              <span
-                class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
-                routerLinkActive="bg-indigo-600"
-              ></span>
-              Spécialités
-            </a>
-            <a
-              routerLink="/admin/training"
-              routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
-              class="flex items-center px-4 py-2 text-sm rounded-lg transition-all text-slate-500 hover:text-slate-900 hover:bg-slate-50 relative"
-            >
-              <span
-                class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
-                routerLinkActive="bg-indigo-600"
-              ></span>
-              Formation
+              ></span
+              >Accélérées
             </a>
           </div>
           }
@@ -204,135 +233,117 @@
     </div>
 
     <!-- ===================================== -->
-    <!-- USERS -->
+    <!-- ADMISSIONS & SCHOOLING -->
     <!-- ===================================== -->
     <div>
-      <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-        Utilisateurs
-      </p>
-      <div class="space-y-1">
-        <!-- Students / Apprentices -->
-        <a
-          routerLink="/admin/students"
-          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-        >
-          <svg class="w-5 h-5" stroke-width="1.5">
-            <use href="menu-icons.svg#menu-users"></use>
-          </svg>
-          <span>Liste des Apprentis</span>
-        </a>
-
-        <!-- Professors Dropdown -->
-        <div>
-          <button
-            (click)="toggleProfessors()"
-            [class.bg-indigo-50]="isProfessorsMenuOpen()"
-            [class.text-indigo-700]="isProfessorsMenuOpen()"
-            class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900 focus:outline-none"
-          >
-            <div class="flex items-center space-x-3">
-              <svg class="w-5 h-5" stroke-width="1.5">
-                <use href="menu-icons.svg#menu-users"></use>
-              </svg>
-              <span [class.font-medium]="isProfessorsMenuOpen()">Enseignants</span>
-            </div>
-            <svg
-              [class.rotate-180]="isProfessorsMenuOpen()"
-              class="w-4 h-4 transition-transform duration-200"
-              stroke-width="2"
-            >
-              <use href="menu-icons.svg#menu-chevron-down"></use>
-            </svg>
-          </button>
-
-          @if (isProfessorsMenuOpen()) {
-          <div class="mt-1 mb-2 space-y-1 pl-11 pr-2">
-            <a
-              routerLink="/admin/teachers"
-              [routerLinkActiveOptions]="{ exact: true }"
-              routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
-              class="flex items-center px-4 py-2 text-sm rounded-lg transition-all text-slate-500 hover:text-slate-900 hover:bg-slate-50 relative"
-            >
-              <span
-                class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
-                routerLinkActive="bg-indigo-600"
-              ></span>
-              Les Enseignants
-            </a>
-            <a
-              routerLink="/admin/teacher-specialties"
-              routerLinkActive="text-indigo-700 bg-indigo-50/50 font-medium"
-              class="flex items-center px-4 py-2 text-sm rounded-lg transition-all text-slate-500 hover:text-slate-900 hover:bg-slate-50 relative"
-            >
-              <span
-                class="absolute left-0 w-1.5 h-1.5 rounded-full bg-slate-300"
-                routerLinkActive="bg-indigo-600"
-              ></span>
-              Spécialités
-            </a>
-          </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- ===================================== -->
-    <!-- ADMISSIONS & ENROLLMENTS -->
-    <!-- ===================================== -->
-    <div>
-      <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-        Admissions
+      <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">
+        Scolarité & Admissions
       </p>
       <div class="space-y-1">
         <a
           routerLink="/admin/enrollments/new"
           routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50"
         >
           <svg class="w-5 h-5" stroke-width="2">
             <use href="menu-icons.svg#menu-user-add"></use>
           </svg>
-          <span>Nouvelle Inscription</span>
+          <span class="font-bold text-indigo-600">Nouvelle Inscription</span>
+
         </a>
 
         <a
           routerLink="/admin/enrollments"
           [routerLinkActiveOptions]="{ exact: true }"
           routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-        >
-          <svg class="w-5 h-5" stroke-width="1.5">
-            <use href="menu-icons.svg#menu-users"></use>
-          </svg>
-          <span>Liste des inscriptions</span>
-        </a>
-
-        <a
-          routerLink="/admin/enrollment-documents"
-          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50"
         >
           <svg class="w-5 h-5" stroke-width="1.5">
             <use href="menu-icons.svg#menu-folder"></use>
           </svg>
-          <span>Pièces à fournir</span>
+          <span>Dossiers d'inscriptions</span>
+        </a>
+
+        <a
+          routerLink="/admin/students"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50"
+        >
+          <svg class="w-5 h-5" stroke-width="1.5">
+            <use href="menu-icons.svg#menu-users"></use>
+          </svg>
+          <span>Liste des Apprentis</span>
         </a>
       </div>
     </div>
 
     <!-- ===================================== -->
-    <!-- ADMINISTRATION -->
+    <!-- HUMAN RESOURCES (Teachers) -->
     <!-- ===================================== -->
     <div>
       <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">
-        Administration
+        Corps Enseignant
       </p>
       <div class="space-y-1">
         <a
-          routerLink="/admin/account"
+          routerLink="/admin/teachers"
           routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
           class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+        >
+          <svg class="w-5 h-5" stroke-width="1.5">
+            <use href="menu-icons.svg#menu-users"></use>
+          </svg>
+          <span>Liste des Enseignants</span>
+        </a>
+
+        <!-- Teacher Specialties -->
+        <a
+          routerLink="/admin/teacher-specialties"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="8" r="7"></circle>
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+          </svg>
+          <span>Spécialités Enseignants</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ===================================== -->
+    <!-- ADMINISTRATION & SETTINGS -->
+    <!-- ===================================== -->
+    <div>
+      <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">
+        Paramétrages
+      </p>
+      <div class="space-y-1">
+        <a
+          routerLink="/admin/enrollment-documents"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50"
+        >
+          <svg class="w-5 h-5" stroke-width="1.5">
+            <use href="menu-icons.svg#menu-folder"></use>
+          </svg>
+          <span>Règles Pièces Jointes</span>
+
+        </a>
+
+        <a
+          routerLink="/admin/account"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -349,7 +360,7 @@
               d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
             />
           </svg>
-          <span>Comptes Utilisateurs</span>
+          <span>Comptes (IAM)</span>
         </a>
       </div>
     </div>

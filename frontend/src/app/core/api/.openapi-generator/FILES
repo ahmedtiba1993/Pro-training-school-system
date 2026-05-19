@@ -35,6 +35,8 @@ api/specialty-controller.service.ts
 api/specialty-controller.serviceInterface.ts
 api/student-controller.service.ts
 api/student-controller.serviceInterface.ts
+api/subject-controller.service.ts
+api/subject-controller.serviceInterface.ts
 api/teacher-controller.service.ts
 api/teacher-controller.serviceInterface.ts
 api/training-controller.service.ts
@@ -82,6 +84,7 @@ model/api-response-list-ref-teacher-specialty-response.ts
 model/api-response-list-ref-teacher-specialty-simple-response.ts
 model/api-response-list-specialty-response.ts
 model/api-response-list-student-response.ts
+model/api-response-list-subject-response.ts
 model/api-response-list-teacher-simple-response.ts
 model/api-response-list-training-response.ts
 model/api-response-list-training-type-count-response.ts
@@ -99,6 +102,7 @@ model/api-response-period-response.ts
 model/api-response-promotion-statistics-response.ts
 model/api-response-ref-teacher-specialty-response.ts
 model/api-response-student-response.ts
+model/api-response-subject-response.ts
 model/api-response-teacher-response.ts
 model/api-response-void.ts
 model/auth-request.ts
@@ -158,6 +162,8 @@ model/student-sibling-info-request.ts
 model/student-sibling-request.ts
 model/student-sibling-response.ts
 model/student-summary-response.ts
+model/subject-request.ts
+model/subject-response.ts
 model/submitted-document-request.ts
 model/submitted-document-response.ts
 model/teacher-filtre-request.ts

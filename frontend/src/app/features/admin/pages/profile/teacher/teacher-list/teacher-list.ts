@@ -36,7 +36,7 @@ export class TeacherList implements OnInit {
   isLoading = signal<boolean>(false);
   isActiveCountLoading = signal<boolean>(true);
   currentPage = signal<number>(0);
-  pageSize = signal<number>(15);
+  pageSize = signal<number>(5);
   totalElements = signal<number>(0);
 
   // === MODAL STATE ===

@@ -93,4 +93,21 @@ public class TrainingController {
         ApiResponse.success("TRAINING_STATUS_UPDATED_SUCCESSFULLY", updatedId);
     return ResponseEntity.ok(response);
   }
+
+  @GetMapping("/level/{levelId}/ongoing")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<TrainingResponse>>> getOngoingTrainingsByLevel(
+      @PathVariable Long levelId) {
+
+    List<TrainingStatus> statusesToFetch =
+        List.of(TrainingStatus.DRAFT, TrainingStatus.ACTIVE, TrainingStatus.SUSPENDED);
+
+    List<TrainingResponse> data =
+        trainingService.getTrainingsByLevelAndStatuses(levelId, statusesToFetch);
+
+    ApiResponse<List<TrainingResponse>> response =
+        ApiResponse.success("TRAININGS_BY_LEVEL_RETRIEVED", data);
+
+    return ResponseEntity.ok(response);
+  }
 }

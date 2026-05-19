@@ -70,6 +70,14 @@ export interface TrainingControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/trainings/level/{levelId}/ongoing
+     * @param levelId 
+     */
+    getOngoingTrainingsByLevel(levelId: number, extraHttpRequestParams?: any): Observable<ApiResponseListTrainingResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint put /api/v1/trainings/{id}
      * @param id 
      * @param trainingRequest 
