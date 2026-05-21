@@ -5,13 +5,19 @@ import com.tiba.pts.core.exception.EntityAlreadyExistsException;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.core.service.FileStorageService;
 import com.tiba.pts.modules.specialty.domain.entity.Specialty;
+import com.tiba.pts.modules.specialty.domain.entity.Training;
 import com.tiba.pts.modules.specialty.repository.SpecialtyRepository;
+import com.tiba.pts.modules.specialty.repository.TrainingRepository;
 import com.tiba.pts.modules.subject.domain.entity.Subject;
 import com.tiba.pts.modules.subject.domain.enums.SubjectStatus;
 import com.tiba.pts.modules.subject.dto.request.SubjectRequest;
 import com.tiba.pts.modules.subject.dto.response.SubjectResponse;
+import com.tiba.pts.modules.subject.dto.response.SubjectShortResponse;
 import com.tiba.pts.modules.subject.mapper.SubjectMapper;
 import com.tiba.pts.modules.subject.repository.SubjectRepository;
+import com.tiba.pts.modules.trainingsession.domain.entity.Promotion;
+import com.tiba.pts.modules.trainingsession.repository.PromotionRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -26,9 +32,10 @@ import java.util.List;
 public class SubjectService {
 
   private final SubjectRepository subjectRepository;
-  private final SpecialtyRepository specialtyRepository;
+  private final PromotionRepository promotionRepository;
   private final SubjectMapper subjectMapper;
   private final FileStorageService fileStorageService;
+  private final TrainingRepository trainingRepository;
 
   @Value("${app.storage.subjects-dir}")
   private String subjectsDir;
@@ -39,13 +46,13 @@ public class SubjectService {
       throw new EntityAlreadyExistsException("SUBJECT_CODE_ALREADY_EXISTS");
     }
 
-    Specialty specialty =
-        specialtyRepository
-            .findById(request.getSpecialtyId())
-            .orElseThrow(() -> new ResourceNotFoundException("SPECIALTY_NOT_FOUND"));
+    Training training =
+        trainingRepository
+            .findById(request.getTrainingId())
+            .orElseThrow(() -> new ResourceNotFoundException("TRAINING_NOT_FOUND"));
 
     Subject subject = subjectMapper.toEntity(request);
-    subject.setSpecialty(specialty);
+    subject.setTraining(training);
     subject.setStatus(SubjectStatus.DRAFT);
 
     Subject savedSubject = subjectRepository.save(subject);
@@ -80,9 +87,9 @@ public class SubjectService {
     }
 
     // Prohibition to modify the attached specialty
-    if (request.getSpecialtyId() != null
-        && !subject.getSpecialty().getId().equals(request.getSpecialtyId())) {
-      throw new BusinessValidationException("SPECIALTY_CANNOT_BE_MODIFIED");
+    if (request.getTrainingId() != null
+        && !subject.getTraining().getId().equals(request.getTrainingId())) {
+      throw new BusinessValidationException("TRANING_CANNOT_BE_MODIFIED");
     }
 
     // Update only the allowed fields via the mapper
@@ -152,5 +159,25 @@ public class SubjectService {
 
     // We use the generic method from your FileStorageService
     return fileStorageService.loadFileAsResource(subject.getPdfFilePath());
+  }
+
+  /**
+   * Retrieves all subjects from the Pedagogical Catalogue eligible for a given promotion in short
+   * format (Record).
+   */
+  public List<SubjectShortResponse> getCatalogSubjectsShortByPromotion(Long promotionId) {
+    // Verification and loading of the promotion
+    Promotion promotion =
+        promotionRepository
+            .findById(promotionId)
+            .orElseThrow(() -> new EntityNotFoundException("PROMOTION_NOT_FOUND"));
+
+    // Retrieval of ACTIVE subjects from the corresponding training
+    List<Subject> subjects =
+        subjectRepository.findByTrainingIdAndStatus(
+            promotion.getTraining().getId(), SubjectStatus.ACTIVE);
+
+    // Mapping to the list of records
+    return subjectMapper.toShortResponseList(subjects);
   }
 }

@@ -4,7 +4,6 @@ import { Dashboard } from './pages/dashboard/dashboard';
 import { AcademicYearList } from './pages/academic-year/academic-year-list/academic-year-list';
 import { Level } from './pages/speciality/level/level';
 import { Specialty } from './pages/speciality/specialty/specialty';
-import { TrainingSession } from './pages/training-session/training-session';
 import { EnrollmentList } from './pages/enrollment/enrollment-list/enrollment-list';
 import { EnrollmentCreate } from './pages/enrollment/enrollment-create/enrollment-create';
 import { AcademicYearsPeriod } from './pages/academic-year/academic-years-period/academic-years-period';
@@ -21,6 +20,7 @@ import { AccountList } from './pages/account/account-list/account-list';
 import { TeacherSpecialties } from './pages/profile/teacher/teacher-specialties/teacher-specialties';
 import { TeacherList } from './pages/profile/teacher/teacher-list/teacher-list';
 import { SubjectList } from './pages/subjects/subject-list/subject-list';
+import { PromotionSubject } from './pages/training-session/promotion-subject/promotion-subject';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -33,7 +33,6 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'specialties', component: Specialty },
       { path: 'dashboard', component: Dashboard },
       { path: 'enrollment-documents', component: EnrollmentDocumentComponent },
-      { path: 'promotions', component: TrainingSession },
       { path: 'enrollments', component: EnrollmentList },
       { path: 'enrollments/new', component: EnrollmentCreate },
       { path: 'enrollments/details/:id', component: EnrollmentDetail },
@@ -47,7 +46,10 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'account', component: AccountList },
       { path: 'teacher-specialties', component: TeacherSpecialties },
       { path: 'teachers', component: TeacherList },
-      { path: 'modules', component: SubjectList }
+      { path: 'modules', component: SubjectList },
+      { path: 'promotions/accredited/:id/subjects', component: PromotionSubject },
+      { path: 'promotions/continuous/:id/subjects', component: PromotionSubject },
+      { path: 'promotions/accelerated/:id/subjects', component: PromotionSubject }
     ]
   }
 ];

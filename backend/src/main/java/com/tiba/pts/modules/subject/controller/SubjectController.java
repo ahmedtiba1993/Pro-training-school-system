@@ -5,6 +5,7 @@ import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.modules.subject.domain.enums.SubjectStatus;
 import com.tiba.pts.modules.subject.dto.request.SubjectRequest;
 import com.tiba.pts.modules.subject.dto.response.SubjectResponse;
+import com.tiba.pts.modules.subject.dto.response.SubjectShortResponse;
 import com.tiba.pts.modules.subject.service.SubjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -89,5 +90,19 @@ public class SubjectController {
         .header(
             HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
         .body(resource);
+  }
+
+  @GetMapping("/promotion/{promotionId}/catalog-subjects")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIAT', 'ROLE_FORMATEUR', 'ROLE_APPRENANT')")
+  public ResponseEntity<ApiResponse<List<SubjectShortResponse>>> getCatalogSubjectsByPromotionId(
+      @PathVariable Long promotionId) {
+
+    List<SubjectShortResponse> data =
+        subjectService.getCatalogSubjectsShortByPromotion(promotionId);
+
+    ApiResponse<List<SubjectShortResponse>> response =
+        ApiResponse.success("CATALOG_SUBJECTS_RETRIEVED_SUCCESSFULLY", data);
+
+    return ResponseEntity.ok(response);
   }
 }

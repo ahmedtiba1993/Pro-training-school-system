@@ -3,6 +3,7 @@ package com.tiba.pts.modules.subject.domain.entity;
 import com.tiba.pts.core.domain.BaseEntity;
 import com.tiba.pts.core.exception.BusinessValidationException;
 import com.tiba.pts.modules.specialty.domain.entity.Specialty;
+import com.tiba.pts.modules.specialty.domain.entity.Training;
 import com.tiba.pts.modules.subject.domain.enums.SubjectStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,8 +49,8 @@ public class Subject extends BaseEntity {
   private SubjectStatus status;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "specialty_id", nullable = false)
-  private Specialty specialty;
+  @JoinColumn(name = "training_id", nullable = false)
+  private Training training;
 
   @PrePersist
   @PreUpdate

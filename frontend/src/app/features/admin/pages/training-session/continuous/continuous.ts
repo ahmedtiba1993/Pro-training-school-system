@@ -1,13 +1,14 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {CommonModule, DatePipe, CurrencyPipe} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {PaginationComponent} from '../../../../../shared/components/pagination/pagination';
 import {
   ContinuousPromotionControllerService,
   ContinuousPromotionResponse,
   TrainingControllerService,
   TrainingResponse
 } from '../../../../../core/api';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-continuous',
@@ -21,6 +22,7 @@ export class Continuous implements OnInit {
   private continuousService = inject(ContinuousPromotionControllerService);
   private trainingService = inject(TrainingControllerService);
   private fb = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   // --- STATE : LIST ---
   sessions = signal<ContinuousPromotionResponse[]>([]);
@@ -96,7 +98,7 @@ export class Continuous implements OnInit {
           this.isLoading.set(false);
         },
         error: err => {
-          console.error('Erreur chargement des sessions continues', err);
+          console.error('Error loading continuous sessions', err);
           this.isLoading.set(false);
           this.sessions.set([]);
         }
@@ -118,11 +120,11 @@ export class Continuous implements OnInit {
     this.continuousService.getContinuousPromotionByStatus('IN_PROGRESS' as any, 4).subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
-          // L'API renvoie directement une List<> pour ce endpoint
+          // The API directly returns a List<> for this endpoint
           this.activeSessions.set(response.data);
         }
       },
-      error: err => console.error('Erreur chargement des sessions actives en vedette', err)
+      error: err => console.error('Error loading featured active sessions', err)
     });
   }
 
@@ -141,7 +143,7 @@ export class Continuous implements OnInit {
           this.isLoadingAllActive.set(false);
         },
         error: err => {
-          console.error('Erreur chargement de toutes les sessions actives', err);
+          console.error('Error loading all active sessions', err);
           this.isLoadingAllActive.set(false);
         }
       });
@@ -159,7 +161,7 @@ export class Continuous implements OnInit {
           this.activeTrainings.set(response.data);
         }
       },
-      error: err => console.error('Erreur chargement formations', err)
+      error: err => console.error('Error loading trainings', err)
     });
   }
 
@@ -250,7 +252,7 @@ export class Continuous implements OnInit {
             this.isSubmitting.set(false);
           },
           error: err => {
-            console.error('Erreur lors de la modification', err);
+            console.error('Error during modification', err);
             this.isSubmitting.set(false);
           }
         });
@@ -265,7 +267,7 @@ export class Continuous implements OnInit {
           this.isSubmitting.set(false);
         },
         error: err => {
-          console.error('Erreur lors de la création', err);
+          console.error('Error during creation', err);
           this.isSubmitting.set(false);
         }
       });
@@ -367,10 +369,16 @@ export class Continuous implements OnInit {
         this.loadActiveSessions();
       },
       error: err => {
-        console.error('Erreur changement statut', err);
+        console.error('Error changing status', err);
         this.isChangingStatus.set(false);
       }
     });
+  }
+
+
+  public navigateToSubjects(promotionId: number): void {
+    if (!promotionId) return;
+    this.router.navigate(['/admin/promotions/continuous', promotionId, 'subjects']);
   }
 
   // ==========================================
@@ -392,19 +400,19 @@ export class Continuous implements OnInit {
   getStatusConfig(status: string) {
     switch (status) {
       case 'DRAFT':
-        return { label: 'Brouillon', classes: 'bg-slate-100 text-slate-700 border-slate-200' };
+        return {label: 'Brouillon', classes: 'bg-slate-100 text-slate-700 border-slate-200'};
       case 'ENROLLMENT':
-        return { label: 'Inscriptions', classes: 'bg-sky-50 text-sky-700 border-sky-200' };
+        return {label: 'Inscriptions', classes: 'bg-sky-50 text-sky-700 border-sky-200'};
       case 'IN_PROGRESS':
-        return { label: 'En cours', classes: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+        return {label: 'En cours', classes: 'bg-indigo-50 text-indigo-700 border-indigo-200'};
       case 'EVALUATION':
-        return { label: 'Évaluation', classes: 'bg-amber-50 text-amber-700 border-amber-200' };
+        return {label: 'Évaluation', classes: 'bg-amber-50 text-amber-700 border-amber-200'};
       case 'COMPLETED':
-        return { label: 'Terminée', classes: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+        return {label: 'Terminée', classes: 'bg-emerald-50 text-emerald-700 border-emerald-200'};
       case 'CANCELLED':
-        return { label: 'Annulée', classes: 'bg-rose-50 text-rose-700 border-rose-200' };
+        return {label: 'Annulée', classes: 'bg-rose-50 text-rose-700 border-rose-200'};
       default:
-        return { label: status, classes: 'bg-gray-50 text-gray-700 border-gray-200' };
+        return {label: status, classes: 'bg-gray-50 text-gray-700 border-gray-200'};
     }
   }
 

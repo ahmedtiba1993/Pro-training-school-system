@@ -1,0 +1,663 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50/30">
+  <!-- HEADER -->
+  <header
+    class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sticky top-0 z-10"
+  >
+    <div class="flex items-center gap-4">
+      <a
+        [routerLink]="backRoute()"
+        class="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex items-center justify-center"
+        title="Retour aux promotions"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </a>
+      <div>
+        <h1 class="text-xl font-bold text-slate-800">Programme d'Études</h1>
+        <p class="text-xs text-slate-500">Planification des modules et volumes horaires</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- PAGE SCROLL AREA -->
+  <div class="flex-1 overflow-y-auto p-4 lg:p-8">
+    <!-- GLOBAL ERROR ALERT DISPLAY -->
+    @if (error()) {
+    <div
+      class="bg-rose-50 border border-rose-200 rounded-2xl p-5 mb-8 flex items-center gap-3 text-rose-700"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-5 h-5 shrink-0"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
+      </svg>
+      <p class="text-sm font-semibold">{{ error() }}</p>
+    </div>
+    }
+
+    <!-- COHORT CONTEXT BANNER (KPI) -->
+    @if (isStatsLoading()) {
+    <div
+      class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 animate-pulse"
+    >
+      <div class="flex items-center gap-4 w-full sm:w-auto">
+        <div class="w-12 h-12 bg-slate-200 rounded-xl shrink-0"></div>
+        <div class="space-y-2 flex-1">
+          <div class="h-4 bg-slate-200 rounded w-48"></div>
+          <div class="h-3 bg-slate-200 rounded w-32"></div>
+        </div>
+      </div>
+      <div class="h-10 bg-slate-200 rounded w-full lg:w-64"></div>
+    </div>
+    } @else if (stats(); as data) {
+    <div
+      class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 animate-in fade-in duration-200"
+    >
+      <div class="flex items-start gap-4">
+        <div
+          class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+            <line x1="4" y1="22" x2="4" y2="15"></line>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">{{ data.promotionName }}</h2>
+          <div
+            class="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-1 text-sm font-medium text-slate-500"
+          >
+            <span class="flex items-center gap-1.5">{{ data.trainingLabel }}</span>
+            <span class="hidden sm:inline text-slate-300">•</span>
+            <span>{{ data.academicYearLabel }}</span>
+            <span class="hidden sm:inline text-slate-300">•</span>
+            <span
+              class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded text-[10px] font-bold uppercase tracking-wider"
+            >
+              {{
+                data.promotionType === 'CONTINUOUS'
+                  ? 'Continue'
+                  : data.promotionType === 'ACCELERATED'
+                  ? 'Accélérée'
+                  : 'Classique'
+              }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="flex gap-4 w-full lg:w-auto justify-between sm:justify-start border-t lg:border-t-0 border-slate-100 pt-4 lg:pt-0"
+      >
+        <div class="text-center px-4 sm:border-r border-slate-200 flex-1 sm:flex-none">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+            Total Matières
+          </p>
+          <p class="text-xl font-bold text-slate-800">{{ data.totalSubjects }}</p>
+        </div>
+        <div class="text-center px-4 border-r border-slate-200 flex-1 sm:flex-none">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+            Total Coef
+          </p>
+          <p class="text-xl font-bold text-indigo-600">{{ data.totalCoefficient }}</p>
+        </div>
+        <div class="text-center px-4 flex-1 sm:flex-none">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+            Volume Global
+          </p>
+          <p class="text-xl font-bold text-slate-800">{{ data.globalHourlyVolume }}h</p>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- DISPLAY SEPARATION -->
+    <div class="space-y-8">
+      <!-- CASE 1: ACCREDITED STRUCTURE -> BY PERIOD -->
+      @if (isAccredited()) { @if (isPeriodsLoading()) {
+      <div
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 flex flex-col items-center justify-center gap-3"
+      >
+        <div
+          class="w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"
+        ></div>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider animate-pulse">
+          Chargement des périodes...
+        </p>
+      </div>
+      } @else { @for (period of periods(); track period.id!) {
+      <div
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-300"
+      >
+        <div
+          (click)="togglePeriod(period.id!)"
+          class="bg-slate-50 hover:bg-slate-100/70 border-b border-slate-100 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer select-none transition-colors"
+        >
+          <div class="flex items-center gap-4">
+            <div
+              class="text-slate-400 transition-transform duration-200 ease-in-out"
+              [class.rotate-180]="isPeriodExpanded(period.id!)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+            <div
+              class="w-10 h-10 bg-white border border-slate-200 text-indigo-600 rounded-xl flex items-center justify-center shadow-sm font-black text-sm uppercase tracking-wide"
+            >
+              P{{ period.orderIndex != null ? period.orderIndex + 1 : $index + 1 }}
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-800 text-base leading-tight">{{ period.label }}</h3>
+              <p class="text-[11px] text-slate-400 font-medium mt-0.5">
+                Période du {{ period.startDate | date: 'dd/MM/yyyy' }} au
+                {{ period.endDate | date: 'dd/MM/yyyy' }}
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 sm:w-auto" (click)="$event.stopPropagation()">
+            @if (!period.isLocked) {
+            <button
+              (click)="openAssignmentModal(period)"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-xl flex items-center gap-2 text-xs font-semibold transition-all shadow-sm w-max"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Affecter une matière
+            </button>
+            }
+          </div>
+        </div>
+
+        @if (isPeriodExpanded(period.id!)) {
+        <div class="animate-in fade-in slide-in-from-top-2 duration-200">
+          @if (isPeriodSubjectsLoading(period.id!)) {
+          <div class="p-8 flex items-center justify-center gap-2 bg-white">
+            <div
+              class="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"
+            ></div>
+            <span class="text-xs text-slate-400 font-medium uppercase tracking-wider"
+            >Récupération des matières...</span
+            >
+          </div>
+          } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+              <thead
+                class="bg-white border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px] tracking-widest"
+              >
+              <tr>
+                <th class="px-6 py-4">Matière / Module</th>
+                <th class="px-6 py-4 text-center">Coef</th>
+                <th class="px-6 py-4 text-center">Vol. Horaire</th>
+                <th class="px-6 py-4">Répartition</th>
+                <th class="px-6 py-4 text-right">Actions</th>
+              </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-50">
+              @for (subject of subjectsByPeriod()[period.id!]; track subject.id) {
+              <tr class="hover:bg-slate-50/70 transition-colors group">
+                <td class="px-6 py-4">
+                  <p class="font-bold text-slate-800">{{ subject.subjectName }}</p>
+                  <p
+                    class="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider"
+                  >
+                    ID_MOD-{{ subject.id }}
+                  </p>
+                </td>
+                <td class="px-6 py-4 text-center">
+                    <span
+                      class="font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-md border border-slate-200 text-xs"
+                    >{{ subject.coefficient }}</span
+                    >
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span class="font-bold text-slate-800">{{ subject.totalHours }}h</span>
+                </td>
+                <td class="px-6 py-4 text-xs font-medium text-slate-500">
+                    <span class="px-2 py-0.5 bg-slate-100 rounded text-slate-600"
+                    >Théorie: {{ subject.theoryHours }}h</span
+                    >
+                  <span class="ml-2 px-2 py-0.5 bg-indigo-50 rounded text-indigo-600"
+                  >TP: {{ subject.practicalHours }}h</span
+                  >
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div
+                    class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <button
+                      (click)="openDeleteModal(subject.id!, period.id!)"
+                      class="p-1.5 text-slate-400 hover:text-rose-500 bg-white border border-transparent hover:border-slate-200 rounded-lg transition-all"
+                      title="Retirer"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path
+                          d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                        ></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="5" class="px-6 py-8 text-center text-slate-400 font-medium text-xs">
+                  Aucune matière affectée.
+                </td>
+              </tr>
+              }
+              </tbody>
+            </table>
+          </div>
+          <div
+            class="bg-indigo-50/30 border-t border-indigo-100/60 p-4 flex items-center justify-between text-xs font-semibold"
+          >
+            <span class="text-indigo-900 font-bold">Total résumé pour {{ period.label }}</span>
+            <div class="flex gap-6 text-indigo-700">
+              <span
+              ><span class="text-[10px] text-indigo-400 font-medium uppercase tracking-wider mr-1"
+              >Coef</span
+              >{{ getPeriodCoefTotal(period.id!) }}</span
+              >
+              <span
+              ><span class="text-[10px] text-indigo-400 font-medium uppercase tracking-wider mr-1"
+              >Vol</span
+              >{{ getPeriodHoursTotal(period.id!) }}h</span
+              >
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+      } }
+      <!-- CASE 2: OTHER CONTINUOUS / ACCELERATED PATHS -> DIRECT GLOBAL LIST -->
+      } @else {
+      <div
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-300"
+      >
+        <div
+          class="p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50/60"
+        >
+          <div>
+            <h3 class="font-bold text-slate-800 text-base">Liste Globale des Matières</h3>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Plan d'études direct sans séparation temporelle par périodes.
+            </p>
+          </div>
+          <button
+            (click)="openAssignmentModal()"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold transition-all shadow-sm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Affecter une matière
+          </button>
+        </div>
+
+        @if (isFlatSubjectsLoading()) {
+        <div class="p-12 flex flex-col items-center justify-center gap-3">
+          <div
+            class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"
+          ></div>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider animate-pulse">
+            Chargement du plan d'études...
+          </p>
+        </div>
+        } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead
+              class="bg-white border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px] tracking-widest"
+            >
+            <tr>
+              <th class="px-6 py-4">Matière / Module</th>
+              <th class="px-6 py-4 text-center">Coef</th>
+              <th class="px-6 py-4 text-center">Vol. Horaire</th>
+              <th class="px-6 py-4">Répartition</th>
+              <th class="px-6 py-4 text-right">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+            @for (subject of flatSubjects(); track subject.id) {
+            <tr class="hover:bg-slate-50/70 transition-colors group">
+              <td class="px-6 py-4">
+                <p class="font-bold text-slate-800">{{ subject.subjectName }}</p>
+                <p
+                  class="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider"
+                >
+                  ID_MOD-{{ subject.id }}
+                </p>
+              </td>
+              <td class="px-6 py-4 text-center">
+                  <span
+                    class="font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-md border border-slate-200 text-xs"
+                  >{{ subject.coefficient }}</span
+                  >
+              </td>
+              <td class="px-6 py-4 text-center">
+                <span class="font-bold text-slate-800">{{ subject.totalHours }}h</span>
+              </td>
+              <td class="px-6 py-4 text-xs font-medium text-slate-500">
+                  <span class="px-2 py-0.5 bg-slate-100 rounded text-slate-600"
+                  >Théorie: {{ subject.theoryHours }}h</span
+                  >
+                <span class="ml-2 px-2 py-0.5 bg-indigo-50 rounded text-indigo-600"
+                >TP: {{ subject.practicalHours }}h</span
+                >
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div
+                  class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <button
+                    (click)="openDeleteModal(subject.id!)"
+                    class="p-1.5 text-slate-400 hover:text-rose-500 bg-white border border-transparent hover:border-slate-200 rounded-lg transition-all"
+                    title="Retirer"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      ></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center text-slate-400 font-medium text-xs">
+                Aucune matière rattachée à cette formation.
+              </td>
+            </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          class="bg-indigo-50/30 border-t border-indigo-100/60 p-5 flex items-center justify-between text-xs font-bold"
+        >
+          <span class="text-indigo-900">Totalisation du plan d'études</span>
+          <div class="flex gap-8 text-indigo-700">
+            <span
+            >Somme Coef:<span class="text-sm ml-1 text-indigo-900">{{
+                flatTotalCoef()
+              }}</span></span
+            >
+            <span
+            >Volume Cumulé:<span class="text-sm ml-1 text-indigo-900"
+            >{{ flatTotalHours() }}h</span
+            ></span
+            >
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- SUBJECT ASSIGNMENT MODAL -->
+  @if (isAssignmentModalOpen()) {
+  <div
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="fixed inset-0" (click)="closeAssignmentModal()"></div>
+    <div
+      class="relative bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all flex flex-col my-auto animate-in zoom-in-95 duration-200"
+    >
+      <div class="p-6 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
+        <div>
+          <h3 class="font-bold text-slate-800 text-lg">Affecter une Matière</h3>
+          <p class="text-xs text-indigo-600 font-bold mt-1">
+            @if (isAccredited()) { Au {{ selectedPeriodForAssignment()?.label }} } @else { Au
+            programme global } - {{ stats()?.promotionName }}
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="closeAssignmentModal()"
+          class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/xl"
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="assignmentForm" (ngSubmit)="onAssignmentSubmit()">
+        <div class="p-6 space-y-5">
+          <!-- Field: Subject -->
+          <div>
+            <label
+              class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-wider"
+            >Matière / Module <span class="text-rose-500">*</span></label
+            >
+            <div class="relative">
+              <select
+                formControlName="subjectId"
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white font-medium text-slate-700 transition-all disabled:bg-slate-50 disabled:text-slate-400"
+                [ngClass]="{
+                  'border-rose-400 bg-rose-50/30':
+                    assignmentForm.get('subjectId')?.invalid &&
+                    assignmentForm.get('subjectId')?.touched
+                }"
+                [attr.disabled]="isSubjectsLoading() || isSubmitting() ? true : null"
+              >
+                <option value="" disabled selected>{{
+                  isSubjectsLoading() ? 'Chargement des matières...' : 'Sélectionner une matière...'
+                  }}
+                </option>
+                @for (subject of availableSubjects(); track subject.id) {
+                <option [value]="subject.id">{{ subject.name }}</option>
+                }
+              </select>
+              @if (isSubjectsLoading()) {
+              <span
+                class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"
+              ></span>
+              }
+            </div>
+          </div>
+
+          <!-- Field: Coefficient -->
+          <div>
+            <label
+              class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-wider"
+            >Coefficient <span class="text-rose-500">*</span></label
+            >
+            <input
+              type="number"
+              formControlName="coefficient"
+              placeholder="Ex: 2"
+              min="1"
+              max="10"
+              [attr.disabled]="isSubmitting() ? true : null"
+              class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 disabled:bg-slate-50 disabled:text-slate-400"
+              [ngClass]="{
+                'border-rose-400 bg-rose-50/30':
+                  assignmentForm.get('coefficient')?.invalid &&
+                  assignmentForm.get('coefficient')?.touched
+              }"
+            />
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
+          <button
+            type="button"
+            (click)="closeAssignmentModal()"
+            [disabled]="isSubmitting()"
+            class="flex-1 py-2.5 text-sm font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all disabled:opacity-50"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            [disabled]="assignmentForm.invalid || isSubjectsLoading() || isSubmitting()"
+            class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold rounded-xl text-sm shadow-md transition-all flex items-center justify-center gap-2"
+          >
+            @if (isSubmitting()) {
+            <span
+              class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+            ></span
+            >Enregistrement... } @else { Confirmer l'affectation }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+
+  <!-- ============================================================== -->
+  <!-- DELETION CONFIRMATION MODAL (DANGER POPUP)                     -->
+  <!-- ============================================================== -->
+  @if (isDeleteModalOpen()) {
+  <div
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="fixed inset-0" (click)="closeDeleteModal()"></div>
+
+    <div
+      class="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform transition-all flex flex-col my-auto animate-in zoom-in-95 duration-200"
+    >
+      <div class="p-6 text-center">
+        <div
+          class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-rose-50 border border-rose-100 text-rose-600 mb-4"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800">Retirer la matière ?</h3>
+        <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+          Êtes-vous sûr de vouloir retirer cette matière de la promotion ? Les totaux d'heures et de
+          coefficients seront recalculés.
+        </p>
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
+        <button
+          type="button"
+          (click)="closeDeleteModal()"
+          [disabled]="isDeleting()"
+          class="flex-1 py-2.5 text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all disabled:opacity-50"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="onDeleteConfirm()"
+          [disabled]="isDeleting()"
+          class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          @if (isDeleting()) {
+          <span
+            class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"
+          ></span
+          >Retrait... } @else { Confirmer le retrait }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</main>

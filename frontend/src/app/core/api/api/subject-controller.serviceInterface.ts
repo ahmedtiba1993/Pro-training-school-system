@@ -12,6 +12,7 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { ApiResponseListSubjectResponse } from '../model/models';
+import { ApiResponseListSubjectShortResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ApiResponseSubjectResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
@@ -49,6 +50,14 @@ export interface SubjectControllerServiceInterface {
      * @endpoint get /api/v1/subjects
      */
     getAllSubjects(extraHttpRequestParams?: any): Observable<ApiResponseListSubjectResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/subjects/promotion/{promotionId}/catalog-subjects
+     * @param promotionId 
+     */
+    getCatalogSubjectsByPromotionId(promotionId: number, extraHttpRequestParams?: any): Observable<ApiResponseListSubjectShortResponse>;
 
     /**
      * 

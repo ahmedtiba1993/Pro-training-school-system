@@ -9,14 +9,9 @@
  */
 
 
-export interface SubjectRequest { 
-    code: string;
-    name: string;
-    description?: string;
-    theoryHours: number;
-    practicalHours: number;
+export interface SubjectShortResponse { 
+    id?: number;
+    name?: string;
     defaultCoefficient?: number;
-    pdfFilePath?: string;
-    trainingId: number;
 }
 

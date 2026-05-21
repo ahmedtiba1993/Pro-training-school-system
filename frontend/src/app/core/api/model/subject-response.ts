@@ -20,8 +20,8 @@ export interface SubjectResponse {
     defaultCoefficient?: number;
     pdfFilePath?: string;
     status?: SubjectResponse.StatusEnum;
-    specialtyId?: number;
-    specialtyLabel?: string;
+    trainingId?: number;
+    trainingLabel?: string;
 }
 export namespace SubjectResponse {
     export const StatusEnum = {

@@ -54,4 +54,14 @@ public class PeriodController {
     periodService.togglePeriodLock(id);
     return ResponseEntity.ok(ApiResponse.success("PERIOD_LOCK_STATUS_TOGGLED"));
   }
+
+  @GetMapping("/promotion/{promotionId}")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<PeriodResponse>>> getPeriodsByPromotionId(
+      @PathVariable Long promotionId) {
+    List<PeriodResponse> data = periodService.getPeriodsByPromotion(promotionId);
+    ApiResponse<List<PeriodResponse>> response =
+        ApiResponse.success("PERIODS_FOR_PROMOTION_RETRIEVED", data);
+    return ResponseEntity.ok(response);
+  }
 }

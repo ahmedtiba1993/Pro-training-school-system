@@ -48,12 +48,13 @@ export class SubjectList implements OnInit {
   private readonly trainingApiService = inject(TrainingControllerService);
   private readonly fb = inject(NonNullableFormBuilder);
 
+  // TOAST SERVICE INJECTION
   private readonly toastService = inject(ToastService);
 
   // --- ViewChild element for the hidden file input ---
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  // --- List & UI State ---
+  // --- State Signals ---
   public readonly subjects = signal<SubjectResponse[]>([]);
   public readonly isLoading = signal<boolean>(false);
 
@@ -87,15 +88,15 @@ export class SubjectList implements OnInit {
   public readonly availableTrainings = signal<TrainingResponse[]>([]);
   public readonly isTrainingsLoading = signal<boolean>(false);
 
-  // --- Reactive Form ---
+  // --- Reactive Form with strict validations ---
   public readonly subjectForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     code: ['', [Validators.required]],
-    levelId: [0],
-    specialtyId: [{value: 0, disabled: true}, [Validators.required, Validators.min(1)]],
+    levelId: [0, [Validators.required, Validators.min(1)]], // min(1) forces selection of a real level
+    trainingId: [{value: 0, disabled: true}, [Validators.required, Validators.min(1)]],
     defaultCoefficient: [1, [Validators.required, Validators.min(0.5)]],
-    theoryHours: [0, [Validators.required, Validators.min(0)]],
-    practicalHours: [0, [Validators.required, Validators.min(0)]]
+    theoryHours: [0, [Validators.required, Validators.min(1)]],
+    practicalHours: [0, [Validators.required, Validators.min(1)]]
   });
 
   // --- Computed States ---
@@ -118,25 +119,23 @@ export class SubjectList implements OnInit {
 
       let matchesSpecialty = true;
       if (targetSpecId > 0) {
-        matchesSpecialty = subject.specialtyId === targetSpecId;
+        matchesSpecialty = subject.trainingId === targetSpecId;
       } else if (targetLevelId > 0) {
-        const validSpecIds = currentFilterTrainings.map(t => t.specialtyId);
-        matchesSpecialty =
-          subject.specialtyId != null && validSpecIds.includes(subject.specialtyId);
+        const validSpecIds = currentFilterTrainings.map(t => t.id);
+        matchesSpecialty = subject.trainingId != null && validSpecIds.includes(subject.trainingId);
       }
       return matchesSearch && matchesSpecialty;
     });
   });
 
   constructor() {
+    // Cascade management on level modification
     this.subjectForm.controls.levelId.valueChanges.pipe(takeUntilDestroyed()).subscribe(levelId => {
-      // Only trigger the cascade if NOT in edit mode
       if (!this.isEditMode()) {
-        if (levelId && levelId > 0) this.fetchTrainingsByLevel(levelId);
-        else {
-          this.availableTrainings.set([]);
-          this.subjectForm.controls.specialtyId.setValue(0);
-          this.subjectForm.controls.specialtyId.disable();
+        if (levelId && levelId > 0) {
+          this.fetchTrainingsByLevel(levelId);
+        } else {
+          this.clearTrainingControl();
         }
       }
     });
@@ -147,7 +146,13 @@ export class SubjectList implements OnInit {
     this.fetchSubjectsFromApi();
   }
 
-  // --- Fetch API Calls ---
+  private clearTrainingControl(): void {
+    this.availableTrainings.set([]);
+    this.subjectForm.controls.trainingId.setValue(0);
+    this.subjectForm.controls.trainingId.disable();
+  }
+
+  // --- API Fetches ---
   public fetchSubjectsFromApi(): void {
     this.isLoading.set(true);
     this.subjectApiService
@@ -172,31 +177,28 @@ export class SubjectList implements OnInit {
 
   private fetchTrainingsByLevel(levelId: number): void {
     this.isTrainingsLoading.set(true);
-    this.subjectForm.controls.specialtyId.disable();
+    this.subjectForm.controls.trainingId.disable();
     this.trainingApiService
       .getOngoingTrainingsByLevel(levelId)
       .pipe(
         finalize(() => {
           this.isTrainingsLoading.set(false);
-          this.subjectForm.controls.specialtyId.enable();
+          this.subjectForm.controls.trainingId.enable();
         })
       )
       .subscribe({
         next: (res: any) => {
           this.availableTrainings.set(res.data || res || []);
-          this.subjectForm.controls.specialtyId.setValue(0);
+          this.subjectForm.controls.trainingId.setValue(0);
         },
         error: err => console.error('Error loading trainings:', err)
       });
   }
 
-  // ========================================================
-  // PDF FILE MANAGEMENT
-  // ========================================================
-
+  // --- PDF File Management ---
   public triggerFileUpload(subjectId: number): void {
     this.pendingUploadSubjectId.set(subjectId);
-    this.fileInput.nativeElement.click(); // Opens the file selection window
+    this.fileInput.nativeElement.click();
   }
 
   public onFileSelected(event: Event): void {
@@ -206,7 +208,6 @@ export class SubjectList implements OnInit {
     const file = input.files[0];
     const subjectId = this.pendingUploadSubjectId();
 
-    // MIME type check (must be a PDF)
     if (subjectId && file.type === 'application/pdf') {
       this.pdfActionState.set({id: subjectId, type: 'uploading'});
       this.subjectApiService
@@ -215,17 +216,15 @@ export class SubjectList implements OnInit {
           finalize(() => {
             this.pdfActionState.set(null);
             this.pendingUploadSubjectId.set(null);
-            input.value = ''; // Reset the input
+            input.value = '';
           })
         )
         .subscribe({
-          next: () => {
-            this.fetchSubjectsFromApi();
-          },
-          error: () => this.toastService.error("Error uploading the PDF file.")
+          next: () => this.fetchSubjectsFromApi(),
+          error: () => this.toastService.error("Erreur lors de l'envoi du fichier PDF.")
         });
     } else {
-      this.toastService.error('Please select a valid PDF file.');
+      this.toastService.error('Veuillez sélectionner un fichier PDF valide.');
       input.value = '';
       this.pendingUploadSubjectId.set(null);
     }
@@ -241,26 +240,25 @@ export class SubjectList implements OnInit {
           const url = window.URL.createObjectURL(blob);
           window.open(url, '_blank');
         },
-        error: () => this.toastService.error("Error opening the PDF.")
+        error: () => this.toastService.error("Erreur lors de l'ouverture du PDF.")
       });
   }
 
-  // ========================================================
-  // STATUS CHANGE
-  // ========================================================
-
+  // --- Status Changes ---
   public promptStatusChange(subjectId: number | undefined, newStatus: 'ACTIVE' | 'ARCHIVED'): void {
     if (subjectId) this.confirmModalState.set({isOpen: true, subjectId, newStatus});
   }
 
   public closeConfirmModal(): void {
-    if (!this.isUpdatingStatus())
+    if (!this.isUpdatingStatus()) {
       this.confirmModalState.set({isOpen: false, subjectId: null, newStatus: null});
+    }
   }
 
   public confirmStatusChange(): void {
     const state = this.confirmModalState();
     if (!state.subjectId || !state.newStatus) return;
+
     this.isUpdatingStatus.set(true);
     this.subjectApiService
       .changeSubjectStatus(state.subjectId, state.newStatus as any)
@@ -276,10 +274,7 @@ export class SubjectList implements OnInit {
       });
   }
 
-  // ========================================================
-  // FILTERS
-  // ========================================================
-
+  // --- UI Filters ---
   public onSearchChange(event: Event): void {
     this.searchTerm.set((event.target as HTMLInputElement).value);
   }
@@ -307,15 +302,14 @@ export class SubjectList implements OnInit {
     }
   }
 
-  // ========================================================
-  // FORM MODAL MANAGEMENT (CREATION AND EDITION)
-  // ========================================================
-
+  // --- Modal Form Actions ---
   public openCreateModal(): void {
     this.editingSubject.set(null);
     this.subjectForm.reset({
+      name: '',
+      code: '',
       levelId: 0,
-      specialtyId: 0,
+      trainingId: 0,
       defaultCoefficient: 1,
       theoryHours: 0,
       practicalHours: 0
@@ -323,7 +317,7 @@ export class SubjectList implements OnInit {
 
     this.subjectForm.controls.code.enable();
     this.subjectForm.controls.levelId.enable();
-    this.subjectForm.controls.specialtyId.disable();
+    this.subjectForm.controls.trainingId.disable();
 
     this.availableTrainings.set([]);
     this.modalErrorMessage.set(null);
@@ -336,15 +330,17 @@ export class SubjectList implements OnInit {
     this.subjectForm.patchValue({
       name: subject.name,
       code: subject.code,
-      specialtyId: subject.specialtyId,
+      trainingId: subject.trainingId,
       defaultCoefficient: subject.defaultCoefficient,
       theoryHours: subject.theoryHours,
       practicalHours: subject.practicalHours
     });
 
+    // In edit mode, levelId is not necessarily tracked directly if the API doesn't return it,
+    // but we disable structural selections according to your original business logic
     this.subjectForm.controls.code.disable();
     this.subjectForm.controls.levelId.disable();
-    this.subjectForm.controls.specialtyId.disable();
+    this.subjectForm.controls.trainingId.disable();
 
     this.modalErrorMessage.set(null);
     this.isModalOpen.set(true);
@@ -368,7 +364,7 @@ export class SubjectList implements OnInit {
     const request: SubjectRequest = {
       name: formValue.name,
       code: formValue.code,
-      specialtyId: formValue.specialtyId,
+      trainingId: formValue.trainingId,
       defaultCoefficient: formValue.defaultCoefficient,
       theoryHours: formValue.theoryHours,
       practicalHours: formValue.practicalHours,

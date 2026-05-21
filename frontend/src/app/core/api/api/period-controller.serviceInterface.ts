@@ -45,6 +45,14 @@ export interface PeriodControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/periods/promotion/{promotionId}
+     * @param promotionId 
+     */
+    getPeriodsByPromotionId(promotionId: number, extraHttpRequestParams?: any): Observable<ApiResponseListPeriodResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint patch /api/v1/periods/{id}/toggle-lock
      * @param id 
      */

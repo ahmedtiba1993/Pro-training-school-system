@@ -28,8 +28,8 @@
           stroke-linejoin="round"
           class="w-4 h-4"
         >
-          <path d="M5 12h14" />
-          <path d="M12 5v14" />
+          <path d="M5 12h14"/>
+          <path d="M12 5v14"/>
         </svg>
         Planifier une Session
       </button>
@@ -38,7 +38,7 @@
 
   <!-- Scrollable area -->
   <div class="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50/50">
-    <!-- Statistics -->
+    <!-- Quick Statistics -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div
         class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4 hover:border-slate-300 transition-colors"
@@ -58,8 +58,8 @@
             stroke-linejoin="round"
             class="w-6 h-6"
           >
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
           </svg>
         </div>
         <div>
@@ -85,10 +85,10 @@
             stroke-linejoin="round"
             class="w-6 h-6"
           >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <line x1="19" x2="19" y1="8" y2="14" />
-            <line x1="22" x2="16" y1="11" y2="11" />
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <line x1="19" x2="19" y1="8" y2="14"/>
+            <line x1="22" x2="16" y1="11" y2="11"/>
           </svg>
         </div>
         <div>
@@ -116,8 +116,8 @@
             stroke-linejoin="round"
             class="w-6 h-6"
           >
-            <circle cx="12" cy="12" r="10" />
-            <polygon points="10 8 16 12 10 16 10 8" />
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="10 8 16 12 10 16 10 8"/>
           </svg>
         </div>
         <div>
@@ -143,9 +143,9 @@
             stroke-linejoin="round"
             class="w-6 h-6"
           >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-            <path d="m9 15 2 2 4-4" />
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <path d="m9 15 2 2 4-4"/>
           </svg>
         </div>
         <div>
@@ -256,7 +256,6 @@
 
     <!-- Table -->
     <div class="bg-white rounded-b-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <!-- CORRECTION: Remove min-h-[300px] -->
       <div class="overflow-x-auto relative">
         @if (isLoading()) {
         <div
@@ -270,114 +269,134 @@
           <thead
             class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
           >
-            <!-- CORRECTION: py-4 changed to py-3 -->
-            <tr>
-              <th class="px-6 py-3">Nom de la Session</th>
-              <th class="px-6 py-3">Spécialité</th>
-              <th class="px-6 py-3">Période</th>
-              <th class="px-6 py-3 text-center">Inscrits</th>
-              <th class="px-6 py-3">Statut</th>
-              <th class="px-6 py-3 text-right">Actions</th>
-            </tr>
+          <tr>
+            <th class="px-6 py-3">Nom de la Session</th>
+            <th class="px-6 py-3">Spécialité</th>
+            <th class="px-6 py-3">Période</th>
+            <th class="px-6 py-3 text-center">Inscrits</th>
+            <th class="px-6 py-3">Statut</th>
+            <th class="px-6 py-3 text-right">Actions</th>
+          </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            @for (session of sessions(); track session.id) {
-            <tr class="hover:bg-slate-50/50 transition-colors group">
-              <td class="px-6 py-4">
-                <p class="font-bold text-slate-800">{{ session.name }}</p>
-                <p class="text-[11px] text-slate-500 mt-0.5">Code: {{ session.code }}</p>
-              </td>
-              <td class="px-6 py-4">
+          @for (session of sessions(); track session.id) {
+          <tr class="hover:bg-slate-50/50 transition-colors group">
+            <td class="px-6 py-4">
+              <p class="font-bold text-slate-800">{{ session.name }}</p>
+              <p class="text-[11px] text-slate-500 mt-0.5">Code: {{ session.code }}</p>
+            </td>
+            <td class="px-6 py-4">
                 <span
                   class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-semibold"
-                  >{{ session.specialityLabel }}</span
+                >{{ session.specialityLabel }}</span
                 >
-              </td>
-              <td class="px-6 py-4">
-                <p class="text-sm text-slate-700 font-medium">
-                  {{ session.startDate | date: 'dd MMM yyyy' }} -
-                  {{ session.endDate | date: 'dd MMM yyyy' }}
-                </p>
-                <p class="text-[10px] text-slate-500 mt-0.5">
-                  Durée: {{ session.durationValue }}
-                  {{ getDurationTranslation(session.durationUnit!) }}
-                </p>
-              </td>
-              <td class="px-6 py-4 text-center">
+            </td>
+            <td class="px-6 py-4">
+              <p class="text-sm text-slate-700 font-medium">
+                {{ session.startDate | date: 'dd MMM yyyy' }} -
+                {{ session.endDate | date: 'dd MMM yyyy' }}
+              </p>
+              <p class="text-[10px] text-slate-500 mt-0.5">
+                Durée: {{ session.durationValue }}
+                {{ getDurationTranslation(session.durationUnit!) }}
+              </p>
+            </td>
+            <td class="px-6 py-4 text-center">
                 <span
                   class="text-sm font-bold"
                   [ngClass]="session.enrollmentCount! > 0 ? 'text-indigo-600' : 'text-slate-400'"
                 >
                   {{ session.enrollmentCount }} / {{ session.capacity }}
                 </span>
-              </td>
-              <td class="px-6 py-4">
-                @let status = getStatusConfig(session.status!);
-                <span
-                  class="px-2.5 py-1 border rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 w-max"
-                  [ngClass]="status.classes"
-                >
+            </td>
+            <td class="px-6 py-4">
+              @let status = getStatusConfig(session.status!);
+              <span
+                class="px-2.5 py-1 border rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 w-max"
+                [ngClass]="status.classes"
+              >
                   <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
                   {{ status.label }}
                 </span>
-              </td>
-              <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <button
-                    (click)="openDetailsModal(session)"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg transition-colors text-xs font-semibold"
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button
+                  (click)="navigateToSubjects(session.id!)"
+                  class="inline-flex items-center gap-1 px-2.5 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors text-xs font-semibold border border-slate-200 bg-white"
+                  title="Gérer les matières de cette session"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="w-3.5 h-3.5"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="w-4 h-4"
-                    >
-                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                    Détails
-                  </button>
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2-2.5z"/>
+                    <path d="M6 6h10"/>
+                    <path d="M6 10h10"/>
+                  </svg>
+                </button>
+                <button
+                  (click)="openDetailsModal(session)"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg transition-colors text-xs font-semibold"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="w-4 h-4"
+                  >
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
 
-                  @if (session.status !== 'COMPLETED' && session.status !== 'CANCELLED') {
-                  <button
-                    (click)="openEditModal(session)"
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white rounded-lg transition-colors text-xs font-semibold"
-                    title="Modifier la session"
+                @if (session.status !== 'COMPLETED' && session.status !== 'CANCELLED') {
+                <button
+                  (click)="openEditModal(session)"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white rounded-lg transition-colors text-xs font-semibold"
+                  title="Modifier la session"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="w-4 h-4"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="w-4 h-4"
-                    >
-                      <path d="M12 20h9" />
-                      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                    </svg>
-                  </button>
-                  }
-                </div>
-              </td>
-            </tr>
-            } @empty {
-            <tr>
-              <td colspan="6" class="px-6 py-12 text-center text-slate-500">
-                <p class="text-base font-semibold">Aucune session trouvée</p>
-              </td>
-            </tr>
-            }
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                  </svg>
+                </button>
+                }
+              </div>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+              <p class="text-base font-semibold">Aucune session trouvée</p>
+            </td>
+          </tr>
+          }
           </tbody>
         </table>
 
@@ -425,8 +444,8 @@
         stroke-linejoin="round"
         class="w-5 h-5"
       >
-        <path d="M18 6 6 18" />
-        <path d="m6 6 12 12" />
+        <path d="M18 6 6 18"/>
+        <path d="m6 6 12 12"/>
       </svg>
     </button>
     @if (!isLoadingDetails() && selectedSession()) {
@@ -469,17 +488,17 @@
             class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-100 pb-2"
           >
             <span class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg"
-              ><svg
-                class="w-4 h-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c3 3 9 3 12 0v-5" /></svg
+            ><svg
+              class="w-4 h-4"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+                <path d="M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c3 3 9 3 12 0v-5"/></svg
             ></span>
             Programme & Spécialité
           </h4>
@@ -495,8 +514,8 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
               </svg>
               <div>
                 <p class="text-[11px] text-slate-500 uppercase tracking-wide">Formation Associée</p>
@@ -517,7 +536,7 @@
                 <path
                   d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"
                 />
-                <path d="M7 7h.01" />
+                <path d="M7 7h.01"/>
               </svg>
               <div>
                 <p class="text-[11px] text-slate-500 uppercase tracking-wide">Spécialité</p>
@@ -533,20 +552,20 @@
             class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 border-b border-slate-100 pb-2"
           >
             <span class="p-1.5 bg-sky-50 text-sky-600 rounded-lg"
-              ><svg
-                class="w-4 h-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                <line x1="16" x2="16" y1="2" y2="6" />
-                <line x1="8" x2="8" y1="2" y2="6" />
-                <line x1="3" x2="21" y1="10" y2="10" /></svg
+            ><svg
+              class="w-4 h-4"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                <line x1="16" x2="16" y1="2" y2="6"/>
+                <line x1="8" x2="8" y1="2" y2="6"/>
+                <line x1="3" x2="21" y1="10" y2="10"/></svg
             ></span>
             Planning & Durée
           </h4>
@@ -563,9 +582,9 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <path d="M21 10.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.5" />
-                  <polyline points="16 2 16 6 20 6" />
-                  <path d="m9 15 2 2 4-4" />
+                  <path d="M21 10.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.5"/>
+                  <polyline points="16 2 16 6 20 6"/>
+                  <path d="m9 15 2 2 4-4"/>
                 </svg>
                 <span class="text-sm text-slate-600">Début</span>
               </div>
@@ -585,10 +604,10 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <path d="M21 10.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.5" />
-                  <polyline points="16 2 16 6 20 6" />
-                  <path d="m15 13-6 6" />
-                  <path d="m9 13 6 6" />
+                  <path d="M21 10.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.5"/>
+                  <polyline points="16 2 16 6 20 6"/>
+                  <path d="m15 13-6 6"/>
+                  <path d="m9 13 6 6"/>
                 </svg>
                 <span class="text-sm text-slate-600">Fin prévue</span>
               </div>
@@ -601,7 +620,7 @@
             >
               <span class="text-xs text-slate-500 font-medium uppercase tracking-wide">Durée</span>
               <span class="text-xs font-bold text-indigo-700 bg-indigo-100 px-2.5 py-1 rounded-full"
-                >{{ details.durationValue }}
+              >{{ details.durationValue }}
                 {{ getDurationTranslation(details.durationUnit!) }}</span
               >
             </div>
@@ -614,20 +633,20 @@
             class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 border-b border-slate-100 pb-2"
           >
             <span class="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg"
-              ><svg
-                class="w-4 h-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+            ><svg
+              class="w-4 h-4"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg
             ></span>
             Places & Inscriptions
           </h4>
@@ -654,19 +673,19 @@
             class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 border-b border-slate-100 pb-2"
           >
             <span class="p-1.5 bg-amber-50 text-amber-600 rounded-lg"
-              ><svg
-                class="w-4 h-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" />
-                <path d="M4 6v12c0 1.1.9 2 2 2h14v-4" />
-                <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z" /></svg
+            ><svg
+              class="w-4 h-4"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+                <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/>
+                <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/>
+                <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg
             ></span>
             Tarification (TND)
           </h4>
@@ -754,9 +773,9 @@
           stroke-linecap="round"
           stroke-linejoin="round"
         >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 8v4" />
-          <path d="M12 16h.01" />
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 8v4"/>
+          <path d="M12 16h.01"/>
         </svg>
       </div>
       <h3 class="text-lg font-bold text-slate-800 mb-2">Confirmation requise</h3>
@@ -764,8 +783,8 @@
         Êtes-vous sûr de vouloir
         <strong class="text-slate-700">{{
           getActionLabel(pendingStatusChange()!).toLowerCase()
-        }}</strong>
-        ?<br />Cette action modifiera immédiatement le statut.
+          }}</strong>
+        ?<br/>Cette action modifiera immédiatement le statut.
       </p>
     </div>
     <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end">
@@ -841,8 +860,8 @@
         stroke-linecap="round"
         stroke-linejoin="round"
       >
-        <path d="M18 6 6 18" />
-        <path d="m6 6 12 12" />
+        <path d="M18 6 6 18"/>
+        <path d="m6 6 12 12"/>
       </svg>
     </button>
 
@@ -860,8 +879,8 @@
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
           </svg>
           } @else {
           <svg
@@ -874,8 +893,8 @@
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <path d="M5 12h14" />
-            <path d="M12 5v14" />
+            <path d="M5 12h14"/>
+            <path d="M12 5v14"/>
           </svg>
           }
         </span>
@@ -883,9 +902,9 @@
       </h2>
       <p class="text-sm text-slate-500 mt-1 ml-11">
         {{
-          editingSessionId()
-            ? "Modifiez les informations ci-dessous. Certains champs peuvent être verrouillés selon l'état de la session."
-            : 'Remplissez les informations ci-dessous pour configurer la nouvelle session.'
+        editingSessionId()
+        ? "Modifiez les informations ci-dessous. Certains champs peuvent être verrouillés selon l'état de la session."
+        : 'Remplissez les informations ci-dessous pour configurer la nouvelle session.'
         }}
       </p>
     </div>
@@ -905,7 +924,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
               <label class="block text-sm font-semibold text-slate-700 mb-1"
-                >Nom de la session <span class="text-rose-500">*</span></label
+              >Nom de la session <span class="text-rose-500">*</span></label
               >
               <input
                 type="text"
@@ -920,7 +939,7 @@
             </div>
             <div class="md:col-span-2">
               <label class="block text-sm font-semibold text-slate-700 mb-1"
-                >Formation associée <span class="text-rose-500">*</span></label
+              >Formation associée <span class="text-rose-500">*</span></label
               >
               <select
                 formControlName="trainingId"
@@ -947,7 +966,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-semibold text-slate-700 mb-1"
-                >Début Inscriptions <span class="text-rose-500">*</span></label
+              >Début Inscriptions <span class="text-rose-500">*</span></label
               >
               <input
                 type="date"
@@ -957,7 +976,7 @@
             </div>
             <div>
               <label class="block text-sm font-semibold text-slate-700 mb-1"
-                >Fin Inscriptions <span class="text-rose-500">*</span></label
+              >Fin Inscriptions <span class="text-rose-500">*</span></label
               >
               <input
                 type="date"
@@ -986,8 +1005,8 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                   </svg>
                   Verrouillé
                 </span>
@@ -1001,7 +1020,7 @@
             </div>
             <div>
               <label class="block text-sm font-semibold text-slate-700 mb-1"
-                >Date fin prévue <span class="text-rose-500">*</span></label
+              >Date fin prévue <span class="text-rose-500">*</span></label
               >
               <input
                 type="date"
@@ -1031,8 +1050,8 @@
               <path
                 d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
               />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
             Tarifs verrouillés (Inscriptions existantes)
           </div>
@@ -1043,7 +1062,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-semibold text-slate-700 mb-1"
-                >Capacité (Places) <span class="text-rose-500">*</span></label
+              >Capacité (Places) <span class="text-rose-500">*</span></label
               >
               <input
                 type="number"
@@ -1054,7 +1073,7 @@
             </div>
             <div>
               <label class="block text-sm font-semibold text-slate-700 mb-1"
-                >Frais Inscription (TND)</label
+              >Frais Inscription (TND)</label
               >
               <input
                 type="number"
@@ -1066,7 +1085,7 @@
             </div>
             <div>
               <label class="block text-sm font-semibold text-slate-700 mb-1"
-                >Frais Scolarité (TND)</label
+              >Frais Scolarité (TND)</label
               >
               <input
                 type="number"
@@ -1218,7 +1237,7 @@
               <p class="text-[11px] text-slate-500 mt-0.5">
                 {{ session.code }} •
                 <span class="font-semibold text-slate-700"
-                  >{{ session.enrollmentCount }} Élèves</span
+                >{{ session.enrollmentCount }} Élèves</span
                 >
               </p>
             </div>

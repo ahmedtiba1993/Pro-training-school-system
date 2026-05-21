@@ -12,6 +12,9 @@ import com.tiba.pts.modules.academicyear.dto.response.PeriodResponse;
 import com.tiba.pts.modules.academicyear.mapper.PeriodMapper;
 import com.tiba.pts.modules.academicyear.repository.AcademicYearRepository;
 import com.tiba.pts.modules.academicyear.repository.PeriodRepository;
+import com.tiba.pts.modules.trainingsession.domain.entity.AccreditedPromotion;
+import com.tiba.pts.modules.trainingsession.domain.entity.Promotion;
+import com.tiba.pts.modules.trainingsession.repository.PromotionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -28,6 +31,7 @@ public class PeriodService {
   private final PeriodRepository periodRepository;
   private final AcademicYearRepository academicYearRepository;
   private final PeriodMapper periodMapper;
+  private final PromotionRepository promotionRepository;
 
   @Transactional
   public Long createPeriod(PeriodRequest request) {
@@ -193,6 +197,29 @@ public class PeriodService {
 
     // Save
     periodRepository.save(period);
+  }
+
+  @Transactional(readOnly = true)
+  public List<PeriodResponse> getPeriodsByPromotion(Long promotionId) {
+
+    // Retrieve and verify the existence of the Promotion
+    Promotion promotion =
+        promotionRepository
+            .findById(promotionId)
+            .orElseThrow(() -> new EntityNotFoundException("PROMOTION_NOT_FOUND"));
+
+    // Safeguard: Only accredited promotions have an academic year and periods
+    if (!(promotion instanceof AccreditedPromotion accreditedPromotion)) {
+      throw new BusinessValidationException("PROMOTION_MUST_BE_ACCREDITED_TO_HAVE_PERIODS");
+    }
+
+    // Extract the academic year ID
+    Long academicYearId = accreditedPromotion.getAcademicYear().getId();
+
+    // Retrieve sorted periods and map to response DTO
+    return periodRepository.findByAcademicYearIdOrderByStartDateAsc(academicYearId).stream()
+        .map(periodMapper::toResponse)
+        .toList();
   }
 
   /** Algorithm to determine where the new period should be inserted chronologically */

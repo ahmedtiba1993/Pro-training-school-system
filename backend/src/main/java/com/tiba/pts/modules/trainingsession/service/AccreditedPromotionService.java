@@ -47,58 +47,66 @@ public class AccreditedPromotionService {
   @Transactional
   public Long createAccreditedPromotion(AccreditedPromotionRequest request) {
 
-    // Vérifier si la formation (Training) existe
+    // Verify if the training exists
     Training training =
         trainingRepository
             .findById(request.getTrainingId())
             .orElseThrow(() -> new ResourceNotFoundException("TRAINING_NOT_FOUND"));
 
-    // Vérifier si l'année académique existe[cite: 1]
+    // Verify if the academic year exists
     AcademicYear academicYear =
         academicYearRepository
             .findById(request.getAcademicYearId())
             .orElseThrow(() -> new ResourceNotFoundException("ACADEMIC_YEAR_NOT_FOUND"));
 
-    // Vérifier le statut de l'année académique
+    // Verify the academic year status
     if (academicYear.getStatus() != YearStatus.PLANNED
         && academicYear.getStatus() != YearStatus.ENROLLMENT
         && academicYear.getStatus() != YearStatus.IN_PROGRESS) {
       throw new BusinessValidationException("ACADEMIC_YEAR_MUST_BE_ACTIVE");
     }
 
-    // Vérifier le type de la formation
+    // Verify the training type
     if (training.getTrainingType() != TrainingType.ACCREDITED) {
       throw new BusinessValidationException("TRAINING_MUST_BE_ACCREDITED_TYPE");
     }
 
-    // Vérifier le statut de la formation (doit être ACTIVE)
+    // Verify the training status (must be ACTIVE)
     if (training.getStatus() != TrainingStatus.ACTIVE) {
       throw new BusinessValidationException("TRAINING_MUST_BE_ACTIVE");
     }
 
-    // Vérifier l'unicité de la combinaison [training_id + academic_year_id]
+    // Verify the uniqueness of the combination [training_id + academic_year_id]
     if (accreditedPromotionRepository.existsByTrainingIdAndAcademicYearId(
         training.getId(), academicYear.getId())) {
       throw new EntityAlreadyExistsException("ACCREDITED_PROMOTION_ALREADY_EXISTS_FOR_THIS_YEAR");
     }
 
-    // Mapping (Utilisation de MapStruct)
+    // Mapping (Using MapStruct)
     AccreditedPromotion promotion = mapper.toEntity(request);
 
-    // Attachement des relations
+    // Attaching relationships
     promotion.setTraining(training);
     promotion.setAcademicYear(academicYear);
 
-    // Génération dynamique du Code
+    // Dynamic Code generation
     String yearSuffix = generateYearSuffix(academicYear.getLabel());
-    String generatedCode = training.getCode().toUpperCase() + "-" + yearSuffix;
+    String baseCode =
+        training.getCode().toUpperCase()
+            + "-"
+            + yearSuffix; // We count the existing promotions for this training that year
+    long existingCount =
+        accreditedPromotionRepository.countByTrainingAndAcademicYear(
+            training.getId(), academicYear.getId());
+    // We add a numerical suffix (e.g.: CAP-ELC-HOM-2526-01)
+    String generatedCode = String.format("%s-%02d", baseCode, existingCount + 1);
     promotion.setCode(generatedCode);
 
-    // Forcer les valeurs par défaut métier
+    // Force default business values
     promotion.setStatus(PromotionStatus.DRAFT);
     promotion.setEnrollmentCount(0);
 
-    // Sauvegarde
+    // Save
     AccreditedPromotion savedPromotion = accreditedPromotionRepository.save(promotion);
 
     return savedPromotion.getId();
@@ -106,7 +114,7 @@ public class AccreditedPromotionService {
 
   @Transactional(readOnly = true)
   public PageResponse<AccreditedPromotionResponse> getAllPaged(int page, int size) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by("startDate").descending());
+    Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
     Page<AccreditedPromotion> pageResult = accreditedPromotionRepository.findAll(pageable);
     return PageResponse.of(pageResult, mapper::toResponse);
   }
@@ -123,19 +131,19 @@ public class AccreditedPromotionService {
   @Transactional
   public void updateAccreditedPromotion(Long id, AccreditedPromotionUpdateRequest request) {
 
-    // Récupération de l'entité
+    // Retrieve the entity
     AccreditedPromotion promotion =
         accreditedPromotionRepository
             .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("PROMOTION_NOT_FOUND"));
 
-    // LE GARDE-FOU (La règle Read-Only)
+    // THE SAFEGUARD (The Read-Only rule)
     if (promotion.getStatus() == PromotionStatus.COMPLETED
         || promotion.getStatus() == PromotionStatus.CANCELLED) {
       throw new BusinessValidationException("CANNOT_CHANGE");
     }
 
-    // Règle du Prix : Interdit de modifier si inscriptions en cours
+    // Pricing Rule: Forbidden to modify if enrollments are ongoing
     if (promotion.getEnrollmentCount() > 0
         && request.registrationFee().compareTo(promotion.getRegistrationFee()) != 0) {
       throw new BusinessValidationException(
@@ -146,12 +154,12 @@ public class AccreditedPromotionService {
       throw new BusinessValidationException("CANNOT_CHANGE_TUITION_FEE_WITH_ACTIVE_ENROLLMENTS");
     }
 
-    // Règle Anti-Expulsion : Capacité
+    // Anti-Eviction Rule: Capacity
     if (request.capacity() < promotion.getEnrollmentCount()) {
       throw new BusinessValidationException("CAPACITY_CANNOT_BE_LESS_THAN_ENROLLMENT_COUNT");
     }
 
-    // Mise à jour via MapStruct (qui copiera désormais les dates d'inscription)
+    // Update via MapStruct (which will now copy the registration dates)
     mapper.updateEntity(request, promotion);
   }
 
@@ -233,18 +241,18 @@ public class AccreditedPromotionService {
             PromotionStatus.IN_PROGRESS,
             PromotionStatus.EVALUATION);
 
-    // Récupération optimisée en une seule requête
+    // Optimized retrieval in a single query
     List<PromotionStatusStatsProjection> projections =
         accreditedPromotionRepository.getStatsByStatuses(targetStatuses);
 
-    // EnumMap pour des performances maximales
+    // EnumMap
     Map<PromotionStatus, PromotionStatusStatsProjection> statsMap =
         new EnumMap<>(PromotionStatus.class);
     for (PromotionStatusStatsProjection proj : projections) {
       statsMap.put(proj.getStatus(), proj);
     }
 
-    // Construction de la réponse finale, avec gestion sécurisée des statuts vides
+    // Building the final response, with safe handling of empty statuses
     return targetStatuses.stream()
         .map(
             status -> {
@@ -258,18 +266,17 @@ public class AccreditedPromotionService {
   }
 
   /**
-   * Récupère la liste des promotions avec les statuts ENROLLMENT et IN_PROGRESS. Retourne une
-   * version allégée (OngoingPromotionResponse).
+   * Retrieves the list of promotions with ENROLLMENT and IN_PROGRESS statuses. Returns a
+   * lightweight version (OngoingPromotionResponse).
    *
-   * @param limit Le nombre maximum d'éléments à retourner (peut être null)
-   * @return Liste de OngoingPromotionResponse
+   * @param limit The maximum number of elements to return (can be null)
+   * @return List of OngoingPromotionResponse
    */
   @Transactional(readOnly = true)
   public List<OngoingPromotionResponse> getOngoingPromotions(Integer limit) {
     List<PromotionStatus> targetStatuses =
         List.of(PromotionStatus.ENROLLMENT, PromotionStatus.IN_PROGRESS);
 
-    // Tri par date de début décroissante
     Sort sort = Sort.by(Sort.Direction.DESC, "startDate");
     List<AccreditedPromotion> promotions;
 
@@ -281,7 +288,7 @@ public class AccreditedPromotionService {
       promotions = accreditedPromotionRepository.findByStatusIn(targetStatuses, sort);
     }
 
-    // Utilisation de MapStruct pour transformer en OngoingPromotionResponse
+    // Using MapStruct to transform into OngoingPromotionResponse
     return promotions.stream().map(mapper::toOngoingResponse).toList();
   }
 

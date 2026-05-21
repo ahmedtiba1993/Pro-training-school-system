@@ -16,6 +16,6 @@ public class SubjectResponse {
   private Double defaultCoefficient;
   private String pdfFilePath;
   private SubjectStatus status;
-  private Long specialtyId;
-  private String specialtyLabel;
+  private Long trainingId;
+  private String trainingLabel;
 }

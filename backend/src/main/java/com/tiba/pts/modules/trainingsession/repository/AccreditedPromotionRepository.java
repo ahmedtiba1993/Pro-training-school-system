@@ -49,4 +49,9 @@ public interface AccreditedPromotionRepository extends JpaRepository<AccreditedP
   List<AccreditedPromotion> findByStatusIn(List<PromotionStatus> statuses, Sort sort);
 
   Page<AccreditedPromotion> findByStatusIn(List<PromotionStatus> statuses, Pageable pageable);
+
+  @Query(
+      "SELECT COUNT(p) FROM AccreditedPromotion p WHERE p.training.id = :trainingId AND p.academicYear.id = :academicYearId")
+  long countByTrainingAndAcademicYear(
+      @Param("trainingId") Long trainingId, @Param("academicYearId") Long academicYearId);
 }

@@ -1,13 +1,14 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {CommonModule, DatePipe, CurrencyPipe} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {
   AcceleratedPromotionControllerService,
   AcceleratedPromotionResponse,
   TrainingControllerService,
   TrainingResponse
 } from '../../../../../core/api';
-import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
+import {PaginationComponent} from '../../../../../shared/components/pagination/pagination';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-accelerated',
@@ -21,6 +22,7 @@ export class Accelerated implements OnInit {
   private acceleratedService = inject(AcceleratedPromotionControllerService);
   private trainingService = inject(TrainingControllerService);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
 
   // --- STATE: LIST ---
   sessions = signal<AcceleratedPromotionResponse[]>([]);
@@ -377,6 +379,11 @@ export class Accelerated implements OnInit {
     });
   }
 
+  public navigateToSubjects(promotionId: number): void {
+    if (!promotionId) return;
+    this.router.navigate(['/admin/promotions/accelerated', promotionId, 'subjects']);
+  }
+
   // ==========================================
   // UTILS & HELPERS
   // ==========================================
@@ -396,19 +403,19 @@ export class Accelerated implements OnInit {
   getStatusConfig(status: string) {
     switch (status) {
       case 'DRAFT':
-        return { label: 'Brouillon', classes: 'bg-slate-100 text-slate-700 border-slate-200' };
+        return {label: 'Brouillon', classes: 'bg-slate-100 text-slate-700 border-slate-200'};
       case 'ENROLLMENT':
-        return { label: 'Inscriptions', classes: 'bg-sky-50 text-sky-700 border-sky-200' };
+        return {label: 'Inscriptions', classes: 'bg-sky-50 text-sky-700 border-sky-200'};
       case 'IN_PROGRESS':
-        return { label: 'En cours', classes: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+        return {label: 'En cours', classes: 'bg-indigo-50 text-indigo-700 border-indigo-200'};
       case 'EVALUATION':
-        return { label: 'Évaluation', classes: 'bg-amber-50 text-amber-700 border-amber-200' };
+        return {label: 'Évaluation', classes: 'bg-amber-50 text-amber-700 border-amber-200'};
       case 'COMPLETED':
-        return { label: 'Terminée', classes: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+        return {label: 'Terminée', classes: 'bg-emerald-50 text-emerald-700 border-emerald-200'};
       case 'CANCELLED':
-        return { label: 'Annulée', classes: 'bg-rose-50 text-rose-700 border-rose-200' };
+        return {label: 'Annulée', classes: 'bg-rose-50 text-rose-700 border-rose-200'};
       default:
-        return { label: status, classes: 'bg-gray-50 text-gray-700 border-gray-200' };
+        return {label: status, classes: 'bg-gray-50 text-gray-700 border-gray-200'};
     }
   }
 

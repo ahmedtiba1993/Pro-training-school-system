@@ -17,48 +17,48 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { ApiResponseListPeriodResponse } from '../model/api-response-list-period-response';
+import { ApiResponseListPromotionSubjectResponse } from '../model/api-response-list-promotion-subject-response';
 // @ts-ignore
 import { ApiResponseLong } from '../model/api-response-long';
 // @ts-ignore
-import { ApiResponsePeriodResponse } from '../model/api-response-period-response';
+import { ApiResponsePromotionStatsResponse } from '../model/api-response-promotion-stats-response';
 // @ts-ignore
 import { ApiResponseVoid } from '../model/api-response-void';
 // @ts-ignore
-import { PeriodRequest } from '../model/period-request';
+import { PromotionSubjectRequest } from '../model/promotion-subject-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
 import {
-    PeriodControllerServiceInterface
-} from './period-controller.serviceInterface';
+    PromotionSubjectControllerServiceInterface
+} from './promotion-subject-controller.serviceInterface';
 
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class PeriodControllerService extends BaseService implements PeriodControllerServiceInterface {
+export class PromotionSubjectControllerService extends BaseService implements PromotionSubjectControllerServiceInterface {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
     }
 
     /**
-     * @endpoint post /api/v1/periods
-     * @param periodRequest 
+     * @endpoint post /api/v1/promotion-subjects
+     * @param promotionSubjectRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public createPeriod(periodRequest: PeriodRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
-    public createPeriod(periodRequest: PeriodRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
-    public createPeriod(periodRequest: PeriodRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
-    public createPeriod(periodRequest: PeriodRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (periodRequest === null || periodRequest === undefined) {
-            throw new Error('Required parameter periodRequest was null or undefined when calling createPeriod.');
+    public create(promotionSubjectRequest: PromotionSubjectRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseLong>;
+    public create(promotionSubjectRequest: PromotionSubjectRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseLong>>;
+    public create(promotionSubjectRequest: PromotionSubjectRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseLong>>;
+    public create(promotionSubjectRequest: PromotionSubjectRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (promotionSubjectRequest === null || promotionSubjectRequest === undefined) {
+            throw new Error('Required parameter promotionSubjectRequest was null or undefined when calling create.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -98,12 +98,12 @@ export class PeriodControllerService extends BaseService implements PeriodContro
             }
         }
 
-        let localVarPath = `/api/v1/periods`;
+        let localVarPath = `/api/v1/promotion-subjects`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ApiResponseLong>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: periodRequest,
+                body: promotionSubjectRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -115,18 +115,18 @@ export class PeriodControllerService extends BaseService implements PeriodContro
     }
 
     /**
-     * @endpoint get /api/v1/periods/academic-year/{academicYearId}
-     * @param academicYearId 
+     * @endpoint delete /api/v1/promotion-subjects/{id}
+     * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getPeriodsByAcademicYearId(academicYearId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListPeriodResponse>;
-    public getPeriodsByAcademicYearId(academicYearId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListPeriodResponse>>;
-    public getPeriodsByAcademicYearId(academicYearId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListPeriodResponse>>;
-    public getPeriodsByAcademicYearId(academicYearId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (academicYearId === null || academicYearId === undefined) {
-            throw new Error('Required parameter academicYearId was null or undefined when calling getPeriodsByAcademicYearId.');
+    public deletePromotionSubject(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseVoid>;
+    public deletePromotionSubject(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseVoid>>;
+    public deletePromotionSubject(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseVoid>>;
+    public deletePromotionSubject(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling deletePromotionSubject.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -157,9 +157,9 @@ export class PeriodControllerService extends BaseService implements PeriodContro
             }
         }
 
-        let localVarPath = `/api/v1/periods/academic-year/${this.configuration.encodeParam({name: "academicYearId", value: academicYearId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/api/v1/promotion-subjects/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseListPeriodResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseVoid>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -173,18 +173,18 @@ export class PeriodControllerService extends BaseService implements PeriodContro
     }
 
     /**
-     * @endpoint get /api/v1/periods/promotion/{promotionId}
+     * @endpoint get /api/v1/promotion-subjects/promotion/{promotionId}/stats
      * @param promotionId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getPeriodsByPromotionId(promotionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListPeriodResponse>;
-    public getPeriodsByPromotionId(promotionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListPeriodResponse>>;
-    public getPeriodsByPromotionId(promotionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListPeriodResponse>>;
-    public getPeriodsByPromotionId(promotionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getPromotionStats(promotionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponsePromotionStatsResponse>;
+    public getPromotionStats(promotionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponsePromotionStatsResponse>>;
+    public getPromotionStats(promotionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponsePromotionStatsResponse>>;
+    public getPromotionStats(promotionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (promotionId === null || promotionId === undefined) {
-            throw new Error('Required parameter promotionId was null or undefined when calling getPeriodsByPromotionId.');
+            throw new Error('Required parameter promotionId was null or undefined when calling getPromotionStats.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -215,9 +215,9 @@ export class PeriodControllerService extends BaseService implements PeriodContro
             }
         }
 
-        let localVarPath = `/api/v1/periods/promotion/${this.configuration.encodeParam({name: "promotionId", value: promotionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/api/v1/promotion-subjects/promotion/${this.configuration.encodeParam({name: "promotionId", value: promotionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/stats`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseListPeriodResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponsePromotionStatsResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -231,18 +231,22 @@ export class PeriodControllerService extends BaseService implements PeriodContro
     }
 
     /**
-     * @endpoint patch /api/v1/periods/{id}/toggle-lock
-     * @param id 
+     * @endpoint get /api/v1/promotion-subjects/promotion/{promotionId}/period/{periodId}
+     * @param promotionId 
+     * @param periodId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public togglePeriodLock(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseVoid>;
-    public togglePeriodLock(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseVoid>>;
-    public togglePeriodLock(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseVoid>>;
-    public togglePeriodLock(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling togglePeriodLock.');
+    public getSubjectsByPromotionAndPeriod(promotionId: number, periodId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListPromotionSubjectResponse>;
+    public getSubjectsByPromotionAndPeriod(promotionId: number, periodId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListPromotionSubjectResponse>>;
+    public getSubjectsByPromotionAndPeriod(promotionId: number, periodId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListPromotionSubjectResponse>>;
+    public getSubjectsByPromotionAndPeriod(promotionId: number, periodId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (promotionId === null || promotionId === undefined) {
+            throw new Error('Required parameter promotionId was null or undefined when calling getSubjectsByPromotionAndPeriod.');
+        }
+        if (periodId === null || periodId === undefined) {
+            throw new Error('Required parameter periodId was null or undefined when calling getSubjectsByPromotionAndPeriod.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -273,9 +277,9 @@ export class PeriodControllerService extends BaseService implements PeriodContro
             }
         }
 
-        let localVarPath = `/api/v1/periods/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/toggle-lock`;
+        let localVarPath = `/api/v1/promotion-subjects/promotion/${this.configuration.encodeParam({name: "promotionId", value: promotionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/period/${this.configuration.encodeParam({name: "periodId", value: periodId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponseVoid>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseListPromotionSubjectResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -289,22 +293,18 @@ export class PeriodControllerService extends BaseService implements PeriodContro
     }
 
     /**
-     * @endpoint put /api/v1/periods/{id}
-     * @param id 
-     * @param periodRequest 
+     * @endpoint get /api/v1/promotion-subjects/promotion/{promotionId}
+     * @param promotionId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updatePeriod(id: number, periodRequest: PeriodRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponsePeriodResponse>;
-    public updatePeriod(id: number, periodRequest: PeriodRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponsePeriodResponse>>;
-    public updatePeriod(id: number, periodRequest: PeriodRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponsePeriodResponse>>;
-    public updatePeriod(id: number, periodRequest: PeriodRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling updatePeriod.');
-        }
-        if (periodRequest === null || periodRequest === undefined) {
-            throw new Error('Required parameter periodRequest was null or undefined when calling updatePeriod.');
+    public getSubjectsByPromotionId(promotionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListPromotionSubjectResponse>;
+    public getSubjectsByPromotionId(promotionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListPromotionSubjectResponse>>;
+    public getSubjectsByPromotionId(promotionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListPromotionSubjectResponse>>;
+    public getSubjectsByPromotionId(promotionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (promotionId === null || promotionId === undefined) {
+            throw new Error('Required parameter promotionId was null or undefined when calling getSubjectsByPromotionId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -324,15 +324,6 @@ export class PeriodControllerService extends BaseService implements PeriodContro
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
 
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
@@ -344,12 +335,11 @@ export class PeriodControllerService extends BaseService implements PeriodContro
             }
         }
 
-        let localVarPath = `/api/v1/periods/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/api/v1/promotion-subjects/promotion/${this.configuration.encodeParam({name: "promotionId", value: promotionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiResponsePeriodResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseListPromotionSubjectResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: periodRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

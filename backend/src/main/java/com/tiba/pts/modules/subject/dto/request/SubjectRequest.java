@@ -26,8 +26,8 @@ public class SubjectRequest {
 
   private String pdfFilePath;
 
-  @NotNull(message = "SPECIALTY_ID_REQUIRED")
-  private Long specialtyId;
+  @NotNull(message = "TRAINING_ID_REQUIRED")
+  private Long trainingId;
 
   // --- Overloading setters for formatting ---
 

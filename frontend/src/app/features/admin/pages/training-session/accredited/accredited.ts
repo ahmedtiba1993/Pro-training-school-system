@@ -1,8 +1,9 @@
-import { Component, OnInit, computed, inject, signal, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, forkJoin } from 'rxjs';
+import {Component, OnInit, computed, inject, signal, DestroyRef} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {finalize, forkJoin} from 'rxjs';
 
 import {
   AccreditedPromotionControllerService,
@@ -10,8 +11,8 @@ import {
   LevelControllerService,
   TrainingControllerService
 } from '../../../../../core/api';
-import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
-import { ToastService } from '../../../../../shared/services/toast.service';
+import {PaginationComponent} from '../../../../../shared/components/pagination/pagination';
+import {ToastService} from '../../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-accredited',
@@ -20,64 +21,67 @@ import { ToastService } from '../../../../../shared/services/toast.service';
   templateUrl: './accredited.html'
 })
 export class Accredited implements OnInit {
-  private promotionService = inject(AccreditedPromotionControllerService);
-  private academicYearService = inject(AcademicYearControllerService);
-  private levelService = inject(LevelControllerService);
-  private trainingService = inject(TrainingControllerService);
-  private fb = inject(FormBuilder);
-  private destroyRef = inject(DestroyRef);
-  private toast = inject(ToastService);
+  private readonly promotionService = inject(AccreditedPromotionControllerService);
+  private readonly academicYearService = inject(AcademicYearControllerService);
+  private readonly levelService = inject(LevelControllerService);
+  private readonly trainingService = inject(TrainingControllerService);
+  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
 
-  promotions = signal<any[]>([]);
-  isLoading = signal<boolean>(false);
-  error = signal<string | null>(null);
+  public readonly promotions = signal<any[]>([]);
+  public readonly isLoading = signal<boolean>(false);
+  public readonly error = signal<string | null>(null);
 
-  currentPage = signal<number>(0); // Current page for pagination
-  pageSize = signal<number>(5); // Number of items per page
-  totalElements = signal<number>(0); // Total number of elements
+  public readonly currentPage = signal<number>(0);
+  public readonly pageSize = signal<number>(5);
+  public readonly totalElements = signal<number>(0);
 
-  hasData = computed(() => this.promotions().length > 0);
+  public readonly hasData = computed(() => this.promotions().length > 0);
 
-  // STATISTIQUES
-  isStatsLoading = signal<boolean>(false);
-  promotionStats = signal<{ [key: string]: { count: number; enrollments: number } }>({
-    DRAFT: { count: 0, enrollments: 0 },
-    ENROLLMENT: { count: 0, enrollments: 0 },
-    IN_PROGRESS: { count: 0, enrollments: 0 },
-    EVALUATION: { count: 0, enrollments: 0 }
+  // STATISTICS
+  public readonly isStatsLoading = signal<boolean>(false);
+  public readonly promotionStats = signal<{
+    [key: string]: { count: number; enrollments: number };
+  }>({
+    DRAFT: {count: 0, enrollments: 0},
+    ENROLLMENT: {count: 0, enrollments: 0},
+    IN_PROGRESS: {count: 0, enrollments: 0},
+    EVALUATION: {count: 0, enrollments: 0}
   });
 
-  // PROMOTIONS ACTUELLES (ONGOING - Dashboard limit 4)
-  ongoingPromotions = signal<any[]>([]);
-  isOngoingLoading = signal<boolean>(false);
+  // CURRENT PROMOTIONS (ONGOING)
+  public readonly ongoingPromotions = signal<any[]>([]);
+  public readonly isOngoingLoading = signal<boolean>(false);
 
-  // 🔵 NEW: ALL ACTIVE PROMOTIONS (Modal)
-  isOngoingModalOpen = signal<boolean>(false);
-  isAllOngoingLoading = signal<boolean>(false);
-  allOngoingPromotions = signal<any[]>([]);
+  // ALL ACTIVE PROMOTIONS (Modal)
+  public readonly isOngoingModalOpen = signal<boolean>(false);
+  public readonly isAllOngoingLoading = signal<boolean>(false);
+  public readonly allOngoingPromotions = signal<any[]>([]);
 
-  // --- MODALS STATES ---
-  isModalOpen = signal<boolean>(false);
-  isModalLoading = signal<boolean>(false);
-  openAcademicYears = signal<any[]>([]);
-  activeLevels = signal<any[]>([]);
-  activeTrainings = signal<any[]>([]);
-  isTrainingsLoading = signal<boolean>(false);
-  createForm!: FormGroup;
+  // MODALS STATES
+  public readonly isModalOpen = signal<boolean>(false);
+  public readonly isModalLoading = signal<boolean>(false);
+  public readonly openAcademicYears = signal<any[]>([]);
+  public readonly activeLevels = signal<any[]>([]);
+  public readonly activeTrainings = signal<any[]>([]);
+  public readonly isTrainingsLoading = signal<boolean>(false);
+  public createForm!: FormGroup;
 
-  isDetailsModalOpen = signal<boolean>(false);
-  isDetailsLoading = signal<boolean>(false);
-  selectedPromotion = signal<any | null>(null);
+  public readonly isDetailsModalOpen = signal<boolean>(false);
+  public readonly isDetailsLoading = signal<boolean>(false);
+  public readonly selectedPromotion = signal<any | null>(null);
 
-  isEditModalOpen = signal<boolean>(false);
-  isEditLoading = signal<boolean>(false);
-  isEditFetching = signal<boolean>(false);
-  currentEditId = signal<number | null>(null);
-  editForm!: FormGroup;
+  public readonly isEditModalOpen = signal<boolean>(false);
+  public readonly isEditLoading = signal<boolean>(false);
+  public readonly isEditFetching = signal<boolean>(false);
+  public readonly currentEditId = signal<number | null>(null);
+  public editForm!: FormGroup;
 
-  isConfirmModalOpen = signal<boolean>(false);
-  isStatusChanging = signal<boolean>(false);
-  confirmData = signal<{ id: number; status: string; label: string } | null>(null);
+  public readonly isConfirmModalOpen = signal<boolean>(false);
+  public readonly isStatusChanging = signal<boolean>(false);
+  public readonly confirmData = signal<{ id: number; status: string; label: string } | null>(null);
 
   ngOnInit(): void {
     this.initForm();
@@ -85,17 +89,30 @@ export class Accredited implements OnInit {
     this.refreshData();
   }
 
-  refreshData(): void {
+  // ==========================================
+  // NAVIGATION ACTIONS
+  // ==========================================
+  
+  public navigateToSubjects(promotionId: number): void {
+    if (!promotionId) return;
+    this.router.navigate(['/admin/promotions/accredited', promotionId, 'subjects']);
+  }
+
+  // ==========================================
+  // BUSINESS ENGINE METHODS
+  // ==========================================
+
+  public refreshData(): void {
     this.loadPromotions();
     this.loadStatistics();
     this.loadOngoingPromotions();
   }
 
-  initForm(): void {
+  public initForm(): void {
     this.createForm = this.fb.group({
       name: ['', Validators.required],
       levelId: ['', Validators.required],
-      trainingId: [{ value: '', disabled: true }, Validators.required],
+      trainingId: [{value: '', disabled: true}, Validators.required],
       academicYearId: ['', Validators.required],
       capacity: ['', [Validators.required, Validators.min(1)]],
       registrationFee: ['', [Validators.required, Validators.min(0)]],
@@ -113,7 +130,7 @@ export class Accredited implements OnInit {
     });
   }
 
-  setupFormListeners(): void {
+  public setupFormListeners(): void {
     this.createForm
       .get('levelId')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
@@ -121,13 +138,13 @@ export class Accredited implements OnInit {
         if (id) this.loadTrainingsByLevel(id);
         else {
           this.activeTrainings.set([]);
-          this.createForm.get('trainingId')?.disable({ emitEvent: false });
+          this.createForm.get('trainingId')?.disable({emitEvent: false});
           this.createForm.get('trainingId')?.setValue('');
         }
       });
   }
 
-  loadOngoingPromotions(): void {
+  public loadOngoingPromotions(): void {
     this.isOngoingLoading.set(true);
     this.promotionService
       .getOngoingPromotions(4)
@@ -138,11 +155,11 @@ export class Accredited implements OnInit {
             this.ongoingPromotions.set(response.data);
           }
         },
-        error: (err: any) => console.error('Erreur chargement Ongoing', err)
+        error: (err: any) => console.error('Error loading Ongoing', err)
       });
   }
 
-  loadStatistics(): void {
+  public loadStatistics(): void {
     this.isStatsLoading.set(true);
     this.promotionService
       .getAccreditedPromotionStatistics()
@@ -151,10 +168,10 @@ export class Accredited implements OnInit {
         next: (response: any) => {
           if (response.success && response.data) {
             const newStats = {
-              DRAFT: { count: 0, enrollments: 0 },
-              ENROLLMENT: { count: 0, enrollments: 0 },
-              IN_PROGRESS: { count: 0, enrollments: 0 },
-              EVALUATION: { count: 0, enrollments: 0 }
+              DRAFT: {count: 0, enrollments: 0},
+              ENROLLMENT: {count: 0, enrollments: 0},
+              IN_PROGRESS: {count: 0, enrollments: 0},
+              EVALUATION: {count: 0, enrollments: 0}
             };
             response.data.forEach((stat: any) => {
               const statusKey = stat.status.toUpperCase();
@@ -166,11 +183,11 @@ export class Accredited implements OnInit {
             this.promotionStats.set(newStats);
           }
         },
-        error: (err: any) => console.error('Erreur stats', err)
+        error: (err: any) => console.error('Error stats', err)
       });
   }
 
-  loadPromotions(): void {
+  public loadPromotions(): void {
     this.isLoading.set(true);
     this.error.set(null);
     this.promotionService
@@ -187,22 +204,22 @@ export class Accredited implements OnInit {
       });
   }
 
-  onPageChange(newPage: number) {
+  public onPageChange(newPage: number) {
     this.currentPage.set(newPage);
     this.loadPromotions();
   }
 
-  openOngoingModal(): void {
+  public openOngoingModal(): void {
     this.isOngoingModalOpen.set(true);
     this.loadAllOngoingPromotions();
   }
 
-  closeOngoingModal(): void {
+  public closeOngoingModal(): void {
     this.isOngoingModalOpen.set(false);
     this.allOngoingPromotions.set([]);
   }
 
-  loadAllOngoingPromotions(): void {
+  public loadAllOngoingPromotions(): void {
     this.isAllOngoingLoading.set(true);
     this.promotionService
       .getOngoingPromotions(1000)
@@ -213,17 +230,17 @@ export class Accredited implements OnInit {
             this.allOngoingPromotions.set(response.data);
           }
         },
-        error: (err: any) => console.error('Erreur chargement de toutes les sessions actives', err)
+        error: (err: any) => console.error('Error loading all active sessions', err)
       });
   }
 
-  openModal(): void {
+  public openModal(): void {
     this.isModalOpen.set(true);
     if (this.openAcademicYears().length === 0 || this.activeLevels().length === 0)
       this.loadModalInitialData();
   }
 
-  closeModal(): void {
+  public closeModal(): void {
     this.isModalOpen.set(false);
     this.createForm.reset({
       name: '',
@@ -237,10 +254,10 @@ export class Accredited implements OnInit {
     });
     this.activeTrainings.set([]);
     this.createForm.get('trainingId')?.setValue('');
-    this.createForm.get('trainingId')?.disable({ emitEvent: false });
+    this.createForm.get('trainingId')?.disable({emitEvent: false});
   }
 
-  loadModalInitialData(): void {
+  public loadModalInitialData(): void {
     this.isModalLoading.set(true);
     forkJoin({
       academicYears: this.academicYearService.getOpenAcademicYears(),
@@ -255,15 +272,15 @@ export class Accredited implements OnInit {
       });
   }
 
-  loadTrainingsByLevel(levelId: number): void {
+  public loadTrainingsByLevel(levelId: number): void {
     this.isTrainingsLoading.set(true);
-    this.createForm.get('trainingId')?.disable({ emitEvent: false });
+    this.createForm.get('trainingId')?.disable({emitEvent: false});
     this.trainingService
       .getActiveTrainingsByLevel(levelId, 'ACCREDITED' as any)
       .pipe(
         finalize(() => {
           this.isTrainingsLoading.set(false);
-          this.createForm.get('trainingId')?.enable({ emitEvent: false });
+          this.createForm.get('trainingId')?.enable({emitEvent: false});
         })
       )
       .subscribe({
@@ -273,7 +290,7 @@ export class Accredited implements OnInit {
       });
   }
 
-  onSubmit(): void {
+  public onSubmit(): void {
     if (this.createForm.invalid) {
       this.createForm.markAllAsTouched();
       this.toast.error('Veuillez remplir tous les champs obligatoires.');
@@ -298,7 +315,7 @@ export class Accredited implements OnInit {
       });
   }
 
-  openEditModal(id: number): void {
+  public openEditModal(id: number): void {
     this.currentEditId.set(id);
     this.isEditModalOpen.set(true);
     this.isEditFetching.set(true);
@@ -325,7 +342,7 @@ export class Accredited implements OnInit {
       });
   }
 
-  closeEditModal(): void {
+  public closeEditModal(): void {
     this.isEditModalOpen.set(false);
     this.editForm.reset({
       name: '',
@@ -337,7 +354,7 @@ export class Accredited implements OnInit {
     this.currentEditId.set(null);
   }
 
-  onEditSubmit(): void {
+  public onEditSubmit(): void {
     if (this.editForm.invalid) {
       this.editForm.markAllAsTouched();
       return;
@@ -358,7 +375,7 @@ export class Accredited implements OnInit {
       });
   }
 
-  openDetailsModal(id: number): void {
+  public openDetailsModal(id: number): void {
     this.isDetailsModalOpen.set(true);
     this.isDetailsLoading.set(true);
     this.selectedPromotion.set(null);
@@ -373,22 +390,22 @@ export class Accredited implements OnInit {
       });
   }
 
-  closeDetailsModal(): void {
+  public closeDetailsModal(): void {
     this.isDetailsModalOpen.set(false);
     this.selectedPromotion.set(null);
   }
 
-  requestStatusChange(id: number, newStatus: string): void {
-    this.confirmData.set({ id, status: newStatus, label: this.getStatusLabel(newStatus) });
+  public requestStatusChange(id: number, newStatus: string): void {
+    this.confirmData.set({id, status: newStatus, label: this.getStatusLabel(newStatus)});
     this.isConfirmModalOpen.set(true);
   }
 
-  closeConfirmModal(): void {
+  public closeConfirmModal(): void {
     this.isConfirmModalOpen.set(false);
     this.confirmData.set(null);
   }
 
-  confirmStatusChange(): void {
+  public confirmStatusChange(): void {
     const data = this.confirmData();
     if (!data) return;
 
@@ -413,8 +430,7 @@ export class Accredited implements OnInit {
       });
   }
 
-  // Dynamically applies one of the 4 theme colors based on the index
-  getCardTheme(index: number) {
+  public getCardTheme(index: number) {
     const themes = [
       {
         border: 'border-indigo-500',
@@ -448,8 +464,7 @@ export class Accredited implements OnInit {
     return themes[index % 4];
   }
 
-  // Calculates progress (0 to 100%) based on start and end dates
-  calculateProgress(start: string, end: string): number {
+  public calculateProgress(start: string, end: string): number {
     if (!start || !end) return 0;
     const startDate = new Date(start).getTime();
     const endDate = new Date(end).getTime();
@@ -463,8 +478,7 @@ export class Accredited implements OnInit {
     return Math.round((current / total) * 100);
   }
 
-  // Calculates the number of remaining days
-  getRemainingDays(end: string): number | string {
+  public getRemainingDays(end: string): number | string {
     if (!end) return '?';
     const endDate = new Date(end).getTime();
     const now = new Date().getTime();
@@ -473,13 +487,13 @@ export class Accredited implements OnInit {
     return Math.ceil(diff / (1000 * 3600 * 24));
   }
 
-  getCapacityPercentage(enrollment: number, capacity: number): number {
+  public getCapacityPercentage(enrollment: number, capacity: number): number {
     if (!capacity || capacity <= 0) return 0;
     const percent = (enrollment / capacity) * 100;
     return percent > 100 ? 100 : percent;
   }
 
-  getStatusStyle(status: string | null | undefined): string {
+  public getStatusStyle(status: string | null | undefined): string {
     if (!status) return 'bg-gray-100 text-gray-500 border-gray-200';
     switch (status.toUpperCase()) {
       case 'DRAFT':
@@ -500,7 +514,7 @@ export class Accredited implements OnInit {
     }
   }
 
-  getStatusLabel(status: string | null | undefined): string {
+  public getStatusLabel(status: string | null | undefined): string {
     if (!status) return 'Non défini';
     switch (status.toUpperCase()) {
       case 'DRAFT':

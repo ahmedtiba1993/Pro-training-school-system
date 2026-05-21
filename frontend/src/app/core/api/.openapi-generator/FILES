@@ -29,6 +29,8 @@ api/period-controller.service.ts
 api/period-controller.serviceInterface.ts
 api/promotion-controller.service.ts
 api/promotion-controller.serviceInterface.ts
+api/promotion-subject-controller.service.ts
+api/promotion-subject-controller.serviceInterface.ts
 api/ref-teacher-specialty-controller.service.ts
 api/ref-teacher-specialty-controller.serviceInterface.ts
 api/specialty-controller.service.ts
@@ -80,11 +82,13 @@ model/api-response-list-ongoing-promotion-response.ts
 model/api-response-list-parent-response.ts
 model/api-response-list-period-response.ts
 model/api-response-list-promotion-lookup-response.ts
+model/api-response-list-promotion-subject-response.ts
 model/api-response-list-ref-teacher-specialty-response.ts
 model/api-response-list-ref-teacher-specialty-simple-response.ts
 model/api-response-list-specialty-response.ts
 model/api-response-list-student-response.ts
 model/api-response-list-subject-response.ts
+model/api-response-list-subject-short-response.ts
 model/api-response-list-teacher-simple-response.ts
 model/api-response-list-training-response.ts
 model/api-response-list-training-type-count-response.ts
@@ -100,6 +104,7 @@ model/api-response-page-response-training-response.ts
 model/api-response-page-response-user-response.ts
 model/api-response-period-response.ts
 model/api-response-promotion-statistics-response.ts
+model/api-response-promotion-stats-response.ts
 model/api-response-ref-teacher-specialty-response.ts
 model/api-response-student-response.ts
 model/api-response-subject-response.ts
@@ -144,6 +149,9 @@ model/period-request.ts
 model/period-response.ts
 model/promotion-lookup-response.ts
 model/promotion-statistics-response.ts
+model/promotion-stats-response.ts
+model/promotion-subject-request.ts
+model/promotion-subject-response.ts
 model/promotion-summary-response.ts
 model/ref-teacher-specialty-request.ts
 model/ref-teacher-specialty-response.ts
@@ -164,6 +172,7 @@ model/student-sibling-response.ts
 model/student-summary-response.ts
 model/subject-request.ts
 model/subject-response.ts
+model/subject-short-response.ts
 model/submitted-document-request.ts
 model/submitted-document-response.ts
 model/teacher-filtre-request.ts

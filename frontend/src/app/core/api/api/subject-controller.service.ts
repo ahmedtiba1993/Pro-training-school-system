@@ -19,6 +19,8 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { ApiResponseListSubjectResponse } from '../model/api-response-list-subject-response';
 // @ts-ignore
+import { ApiResponseListSubjectShortResponse } from '../model/api-response-list-subject-short-response';
+// @ts-ignore
 import { ApiResponseLong } from '../model/api-response-long';
 // @ts-ignore
 import { ApiResponseSubjectResponse } from '../model/api-response-subject-response';
@@ -230,6 +232,64 @@ export class SubjectControllerService extends BaseService implements SubjectCont
         let localVarPath = `/api/v1/subjects`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ApiResponseListSubjectResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/v1/subjects/promotion/{promotionId}/catalog-subjects
+     * @param promotionId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getCatalogSubjectsByPromotionId(promotionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListSubjectShortResponse>;
+    public getCatalogSubjectsByPromotionId(promotionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListSubjectShortResponse>>;
+    public getCatalogSubjectsByPromotionId(promotionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListSubjectShortResponse>>;
+    public getCatalogSubjectsByPromotionId(promotionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (promotionId === null || promotionId === undefined) {
+            throw new Error('Required parameter promotionId was null or undefined when calling getCatalogSubjectsByPromotionId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/subjects/promotion/${this.configuration.encodeParam({name: "promotionId", value: promotionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/catalog-subjects`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseListSubjectShortResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
