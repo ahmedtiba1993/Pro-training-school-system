@@ -11,8 +11,10 @@ import com.tiba.pts.modules.enrollment.domain.entity.EnrollmentDocumentSubmissio
 import com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus;
 import com.tiba.pts.modules.enrollment.dto.request.EnrollmentRequest;
 import com.tiba.pts.modules.enrollment.dto.request.EnrollmentSearchRequest;
+import com.tiba.pts.modules.enrollment.dto.request.UnassignedEnrollmentSearchRequest;
 import com.tiba.pts.modules.enrollment.dto.response.EnrollmentListResponse;
 import com.tiba.pts.modules.enrollment.dto.response.EnrollmentResponse;
+import com.tiba.pts.modules.enrollment.dto.response.UnassignedEnrollmentResponse;
 import com.tiba.pts.modules.enrollment.mapper.EnrollmentMapper;
 import com.tiba.pts.modules.enrollment.repository.EnrollmentDocumentSubmissionRepository;
 import com.tiba.pts.modules.enrollment.repository.EnrollmentRepository;
@@ -128,24 +130,37 @@ public class EnrollmentService {
 
   /** Private method to generate the enrollment number: INSYYYYXXXX */
   private String generateEnrollmentNumber() {
-    int currentYear = LocalDate.now().getYear();
-    String prefix = "INS" + currentYear; // Ex: "INS-2026-"
+    LocalDate now = LocalDate.now();
+    int currentYear = now.getYear();
+    int currentMonth = now.getMonthValue();
+    // Generates the prefix : INS + Year (4 digits) + Month (2 digits with a leading zero if <
+    // 10)
+    // Example in May 2026 : "INS202605"
+    String prefix = String.format("INS%d%02d", currentYear, currentMonth);
 
+    // We look for the last record starting with this specific prefix (e.g.: "INS202605%")
     Optional<Enrollment> lastEnrollment =
         enrollmentRepository.findTopByEnrollmentNumberStartingWithOrderByEnrollmentNumberDesc(
             prefix);
 
-    int sequence = 1; // We start at 1 by default
+    int sequence = 1; // By default, we start at 1 for the new month
 
     if (lastEnrollment.isPresent()) {
       String lastNumber = lastEnrollment.get().getEnrollmentNumber();
-      // We extract the numeric part (everything after "INS-2026-")
+
+      // We extract only what exceeds the prefix (the last 3 digits)
       String sequenceStr = lastNumber.substring(prefix.length());
-      sequence = Integer.parseInt(sequenceStr) + 1; // We increment
+
+      try {
+        sequence = Integer.parseInt(sequenceStr) + 1; // We move to the next element
+      } catch (NumberFormatException e) {
+        // Security in case an old invalid data is lying around in the DB
+        sequence = 1;
+      }
     }
 
-    // String.format("%03d", sequence) forces the format to 4 digits (0001, 0002... 0010... 0100)
-    return prefix + String.format("%04d", sequence);
+    // %03d forces the format to 3 digits (001, 002... 010... 100)
+    return prefix + String.format("%03d", sequence);
   }
 
   @Transactional(readOnly = true)
@@ -486,5 +501,22 @@ public class EnrollmentService {
           throw new BusinessValidationException(
               "Unexpected status for account deactivation: " + enrollmentStatus);
     };
+  }
+
+  @Transactional(readOnly = true)
+  public List<UnassignedEnrollmentResponse> getUnassignedValidatedEnrollments(
+      UnassignedEnrollmentSearchRequest searchParams) {
+    if (searchParams.getPromotionId() == null) {
+      throw new BusinessValidationException("PROMOTION_ID_REQUIRED");
+    }
+
+    // The data arrives already "trimmed" and cleaned here
+    return enrollmentRepository.findUnassignedValidatedEnrollmentsWithFilters(
+        searchParams.getPromotionId(),
+        searchParams.getFirstName(),
+        searchParams.getLastName(),
+        searchParams.getCin(),
+        searchParams.getPhone(),
+        searchParams.getStudentCode());
   }
 }

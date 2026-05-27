@@ -285,7 +285,7 @@ export class EnrollmentCreate implements OnInit {
   selectExistingStudent(student: StudentResponse): void {
     this.selectedStudent.set(student);
     this.enrollmentMode.set('EXISTING');
-    this.enrollmentForm.patchValue({ type: 'OLD', existingStudentId: student.id });
+    this.enrollmentForm.patchValue({ type: 'NEW', existingStudentId: student.id });
     this.currentStepIndex.set(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }

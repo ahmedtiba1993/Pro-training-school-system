@@ -21,6 +21,8 @@ import { ApiResponseBoolean } from '../model/api-response-boolean';
 // @ts-ignore
 import { ApiResponseEnrollmentResponse } from '../model/api-response-enrollment-response';
 // @ts-ignore
+import { ApiResponseListUnassignedEnrollmentResponse } from '../model/api-response-list-unassigned-enrollment-response';
+// @ts-ignore
 import { ApiResponseVoid } from '../model/api-response-void';
 // @ts-ignore
 import { EnrollmentRequest } from '../model/enrollment-request';
@@ -30,6 +32,8 @@ import { EnrollmentResponse } from '../model/enrollment-response';
 import { EnrollmentSearchRequest } from '../model/enrollment-search-request';
 // @ts-ignore
 import { PageResponseEnrollmentListResponse } from '../model/page-response-enrollment-list-response';
+// @ts-ignore
+import { UnassignedEnrollmentSearchRequest } from '../model/unassigned-enrollment-search-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -377,6 +381,76 @@ export class EnrollmentControllerService extends BaseService implements Enrollme
         return this.httpClient.request<EnrollmentResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/v1/enrollments/unassigned
+     * @param filterRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getUnassignedValidatedEnrollments(filterRequest: UnassignedEnrollmentSearchRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListUnassignedEnrollmentResponse>;
+    public getUnassignedValidatedEnrollments(filterRequest: UnassignedEnrollmentSearchRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListUnassignedEnrollmentResponse>>;
+    public getUnassignedValidatedEnrollments(filterRequest: UnassignedEnrollmentSearchRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListUnassignedEnrollmentResponse>>;
+    public getUnassignedValidatedEnrollments(filterRequest: UnassignedEnrollmentSearchRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (filterRequest === null || filterRequest === undefined) {
+            throw new Error('Required parameter filterRequest was null or undefined when calling getUnassignedValidatedEnrollments.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'filterRequest',
+            <any>filterRequest,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/enrollments/unassigned`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseListUnassignedEnrollmentResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

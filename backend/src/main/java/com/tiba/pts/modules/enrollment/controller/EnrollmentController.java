@@ -5,8 +5,10 @@ import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus;
 import com.tiba.pts.modules.enrollment.dto.request.EnrollmentRequest;
 import com.tiba.pts.modules.enrollment.dto.request.EnrollmentSearchRequest;
+import com.tiba.pts.modules.enrollment.dto.request.UnassignedEnrollmentSearchRequest;
 import com.tiba.pts.modules.enrollment.dto.response.EnrollmentListResponse;
 import com.tiba.pts.modules.enrollment.dto.response.EnrollmentResponse;
+import com.tiba.pts.modules.enrollment.dto.response.UnassignedEnrollmentResponse;
 import com.tiba.pts.modules.enrollment.service.EnrollmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/enrollments")
@@ -80,5 +84,18 @@ public class EnrollmentController {
       @RequestParam Long studentId, @RequestParam Long promotionId) {
     boolean isEnrolled = enrollmentService.checkStudentEnrollmentExistence(studentId, promotionId);
     return ResponseEntity.ok(ApiResponse.success("EXISTENCE_CHECK_COMPLETED", isEnrolled));
+  }
+
+  @GetMapping("/unassigned")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  public ResponseEntity<ApiResponse<List<UnassignedEnrollmentResponse>>>
+      getUnassignedValidatedEnrollments(
+          @ModelAttribute UnassignedEnrollmentSearchRequest filterRequest) {
+
+    List<UnassignedEnrollmentResponse> response =
+        enrollmentService.getUnassignedValidatedEnrollments(filterRequest);
+
+    return ResponseEntity.ok(
+        ApiResponse.success("UNASSIGNED_ENROLLMENTS_FETCHED_SUCCESSFULLY", response));
   }
 }

@@ -87,9 +87,9 @@
   >
     <div class="flex items-center gap-4">
       <a
-        routerLink="/admin/enrollments"
+        [routerLink]="backRouteLink()"
         class="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-        title="Retour à la liste"
+        title="Retour"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -730,7 +730,7 @@
                 <!-- Document Info -->
                 <div class="flex-1 min-w-0">
                   <p class="font-bold text-slate-800 text-sm truncate" [title]="doc.documentName">
-                    {{ doc.documentName }}
+                    {{ doc.documentLabel }}
                   </p>
                   <div class="flex gap-2 mt-1">
                     <span

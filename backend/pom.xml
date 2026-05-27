@@ -123,6 +123,11 @@
             <artifactId>openhtmltopdf-rtl-support</artifactId>
             <version>1.1.37</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>

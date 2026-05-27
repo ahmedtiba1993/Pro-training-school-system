@@ -13,11 +13,13 @@ import { Observable }                                        from 'rxjs';
 
 import { ApiResponseBoolean } from '../model/models';
 import { ApiResponseEnrollmentResponse } from '../model/models';
+import { ApiResponseListUnassignedEnrollmentResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
 import { EnrollmentRequest } from '../model/models';
 import { EnrollmentResponse } from '../model/models';
 import { EnrollmentSearchRequest } from '../model/models';
 import { PageResponseEnrollmentListResponse } from '../model/models';
+import { UnassignedEnrollmentSearchRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -68,6 +70,14 @@ export interface EnrollmentControllerServiceInterface {
      * @param id 
      */
     getEnrollmentById(id: number, extraHttpRequestParams?: any): Observable<EnrollmentResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/enrollments/unassigned
+     * @param filterRequest 
+     */
+    getUnassignedValidatedEnrollments(filterRequest: UnassignedEnrollmentSearchRequest, extraHttpRequestParams?: any): Observable<ApiResponseListUnassignedEnrollmentResponse>;
 
     /**
      * 

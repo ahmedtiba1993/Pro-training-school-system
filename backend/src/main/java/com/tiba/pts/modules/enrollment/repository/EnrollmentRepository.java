@@ -2,6 +2,7 @@ package com.tiba.pts.modules.enrollment.repository;
 
 import com.tiba.pts.modules.enrollment.domain.entity.Enrollment;
 import com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus;
+import com.tiba.pts.modules.enrollment.dto.response.UnassignedEnrollmentResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -51,4 +52,27 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
       Pageable pageable);
 
   boolean existsByStudentIdAndStatusIn(Long studentId, List<EnrollmentStatus> statuses);
+
+  @Query(
+      "SELECT new com.tiba.pts.modules.enrollment.dto.response.UnassignedEnrollmentResponse("
+          + "e.id, e.enrollmentNumber, e.student.firstName, e.student.lastName, e.student.studentCode, e.student.birthDate) "
+          + "FROM Enrollment e "
+          + "WHERE e.promotion.id = :promotionId "
+          + "AND e.status IN (com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus.VALIDATED, "
+          + "                 com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus.CONDITIONALLY_VALIDATED) "
+          + "AND NOT EXISTS ("
+          + "  SELECT ca FROM ClassAssignment ca WHERE ca.enrollment.id = e.id"
+          + ") "
+          + "AND (:firstName IS NULL OR LOWER(e.student.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) "
+          + "AND (:lastName IS NULL OR LOWER(e.student.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))) "
+          + "AND (:cin IS NULL OR e.student.cin LIKE CONCAT('%', :cin, '%')) "
+          + "AND (:phone IS NULL OR e.student.phone LIKE CONCAT('%', :phone, '%')) "
+          + "AND (:studentCode IS NULL OR LOWER(e.student.studentCode) LIKE LOWER(CONCAT('%', :studentCode, '%')))")
+  List<UnassignedEnrollmentResponse> findUnassignedValidatedEnrollmentsWithFilters(
+      @Param("promotionId") Long promotionId,
+      @Param("firstName") String firstName,
+      @Param("lastName") String lastName,
+      @Param("cin") String cin,
+      @Param("phone") String phone,
+      @Param("studentCode") String studentCode);
 }

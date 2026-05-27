@@ -35,3 +35,6 @@ frontend/src/app/core/api/.openapi-generator/FILES
 frontend/src/app/core/api/.openapi-generator/FILES
 frontend/src/app/core/api/.openapi-generator/FILES
 /backend/src/main/resources/application-prod.yml
+/.env
+/docker-compose.yml
+/backend/Dockerfile

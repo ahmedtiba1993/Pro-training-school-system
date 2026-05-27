@@ -26,6 +26,9 @@ export class EnrollmentDetail implements OnInit {
   isUpdatingDoc = signal<number | null>(null);
   isExportingPdf = signal<boolean>(false);
 
+  // Signal to memorize the ID of the source class
+  readonly sourceClassId = signal<string | null>(null);
+
   // Signals for status management
   isStatusModalOpen = signal<boolean>(false);
   isConfirmingStatus = signal<boolean>(false);
@@ -35,6 +38,13 @@ export class EnrollmentDetail implements OnInit {
   // Computed Properties
   student = computed(() => this.enrollment()?.student);
   promotion = computed(() => this.enrollment()?.promotion);
+
+  // DYNAMIC RETURN LINK (Calculates the destination based on the source)
+  readonly backRouteLink = computed(() => {
+    const classId = this.sourceClassId();
+    // If we come from a class, we return to it, otherwise return to the general list
+    return classId ? ['/admin/class-management', classId, 'students'] : ['/admin/enrollments'];
+  });
 
   parentsList = computed<any[]>(() => this.student()?.parents || []);
   father = computed(() => this.parentsList().find((p: any) => p.link === 'FATHER'));
@@ -134,6 +144,10 @@ export class EnrollmentDetail implements OnInit {
   };
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe(queryParams => {
+      this.sourceClassId.set(queryParams.get('fromClass'));
+    });
+
     this.route.paramMap.subscribe(params => {
       const idParam = params.get('id');
       if (idParam) {

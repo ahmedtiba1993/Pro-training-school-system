@@ -5,9 +5,11 @@ import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.core.service.PdfGeneratorService;
 import com.tiba.pts.modules.academicyear.domain.entity.AcademicYear;
 import com.tiba.pts.modules.academicyear.repository.AcademicYearRepository;
+import com.tiba.pts.modules.classmanagement.repository.ClassGroupRepository;
 import com.tiba.pts.modules.documents.domain.entity.EnrollmentDocument;
 import com.tiba.pts.modules.documents.dto.request.EnrollmentDocumentRequest;
 import com.tiba.pts.modules.documents.dto.response.EnrollmentDocumentResponse;
+import com.tiba.pts.modules.documents.dto.response.EnrollmentDocumentSimpleResponse;
 import com.tiba.pts.modules.documents.mapper.EnrollmentDocumentMapper;
 import com.tiba.pts.modules.documents.repository.EnrollmentDocumentRepository;
 import com.tiba.pts.modules.specialty.domain.entity.Level;
@@ -32,6 +34,7 @@ public class EnrollmentDocumentService {
   private final LevelRepository levelRepository;
   private final PdfGeneratorService pdfGeneratorService;
   private final AcademicYearRepository academicYearRepository;
+  private final ClassGroupRepository classGroupRepository;
 
   @Transactional
   public Long addDocument(EnrollmentDocumentRequest request) {
@@ -40,7 +43,7 @@ public class EnrollmentDocumentService {
       throw new ResourceNotFoundException("DOCUMENT_LABEL_ALREADY_EXISTS");
     }
 
-    // Vérification de l'existence du Code (Ajout demandé)
+    // Code existence check (Requested addition)
     if (documentRepository.existsByCodeIgnoreCase(request.getCode())) {
       throw new EntityAlreadyExistsException("DOCUMENT_CODE_ALREADY_EXISTS");
     }
@@ -145,5 +148,19 @@ public class EnrollmentDocumentService {
     data.put("registrationFees", "150 دينار");
 
     return pdfGeneratorService.generateArPdf("enrollment-documents-ar", data);
+  }
+
+  @Transactional(readOnly = true)
+  public List<EnrollmentDocumentSimpleResponse> getDocumentsByClassGroupId(Long classGroupId) {
+    // Security check: does the class exist
+    if (!classGroupRepository.existsById(classGroupId)) {
+      throw new ResourceNotFoundException("CLASS_GROUP_NOT_FOUND");
+    }
+
+    // Retrieval of documents associated with the level of this class
+    List<EnrollmentDocument> documents = documentRepository.findByClassGroupId(classGroupId);
+
+    // Transformation to the restricted DTO (id + label)
+    return documents.stream().map(mapper::toSimpleResponse).collect(Collectors.toList());
   }
 }

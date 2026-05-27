@@ -12,6 +12,7 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { ApiResponseListEnrollmentDocumentResponse } from '../model/models';
+import { ApiResponseListEnrollmentDocumentSimpleResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { EnrollmentDocumentRequest } from '../model/models';
 
@@ -45,6 +46,14 @@ export interface EnrollmentDocumentControllerServiceInterface {
      * @endpoint get /api/v1/enrollment-documents
      */
     getAllDocuments(extraHttpRequestParams?: any): Observable<ApiResponseListEnrollmentDocumentResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/enrollment-documents/class-group/{classGroupId}
+     * @param classGroupId 
+     */
+    getDocumentsByClassGroup(classGroupId: number, extraHttpRequestParams?: any): Observable<ApiResponseListEnrollmentDocumentSimpleResponse>;
 
     /**
      * 

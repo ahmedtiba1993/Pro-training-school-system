@@ -21,6 +21,8 @@ import { TeacherSpecialties } from './pages/profile/teacher/teacher-specialties/
 import { TeacherList } from './pages/profile/teacher/teacher-list/teacher-list';
 import { SubjectList } from './pages/subjects/subject-list/subject-list';
 import { PromotionSubject } from './pages/training-session/promotion-subject/promotion-subject';
+import { ClassmanagementList } from './pages/classmanagement/classmanagement-list/classmanagement-list';
+import { ClassStudentList } from './pages/classmanagement/class-student-list/class-student-list';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -49,7 +51,9 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'modules', component: SubjectList },
       { path: 'promotions/accredited/:id/subjects', component: PromotionSubject },
       { path: 'promotions/continuous/:id/subjects', component: PromotionSubject },
-      { path: 'promotions/accelerated/:id/subjects', component: PromotionSubject }
+      { path: 'promotions/accelerated/:id/subjects', component: PromotionSubject },
+      { path: 'class-management', component: ClassmanagementList },
+      { path: 'class-management/:id/students', component: ClassStudentList }
     ]
   }
 ];

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Liste des Apprenants</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            color: #000000;
+            line-height: 1.4;
+            font-size: 12px;
+        }
+
+        /* Style pour le nom du centre */
+        .center-header {
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .header-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 8px;
+        }
+
+        .meta-info {
+            margin-bottom: 30px;
+            font-size: 13px;
+        }
+
+        .meta-info table {
+            width: auto;
+        }
+
+        .meta-info td {
+            border: none;
+            padding: 3px 10px 3px 0;
+        }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table.data-table th {
+            border: 1px solid #000000;
+            background-color: #F2F2F2;
+            padding: 8px;
+            font-weight: bold;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        table.data-table td {
+            border: 1px solid #000000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .col-num {
+            width: 10%;
+            text-align: center;
+        }
+
+        .col-fullname {
+            width: 90%;
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="center-header">
+    INSTITUT POLY ELÉCTRONIQUE<br/>
+    DE FORMATION PROFESSIONNELLE
+</div>
+
+<div class="header-title">LISTE DES apprenants</div>
+
+<div class="meta-info">
+    <table>
+        <tr>
+            <td><strong>Classe :</strong></td>
+            <td th:text="${className}">Nom de la classe</td>
+        </tr>
+        <tr>
+            <td><strong>Code :</strong></td>
+            <td th:text="${classCode}">CODE-123</td>
+        </tr>
+    </table>
+</div>
+
+<table class="data-table">
+    <thead>
+    <tr>
+        <th class="col-num">N°</th>
+        <th class="col-fullname">Nom et Prénom</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="student, iter : ${students}">
+        <td class="col-num" th:text="${iter.count}">1</td>
+        <td class="col-fullname" th:text="${student.firstName + ' ' + student.lastName}">NOM PRENOM</td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(students)}">
+        <td colspan="2" class="empty-msg">Aucun apprenant n'est actuellement assigné à cette classe.</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

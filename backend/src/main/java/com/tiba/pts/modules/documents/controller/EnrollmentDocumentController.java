@@ -3,6 +3,7 @@ package com.tiba.pts.modules.documents.controller;
 import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.modules.documents.dto.request.EnrollmentDocumentRequest;
 import com.tiba.pts.modules.documents.dto.response.EnrollmentDocumentResponse;
+import com.tiba.pts.modules.documents.dto.response.EnrollmentDocumentSimpleResponse;
 import com.tiba.pts.modules.documents.service.EnrollmentDocumentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -71,5 +72,19 @@ public class EnrollmentDocumentController {
     headers.setContentType(MediaType.APPLICATION_PDF);
     headers.setContentDispositionFormData("attachment", "fiche_inscription.pdf");
     return ResponseEntity.ok().headers(headers).body(pdfBytes);
+  }
+
+  @GetMapping("/class-group/{classGroupId}")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<ApiResponse<List<EnrollmentDocumentSimpleResponse>>>
+      getDocumentsByClassGroup(@PathVariable Long classGroupId) {
+
+    List<EnrollmentDocumentSimpleResponse> documents =
+        documentService.getDocumentsByClassGroupId(classGroupId);
+
+    ApiResponse<List<EnrollmentDocumentSimpleResponse>> response =
+        ApiResponse.success("REGISTRATION_DOCUMENTS_BY_CLASS_GROUP_RETRIEVED", documents);
+
+    return ResponseEntity.ok(response);
   }
 }
