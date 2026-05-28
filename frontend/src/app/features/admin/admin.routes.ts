@@ -23,6 +23,7 @@ import { SubjectList } from './pages/subjects/subject-list/subject-list';
 import { PromotionSubject } from './pages/training-session/promotion-subject/promotion-subject';
 import { ClassmanagementList } from './pages/classmanagement/classmanagement-list/classmanagement-list';
 import { ClassStudentList } from './pages/classmanagement/class-student-list/class-student-list';
+import { Room } from './pages/room/room';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -53,7 +54,8 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'promotions/continuous/:id/subjects', component: PromotionSubject },
       { path: 'promotions/accelerated/:id/subjects', component: PromotionSubject },
       { path: 'class-management', component: ClassmanagementList },
-      { path: 'class-management/:id/students', component: ClassStudentList }
+      { path: 'class-management/:id/students', component: ClassStudentList },
+      { path: 'rooms', component: Room }
     ]
   }
 ];

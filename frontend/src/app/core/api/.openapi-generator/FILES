@@ -37,6 +37,8 @@ api/promotion-subject-controller.service.ts
 api/promotion-subject-controller.serviceInterface.ts
 api/ref-teacher-specialty-controller.service.ts
 api/ref-teacher-specialty-controller.serviceInterface.ts
+api/room-controller.service.ts
+api/room-controller.serviceInterface.ts
 api/specialty-controller.service.ts
 api/specialty-controller.serviceInterface.ts
 api/student-controller.service.ts
@@ -94,6 +96,7 @@ model/api-response-list-promotion-lookup-response.ts
 model/api-response-list-promotion-subject-response.ts
 model/api-response-list-ref-teacher-specialty-response.ts
 model/api-response-list-ref-teacher-specialty-simple-response.ts
+model/api-response-list-room-response.ts
 model/api-response-list-specialty-response.ts
 model/api-response-list-student-response.ts
 model/api-response-list-subject-response.ts
@@ -116,6 +119,7 @@ model/api-response-period-response.ts
 model/api-response-promotion-statistics-response.ts
 model/api-response-promotion-stats-response.ts
 model/api-response-ref-teacher-specialty-response.ts
+model/api-response-room-status-stats-response.ts
 model/api-response-student-response.ts
 model/api-response-subject-response.ts
 model/api-response-teacher-response.ts
@@ -173,6 +177,10 @@ model/promotion-summary-response.ts
 model/ref-teacher-specialty-request.ts
 model/ref-teacher-specialty-response.ts
 model/ref-teacher-specialty-simple-response.ts
+model/room-request.ts
+model/room-response.ts
+model/room-status-stats-response.ts
+model/room-update-request.ts
 model/specialty-request.ts
 model/specialty-response.ts
 model/student-info-request.ts
