@@ -1,0 +1,263 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+  <header
+    class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-10 relative"
+  >
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Emplois du Temps des Enseignants</h1>
+      <p class="text-xs text-slate-500 mt-0.5">
+        Consultation et grille de planification individuelle par enseignant
+      </p>
+    </div>
+  </header>
+
+  <div class="flex-1 flex overflow-hidden bg-slate-50/50">
+    <!-- LEFT SIDEBAR: TEACHERS LIST -->
+    <div class="w-80 border-r border-slate-200 bg-white flex flex-col shrink-0">
+      <!-- Search -->
+      <div class="p-4 border-b border-slate-100">
+        <div class="relative">
+          <input
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            type="text"
+            placeholder="Rechercher un enseignant..."
+            class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-slate-700"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      @if (isLoading()) {
+        <div class="flex-1 flex flex-col items-center justify-center p-8 text-slate-400">
+          <svg class="animate-spin h-8 w-8 text-indigo-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-xs font-semibold">Chargement des enseignants...</span>
+        </div>
+      } @else {
+        <!-- Scrollable list -->
+        <div class="flex-1 overflow-y-auto p-3 space-y-2">
+          @for (teacher of filteredTeachers(); track teacher.id) {
+            <div
+              (click)="selectTeacher(teacher.id)"
+              [class]="
+                selectedTeacherId() === teacher.id
+                  ? 'border-indigo-500 bg-indigo-50/40 ring-1 ring-indigo-500'
+                  : 'border-slate-100 hover:bg-slate-50/60'
+              "
+              class="border rounded-xl p-3 cursor-pointer transition-all flex items-center gap-3"
+            >
+              <div
+                [class]="
+                  selectedTeacherId() === teacher.id
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-indigo-50 text-indigo-700'
+                "
+                class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition-colors"
+              >
+                {{ getInitials(teacher.firstName, teacher.lastName) }}
+              </div>
+              <div class="min-w-0 flex-1">
+                <h4 class="text-xs font-bold text-slate-800 truncate">
+                  {{ teacher.firstName }} {{ teacher.lastName }}
+                </h4>
+                <div class="flex items-center gap-2 mt-1">
+                  @if (teacher.code) {
+                    <span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded text-[9px] font-bold uppercase tracking-wider shrink-0">{{ teacher.code }}</span>
+                  } @else {
+                    <span class="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] font-semibold shrink-0">Enseignant</span>
+                  }
+                  <span class="text-[9px] text-slate-400 font-medium truncate">{{ teacher.phone || 'Pas de téléphone' }}</span>
+                </div>
+              </div>
+            </div>
+          } @empty {
+            <div class="py-8 text-center text-xs text-slate-400 font-semibold">
+              Aucun enseignant trouvé.
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- RIGHT GRID: WEEKLY SCHEDULE -->
+    <div class="flex-1 overflow-y-auto p-6 lg:p-8 flex flex-col gap-6">
+      @if (selectedTeacher(); as teacher) {
+        <!-- Teacher Profile Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-indigo-100 text-indigo-700 rounded-2xl flex items-center justify-center font-bold text-lg">
+              {{ getInitials(teacher.firstName, teacher.lastName) }}
+            </div>
+            <div>
+              <div class="flex items-center gap-3">
+                <h2 class="text-lg font-bold text-slate-800">{{ teacher.firstName }} {{ teacher.lastName }}</h2>
+                @if (teacher.code) {
+                  <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-lg text-[10px] font-bold uppercase tracking-wider">{{ teacher.code }}</span>
+                }
+              </div>
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-slate-500 font-medium">
+                @if (teacher.phone) {
+                  <span>Tél : {{ teacher.phone }}</span>
+                }
+                <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px] font-semibold">
+                  {{ totalSlots() }} cours planifié{{ totalSlots() > 1 ? 's' : '' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            (click)="exportToPdf(teacher.id!)"
+            [disabled]="isExporting()"
+            class="bg-white border border-slate-200 hover:border-slate-300 text-slate-600 px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto justify-center"
+          >
+            @if (isExporting()) {
+              <div class="w-4 h-4 border-2 border-indigo-600 border-b-transparent rounded-full animate-spin"></div>
+              <span>Exportation...</span>
+            } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4 text-rose-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <span>Exporter en PDF</span>
+            }
+          </button>
+        </div>
+
+        <!-- Timetable Grid -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col">
+          <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center shrink-0">
+            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-indigo-500">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+              </svg>
+              Emploi du temps de la semaine
+            </h3>
+          </div>
+
+          <!-- Loading overlay for timetable -->
+          @if (isTimetableLoading()) {
+            <div class="flex-1 flex flex-col items-center justify-center p-12 text-slate-400">
+              <svg class="animate-spin h-8 w-8 text-indigo-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span class="text-xs font-semibold">Chargement de l'emploi du temps...</span>
+            </div>
+          } @else if (sortedTimeSlotDefinitions().length === 0) {
+            <div class="flex-1 flex flex-col items-center justify-center p-12 text-slate-400">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+              </svg>
+              <p class="text-xs font-semibold">Aucun créneau horaire défini pour cet enseignant.</p>
+              <p class="text-[10px] text-slate-400 mt-1">Veuillez d'abord configurer les créneaux horaires.</p>
+            </div>
+          } @else {
+            <div class="overflow-x-auto flex-1">
+              <div class="min-w-[800px]" [style.display]="'grid'" [style.grid-template-columns]="'auto repeat(' + days.length + ', 1fr)'" class="border-b border-slate-100">
+
+                <!-- HEADER ROW -->
+                <!-- Top-left corner -->
+                <div class="flex items-center justify-center border-b border-r border-slate-100 bg-slate-50/50 h-14 font-bold text-[10px] text-slate-400 uppercase tracking-wider px-4">
+                  Créneaux
+                </div>
+                <!-- Day headers -->
+                @for (day of days; track day.code) {
+                  <div class="h-14 flex items-center justify-center border-b border-r border-slate-100 font-bold text-xs text-slate-700">
+                    {{ day.label }}
+                  </div>
+                }
+
+                <!-- DATA ROWS: one row per time slot definition -->
+                @for (slotDef of sortedTimeSlotDefinitions(); track slotDef.id) {
+                  <!-- Time slot label column -->
+                  <div class="h-24 flex flex-col items-center justify-center border-b border-r border-slate-100 px-3 text-center bg-slate-50/50">
+                    <span class="text-xs font-bold text-slate-800">{{ slotDef.code }}</span>
+                    <span class="text-[10px] text-slate-400 font-semibold mt-0.5">{{ slotDef.label }}</span>
+                    <span class="text-[10px] text-slate-400 font-semibold mt-0.5">{{ formatTime(slotDef.startTime) }} - {{ formatTime(slotDef.endTime) }}</span>
+                  </div>
+
+                  <!-- Day cells for this time slot -->
+                  @for (day of days; track day.code) {
+                    @let items = getSlotItems(day.code, slotDef.id);
+                    @if (items.length > 1) {
+                      <!-- Multiple slots (WEEK_A / WEEK_B) -->
+                      <div class="h-24 p-1 border-b border-r border-slate-100 flex gap-1">
+                        @for (item of items; track item.id) {
+                          <div class="flex-1 border rounded-lg p-1.5 flex flex-col justify-between hover:shadow-sm transition-all {{ getCardStyle(item.subject?.name) }}">
+                            <div>
+                              <p class="text-[9px] font-bold truncate {{ getTextStyle(item.subject?.name) }}">{{ item.subject?.name }}</p>
+                              @if (item.periodicity && item.periodicity !== 'NORMAL') {
+                                <span class="inline-block mt-0.5 px-1 py-0 rounded text-[7px] font-bold border {{ getPeriodicityBadgeStyle(item.periodicity) }}">
+                                  {{ getPeriodicityLabel(item.periodicity) }}
+                                </span>
+                              }
+                            </div>
+                            <div class="flex items-center justify-between text-[8px] font-semibold {{ getBadgeStyle(item.subject?.name) }}">
+                              <span class="px-1 py-0.5 rounded {{ getBadgeBgStyle(item.subject?.name) }} truncate">{{ item.room?.name }}</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    } @else if (items.length === 1) {
+                      <!-- Single slot -->
+                      @let item = items[0];
+                      <div class="h-24 p-2 border-b border-r border-slate-100">
+                        <div class="h-full border rounded-xl p-2.5 flex flex-col justify-between hover:shadow-sm transition-all {{ getCardStyle(item.subject?.name) }}">
+                          <div>
+                            <p class="text-xs font-bold truncate {{ getTextStyle(item.subject?.name) }}">{{ item.subject?.name }}</p>
+                            @if (item.periodicity && item.periodicity !== 'NORMAL') {
+                              <span class="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[8px] font-bold border {{ getPeriodicityBadgeStyle(item.periodicity) }}">
+                                {{ getPeriodicityLabel(item.periodicity) }}
+                              </span>
+                            }
+                          </div>
+                          <div class="flex items-center justify-between text-[9px] font-semibold {{ getBadgeStyle(item.subject?.name) }}">
+                            <span class="px-1.5 py-0.5 rounded {{ getBadgeBgStyle(item.subject?.name) }}">{{ item.room?.name }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    } @else {
+                      <!-- Empty cell -->
+                      <div class="h-24 border-b border-r border-slate-100 bg-slate-50/10"></div>
+                    }
+                  }
+                }
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="flex-1 flex flex-col items-center justify-center p-12 text-slate-400 bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+          </svg>
+          <p class="text-xs font-semibold">Veuillez sélectionner un enseignant pour afficher son emploi du temps.</p>
+        </div>
+      }
+    </div>
+  </div>
+</main>

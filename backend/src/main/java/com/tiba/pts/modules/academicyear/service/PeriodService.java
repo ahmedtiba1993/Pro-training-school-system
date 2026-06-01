@@ -8,6 +8,7 @@ import com.tiba.pts.modules.academicyear.domain.entity.AcademicYear;
 import com.tiba.pts.modules.academicyear.domain.entity.Period;
 import com.tiba.pts.modules.academicyear.domain.enums.YearStatus;
 import com.tiba.pts.modules.academicyear.dto.request.PeriodRequest;
+import com.tiba.pts.modules.academicyear.dto.response.DefaultPeriodResponse;
 import com.tiba.pts.modules.academicyear.dto.response.PeriodResponse;
 import com.tiba.pts.modules.academicyear.mapper.PeriodMapper;
 import com.tiba.pts.modules.academicyear.repository.AcademicYearRepository;
@@ -264,5 +265,11 @@ public class PeriodService {
       period.setOrderIndex(index++);
     }
     periodRepository.saveAll(allPeriods);
+  }
+
+  @Transactional(readOnly = true)
+  public List<DefaultPeriodResponse> getPeriodsOfDefaultAcademicYear() {
+    List<Period> periods = periodRepository.findAllByAcademicYearIsDefaultTrue();
+    return periodMapper.toDefaultResponseList(periods);
   }
 }

@@ -93,7 +93,7 @@ public class SubjectController {
   }
 
   @GetMapping("/promotion/{promotionId}/catalog-subjects")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIAT', 'ROLE_FORMATEUR', 'ROLE_APPRENANT')")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<List<SubjectShortResponse>>> getCatalogSubjectsByPromotionId(
       @PathVariable Long promotionId) {
 

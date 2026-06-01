@@ -8,6 +8,7 @@ import com.tiba.pts.modules.classmanagement.domain.entity.ClassAssignment;
 import com.tiba.pts.modules.classmanagement.domain.entity.ClassGroup;
 import com.tiba.pts.modules.classmanagement.domain.enums.ClassStatus;
 import com.tiba.pts.modules.classmanagement.dto.request.ClassGroupRequest;
+import com.tiba.pts.modules.classmanagement.dto.response.ActiveClassGroupResponse;
 import com.tiba.pts.modules.classmanagement.dto.response.ClassGroupDetailResponse;
 import com.tiba.pts.modules.classmanagement.dto.response.ClassGroupResponse;
 import com.tiba.pts.modules.classmanagement.dto.response.ClassManagementStatsResponse;
@@ -40,19 +41,19 @@ public class ClassGroupService {
   @Transactional
   public Long createClassGroup(ClassGroupRequest request) {
 
-    // Retrieval of Promotion Master Data
+    // Retrieve Promotion Master Data
     Promotion promotion =
         promotionRepository
             .findById(request.getPromotionId())
             .orElseThrow(() -> new ResourceNotFoundException("PROMOTION_NOT_FOUND"));
 
-    // The couple [promotion_id + name] must be unique
+    // The combination [promotion_id + name] must be unique
     if (classGroupRepository.existsByPromotionIdAndNameIgnoreCase(
         request.getPromotionId(), request.getName())) {
       throw new EntityAlreadyExistsException("CLASS_ALREADY_EXISTS_IN_THIS_PROMOTION");
     }
 
-    // Strict prohibition if the promotion is COMPLETED, ARCHIVED, or CANCELLED
+    // Strictly prohibited if the promotion is COMPLETED, ARCHIVED, or CANCELLED
     String promoStatus = promotion.getStatus().toString();
     if ("COMPLETED".equalsIgnoreCase(promoStatus)
         || "ARCHIVED".equalsIgnoreCase(promoStatus)
@@ -77,18 +78,18 @@ public class ClassGroupService {
       // Formats the code as: CL{PromotionCode}-{4 digits with leading zeros if necessary}
       generatedCode = String.format("CL%s-%04d", promotion.getCode(), randomNumber);
 
-      // Checking the existence of the generated SKU in the DB
+      // Check the existence of the generated SKU in the DB
       codeExists = classGroupRepository.existsByCode(generatedCode);
 
     } while (codeExists); // If the code already exists, the loop restarts and picks a new number
 
-    // Assignment of the unique and definitive code to the entity
+    // Assign the unique and definitive code to the entity
     classGroup.setCode(generatedCode);
 
     // The status is strictly forced to DRAFT initially
     classGroup.setStatus(ClassStatus.DRAFT);
 
-    // Promotion
+    // Set promotion
     classGroup.setPromotion(promotion);
 
     // Save
@@ -99,20 +100,20 @@ public class ClassGroupService {
   public List<ClassGroupResponse> getAllFiltered(
       Long levelId, Long trainingId, ClassStatus status) {
 
-    // Extraction of the sorted and filtered list from the DB
+    // Extract the sorted and filtered list from the DB
     List<ClassGroup> classGroups =
         classGroupRepository.findAllFiltered(trainingId, levelId, status);
 
-    // Mapping the entity list to the DTO list
+    // Map the entity list to the DTO list
     return classGroups.stream().map(classGroupMapper::toResponse).toList();
   }
 
   @Transactional(readOnly = true)
   public ClassManagementStatsResponse getClassManagementStats() {
-    // Count of active classes
+    // Count active classes
     long activeClasses = classGroupRepository.countByStatus(ClassStatus.ACTIVE);
 
-    // Count of students assigned to these active classes
+    // Count students assigned to these active classes
     long assignedStudents = classAssignmentRepository.countByClassGroupStatus(ClassStatus.ACTIVE);
 
     // Return the consolidated DTO
@@ -121,12 +122,12 @@ public class ClassGroupService {
 
   @Transactional
   public Long updateStatus(Long id, ClassStatus targetStatus) {
-    // Security validation if the parameter is missing
+    // Safety validation if the parameter is missing
     if (targetStatus == null) {
       throw new BusinessValidationException("STATUS_REQUIRED");
     }
 
-    // Aggregate retrieval
+    // Retrieve aggregate
     ClassGroup classGroup =
         classGroupRepository
             .findById(id)
@@ -163,14 +164,14 @@ public class ClassGroupService {
         break;
     }
 
-    // Mutation and save
+    // Mutate and save
     classGroup.setStatus(targetStatus);
     return classGroupRepository.save(classGroup).getId();
   }
 
   @Transactional(readOnly = true)
   public ClassGroupDetailResponse getDetailById(Long id) {
-    // Class retrieval (with deep loading of the Promotion/Training/Level/Specialty tree)
+    // Retrieve class (with eager loading of the Promotion/Training/Level/Specialty tree)
     ClassGroup classGroup =
         classGroupRepository
             .findById(id)
@@ -184,8 +185,14 @@ public class ClassGroupService {
   }
 
   @Transactional(readOnly = true)
+  public List<ActiveClassGroupResponse> getAllActiveClasses() {
+    return classGroupMapper.toActiveResponseList(
+        classGroupRepository.findAllActiveClassesWithTraining());
+  }
+
+  @Transactional(readOnly = true)
   public byte[] exportStudentsPdf(Long classGroupId) {
-    // Class retrieval
+    // Retrieve class
     ClassGroup classGroup =
         classGroupRepository
             .findById(classGroupId)
@@ -194,11 +201,11 @@ public class ClassGroupService {
                     new com.tiba.pts.core.exception.ResourceNotFoundException(
                         "CLASS_GROUP_NOT_FOUND"));
 
-    // Retrieval of assignments with immediate join on Enrollment and Student
+    // Retrieve assignments with immediate join on Enrollment and Student
     List<com.tiba.pts.modules.classmanagement.domain.entity.ClassAssignment> assignments =
         classAssignmentRepository.findByClassGroupId(classGroupId);
 
-    // Extraction and alphabetical sorting of Last Name/First Name structures for the PDF table
+    // Extract and alphabetically sort Last Name/First Name structures for the PDF table
     var studentList =
         assignments.stream()
             .map(ca -> ca.getEnrollment().getStudent())
@@ -208,32 +215,32 @@ public class ClassGroupService {
                         "lastName",
                             student
                                 .getLastName()
-                                .toUpperCase(), // Uppercase last name for pro rendering
+                                .toUpperCase(), // Uppercase last name for professional rendering
                         "firstName", student.getFirstName()))
             .sorted((s1, s2) -> s1.get("lastName").compareTo(s2.get("lastName")))
             .toList();
 
-    // Preparation of the Thymeleaf variables context
+    // Prepare Thymeleaf variables context
     Map<String, Object> templateVariables =
         Map.of(
             "className", classGroup.getName(),
             "classCode", classGroup.getCode(),
             "students", studentList);
 
-    // Generation of the raw table
+    // Generate the raw table
     return pdfGeneratorService.generatePdf(
         "classmanagement/class-students-list", templateVariables);
   }
 
   @Transactional(readOnly = true)
   public byte[] exportStudentsWithDocsPdf(Long classGroupId, List<Long> documentIds) {
-    // Class retrieval
+    // Retrieve class
     ClassGroup classGroup =
         classGroupRepository
             .findById(classGroupId)
             .orElseThrow(() -> new ResourceNotFoundException("CLASS_GROUP_NOT_FOUND"));
 
-    // Retrieval of requested documents metadata
+    // Retrieve requested documents metadata
     var targetDocuments = enrollmentDocumentRepository.findAllById(documentIds);
 
     // COMPILATION FIX: Explicit specification of the <String, Object> type for Map.of
@@ -258,11 +265,11 @@ public class ClassGroupService {
                 })
             .toList();
 
-    // Retrieval of students with optimized EntityGraph
+    // Retrieve students with optimized EntityGraph
     List<ClassAssignment> assignments =
         classAssignmentRepository.findWithSubmissionsByClassGroupId(classGroupId);
 
-    // Construction of table rows (Last Name First Name + array of "X" or "" statuses)
+    // Construct table rows (Full Name + array of "X" or "" statuses)
     List<Map<String, Object>> studentRows =
         assignments.stream()
             .map(
@@ -272,7 +279,7 @@ public class ClassGroupService {
                   String fullName =
                       student.getFirstName().toUpperCase() + " " + student.getLastName();
 
-                  // For each requested document, check if it's provided (isProvided == true)
+                  // For each requested document, check if it is provided (isProvided == true)
                   List<String> docStatuses =
                       documentIds.stream()
                           .map(
@@ -295,7 +302,7 @@ public class ClassGroupService {
                 (s1, s2) -> ((String) s1.get("fullName")).compareTo((String) s2.get("fullName")))
             .toList();
 
-    // Data injection into the Thymeleaf context
+    // Inject data into the Thymeleaf context
     Map<String, Object> templateVariables =
         Map.of(
             "className",
@@ -307,7 +314,7 @@ public class ClassGroupService {
             "students",
             studentRows);
 
-    // Generation via PDF engine
+    // Generate via PDF engine
     return pdfGeneratorService.generatePdf(
         "classmanagement/class-students-docs-list", templateVariables);
   }

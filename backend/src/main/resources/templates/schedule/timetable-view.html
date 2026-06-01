@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #000000;
+            margin: 0;
+            padding: 0;
+            font-size: 10px;
+        }
+
+        .center-header {
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .header-title {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 6px;
+        }
+
+        .header-subtitle {
+            text-align: center;
+            font-size: 11px;
+            margin-bottom: 10px;
+        }
+
+        table.timetable {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        table.timetable th {
+            border: 1px solid #000000;
+            background-color: #E8E8E8;
+            padding: 5px 3px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        table.timetable td {
+            border: 1px solid #000000;
+            padding: 4px 3px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 9px;
+            height: 50px;
+        }
+
+        .col-time {
+            width: 10%;
+            background-color: #F5F5F5;
+            font-weight: bold;
+            font-size: 8px;
+        }
+
+        .slot-cell {
+            line-height: 1.4;
+        }
+
+        .slot-subject {
+            font-weight: bold;
+            font-size: 10px;
+            display: block;
+        }
+
+        .slot-teacher {
+            font-size: 8px;
+            display: block;
+            color: #333333;
+        }
+
+        .slot-room {
+            font-size: 8px;
+            display: block;
+            font-style: italic;
+            color: #555555;
+        }
+
+        .slot-periodicity {
+            font-size: 7px;
+            display: block;
+            font-weight: bold;
+            color: #888888;
+        }
+
+        .slot-separator {
+            border-top: 1px dashed #AAAAAA;
+            margin: 2px 0;
+        }
+
+        .empty-cell {
+            color: #CCCCCC;
+        }
+
+        .bottom-note {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 8px;
+            border-top: 1px solid #000000;
+            padding-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="center-header">
+    INSTITUT POLY ELÉCTRONIQUE<br/>
+    DE FORMATION PROFESSIONNELLE
+</div>
+
+<div class="header-title" th:text="${title}">EMPLOI DU TEMPS</div>
+<div class="header-subtitle" th:text="${subtitle}"></div>
+
+<table class="timetable">
+    <thead>
+    <tr>
+        <th class="col-time">Horaire</th>
+        <th th:each="day : ${days}" th:text="${dayLabels.get(day)}">Lundi</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="timeSlot : ${timeSlots}">
+        <td class="col-time">
+            <span th:text="${timeSlot.label}">S1</span><br/>
+            <span th:text="${timeSlot.startTime + ' - ' + timeSlot.endTime}">08:00 - 10:00</span>
+        </td>
+        <td th:each="day : ${days}" class="slot-cell">
+            <!-- Case 1: no course for this time slot/day -->
+            <div th:if="${grid.get(day) == null or grid.get(day).get(timeSlot.id) == null or grid.get(day).get(timeSlot.id).isEmpty()}" class="empty-cell">
+                —
+            </div>
+            <!-- Case 2: one or more courses (WEEK_A/WEEK_B alternation possible) -->
+            <div th:if="${grid.get(day) != null and grid.get(day).get(timeSlot.id) != null and !grid.get(day).get(timeSlot.id).isEmpty()}">
+                <div th:each="slot, iterStat : ${grid.get(day).get(timeSlot.id)}">
+                    <div th:if="${!iterStat.first}" class="slot-separator"></div>
+                    <span class="slot-subject" th:text="${slot.subject}">Java</span>
+                    <span class="slot-teacher" th:text="${slot.teacher}">Jean Dupont</span>
+                    <span class="slot-room" th:text="${slot.room}">Salle 302</span>
+                    <span class="slot-periodicity" th:if="${slot.periodicity != 'NORMAL'}" th:text="${slot.periodicityLabel}">Semaine A</span>
+                </div>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="bottom-note" th:text="'Document généré le ' + ${currentDate}"></div>
+
+</body>
+</html>

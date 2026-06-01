@@ -5,8 +5,11 @@ import com.tiba.pts.modules.academicyear.domain.entity.ExamSession;
 import com.tiba.pts.modules.academicyear.domain.entity.Period;
 import com.tiba.pts.modules.academicyear.dto.request.ExamSessionRequest;
 import com.tiba.pts.modules.academicyear.dto.request.PeriodRequest;
+import com.tiba.pts.modules.academicyear.dto.response.DefaultPeriodResponse;
 import com.tiba.pts.modules.academicyear.dto.response.PeriodResponse;
 import org.mapstruct.*;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface PeriodMapper {
@@ -36,6 +39,10 @@ public interface PeriodMapper {
   @Mapping(target = "createdDate", ignore = true)
   @Mapping(target = "modifiedDate", ignore = true)
   void updatePeriodFromRequest(PeriodRequest request, @MappingTarget Period entity);
+
+  DefaultPeriodResponse toDefaultResponse(Period entity);
+
+  List<DefaultPeriodResponse> toDefaultResponseList(List<Period> entities);
 
   // Helper for MapStruct: Transform a Long into a Proxy object (avoids a SQL query)
   // @Named("idToAcademicYear")

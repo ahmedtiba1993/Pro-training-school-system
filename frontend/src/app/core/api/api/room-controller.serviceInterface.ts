@@ -47,6 +47,13 @@ export interface RoomControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/rooms/active
+     */
+    getActiveRooms(extraHttpRequestParams?: any): Observable<ApiResponseListRoomResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/rooms
      */
     getAllRooms(extraHttpRequestParams?: any): Observable<ApiResponseListRoomResponse>;

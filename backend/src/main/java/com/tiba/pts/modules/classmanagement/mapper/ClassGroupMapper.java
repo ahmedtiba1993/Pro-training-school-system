@@ -2,6 +2,7 @@ package com.tiba.pts.modules.classmanagement.mapper;
 
 import com.tiba.pts.modules.classmanagement.domain.entity.ClassGroup;
 import com.tiba.pts.modules.classmanagement.dto.request.ClassGroupRequest;
+import com.tiba.pts.modules.classmanagement.dto.response.ActiveClassGroupResponse;
 import com.tiba.pts.modules.classmanagement.dto.response.ClassGroupDetailResponse;
 import com.tiba.pts.modules.classmanagement.dto.response.ClassGroupResponse;
 import com.tiba.pts.modules.specialty.domain.entity.Training;
@@ -10,6 +11,8 @@ import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface ClassGroupMapper {
@@ -31,6 +34,11 @@ public interface ClassGroupMapper {
   @Mapping(target = "promotionName", source = "entity.promotion.name")
   @Mapping(target = "specialityName", source = "entity", qualifiedByName = "buildSpecialityName")
   ClassGroupDetailResponse toDetailResponse(ClassGroup entity);
+
+  @Mapping(source = "promotion.training.trainingType", target = "trainingType")
+  ActiveClassGroupResponse toActiveResponse(ClassGroup entity);
+
+  List<ActiveClassGroupResponse> toActiveResponseList(List<ClassGroup> entities);
 
   /**
    * Dynamically resolves the promotion name in the Mapper. Leaves the Promotion entity totally

@@ -24,6 +24,10 @@ import { PromotionSubject } from './pages/training-session/promotion-subject/pro
 import { ClassmanagementList } from './pages/classmanagement/classmanagement-list/classmanagement-list';
 import { ClassStudentList } from './pages/classmanagement/class-student-list/class-student-list';
 import { Room } from './pages/room/room';
+import { ScheduleList } from './pages/schedule/schedule-list/schedule-list';
+import { ScheduleDetail } from './pages/schedule/schedule-detail/schedule-detail';
+import { TimeSlots } from './pages/schedule/time-slots/time-slots';
+import { ScheduleListTeacher } from './pages/schedule/schedule-list-teacher/schedule-list-teacher';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -55,7 +59,11 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'promotions/accelerated/:id/subjects', component: PromotionSubject },
       { path: 'class-management', component: ClassmanagementList },
       { path: 'class-management/:id/students', component: ClassStudentList },
-      { path: 'rooms', component: Room }
+      { path: 'rooms', component: Room },
+      { path: 'schedules', component: ScheduleList },
+      { path: 'schedules/details/:id', component: ScheduleDetail },
+      { path: 'schedules/teachers', component: ScheduleListTeacher },
+      { path: 'time-slots', component: TimeSlots }
     ]
   }
 ];

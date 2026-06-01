@@ -13,6 +13,7 @@ import { Observable }                                        from 'rxjs';
 
 import { ApiResponseClassGroupDetailResponse } from '../model/models';
 import { ApiResponseClassManagementStatsResponse } from '../model/models';
+import { ApiResponseListActiveClassGroupResponse } from '../model/models';
 import { ApiResponseListClassGroupResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ClassGroupRequest } from '../model/models';
@@ -50,6 +51,13 @@ export interface ClassGroupControllerServiceInterface {
      * @param documentIds 
      */
     exportPdfWithDocuments(id: number, documentIds: Array<number>, extraHttpRequestParams?: any): Observable<string>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/class-groups/active
+     */
+    getAllActiveClasses(extraHttpRequestParams?: any): Observable<ApiResponseListActiveClassGroupResponse>;
 
     /**
      * 

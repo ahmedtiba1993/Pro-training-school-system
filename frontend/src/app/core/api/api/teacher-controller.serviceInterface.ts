@@ -11,6 +11,7 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ApiResponseListTeacherSimpleResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ApiResponsePageResponseTeacherResponse } from '../model/models';
 import { ApiResponseTeacherResponse } from '../model/models';
@@ -33,6 +34,13 @@ export interface TeacherControllerServiceInterface {
      * @param teacherRequest 
      */
     createTeacher(teacherRequest: TeacherRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/teachers/active
+     */
+    getActiveTeachers(extraHttpRequestParams?: any): Observable<ApiResponseListTeacherSimpleResponse>;
 
     /**
      * 

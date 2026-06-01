@@ -4,6 +4,7 @@ import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.modules.classmanagement.domain.enums.ClassStatus;
 import com.tiba.pts.modules.classmanagement.dto.request.ClassGroupRequest;
+import com.tiba.pts.modules.classmanagement.dto.response.ActiveClassGroupResponse;
 import com.tiba.pts.modules.classmanagement.dto.response.ClassGroupDetailResponse;
 import com.tiba.pts.modules.classmanagement.dto.response.ClassGroupResponse;
 import com.tiba.pts.modules.classmanagement.dto.response.ClassManagementStatsResponse;
@@ -117,5 +118,14 @@ public class ClassGroupController {
     headers.setContentDispositionFormData("attachment", "liste_eleves_documents_" + id + ".pdf");
 
     return ResponseEntity.ok().headers(headers).body(pdfBytes);
+  }
+
+  @GetMapping("/active")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<ActiveClassGroupResponse>>> getAllActiveClasses() {
+    List<ActiveClassGroupResponse> activeClasses = classGroupService.getAllActiveClasses();
+    ApiResponse<List<ActiveClassGroupResponse>> response =
+        ApiResponse.success("ACTIVE_CLASS_LIST_RETRIEVED", activeClasses);
+    return ResponseEntity.ok(response);
   }
 }

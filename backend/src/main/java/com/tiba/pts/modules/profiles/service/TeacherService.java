@@ -9,8 +9,10 @@ import com.tiba.pts.modules.profiles.domain.enums.TeacherStatus;
 import com.tiba.pts.modules.profiles.dto.request.TeacherFiltreRequest;
 import com.tiba.pts.modules.profiles.dto.request.TeacherRequest;
 import com.tiba.pts.modules.profiles.dto.response.TeacherResponse;
+import com.tiba.pts.modules.profiles.dto.response.TeacherSimpleResponse;
 import com.tiba.pts.modules.profiles.mapper.TeacherMapper;
 import com.tiba.pts.modules.profiles.repository.PersonRepository;
+import java.util.List;
 import com.tiba.pts.modules.profiles.repository.RefTeacherSpecialtyRepository;
 import com.tiba.pts.modules.profiles.repository.TeacherRepository;
 import com.tiba.pts.modules.user.domain.enums.Role;
@@ -101,6 +103,12 @@ public class TeacherService {
   @Transactional(readOnly = true)
   public long countActiveTeachers() {
     return teacherRepository.countByStatus(TeacherStatus.ACTIVE);
+  }
+
+  @Transactional(readOnly = true)
+  public List<TeacherSimpleResponse> getActiveTeachers() {
+    List<Teacher> activeTeachers = teacherRepository.findByStatus(TeacherStatus.ACTIVE);
+    return teacherMapper.toSimpleResponseList(activeTeachers);
   }
 
   @Transactional(readOnly = true)

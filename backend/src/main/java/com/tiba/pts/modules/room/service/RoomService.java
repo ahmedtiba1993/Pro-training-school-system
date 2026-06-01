@@ -96,4 +96,11 @@ public class RoomService {
         .totalOperationalCount(active + maintenance)
         .build();
   }
+
+  @Transactional(readOnly = true)
+  public List<RoomResponse> getActiveRooms() {
+    return roomRepository.findAllByStatus(RoomStatus.ACTIVE).stream()
+        .map(roomMapper::toResponse)
+        .toList();
+  }
 }

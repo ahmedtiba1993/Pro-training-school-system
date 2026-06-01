@@ -34,7 +34,7 @@ public class RoomController {
   }
 
   @GetMapping
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SECRETARIAT')")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ResponseEntity<ApiResponse<List<RoomResponse>>> getAllRooms() {
     List<RoomResponse> rooms = roomService.getAllRooms();
     ApiResponse<List<RoomResponse>> response = ApiResponse.success("ROOM_LIST_RETRIEVED", rooms);
@@ -64,6 +64,15 @@ public class RoomController {
     RoomStatusStatsResponse stats = roomService.getRoomStatusStats();
     ApiResponse<RoomStatusStatsResponse> response =
         ApiResponse.success("ROOM_STATS_RETRIEVED", stats);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/active")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<RoomResponse>>> getActiveRooms() {
+    List<RoomResponse> rooms = roomService.getActiveRooms();
+    ApiResponse<List<RoomResponse>> response =
+        ApiResponse.success("ACTIVE_ROOM_LIST_RETRIEVED", rooms);
     return ResponseEntity.ok(response);
   }
 }

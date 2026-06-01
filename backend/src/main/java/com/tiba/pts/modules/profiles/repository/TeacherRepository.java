@@ -54,4 +54,11 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long> {
 
   // Retrieve teachers with a specific specialty and a specific status
   List<Teacher> findBySpecialtiesIdAndStatus(Long specialtyId, TeacherStatus status);
+
+  @Query(
+      "SELECT t FROM Teacher t JOIN t.specialties s WHERE s.id = :specialtyId AND t.status = :status")
+  List<Teacher> findAllBySpecialtyIdAndStatus(
+      @Param("specialtyId") Long specialtyId, @Param("status") TeacherStatus status);
+
+  List<Teacher> findByStatus(TeacherStatus status);
 }

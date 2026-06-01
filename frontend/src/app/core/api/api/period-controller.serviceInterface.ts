@@ -11,6 +11,7 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ApiResponseListDefaultPeriodResponse } from '../model/models';
 import { ApiResponseListPeriodResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ApiResponsePeriodResponse } from '../model/models';
@@ -49,6 +50,13 @@ export interface PeriodControllerServiceInterface {
      * @param promotionId 
      */
     getPeriodsByPromotionId(promotionId: number, extraHttpRequestParams?: any): Observable<ApiResponseListPeriodResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/periods/default-academic-year
+     */
+    getPeriodsOfDefaultAcademicYear(extraHttpRequestParams?: any): Observable<ApiResponseListDefaultPeriodResponse>;
 
     /**
      * 

@@ -2,6 +2,7 @@ package com.tiba.pts.modules.academicyear.controller;
 
 import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.modules.academicyear.dto.request.PeriodRequest;
+import com.tiba.pts.modules.academicyear.dto.response.DefaultPeriodResponse;
 import com.tiba.pts.modules.academicyear.dto.response.PeriodResponse;
 import com.tiba.pts.modules.academicyear.service.PeriodService;
 import jakarta.validation.Valid;
@@ -62,6 +63,16 @@ public class PeriodController {
     List<PeriodResponse> data = periodService.getPeriodsByPromotion(promotionId);
     ApiResponse<List<PeriodResponse>> response =
         ApiResponse.success("PERIODS_FOR_PROMOTION_RETRIEVED", data);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/default-academic-year")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<DefaultPeriodResponse>>>
+      getPeriodsOfDefaultAcademicYear() {
+    List<DefaultPeriodResponse> data = periodService.getPeriodsOfDefaultAcademicYear();
+    ApiResponse<List<DefaultPeriodResponse>> response =
+        ApiResponse.success("DEFAULT_YEAR_PERIODS_RETRIEVED", data);
     return ResponseEntity.ok(response);
   }
 }

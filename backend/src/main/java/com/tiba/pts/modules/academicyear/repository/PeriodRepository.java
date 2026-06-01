@@ -55,4 +55,10 @@ public interface PeriodRepository extends JpaRepository<Period, Long> {
       "SELECT p FROM Period p WHERE p.academicYear.id = :yearId AND :today BETWEEN p.startDate AND p.endDate")
   Optional<Period> findCurrentPeriodByYearId(
       @Param("yearId") Long yearId, @Param("today") LocalDate today);
+
+  @Query(
+      "SELECT p FROM Period p "
+          + "WHERE p.academicYear.isDefault = true "
+          + "ORDER BY p.startDate ASC")
+  List<Period> findAllByAcademicYearIsDefaultTrue();
 }

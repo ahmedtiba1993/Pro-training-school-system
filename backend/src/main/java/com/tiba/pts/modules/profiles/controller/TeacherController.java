@@ -6,7 +6,9 @@ import com.tiba.pts.modules.profiles.domain.enums.TeacherStatus;
 import com.tiba.pts.modules.profiles.dto.request.TeacherFiltreRequest;
 import com.tiba.pts.modules.profiles.dto.request.TeacherRequest;
 import com.tiba.pts.modules.profiles.dto.response.TeacherResponse;
+import com.tiba.pts.modules.profiles.dto.response.TeacherSimpleResponse;
 import com.tiba.pts.modules.profiles.service.TeacherService;
+import java.util.List;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -45,6 +47,13 @@ public class TeacherController {
     PageResponse<TeacherResponse> paginatedData = teacherService.getAllPaged(filtre, page, size);
 
     return ResponseEntity.ok(ApiResponse.success("TEACHERS_RETRIEVED_SUCCESSFULLY", paginatedData));
+  }
+
+  @GetMapping("/active")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<TeacherSimpleResponse>>> getActiveTeachers() {
+    List<TeacherSimpleResponse> activeTeachers = teacherService.getActiveTeachers();
+    return ResponseEntity.ok(ApiResponse.success("ACTIVE_TEACHERS_RETRIEVED_SUCCESSFULLY", activeTeachers));
   }
 
   @GetMapping("/count/active")
