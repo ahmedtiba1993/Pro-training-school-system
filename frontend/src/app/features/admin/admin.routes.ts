@@ -28,6 +28,9 @@ import { ScheduleList } from './pages/schedule/schedule-list/schedule-list';
 import { ScheduleDetail } from './pages/schedule/schedule-detail/schedule-detail';
 import { TimeSlots } from './pages/schedule/time-slots/time-slots';
 import { ScheduleListTeacher } from './pages/schedule/schedule-list-teacher/schedule-list-teacher';
+import { CourseSession } from './pages/execution/course-session/course-session';
+import { AbsenceList } from './pages/execution/absence-list/absence-list';
+
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -60,6 +63,8 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'class-management', component: ClassmanagementList },
       { path: 'class-management/:id/students', component: ClassStudentList },
       { path: 'rooms', component: Room },
+      { path: 'execution/course-sessions', component: CourseSession },
+      { path: 'execution/course-sessions/:id/absences', component: AbsenceList },
       { path: 'schedules', component: ScheduleList },
       { path: 'schedules/details/:id', component: ScheduleDetail },
       { path: 'schedules/teachers', component: ScheduleListTeacher },

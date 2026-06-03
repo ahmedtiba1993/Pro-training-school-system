@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,6 +23,9 @@ public interface ClassAssignmentRepository extends JpaRepository<ClassAssignment
   @EntityGraph(attributePaths = {"enrollment", "enrollment.student"})
   List<ClassAssignment> findByClassGroupId(Long classGroupId);
 
+  @EntityGraph(attributePaths = {"enrollment", "enrollment.student"})
+  List<ClassAssignment> findByClassGroupIdAndEnrollmentStatusIn(Long classGroupId, List<EnrollmentStatus> statuses);
+
   // SENIOR SHIELDING: Full cascade join to avoid LazyLoadingException and N+1
   @EntityGraph(
       attributePaths = {
@@ -31,4 +35,9 @@ public interface ClassAssignmentRepository extends JpaRepository<ClassAssignment
         "enrollment.enrollmentDocumentSubmissions.document"
       })
   List<ClassAssignment> findWithSubmissionsByClassGroupId(Long classGroupId);
+
+  long countByClassGroupId(Long classGroupId);
+
+  long countByClassGroupIdAndEnrollmentStatusIn(Long classGroupId, List<EnrollmentStatus> statuses);
 }
+

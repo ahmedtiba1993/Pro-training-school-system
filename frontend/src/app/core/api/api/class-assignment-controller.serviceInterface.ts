@@ -35,6 +35,14 @@ export interface ClassAssignmentControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/class-assignments/class-groups/{classGroupId}/active-students
+     * @param classGroupId 
+     */
+    getActiveStudentsByClass(classGroupId: number, extraHttpRequestParams?: any): Observable<ApiResponseListClassStudentResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/class-assignments/class-groups/{classGroupId}/students
      * @param classGroupId 
      */

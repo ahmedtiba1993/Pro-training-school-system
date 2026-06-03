@@ -12,6 +12,7 @@ import com.tiba.pts.modules.classmanagement.mapper.ClassAssignmentMapper;
 import com.tiba.pts.modules.classmanagement.repository.ClassAssignmentRepository;
 import com.tiba.pts.modules.classmanagement.repository.ClassGroupRepository;
 import com.tiba.pts.modules.enrollment.domain.entity.Enrollment;
+import com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus;
 import com.tiba.pts.modules.enrollment.repository.EnrollmentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -92,6 +93,24 @@ public class ClassAssignmentService {
 
     // Optimized retrieval (without N+1 loop queries)
     List<ClassAssignment> assignments = classAssignmentRepository.findByClassGroupId(classGroupId);
+
+    // Transformation of the entity stream into a list of DTOs
+    return assignments.stream().map(classAssignmentMapper::toStudentResponse).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public List<ClassStudentResponse> getActiveStudentsByClassGroup(Long classGroupId) {
+
+    // Security validation: Does the requested class exist
+    if (!classGroupRepository.existsById(classGroupId)) {
+      throw new com.tiba.pts.core.exception.ResourceNotFoundException("CLASS_GROUP_NOT_FOUND");
+    }
+
+    // Optimized retrieval (without N+1 loop queries)
+    List<ClassAssignment> assignments =
+        classAssignmentRepository.findByClassGroupIdAndEnrollmentStatusIn(
+            classGroupId,
+            List.of(EnrollmentStatus.VALIDATED, EnrollmentStatus.CONDITIONALLY_VALIDATED));
 
     // Transformation of the entity stream into a list of DTOs
     return assignments.stream().map(classAssignmentMapper::toStudentResponse).toList();

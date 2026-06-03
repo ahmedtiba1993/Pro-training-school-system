@@ -75,4 +75,20 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
       @Param("cin") String cin,
       @Param("phone") String phone,
       @Param("studentCode") String studentCode);
+
+  long countByIdIn(List<Long> ids);
+
+  @Query("""
+      SELECT COUNT(e) 
+      FROM Enrollment e 
+      WHERE e.id IN :ids 
+      AND EXISTS (
+          SELECT ca 
+          FROM ClassAssignment ca 
+          WHERE ca.enrollment.id = e.id 
+          AND ca.classGroup.id = :classGroupId
+      )
+  """)
+  long countByIdInAndClassGroupId(@Param("ids") List<Long> ids, @Param("classGroupId") Long classGroupId);
 }
+

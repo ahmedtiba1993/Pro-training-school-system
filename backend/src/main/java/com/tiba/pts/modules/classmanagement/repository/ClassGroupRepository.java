@@ -61,4 +61,14 @@ public interface ClassGroupRepository extends JpaRepository<ClassGroup, Long> {
           + "JOIN FETCH p.training t "
           + "WHERE c.status = 'ACTIVE'")
   List<ClassGroup> findAllActiveClassesWithTraining();
+
+  @EntityGraph(
+      attributePaths = {
+        "promotion",
+        "promotion.training",
+        "promotion.training.level",
+        "promotion.training.specialty"
+      })
+  @Query("SELECT cg FROM ClassGroup cg WHERE cg.id IN :ids")
+  List<ClassGroup> findAllByIdsWithPromotionAndTraining(@Param("ids") java.util.Collection<Long> ids);
 }

@@ -9,6 +9,8 @@ api/accelerated-promotion-controller.serviceInterface.ts
 api/accredited-promotion-controller.service.ts
 api/accredited-promotion-controller.serviceInterface.ts
 api/api.ts
+api/attendance-record-controller.service.ts
+api/attendance-record-controller.serviceInterface.ts
 api/auth-controller.service.ts
 api/auth-controller.serviceInterface.ts
 api/class-assignment-controller.service.ts
@@ -17,6 +19,8 @@ api/class-group-controller.service.ts
 api/class-group-controller.serviceInterface.ts
 api/continuous-promotion-controller.service.ts
 api/continuous-promotion-controller.serviceInterface.ts
+api/course-session-controller.service.ts
+api/course-session-controller.serviceInterface.ts
 api/enrollment-controller.service.ts
 api/enrollment-controller.serviceInterface.ts
 api/enrollment-document-controller.service.ts
@@ -76,10 +80,13 @@ model/api-response-academic-year-response.ts
 model/api-response-accelerated-promotion-response.ts
 model/api-response-accredited-promotion-response.ts
 model/api-response-active-academic-year-response.ts
+model/api-response-attendance-stats-response.ts
 model/api-response-boolean.ts
 model/api-response-class-group-detail-response.ts
 model/api-response-class-management-stats-response.ts
 model/api-response-continuous-promotion-response.ts
+model/api-response-course-session-response.ts
+model/api-response-course-session-stats-response.ts
 model/api-response-enrollment-response.ts
 model/api-response-exam-session-response.ts
 model/api-response-existence-check-response.ts
@@ -108,6 +115,7 @@ model/api-response-list-ref-teacher-specialty-simple-response.ts
 model/api-response-list-room-response.ts
 model/api-response-list-schedule-response.ts
 model/api-response-list-specialty-response.ts
+model/api-response-list-student-attendance-response.ts
 model/api-response-list-student-response.ts
 model/api-response-list-subject-response.ts
 model/api-response-list-subject-short-response.ts
@@ -122,6 +130,7 @@ model/api-response-page-response-academic-year-response.ts
 model/api-response-page-response-accelerated-promotion-response.ts
 model/api-response-page-response-accredited-promotion-response.ts
 model/api-response-page-response-continuous-promotion-response.ts
+model/api-response-page-response-course-session-response.ts
 model/api-response-page-response-student-list-response.ts
 model/api-response-page-response-teacher-response.ts
 model/api-response-page-response-training-response.ts
@@ -139,6 +148,9 @@ model/api-response-timetable-slot-detail-response.ts
 model/api-response-timetable-teacher-view-response.ts
 model/api-response-timetable-view-response.ts
 model/api-response-void.ts
+model/attendance-item-request.ts
+model/attendance-request.ts
+model/attendance-stats-response.ts
 model/auth-request.ts
 model/auth-response.ts
 model/class-assignment-request.ts
@@ -149,6 +161,11 @@ model/class-management-stats-response.ts
 model/class-student-response.ts
 model/continuous-promotion-request.ts
 model/continuous-promotion-response.ts
+model/course-session-request.ts
+model/course-session-response.ts
+model/course-session-search-request.ts
+model/course-session-stats-response.ts
+model/course-session-update-request.ts
 model/default-period-response.ts
 model/enrollment-document-request.ts
 model/enrollment-document-response.ts
@@ -161,6 +178,7 @@ model/error-detail.ts
 model/exam-session-request.ts
 model/exam-session-response.ts
 model/existence-check-response.ts
+model/force-complete-command.ts
 model/graduation-record-response.ts
 model/holiday-request.ts
 model/holiday-response.ts
@@ -173,11 +191,13 @@ model/page-response-academic-year-response.ts
 model/page-response-accelerated-promotion-response.ts
 model/page-response-accredited-promotion-response.ts
 model/page-response-continuous-promotion-response.ts
+model/page-response-course-session-response.ts
 model/page-response-enrollment-list-response.ts
 model/page-response-student-list-response.ts
 model/page-response-teacher-response.ts
 model/page-response-training-response.ts
 model/page-response-user-response.ts
+model/pageable.ts
 model/parent-info-request.ts
 model/parent-request.ts
 model/parent-response.ts
@@ -205,6 +225,7 @@ model/schedule-status-request.ts
 model/schedule-update-request.ts
 model/specialty-request.ts
 model/specialty-response.ts
+model/student-attendance-response.ts
 model/student-info-request.ts
 model/student-list-response.ts
 model/student-parent-info-request.ts

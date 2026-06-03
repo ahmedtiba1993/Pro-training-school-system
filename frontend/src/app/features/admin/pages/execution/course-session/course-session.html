@@ -1,0 +1,864 @@
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden animate-fade-in">
+    
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-20 relative">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800">Sessions de Cours par Enseignant</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Suivi de l'activité, de l'émargement et du planning de l'enseignant</p>
+        </div>
+        
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+            <button type="button" (click)="openCreateModal()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-lg hover:shadow-indigo-100 transition-all flex items-center justify-center gap-2 cursor-pointer hover:-translate-y-0.5" title="Créer une nouvelle séance de cours">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Créer une Séance
+            </button>
+        </div>
+    </header>
+
+    <!-- Page Body -->
+    <div class="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50/50 space-y-6">
+        
+        <!-- Contextual Statistics -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Number of sessions -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4 hover:border-slate-300 transition-colors">
+                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Séances du Jour (Actives)</p>
+                    <p class="text-xl font-black text-slate-800">{{ activeSessionsCount() }}</p>
+                </div>
+            </div>
+
+            <!-- Number of completed sessions without attendance/validated call -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4 hover:border-slate-300 transition-colors">
+                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center shrink-0 border border-amber-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Appels non validés</p>
+                    <p class="text-xl font-black text-slate-800">{{ pendingAttendanceCount() }}</p>
+                </div>
+            </div>
+
+            <!-- Daily Absences -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4 hover:border-slate-300 transition-colors">
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0 border border-blue-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <line x1="17" y1="8" x2="23" y2="14"/>
+                        <line x1="23" y1="8" x2="17" y2="14"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Absences du Jour (Est.)</p>
+                    <p class="text-xl font-black text-slate-800">{{ statDailyAbsences() }}</p>
+                </div>
+            </div>
+
+            <!-- Canceled Sessions -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4 hover:border-slate-300 transition-colors">
+                <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center shrink-0 border border-rose-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Séances Annulées</p>
+                    <p class="text-xl font-black text-slate-800">{{ canceledSessionsCount() }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- History of all conducted sessions -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-md overflow-hidden flex flex-col z-10 relative transition-shadow hover:shadow-lg">
+            
+            <!-- Complex filters zone -->
+            <div class="p-6 md:p-8 border-b border-slate-100 bg-slate-50/40 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-150/60 pb-4">
+                    <div>
+                        <h2 class="font-extrabold text-slate-900 text-base flex items-center gap-2.5">
+                            <span class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+                                </svg>
+                            </span>
+                            Recherche & Filtres Avancés
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Configurez vos critères de filtrage puis cliquez sur <strong class="text-indigo-600 font-semibold">Rechercher</strong> pour appliquer.</p>
+                    </div>
+                </div>
+                
+                <!-- First Row: Study Period & Call State -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <!-- 1. Period (Date Picker) -->
+                    <div class="space-y-1.5 flex-1 w-full md:max-w-xl">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">🗓 Période d'étude</label>
+                        <div class="flex items-center gap-2">
+                            <input type="date" [ngModel]="inputDateStart()" (ngModelChange)="inputDateStart.set($event)" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all">
+                            <span class="text-xs text-slate-400 font-bold">à</span>
+                            <input type="date" [ngModel]="inputDateEnd()" (ngModelChange)="inputDateEnd.set($event)" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all">
+                        </div>
+                    </div>
+
+                    <!-- 6. Call State (Toggle) -->
+                    <div class="space-y-1.5 shrink-0">
+                        <span class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">📝 État de l'Appel émargement</span>
+                        <div class="flex bg-slate-100 p-1 rounded-2xl shadow-inner border border-slate-250/20 w-max">
+                            <button type="button" (click)="setAttendanceFilter('ALL')" [class.bg-white]="inputAttendanceFilter() === 'ALL'" [class.text-slate-800]="inputAttendanceFilter() === 'ALL'" [class.shadow-md]="inputAttendanceFilter() === 'ALL'" [class.font-bold]="inputAttendanceFilter() === 'ALL'" [class.text-slate-500]="inputAttendanceFilter() !== 'ALL'" [class.hover:text-slate-800]="inputAttendanceFilter() !== 'ALL'" class="px-5 py-2 rounded-xl text-xs transition-all outline-none cursor-pointer">Tous</button>
+                            <button type="button" (click)="setAttendanceFilter('MARKED')" [class.bg-white]="inputAttendanceFilter() === 'MARKED'" [class.text-slate-800]="inputAttendanceFilter() === 'MARKED'" [class.shadow-md]="inputAttendanceFilter() === 'MARKED'" [class.font-bold]="inputAttendanceFilter() === 'MARKED'" [class.text-slate-500]="inputAttendanceFilter() !== 'MARKED'" [class.hover:text-slate-800]="inputAttendanceFilter() !== 'MARKED'" class="px-5 py-2 rounded-xl text-xs transition-all outline-none cursor-pointer">Appel Fait</button>
+                            <button type="button" (click)="setAttendanceFilter('MISSING')" [class.bg-white]="inputAttendanceFilter() === 'MISSING'" [class.text-slate-800]="inputAttendanceFilter() === 'MISSING'" [class.shadow-md]="inputAttendanceFilter() === 'MISSING'" [class.font-bold]="inputAttendanceFilter() === 'MISSING'" [class.text-slate-500]="inputAttendanceFilter() !== 'MISSING'" [class.hover:text-slate-800]="inputAttendanceFilter() !== 'MISSING'" class="px-5 py-2 rounded-xl text-xs transition-all outline-none cursor-pointer">Appel Manquant</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Row: Class, Teacher, Subject, Status + Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 items-end pt-5 border-t border-slate-150/60">
+                    
+                    <!-- 2. Class / Promotion (Dropdown) -->
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">🏫 Classe / Promotion</label>
+                        <select [ngModel]="inputPromotionId()" (ngModelChange)="inputPromotionId.set($event !== 'ALL' ? +$event : null)" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-semibold text-slate-700 cursor-pointer shadow-sm transition-all">
+                            <option [value]="null">Toutes les classes</option>
+                            @for (c of activeClasses(); track c.id) {
+                                <option [value]="c.id">{{ c.name }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- 3. Teacher (Autocomplete) -->
+                    <div class="space-y-1.5 relative">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">👨‍🏫 Professeur</label>
+                        <div class="relative">
+                            <input type="text" [ngModel]="inputTeacherSearch()" (input)="inputTeacherSearch.set(teacherInput.value); onTeacherInput()" #teacherInput placeholder="Rechercher par nom..." class="w-full pl-9 pr-9 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            <button *ngIf="inputTeacherSearch()" (click)="clearTeacherSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655 cursor-pointer p-0.5 rounded-full hover:bg-slate-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <!-- Absolute Suggestions -->
+                        <div *ngIf="isTeacherSuggestionsOpen() && matchedTeachers().length > 0" class="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 max-h-48 overflow-y-auto border-t border-indigo-100 divide-y divide-slate-50">
+                            <button type="button" *ngFor="let t of matchedTeachers()" (click)="selectTeacher(t)" class="w-full text-left px-4 py-3 hover:bg-indigo-50/70 text-xs font-semibold text-slate-700 transition-colors border-b border-slate-50 last:border-0 outline-none cursor-pointer">
+                                {{ t.firstName }} {{ t.lastName }}
+                            </button>
+                        </div>
+                        <div *ngIf="isTeacherSuggestionsOpen() && inputTeacherSearch() && matchedTeachers().length === 0" class="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 p-3 text-xs text-slate-400 font-semibold italic">
+                            Aucun enseignant trouvé
+                        </div>
+                    </div>
+
+                    <!-- 4. Subject (Dropdown) -->
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">📚 Matière</label>
+                        <select [ngModel]="inputSubjectId()" (ngModelChange)="inputSubjectId.set($event !== 'ALL' ? +$event : null)" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-semibold text-slate-700 cursor-pointer shadow-sm transition-all">
+                            <option [value]="null">Toutes les matières</option>
+                            <option *ngFor="let s of subjects()" [value]="s.id">{{ s.name }}</option>
+                        </select>
+                    </div>
+
+                    <!-- 5. Session Status (Dropdown) -->
+                    <div class="space-y-1.5 relative">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">⚙️ Statut Séance</label>
+                        <div class="relative">
+                            <button type="button" (click)="toggleStatusDropdown()" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs text-left font-semibold text-slate-700 bg-white flex items-center justify-between outline-none focus:ring-4 focus:ring-indigo-100 shadow-sm transition-all hover:bg-slate-50 cursor-pointer">
+                                <span>{{ inputStatusLabel() }}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <!-- Dropdown List -->
+                            <div *ngIf="isStatusDropdownOpen()" class="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 divide-y divide-slate-50 border-t border-indigo-100 overflow-hidden">
+                                <button type="button" (click)="selectStatus('ALL')" class="w-full text-left px-4 py-3 hover:bg-indigo-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer">Tous les statuts</button>
+                                <button type="button" (click)="selectStatus('PLANNED')" class="w-full text-left px-4 py-3 hover:bg-indigo-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer">Planifié</button>
+                                <button type="button" (click)="selectStatus('IN_PROGRESS')" class="w-full text-left px-4 py-3 hover:bg-indigo-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer">En cours</button>
+                                <button type="button" (click)="selectStatus('COMPLETED')" class="w-full text-left px-4 py-3 hover:bg-indigo-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer">Dispensé</button>
+                                <button type="button" (click)="selectStatus('CANCELED')" class="w-full text-left px-4 py-3 hover:bg-indigo-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer">Annulé</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search / Reset Actions -->
+                    <div class="flex items-center gap-3 w-full">
+                        <button type="button" (click)="resetFilters()" class="flex-1 px-4 py-2.5 border border-slate-250 hover:bg-slate-50 text-slate-655 hover:text-slate-800 font-bold text-xs rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer hover:shadow">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18" />
+                            </svg>
+                            Réinitialiser
+                        </button>
+                        <button type="button" (click)="applyFilters()" class="flex-1 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-2xl shadow-lg hover:shadow-indigo-200 transition-all flex items-center justify-center gap-2 cursor-pointer hover:-translate-y-0.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            Rechercher
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Sessions Table -->
+            <div class="overflow-x-auto relative">
+                <!-- Loader -->
+                <div *ngIf="isLoading()" class="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-20 flex items-center justify-center">
+                    <div class="flex flex-col items-center gap-3">
+                        <div class="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+                        <span class="text-xs font-bold text-slate-500">Chargement...</span>
+                    </div>
+                </div>
+
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-widest">
+                        <tr>
+                            <th class="px-6 py-4">Date & Séance</th>
+                            <th class="px-6 py-4">Classe & Spécialité</th>
+                            <th class="px-6 py-4">Enseignant</th>
+                            <th class="px-6 py-4">Matière</th>
+                            <th class="px-6 py-4">Lieu / Salle</th>
+                            <th class="px-6 py-4">Appel</th>
+                            <th class="px-6 py-4">Type</th>
+                            <th class="px-6 py-4">Statut</th>
+                            <th class="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <!-- Filled if not empty -->
+                        <tr *ngFor="let session of sessions()" class="hover:bg-slate-50/50 transition-colors group">
+                            <td class="px-6 py-4">
+                                <p class="font-bold text-slate-800">{{ session.formattedDate || session.sessionDate }}</p>
+                                <p class="text-xs text-slate-400 font-semibold mt-0.5">{{ session.startTime?.substring(0, 5) }} - {{ session.endTime?.substring(0, 5) }}</p>
+                            </td>
+                            <td class="px-6 py-4">
+                                <p class="font-bold text-slate-700 text-xs">{{ session.className }}</p>
+                                <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">{{ session.specialty }}</p>
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-slate-700 text-xs">
+                                {{ session.teacherName }}
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-slate-600 text-xs">
+                                {{ session.subjectName }}
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-slate-500 text-xs">
+                                {{ session.roomName }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span *ngIf="session.status === 'CANCELED' || session.status === 'PLANNED'" class="text-slate-400 font-semibold text-xs">—</span>
+                                <span *ngIf="session.status === 'COMPLETED' && session.attendanceSubmitted" class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-lg text-[10px] font-extrabold uppercase flex items-center gap-1 w-max">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                                    </svg>
+                                    Fait
+                                </span>
+                                <span *ngIf="session.status === 'COMPLETED' && !session.attendanceSubmitted" class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded-lg text-[10px] font-extrabold uppercase flex items-center gap-1 w-max">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                                    </svg>
+                                    Manquant
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-semibold text-slate-600">
+                                    {{ session.sessionType === 'REGULAR' ? 'Normal' :
+                                       session.sessionType === 'REPLACEMENT' ? 'Rattrapage' :
+                                       session.sessionType === 'SUPPORT' ? 'Soutien' :
+                                       session.sessionType === 'EXAM_SUPERVISION' ? 'Surveillance' : session.sessionType }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span *ngIf="session.status === 'COMPLETED'" class="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-[10px] font-bold uppercase">Dispensé</span>
+                                <span *ngIf="session.status === 'PLANNED'" class="px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-[10px] font-bold uppercase">Planifié</span>
+                                <span *ngIf="session.status === 'IN_PROGRESS'" class="px-2.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-100 rounded-full text-[10px] font-bold uppercase">En cours</span>
+                                <span *ngIf="session.status === 'CANCELED'" class="px-2.5 py-0.5 bg-rose-50 text-rose-700 border border-rose-100 rounded-full text-[10px] font-bold uppercase">Annulé</span>
+                            </td>
+                            <td class="px-6 py-4 text-right flex items-center justify-end gap-2">
+                                <button type="button" (click)="goToAbsences(session.id!)" class="p-2 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 transition-all rounded-xl text-slate-500 hover:text-indigo-600 cursor-pointer" title="Liste des absences">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    </svg>
+                                </button>
+                                <button type="button" (click)="showSessionDetails(session)" class="p-2 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 transition-all rounded-xl text-slate-500 hover:text-indigo-600 cursor-pointer" title="Consulter la fiche">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Filled if empty -->
+                        <tr *ngIf="sessions().length === 0 && !isLoading()">
+                            <td colspan="9" class="px-6 py-12 text-center text-slate-400 text-sm font-semibold">
+                                <div class="max-w-xs mx-auto">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto mb-3 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    </svg>
+                                    <p class="text-slate-800 text-sm font-bold">Aucun résultat trouvé</p>
+                                    <p class="text-xs text-slate-400 font-medium mt-1">Ajustez vos filtres ou élargissez la période de recherche pour obtenir des séances.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                <app-pagination 
+                    class="w-full"
+                    [currentPage]="page()" 
+                    [total]="totalElements()" 
+                    [limit]="size()" 
+                    (changePage)="onPageChange($event)">
+                </app-pagination>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- Session Details Modal -->
+@if (isModalOpen()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all scale-100 opacity-100 duration-200">
+            
+            <!-- Details Loader -->
+            @if (isDetailsLoading()) {
+                <div class="p-12 flex flex-col items-center justify-center gap-4">
+                    <div class="w-10 h-10 rounded-full border-4 border-slate-100 border-t-indigo-600 animate-spin"></div>
+                    <span class="text-xs font-bold text-slate-500">Chargement des détails de la séance...</span>
+                </div>
+            }
+    
+            @if (!isDetailsLoading() && selectedSession(); as session) {
+                <!-- Header -->
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                Fiche de Séance 
+                            </h3>
+                            <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Suivi d'émargement, d'activité et modification</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        @if (session.status !== 'CANCELED' && !isEditMode()) {
+                            <button (click)="startEditMode()" type="button" class="px-3.5 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-100 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer hover:shadow">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Modifier
+                            </button>
+                        }
+                        <button (click)="closeSessionModal()" class="text-slate-400 hover:text-slate-655 bg-white p-1 rounded-md shadow-sm border border-slate-100 transition-colors cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Body -->
+                <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+                    <!-- Subject Title & Class -->
+                    <div>
+                        <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded text-[10px] font-bold uppercase tracking-wider">{{ session.className }}</span>
+                        <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded text-[10px] font-bold uppercase tracking-wider">
+                            {{ session.sessionType === 'REGULAR' ? 'Normal' :
+                               session.sessionType === 'REPLACEMENT' ? 'Rattrapage' :
+                               session.sessionType === 'SUPPORT' ? 'Soutien' :
+                               session.sessionType === 'EXAM_SUPERVISION' ? 'Surveillance' : session.sessionType }}
+                        </span>
+                        <p class="text-lg font-bold text-slate-800 mt-1.5">{{ session.subjectName }}</p>
+                        <p class="text-xs text-slate-500 mt-1">Dispensé par: <span class="font-bold text-slate-700">{{ session.teacherName }}</span></p>
+                    </div>
+    
+                    <!-- Key Info -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Time Slot / Date -->
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex flex-col justify-center">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Créneau Horaire & Date</p>
+                            @if (isEditMode() && (isFieldEditable('sessionDate') || isFieldEditable('startTime'))) {
+                                <div class="space-y-2">
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Date</label>
+                                        <input type="date" [ngModel]="editSessionDate()" (ngModelChange)="editSessionDate.set($event)" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all" />
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-1.5">
+                                        <div>
+                                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Début</label>
+                                            <input type="time" [ngModel]="editStartTime()" (ngModelChange)="editStartTime.set($event)" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Fin</label>
+                                            <input type="time" [ngModel]="editEndTime()" (ngModelChange)="editEndTime.set($event)" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all" />
+                                        </div>
+                                    </div>
+                                </div>
+                            } @else {
+                                <p class="font-bold text-slate-800 text-sm">{{ session.startTime?.substring(0, 5) }} - {{ session.endTime?.substring(0, 5) }}</p>
+                                <p class="text-[10px] text-slate-400 font-semibold mt-1">Le {{ session.formattedDate || session.sessionDate }}</p>
+                            }
+                        </div>
+    
+                        <!-- Room -->
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex flex-col justify-center">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Salle dispensée</p>
+                            @if (isEditMode() && isFieldEditable('roomId')) {
+                                <select [ngModel]="editRoomId()" (ngModelChange)="editRoomId.set($event ? +$event : null)" class="w-full px-2.5 py-2 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-semibold text-slate-700 cursor-pointer shadow-sm transition-all">
+                                    <option [value]="null">Aucune salle</option>
+                                    @for (r of rooms(); track r.id) {
+                                        <option [value]="r.id">{{ r.name }}</option>
+                                    }
+                                </select>
+                            } @else {
+                                <p class="font-bold text-slate-800 text-sm">{{ session.roomName || 'Non assignée' }}</p>
+                            }
+                        </div>
+                    </div>
+    
+                    <!-- Full Assignment Details -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2.5">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200 pb-1">Détails d'Affectation</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <span class="text-slate-400 font-medium block">Classe / Promotion :</span>
+                                <span class="font-bold text-slate-500 flex items-center gap-1">
+                                    {{ session.className }}
+                                    <span class="text-[10px] text-slate-400 font-normal italic">(Non modifiable)</span>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 font-medium block">Spécialité :</span>
+                                <span class="font-bold text-slate-700">{{ session.specialty || 'Non spécifiée' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 font-medium block mb-0.5">Enseignant :</span>
+                                @if (isEditMode() && isFieldEditable('teacherId')) {
+                                    <select [ngModel]="editTeacherId()" (ngModelChange)="editTeacherId.set($event ? +$event : null)" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-semibold text-slate-700 cursor-pointer shadow-sm transition-all">
+                                        <option [value]="null">Sélectionner un enseignant</option>
+                                        @for (t of teachersList(); track t.id) {
+                                            <option [value]="t.id">{{ t.firstName }} {{ t.lastName }}</option>
+                                        }
+                                    </select>
+                                } @else {
+                                    <span class="font-bold text-slate-700">{{ session.teacherName }}</span>
+                                }
+                            </div>
+                            <div>
+                                <span class="text-slate-400 font-medium block">Matière :</span>
+                                <span class="font-bold text-slate-500 flex items-center gap-1">
+                                    {{ session.subjectName }}
+                                    <span class="text-[10px] text-slate-400 font-normal italic">(Non modifiable)</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Attendance / Presence -->
+                    @if (!isEditMode()) {
+                        <div class="p-4 rounded-xl border border-slate-150 bg-slate-50">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="flex items-center gap-2">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">État d'Émargement</p>
+                                    <button type="button" (click)="goToAbsences(session.id!)" class="px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 text-indigo-600 font-bold text-[9px] rounded-lg transition-all flex items-center gap-1 shadow-xs cursor-pointer" title="Consulter la liste des absences">
+                                        Voir Absences
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                @if (session.status === 'COMPLETED' && session.attendanceSubmitted) {
+                                    <span class="text-sm font-extrabold text-emerald-600">Appel Validé</span>
+                                }
+                                @if (session.status === 'COMPLETED' && !session.attendanceSubmitted) {
+                                    <span class="text-sm font-extrabold text-rose-600">Appel Manquant</span>
+                                }
+                                @if (session.status !== 'COMPLETED') {
+                                    <span class="text-sm font-extrabold text-slate-500">Non applicable ({{ session.status === 'PLANNED' ? 'Planifié' : session.status === 'IN_PROGRESS' ? 'En cours' : session.status === 'CANCELED' ? 'Annulé' : session.status }})</span>
+                                }
+                            </div>
+                            <!-- Progress Bar -->
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div [style.width]="session.status === 'COMPLETED' && session.attendanceSubmitted ? '100%' : '0%'" 
+                                     class="bg-emerald-500 h-full rounded-full"></div>
+                            </div>
+                        </div>
+                    }
+    
+                    <!-- Textbook -->
+                    @if (session.status === 'COMPLETED') {
+                        <div class="space-y-3">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-1">Cahier de Texte / Séance</p>
+                            <div>
+                                <p class="text-xs font-bold text-slate-500">Chapitres abordés / Titre :</p>
+                                @if (isEditMode() && isFieldEditable('lessonTitle')) {
+                                    <div class="mt-1">
+                                        <input type="text" [ngModel]="editLessonTitle()" (ngModelChange)="editLessonTitle.set($event)" placeholder="Ex: Introduction aux structures de données..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all" />
+                                    </div>
+                                } @else {
+                                    <p class="text-xs text-slate-700 font-semibold mt-1 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100">{{ session.lessonTitle || 'Non renseigné' }}</p>
+                                }
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-500">Détail du cours :</p>
+                                @if (isEditMode() && isFieldEditable('courseContent')) {
+                                    <div class="mt-1">
+                                        <textarea [ngModel]="editCourseContent()" (ngModelChange)="editCourseContent.set($event)" placeholder="Entrez le résumé ou remarques sur la séance..." class="w-full p-3 text-xs border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-100 bg-white font-medium text-slate-700 shadow-sm focus:border-indigo-500 transition-all" rows="3"></textarea>
+                                    </div>
+                                } @else {
+                                    <p class="text-xs text-slate-700 mt-1 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100">{{ session.courseContent || 'Aucun détail' }}</p>
+                                }
+                            </div>
+                        </div>
+                    }
+    
+                    <!-- Cancellation reason -->
+                    @if (session.status === 'CANCELED') {
+                        <div class="p-4 rounded-xl border border-rose-100 bg-rose-50/50">
+                            <p class="text-[10px] font-bold text-rose-700 uppercase tracking-wider mb-1">Motif d'annulation de séance</p>
+                            <p class="text-xs text-rose-600 font-medium italic">{{ session.cancellationReason || 'Aucun motif renseigné' }}</p>
+                        </div>
+                    }
+    
+                    <!-- Cancellation input form (if enabled) -->
+                    @if (isCancelling()) {
+                        <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/20 space-y-3">
+                            <label class="block text-xs font-bold text-rose-800">Entrez le motif d'annulation :</label>
+                            <textarea [ngModel]="cancellationReasonInput()" (ngModelChange)="cancellationReasonInput.set($event)" placeholder="Ex: Enseignant en congé maladie, coupure électrique..." class="w-full p-2.5 text-xs border border-rose-200 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 rounded-xl bg-white outline-none" rows="3"></textarea>
+                            <div class="flex gap-2 justify-end">
+                                <button type="button" (click)="cancelCancellation()" class="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700">Annuler</button>
+                                <button type="button" (click)="cancelSession(session.id!)" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-sm">Valider l'annulation</button>
+                            </div>
+                        </div>
+                    }
+    
+                    <!-- Course Modification Actions Zone (bottom) -->
+                    @if (!isCancelling() && !isEditMode()) {
+                        <div class="pt-4 border-t border-slate-100 flex flex-wrap gap-2 justify-between items-center">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Actions de gestion</span>
+                            <div class="flex gap-2">
+                                <!-- Annuler la séance -->
+                                @if (session.status === 'PLANNED' || session.status === 'IN_PROGRESS') {
+                                    <button (click)="openConfirmModal('CANCEL')" type="button" class="px-4 py-2 border border-rose-250 hover:border-rose-350 bg-white text-rose-600 hover:bg-rose-50 font-bold text-xs rounded-xl transition-colors cursor-pointer">
+                                        Annuler la Séance
+                                    </button>
+                                }
+                                <!-- Forcer la clôture -->
+                                @if (session.status === 'PLANNED' || session.status === 'IN_PROGRESS') {
+                                    <button (click)="openConfirmModal('FORCE_COMPLETE')" type="button" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors cursor-pointer">
+                                        Forcer la Complétion
+                                    </button>
+                                }
+                                <!-- Restaurer la séance -->
+                                @if (session.status === 'CANCELED') {
+                                    <button (click)="openConfirmModal('RESTORE')" type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors cursor-pointer">
+                                        Restaurer la Séance
+                                    </button>
+                                }
+                                <!-- Réouvrir la séance -->
+                                @if (session.status === 'COMPLETED') {
+                                    <button (click)="openConfirmModal('REOPEN')" type="button" class="px-4 py-2 border border-slate-200 hover:border-slate-350 bg-white text-slate-700 hover:bg-slate-50 font-bold text-xs rounded-xl transition-colors cursor-pointer">
+                                        Réouvrir la Séance
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+    
+                    <!-- Standard / Edition modal footer -->
+                    <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end -mx-6 -mb-6 rounded-b-2xl">
+                        @if (isEditMode()) {
+                            <button type="button" (click)="cancelEditMode()" [disabled]="isSavingEdit()" class="px-5 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer disabled:opacity-50">
+                                Annuler
+                            </button>
+                            <button type="button" (click)="saveCourseSession()" [disabled]="isSavingEdit()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-70">
+                                @if (isSavingEdit()) {
+                                    <svg class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                }
+                                <span>{{ isSavingEdit() ? 'Enregistrement...' : 'Enregistrer les modifications' }}</span>
+                            </button>
+                        } @else {
+                            <button type="button" (click)="closeSessionModal()" class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer">Fermer la fiche</button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Session Creation Modal -->
+@if (isCreateModalOpen()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all scale-100 opacity-100 duration-200">
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Créer une Séance de Cours</h3>
+                        <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Planifier un nouveau cours pour une classe</p>
+                    </div>
+                </div>
+                <button (click)="closeCreateModal()" class="text-slate-400 hover:text-slate-655 bg-white p-1 rounded-md shadow-sm border border-slate-100 transition-colors cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <!-- 1. Class & Subject -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Classe / Promotion *</label>
+                        <select [ngModel]="createClassGroupId()" (ngModelChange)="createClassGroupId.set($event ? +$event : null)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-semibold text-slate-700 cursor-pointer shadow-sm transition-all">
+                            <option [value]="null">Sélectionner une classe</option>
+                            @for (c of activeClasses(); track c.id) {
+                                <option [value]="c.id">{{ c.name }}</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Matière *</label>
+                        <select [ngModel]="createSubjectId()" (ngModelChange)="createSubjectId.set($event ? +$event : null)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-semibold text-slate-700 cursor-pointer shadow-sm transition-all">
+                            <option [value]="null">Sélectionner une matière</option>
+                            @for (s of subjects(); track s.id) {
+                                <option [value]="s.id">{{ s.name }}</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 2. Teacher & Room -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Enseignant *</label>
+                        <select [ngModel]="createTeacherId()" (ngModelChange)="createTeacherId.set($event ? +$event : null)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-semibold text-slate-700 cursor-pointer shadow-sm transition-all">
+                            <option [value]="null">Sélectionner un enseignant</option>
+                            @for (t of teachersList(); track t.id) {
+                                <option [value]="t.id">{{ t.firstName }} {{ t.lastName }}</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Salle de cours</label>
+                        <select [ngModel]="createRoomId()" (ngModelChange)="createRoomId.set($event ? +$event : null)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-semibold text-slate-700 cursor-pointer shadow-sm transition-all">
+                            <option [value]="null">Aucune salle (Non assignée)</option>
+                            @for (r of rooms(); track r.id) {
+                                <option [value]="r.id">{{ r.name }}</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 3. Date & Hours -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Date *</label>
+                        <input type="date" [ngModel]="createSessionDate()" (ngModelChange)="createSessionDate.set($event)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all" />
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Heure Début *</label>
+                        <input type="time" [ngModel]="createStartTime()" (ngModelChange)="createStartTime.set($event)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all" />
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Heure Fin *</label>
+                        <input type="time" [ngModel]="createEndTime()" (ngModelChange)="createEndTime.set($event)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all" />
+                    </div>
+                </div>
+
+                <!-- 4. Session type -->
+                <div class="space-y-1.5">
+                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Type de Séance *</label>
+                    <select [ngModel]="createSessionType()" (ngModelChange)="createSessionType.set($event)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-semibold text-slate-700 cursor-pointer shadow-sm transition-all">
+                        <option value="REGULAR">Normal</option>
+                        <option value="REPLACEMENT">Rattrapage</option>
+                        <option value="SUPPORT">Soutien</option>
+                        <option value="EXAM_SUPERVISION">Surveillance</option>
+                    </select>
+                </div>
+
+                <!-- 5. Lesson Title & Course Content (Optional) -->
+                <div class="space-y-3.5 pt-2 border-t border-slate-100">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Titre de la leçon / Chapitre (Optionnel)</label>
+                        <input type="text" [ngModel]="createLessonTitle()" (ngModelChange)="createLessonTitle.set($event)" placeholder="Ex: Algèbre linéaire, TP 1..." class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white font-medium text-slate-700 shadow-sm transition-all">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Détails du cours (Optionnel)</label>
+                        <textarea [ngModel]="createCourseContent()" (ngModelChange)="createCourseContent.set($event)" placeholder="Entrez le résumé ou remarques sur la séance..." class="w-full p-3 text-xs border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-100 bg-white font-medium text-slate-700 shadow-sm focus:border-indigo-500 transition-all" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end rounded-b-2xl">
+                <button type="button" (click)="closeCreateModal()" [disabled]="isSavingCreate()" class="px-5 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer disabled:opacity-50">
+                    Annuler
+                </button>
+                <button type="button" (click)="saveNewCourseSession()" [disabled]="isSavingCreate()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-lg hover:shadow-indigo-100 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-75">
+                    @if (isSavingCreate()) {
+                        <svg class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    }
+                    <span>{{ isSavingCreate() ? 'Création...' : 'Créer la Séance' }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Status Action Confirmation Modal -->
+@if (isConfirmModalOpen() && confirmActionType(); as action) {
+    <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-xs z-[60] flex items-center justify-center p-4 animate-fade-in">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all scale-100 opacity-100 duration-200 border border-slate-100">
+            
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
+                <!-- Dynamic Icons -->
+                @if (action === 'CANCEL') {
+                    <div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center shrink-0 border border-rose-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                }
+                @if (action === 'FORCE_COMPLETE') {
+                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 border border-emerald-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                }
+                @if (action === 'RESTORE') {
+                    <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18" />
+                        </svg>
+                    </div>
+                }
+                @if (action === 'REOPEN') {
+                    <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0 border border-blue-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2z" />
+                        </svg>
+                    </div>
+                }
+
+                <div>
+                    <h3 class="font-extrabold text-slate-800 text-sm">
+                        {{ action === 'CANCEL' ? 'Annuler la séance' :
+                           action === 'FORCE_COMPLETE' ? 'Forcer la clôture de séance' :
+                           action === 'RESTORE' ? 'Restaurer la séance' :
+                           action === 'REOPEN' ? 'Réouvrir la séance' : 'Confirmation' }}
+                    </h3>
+                    <p class="text-[10px] text-slate-400 font-semibold tracking-wide mt-0.5">ACTION DE SÉCURITÉ ADMINISTRATEUR</p>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="p-5 space-y-4">
+                <p class="text-xs text-slate-500 leading-relaxed font-medium">
+                    {{ action === 'CANCEL' ? 'Veuillez renseigner le motif d\'annulation de cette séance de cours. Cette action informera les étudiants.' :
+                       action === 'FORCE_COMPLETE' ? 'La clôture forcée permet de valider la séance même si l\'enseignant n\'a pas complété son émargement ou son cahier de texte.' :
+                       action === 'RESTORE' ? 'Êtes-vous sûr de vouloir restaurer cette séance de cours annulée ? Son statut repassera à "Planifié".' :
+                       action === 'REOPEN' ? 'Êtes-vous sûr de vouloir réouvrir cette séance ? Elle redeviendra active et l\'enseignant pourra de nouveau modifier son émargement.' :
+                       'Êtes-vous sûr de vouloir effectuer cette action ?' }}
+                </p>
+
+                <!-- Cancellation Form -->
+                @if (action === 'CANCEL') {
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Motif d'annulation *</label>
+                        <textarea [ngModel]="confirmCancelReason()" (ngModelChange)="confirmCancelReason.set($event)" placeholder="Ex: Panne générale, enseignant absent..." class="w-full p-3 text-xs border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-rose-50 bg-white font-medium text-slate-700 shadow-sm focus:border-rose-400 transition-all" rows="3"></textarea>
+                    </div>
+                }
+
+                <!-- Forced Completion Form -->
+                @if (action === 'FORCE_COMPLETE') {
+                    <div class="space-y-3.5 pt-2 border-t border-slate-100">
+                        <!-- Checkbox Marquer l'appel fait -->
+                        <div class="flex items-center gap-2.5">
+                            <input type="checkbox" id="forceAttendance" [ngModel]="confirmForceAttendance()" (ngModelChange)="confirmForceAttendance.set($event)" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-50 border-slate-300 cursor-pointer">
+                            <label for="forceAttendance" class="text-xs font-bold text-slate-700 cursor-pointer">Considérer l'émargement comme Fait</label>
+                        </div>
+
+                        <!-- Titre de la leçon -->
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Titre de la leçon / Chapitre</label>
+                            <input type="text" [ngModel]="confirmForceLessonTitle()" (ngModelChange)="confirmForceLessonTitle.set($event)" placeholder="Ex: Introduction aux structures de données..." class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 bg-white font-medium text-slate-700 shadow-sm transition-all">
+                        </div>
+
+                        <!-- Détails du cours -->
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Détails du cours (Cahier de texte)</label>
+                            <textarea [ngModel]="confirmForceCourseContent()" (ngModelChange)="confirmForceCourseContent.set($event)" placeholder="Entrez le résumé ou remarques sur la séance..." class="w-full p-3 text-xs border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-emerald-50 bg-white font-medium text-slate-700 shadow-sm focus:border-emerald-500 transition-all" rows="3"></textarea>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end">
+                <button type="button" (click)="closeConfirmModal()" [disabled]="isConfirmingAction()" class="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                    Annuler
+                </button>
+                <button type="button" (click)="executeConfirmAction()" [disabled]="isConfirmingAction()"
+                        [class.bg-rose-600]="action === 'CANCEL'" [class.hover:bg-rose-700]="action === 'CANCEL'"
+                        [class.bg-emerald-600]="action === 'FORCE_COMPLETE'" [class.hover:bg-emerald-700]="action === 'FORCE_COMPLETE'"
+                        [class.bg-indigo-600]="action === 'RESTORE'" [class.hover:bg-indigo-700]="action === 'RESTORE'"
+                        [class.bg-blue-600]="action === 'REOPEN'" [class.hover:bg-blue-700]="action === 'REOPEN'"
+                        class="px-4 py-2 text-white font-extrabold text-xs rounded-xl shadow-md transition-all cursor-pointer hover:-translate-y-0.5 disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-2">
+                    @if (isConfirmingAction()) {
+                        <svg class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    }
+                    <span>{{ isConfirmingAction() ? 'Traitement...' : "Confirmer l'action" }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+}

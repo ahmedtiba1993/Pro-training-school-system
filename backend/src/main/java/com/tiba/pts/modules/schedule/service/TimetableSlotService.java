@@ -1,7 +1,7 @@
 package com.tiba.pts.modules.schedule.service;
 
-import com.tiba.pts.core.dto.ErrorDetail;
 import com.tiba.pts.core.exception.BusinessValidationException;
+import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.core.service.PdfGeneratorService;
 import com.tiba.pts.modules.profiles.domain.entity.Teacher;
 import com.tiba.pts.modules.profiles.domain.enums.TeacherStatus;
@@ -29,7 +29,6 @@ import com.tiba.pts.modules.schedule.repository.TimeSlotDefinitionRepository;
 import com.tiba.pts.modules.schedule.repository.TimetableSlotRepository;
 import com.tiba.pts.modules.subject.domain.entity.Subject;
 import com.tiba.pts.modules.subject.repository.SubjectRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,7 +67,7 @@ public class TimetableSlotService {
             .findById(request.getScheduleId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
+                    new ResourceNotFoundException(
                         "Schedule non trouvé avec l'ID: " + request.getScheduleId()));
 
     Subject subject =
@@ -76,7 +75,7 @@ public class TimetableSlotService {
             .findById(request.getSubjectId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
+                    new ResourceNotFoundException(
                         "Subject non trouvé avec l'ID: " + request.getSubjectId()));
 
     // Verification: the subject must belong to the promotion's program
@@ -92,7 +91,7 @@ public class TimetableSlotService {
             .findById(request.getTeacherId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
+                    new ResourceNotFoundException(
                         "Teacher non trouvé avec l'ID: " + request.getTeacherId()));
 
     if (teacher.getStatus() != TeacherStatus.ACTIVE) {
@@ -104,7 +103,7 @@ public class TimetableSlotService {
             .findById(request.getRoomId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
+                    new ResourceNotFoundException(
                         "Room non trouvé avec l'ID: " + request.getRoomId()));
 
     if (room.getStatus() != RoomStatus.ACTIVE) {
@@ -116,7 +115,7 @@ public class TimetableSlotService {
             .findById(request.getTimeSlotDefinitionId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
+                    new ResourceNotFoundException(
                         "TimeSlotDefinition non trouvée avec l'ID: "
                             + request.getTimeSlotDefinitionId()));
 
@@ -177,7 +176,7 @@ public class TimetableSlotService {
         timetableSlotRepository
             .findById(id)
             .orElseThrow(
-                () -> new EntityNotFoundException("TimetableSlot non trouvé avec l'ID: " + id));
+                () -> new ResourceNotFoundException("TimetableSlot non trouvé avec l'ID: " + id));
 
     // Check current schedule status
     if (timetableSlot.getSchedule().getStatus() == ScheduleStatus.ARCHIVED) {
@@ -190,7 +189,7 @@ public class TimetableSlotService {
             .findById(request.getScheduleId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
+                    new ResourceNotFoundException(
                         "Schedule non trouvé avec l'ID: " + request.getScheduleId()));
 
     if (schedule.getStatus() == ScheduleStatus.ARCHIVED) {
@@ -203,7 +202,7 @@ public class TimetableSlotService {
             .findById(request.getSubjectId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
+                    new ResourceNotFoundException(
                         "Subject non trouvé avec l'ID: " + request.getSubjectId()));
 
     // Verification: the subject must belong to the promotion's program
@@ -220,7 +219,7 @@ public class TimetableSlotService {
             .findById(request.getTeacherId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
+                    new ResourceNotFoundException(
                         "Teacher non trouvé avec l'ID: " + request.getTeacherId()));
 
     if (teacher.getStatus() != TeacherStatus.ACTIVE) {
@@ -233,7 +232,7 @@ public class TimetableSlotService {
             .findById(request.getRoomId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
+                    new ResourceNotFoundException(
                         "Room non trouvé avec l'ID: " + request.getRoomId()));
 
     if (room.getStatus() != RoomStatus.ACTIVE) {
@@ -246,7 +245,7 @@ public class TimetableSlotService {
             .findById(request.getTimeSlotDefinitionId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
+                    new ResourceNotFoundException(
                         "TimeSlotDefinition non trouvée avec l'ID: "
                             + request.getTimeSlotDefinitionId()));
 
@@ -321,7 +320,7 @@ public class TimetableSlotService {
     Schedule schedule =
         scheduleRepository
             .findById(scheduleId)
-            .orElseThrow(() -> new EntityNotFoundException("SCHEDULE_NOT_FOUND"));
+            .orElseThrow(() -> new ResourceNotFoundException("SCHEDULE_NOT_FOUND"));
 
     ScheduleInfoResponse scheduleInfo = scheduleMapper.toScheduleInfoResponse(schedule);
 
@@ -351,7 +350,7 @@ public class TimetableSlotService {
         timetableSlotRepository
             .findById(id)
             .orElseThrow(
-                () -> new EntityNotFoundException("TimetableSlot non trouvé avec l'ID: " + id));
+                () -> new ResourceNotFoundException("TimetableSlot non trouvé avec l'ID: " + id));
     return timetableSlotMapper.toDetailResponse(slot);
   }
 
@@ -362,7 +361,7 @@ public class TimetableSlotService {
     Teacher teacher =
         teacherRepository
             .findById(teacherId)
-            .orElseThrow(() -> new EntityNotFoundException("TEACHER_NOT_FOUND"));
+            .orElseThrow(() -> new ResourceNotFoundException("TEACHER_NOT_FOUND"));
 
     // Retrieval & Mapping of Time Slot Definitions (Rows of the schedule)
     List<TimeSlotDefinitionResponse> timeSlotDefinitions =
@@ -394,7 +393,7 @@ public class TimetableSlotService {
     Schedule schedule =
         scheduleRepository
             .findById(scheduleId)
-            .orElseThrow(() -> new EntityNotFoundException("SCHEDULE_NOT_FOUND"));
+            .orElseThrow(() -> new ResourceNotFoundException("SCHEDULE_NOT_FOUND"));
 
     // Retrieve data
     List<TimeSlotDefinition> timeSlotDefs =
@@ -419,7 +418,7 @@ public class TimetableSlotService {
     Teacher teacher =
         teacherRepository
             .findById(teacherId)
-            .orElseThrow(() -> new EntityNotFoundException("TEACHER_NOT_FOUND"));
+            .orElseThrow(() -> new ResourceNotFoundException("TEACHER_NOT_FOUND"));
 
     // Retrieve data
     List<TimeSlotDefinition> timeSlotDefs =

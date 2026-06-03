@@ -46,4 +46,18 @@ public class ClassAssignmentController {
 
     return ResponseEntity.ok(response);
   }
+
+  @GetMapping("/class-groups/{classGroupId}/active-students")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  public ResponseEntity<ApiResponse<List<ClassStudentResponse>>> getActiveStudentsByClass(
+      @PathVariable Long classGroupId) {
+
+    List<ClassStudentResponse> students =
+        classAssignmentService.getActiveStudentsByClassGroup(classGroupId);
+
+    ApiResponse<List<ClassStudentResponse>> response =
+        ApiResponse.success("ACTIVE_CLASS_STUDENT_LIST_RETRIEVED", students);
+
+    return ResponseEntity.ok(response);
+  }
 }
