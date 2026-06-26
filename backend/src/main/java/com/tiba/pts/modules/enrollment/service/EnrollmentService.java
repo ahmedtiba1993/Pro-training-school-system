@@ -4,6 +4,7 @@ import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.core.exception.BusinessValidationException;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.core.service.PdfGeneratorService;
+import com.tiba.pts.modules.billing.service.FinancialContractService;
 import com.tiba.pts.modules.documents.domain.entity.EnrollmentDocument;
 import com.tiba.pts.modules.documents.repository.EnrollmentDocumentRepository;
 import com.tiba.pts.modules.enrollment.domain.entity.Enrollment;
@@ -61,6 +62,7 @@ public class EnrollmentService {
   private final EnrollmentDocumentSubmissionRepository submissionRepository;
   private final PdfGeneratorService pdfGeneratorService;
   private final UserService userService;
+  private final FinancialContractService financialContractService;
 
   @Transactional
   public EnrollmentResponse create(EnrollmentRequest request) {
@@ -299,6 +301,7 @@ public class EnrollmentService {
         || newStatus == EnrollmentStatus.VALIDATED) {
       createStudentAccountSafe(enrollment.getStudent());
       createParentAccountsSafe(enrollment.getStudent());
+      financialContractService.createContract(enrollment);
     }
 
     // --- STUDENT STATUS SYNCHRONIZATION ---

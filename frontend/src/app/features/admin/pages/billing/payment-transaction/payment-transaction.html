@@ -1,0 +1,1144 @@
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+  <!-- Header & Breadcrumbs -->
+  <header
+    class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-20 relative"
+  >
+    <div>
+      <!-- Breadcrumbs -->
+      <div class="flex items-center gap-2 text-xs font-medium text-slate-500 mb-1">
+        <span class="text-slate-400">Contrat Financier</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <h1 class="text-xl font-bold text-slate-800">
+          Contrat Financier :
+          {{
+            contract()
+              ? contract()!.studentFirstName + ' ' + contract()!.studentLastName
+              : 'Chargement...'
+          }}
+        </h1>
+        <span
+          [class]="getStatusBadgeClasses(contract())"
+          class="px-2.5 py-0.5 border rounded text-[10px] font-bold uppercase tracking-wider"
+        >
+          {{ getStatusLabel(contract()) }}
+        </span>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">
+        Dossier N°
+        <strong class="font-semibold text-slate-800">{{
+          contract()?.contractNumber || '...'
+        }}</strong
+        >@if (contract()?.promotionName) {<span> • {{ contract()?.promotionName }}</span
+        >}
+      </p>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="flex items-center gap-2 w-full sm:w-auto">
+      <button
+        type="button"
+        (click)="printReceipt(contract()?.contractNumber || '')"
+        class="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+      >
+        <svg
+          class="w-4 h-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path
+            d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+          ></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        Imprimer le contrat
+      </button>
+      <button
+        type="button"
+        (click)="openPaymentModal()"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-indigo-100 cursor-pointer"
+      >
+        <svg
+          class="w-4 h-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+          <line x1="1" y1="10" x2="23" y2="10"></line>
+        </svg>
+        Enregistrer un Règlement
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Body -->
+  <div class="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50/50 space-y-6">
+    <!-- Contract Statistics -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      <!-- Contract Total -->
+      <div
+        class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4"
+      >
+        <div
+          class="w-11 h-11 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center shrink-0"
+        >
+          <svg
+            class="w-5.5 h-5.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+            <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+            <path d="M18 12a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4v-6h-4z"></path>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+            Valeur du Contrat
+          </p>
+          <p class="text-xl font-black text-slate-800" id="stat-total">
+            {{ totalAmount() | number: '1.0-3' }} TND
+          </p>
+        </div>
+      </div>
+
+      <!-- Paid Amount -->
+      <div
+        class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4"
+      >
+        <div
+          class="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 border border-emerald-100"
+        >
+          <svg
+            class="w-5.5 h-5.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76z"
+            ></path>
+            <polyline points="9 11 12 14 22 4"></polyline>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+            Montant Réglé
+          </p>
+          <p class="text-xl font-black text-emerald-600" id="stat-paye">
+            {{ paidAmount() | number: '1.0-3' }} TND
+          </p>
+        </div>
+      </div>
+
+      <!-- Pending Amount -->
+      <div
+        class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4"
+      >
+        <div
+          class="w-11 h-11 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center shrink-0 border border-amber-100"
+        >
+          <svg
+            class="w-5.5 h-5.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+            Montant En Attente
+          </p>
+          <p class="text-xl font-black text-amber-600" id="stat-attente">
+            {{ pendingAmount() | number: '1.0-3' }} TND
+          </p>
+        </div>
+      </div>
+
+      <!-- Remaining to Pay -->
+      <div
+        class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4"
+      >
+        <div
+          class="w-11 h-11 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center shrink-0 border border-rose-100"
+        >
+          <svg
+            class="w-5.5 h-5.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+            Reste à Recouvrer
+          </p>
+          <p class="text-xl font-black text-rose-600" id="stat-reste">
+            {{ remainingDebt() | number: '1.0-3' }} TND
+          </p>
+        </div>
+      </div>
+
+      <!-- Recovery Rate -->
+      <div
+        class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4"
+      >
+        <div
+          class="w-11 h-11 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100"
+        >
+          <svg
+            class="w-5.5 h-5.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="19" y1="5" x2="5" y2="19"></line>
+            <circle cx="6.5" cy="6.5" r="2.5"></circle>
+            <circle cx="17.5" cy="17.5" r="2.5"></circle>
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+            Taux Recouvrement
+          </p>
+          <div class="flex items-center gap-2">
+            <p class="text-xl font-black text-indigo-600" id="stat-taux">{{ recoveryRate() }}%</p>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div
+                class="bg-indigo-500 h-full rounded-full transition-all duration-300"
+                id="stat-taux-bar"
+                [style.width.%]="recoveryRate()"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column Layout: Installments  -->
+    <div class="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start">
+      <!-- Left Column: Payments Table -->
+      <div class="xl:col-span-3 space-y-6">
+        <!-- Payments Table -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div
+            class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50"
+          >
+            <div>
+              <h2 class="font-bold text-slate-800 text-base">Historique des Règlements</h2>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Liste des transactions de paiement validées
+              </p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs whitespace-nowrap">
+              <thead
+                class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[9px] tracking-wider"
+              >
+                <tr>
+                  <th class="px-4 py-3">N° Reçu / Réf</th>
+                  <th class="px-4 py-3">Date de Paiement</th>
+                  <th class="px-4 py-3">Méthode de Paiement</th>
+                  <th class="px-4 py-3 text-right">Montant</th>
+                  <th class="px-4 py-3 text-center">Statut</th>
+                  <th class="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                @if (isLoading()) {
+                <tr>
+                  <td colspan="6" class="px-4 py-6 text-center text-slate-400">
+                    <div class="flex items-center justify-center gap-2">
+                      <svg
+                        class="animate-spin h-4 w-4 text-indigo-600"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <circle
+                          class="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          stroke-width="4"
+                        ></circle>
+                        <path
+                          class="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span>Chargement des transactions...</span>
+                    </div>
+                  </td>
+                </tr>
+                } @else { @for (t of transactions(); track t.id) {
+                <tr class="hover:bg-slate-50/50 transition-colors group">
+                  <td class="px-4 py-3">
+                    <p class="font-bold text-slate-800 text-xs">{{ t.receiptNumber || 'N/A' }}</p>
+                  </td>
+                  <td class="px-4 py-3 font-semibold text-slate-600 text-xs">
+                    {{ formatDate(t.paymentDate) }}
+                  </td>
+                  <td class="px-4 py-3 font-semibold text-slate-600 text-xs">
+                    {{ getFriendlyPaymentMethod(t.paymentMethod) }}
+                    @if (t.reference) {
+                    <span class="text-[10px] text-slate-400 font-normal"> ({{ t.reference }})</span>
+                    }
+                  </td>
+                  <td class="px-4 py-3 text-right font-black text-slate-800 text-xs">
+                    {{ t.amount | number: '1.0-3' }} TND
+                  </td>
+                  <td class="px-4 py-3 text-center">
+                    <span
+                      class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider"
+                      [ngClass]="{
+                        'bg-emerald-50 text-emerald-700 border border-emerald-100':
+                          t.status === 'CLEARED',
+                        'bg-yellow-50 text-yellow-700 border border-yellow-100':
+                          t.status === 'PENDING',
+                        'bg-rose-50 text-rose-700 border border-rose-100': t.status === 'BOUNCED',
+                        'bg-slate-150 text-slate-600 border border-slate-200':
+                          t.status === 'REFUNDED'
+                      }"
+                    >
+                      {{
+                        t.status === 'CLEARED'
+                          ? 'Validé'
+                          : t.status === 'PENDING'
+                          ? 'En attente'
+                          : t.status === 'BOUNCED'
+                          ? 'Impayé'
+                          : 'Remboursé'
+                      }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <div class="flex items-center justify-end gap-1.5">
+                      <!-- Status Change Actions -->
+                      @if (t.status === 'PENDING' || t.status === 'CLEARED') {
+                      <button
+                        type="button"
+                        (click)="openStatusModal(t)"
+                        class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-[10px] font-bold rounded-lg shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                        title="Changer le statut du règlement"
+                      >
+                        <svg
+                          class="w-3.5 h-3.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                          />
+                        </svg>
+                        Statut
+                      </button>
+                      }
+                      <button
+                        type="button"
+                        (click)="printReceiptPdf(t.id!)"
+                        class="px-2 py-1 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 text-[10px] font-bold rounded-lg shadow-sm transition-all cursor-pointer"
+                        [disabled]="!t.id"
+                      >
+                        Imprimer
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                } @empty {
+                <tr>
+                  <td colspan="6" class="px-6 py-8 text-center text-slate-400 font-normal">
+                    Aucune transaction de paiement enregistrée pour ce contrat.
+                  </td>
+                </tr>
+                } }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Receipts / Contract History & Conditions -->
+      <div class="space-y-6">
+        <!-- Collections / Receipts History -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">
+              Historique des Recettes
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Transactions de paiement enregistrées</p>
+          </div>
+
+          <div class="space-y-3" id="transactions-list">
+            @if (isLoading()) {
+            <div class="flex items-center justify-center py-6 text-slate-400 gap-2">
+              <svg
+                class="animate-spin h-5 w-5 text-indigo-600"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              <span class="text-xs">Chargement...</span>
+            </div>
+            } @else { @for (t of transactions(); track t.id) {
+            <div
+              class="p-4 bg-slate-50 border border-slate-200/60 rounded-xl hover:border-slate-300 transition-all flex justify-between items-center group"
+            >
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <p class="text-xs font-bold text-slate-700">
+                    Règlement N° {{ t.receiptNumber || 'N/A' }}
+                  </p>
+                  @if (t.status && t.status !== 'CLEARED') {
+                  <span
+                    class="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wide"
+                    [ngClass]="{
+                      'bg-yellow-50 text-yellow-700 border border-yellow-100':
+                        t.status === 'PENDING',
+                      'bg-rose-50 text-rose-700 border border-rose-100': t.status === 'BOUNCED',
+                      'bg-slate-100 text-slate-600 border border-slate-200': t.status === 'REFUNDED'
+                    }"
+                  >
+                    {{
+                      t.status === 'PENDING'
+                        ? 'En attente'
+                        : t.status === 'BOUNCED'
+                        ? 'Impayé'
+                        : 'Remboursé'
+                    }}
+                  </span>
+                  }
+                </div>
+                <p class="text-[10px] font-semibold text-indigo-600">
+                  {{ getFriendlyPaymentMethod(t.paymentMethod) }}
+                  @if (t.reference) {
+                  <span>({{ t.reference }})</span>
+                  }
+                </p>
+                <p class="text-[9px] text-slate-400 font-medium">{{ formatDate(t.paymentDate) }}</p>
+              </div>
+              <div class="text-right flex items-center gap-3">
+                <span class="font-extrabold text-slate-800 text-sm shrink-0"
+                  >+ {{ t.amount | number: '1.0-3' }} TND</span
+                >
+                <button
+                  type="button"
+                  (click)="printReceiptPdf(t.id!)"
+                  class="p-2 bg-white border border-slate-200 hover:border-indigo-300 text-slate-500 hover:text-indigo-600 rounded-lg transition-colors opacity-100 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
+                  title="Imprimer le reçu"
+                  [disabled]="!t.id"
+                >
+                  <svg
+                    class="w-3.5 h-3.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path
+                      d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+                    ></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            } @empty {
+            <div
+              class="p-6 text-center text-slate-400 italic text-xs border border-dashed border-slate-200 rounded-xl"
+            >
+              Aucun encaissement enregistré.
+            </div>
+            } }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Record Payment Modal -->
+<div
+  id="paymentModal"
+  [class.flex]="isPaymentModalOpen()"
+  [class.hidden]="!isPaymentModalOpen()"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto"
+>
+  <div
+    class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-200"
+    [class.scale-100]="isPaymentModalOpen()"
+    [class.opacity-100]="isPaymentModalOpen()"
+    [class.scale-95]="!isPaymentModalOpen()"
+    [class.opacity-0]="!isPaymentModalOpen()"
+  >
+    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-lg">Enregistrer un Règlement</h3>
+          <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+            Imputer un encaissement
+          </p>
+        </div>
+      </div>
+      <button
+        (click)="closePaymentModal()"
+        class="text-slate-400 hover:text-slate-600 bg-white p-1 rounded-md shadow-sm border border-slate-100 transition-colors cursor-pointer"
+      >
+        <svg
+          class="w-5 h-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="paymentForm" (ngSubmit)="handlePaymentSubmit()" class="p-6 space-y-4">
+      <!-- Contract Information -->
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5"
+          >Contrat Financier</label
+        >
+        <div
+          class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700"
+        >
+          Dossier : {{ contract()?.contractNumber || '...' }} (Reste à recouvrer :
+          {{ remainingDebt() | number: '1.0-3' }} TND)
+        </div>
+      </div>
+
+      <!-- Amount to Pay -->
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5"
+          >Montant (TND)</label
+        >
+        <input
+          type="number"
+          formControlName="amount"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50"
+          [class.border-rose-500]="
+            paymentForm.get('amount')?.invalid && paymentForm.get('amount')?.touched
+          "
+        />
+        @if (paymentForm.get('amount')?.invalid && paymentForm.get('amount')?.touched) {
+        <p class="text-rose-500 text-xs mt-1 font-medium">Le montant doit être supérieur à 0.</p>
+        }
+      </div>
+
+      <!-- Payment Method -->
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5"
+          >Mode de Règlement</label
+        >
+        <select
+          formControlName="paymentMethod"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white text-slate-700"
+          [class.border-rose-500]="
+            paymentForm.get('paymentMethod')?.invalid && paymentForm.get('paymentMethod')?.touched
+          "
+        >
+          <option value="CASH">Espèces</option>
+          <option value="CHECK">Chèque</option>
+          <option value="BANK_TRANSFER">Virement Bancaire</option>
+          <option value="CREDIT_CARD">Carte Bancaire</option>
+          <option value="ONLINE_STRIPE">Stripe (En ligne)</option>
+        </select>
+      </div>
+
+      <!-- Reference (Check No, Transfer No) -->
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+          Numéro de pièce / Référence @if (paymentForm.get('paymentMethod')?.value === 'CHECK' ||
+          paymentForm.get('paymentMethod')?.value === 'BANK_TRANSFER') {
+          <span class="text-rose-500 text-sm">*</span>
+          } @else {
+          <span class="font-normal normal-case">(Optionnel)</span>
+          }
+        </label>
+        <input
+          type="text"
+          formControlName="reference"
+          placeholder="Ex: Chèque n°09283748"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-slate-50"
+          [class.border-rose-500]="
+            paymentForm.get('reference')?.invalid && paymentForm.get('reference')?.touched
+          "
+        />
+        @if (paymentForm.get('reference')?.invalid && paymentForm.get('reference')?.touched) {
+        <p class="text-rose-500 text-xs mt-1 font-medium">
+          La référence est obligatoire pour ce mode de paiement.
+        </p>
+        }
+      </div>
+
+      <!-- Modal Footer (Actions) -->
+      <div
+        class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end -mx-6 -mb-6 rounded-b-2xl"
+      >
+        <button
+          type="button"
+          (click)="closePaymentModal()"
+          class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="isSubmitting() || (paymentForm.invalid && paymentForm.touched)"
+          class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          {{ isSubmitting() ? 'Validation...' : "Valider l'Encaissement" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add Installment Modal -->
+<div
+  id="installmentModal"
+  [class.flex]="isInstallmentModalOpen()"
+  [class.hidden]="!isInstallmentModalOpen()"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto"
+>
+  <div
+    class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-200"
+    [class.scale-100]="isInstallmentModalOpen()"
+    [class.opacity-100]="isInstallmentModalOpen()"
+    [class.scale-95]="!isInstallmentModalOpen()"
+    [class.opacity-0]="!isInstallmentModalOpen()"
+  >
+    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-lg">Ajouter une Échéance</h3>
+          <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+            Créer une nouvelle tranche de paiement
+          </p>
+        </div>
+      </div>
+      <button
+        (click)="closeInstallmentModal()"
+        class="text-slate-400 hover:text-slate-600 bg-white p-1 rounded-md shadow-sm border border-slate-100 transition-colors cursor-pointer"
+      >
+        <svg
+          class="w-5 h-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <form
+      [formGroup]="installmentForm"
+      (ngSubmit)="handleInstallmentSubmit()"
+      class="p-6 space-y-4"
+    >
+      <!-- Designation -->
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5"
+          >Désignation de la Tranche</label
+        >
+        <input
+          type="text"
+          formControlName="name"
+          placeholder="Ex: Tranche 4 - Semestre 2"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50"
+          [class.border-rose-500]="
+            installmentForm.get('name')?.invalid && installmentForm.get('name')?.touched
+          "
+        />
+      </div>
+
+      <!-- Installment Amount -->
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5"
+          >Montant (TND)</label
+        >
+        <input
+          type="number"
+          formControlName="amount"
+          placeholder="Ex: 500"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50"
+          [class.border-rose-500]="
+            installmentForm.get('amount')?.invalid && installmentForm.get('amount')?.touched
+          "
+        />
+      </div>
+
+      <!-- Due Date -->
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5"
+          >Date d'Échéance limite</label
+        >
+        <input
+          type="date"
+          formControlName="date"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white font-semibold text-slate-800"
+          [class.border-rose-500]="
+            installmentForm.get('date')?.invalid && installmentForm.get('date')?.touched
+          "
+        />
+      </div>
+
+      <!-- Modal Footer (Actions) -->
+      <div
+        class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end -mx-6 -mb-6 rounded-b-2xl"
+      >
+        <button
+          type="button"
+          (click)="closeInstallmentModal()"
+          class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="installmentForm.invalid && installmentForm.touched"
+          class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          Ajouter l'Échéance
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div
+  id="confirmModal"
+  [class.flex]="isConfirmModalOpen()"
+  [class.hidden]="!isConfirmModalOpen()"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4 overflow-y-auto"
+>
+  <div
+    class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-200"
+    [class.scale-100]="isConfirmModalOpen()"
+    [class.opacity-100]="isConfirmModalOpen()"
+    [class.scale-95]="!isConfirmModalOpen()"
+    [class.opacity-0]="!isConfirmModalOpen()"
+  >
+    <div class="p-6">
+      <div
+        class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mx-auto mb-4"
+      >
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-center text-slate-800 mb-2">Confirmer le paiement</h3>
+      <p class="text-sm text-center text-slate-500">
+        Êtes-vous sûr de vouloir enregistrer cette transaction de paiement ? Cette action est
+        irréversible.
+      </p>
+
+      <div class="mt-6 flex gap-3">
+        <button
+          type="button"
+          (click)="closeConfirmModal()"
+          class="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition-colors cursor-pointer"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="confirmPayment()"
+          [disabled]="isSubmitting()"
+          class="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+        >
+          @if (isSubmitting()) {
+          <svg
+            class="animate-spin h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          Traitement... } @else { Confirmer }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Change Modal -->
+<div
+  id="statusModal"
+  [class.flex]="isStatusModalOpen()"
+  [class.hidden]="!isStatusModalOpen()"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4 overflow-y-auto"
+>
+  <div
+    class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-200"
+    [class.scale-100]="isStatusModalOpen()"
+    [class.opacity-100]="isStatusModalOpen()"
+    [class.scale-95]="!isStatusModalOpen()"
+    [class.opacity-0]="!isStatusModalOpen()"
+  >
+    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-lg">Modifier le statut</h3>
+          <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+            Mettre à jour le statut du règlement
+          </p>
+        </div>
+      </div>
+      <button
+        (click)="closeStatusModal()"
+        class="text-slate-400 hover:text-slate-600 bg-white p-1 rounded-md shadow-sm border border-slate-100 transition-colors cursor-pointer"
+      >
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <!-- Payment details -->
+      <div class="p-4 bg-slate-50 border border-slate-200/60 rounded-xl space-y-2">
+        <p class="text-xs font-semibold text-slate-600">
+          Règlement N°:
+          <span class="font-bold text-slate-800">{{
+            selectedTransaction()?.receiptNumber || 'N/A'
+          }}</span>
+        </p>
+        <p class="text-xs font-semibold text-slate-600">
+          Montant :
+          <span class="font-black text-slate-800"
+            >{{ selectedTransaction()?.amount | number: '1.0-3' }} TND</span
+          >
+        </p>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-slate-600">Statut actuel :</span>
+          <span
+            class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider"
+            [ngClass]="{
+              'bg-emerald-50 text-emerald-700 border border-emerald-100':
+                selectedTransaction()?.status === 'CLEARED',
+              'bg-yellow-50 text-yellow-700 border border-yellow-100':
+                selectedTransaction()?.status === 'PENDING',
+              'bg-rose-50 text-rose-700 border border-rose-100':
+                selectedTransaction()?.status === 'BOUNCED',
+              'bg-slate-150 text-slate-600 border border-slate-200':
+                selectedTransaction()?.status === 'REFUNDED'
+            }"
+          >
+            {{
+              selectedTransaction()?.status === 'CLEARED'
+                ? 'Validé'
+                : selectedTransaction()?.status === 'PENDING'
+                ? 'En attente'
+                : selectedTransaction()?.status === 'BOUNCED'
+                ? 'Impayé'
+                : 'Remboursé'
+            }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Choose new status -->
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5"
+          >Nouveau statut</label
+        >
+        <select
+          [ngModel]="selectedNewStatus()"
+          (ngModelChange)="selectedNewStatus.set($event)"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white text-slate-700"
+        >
+          <option value="" disabled>Choisir un statut...</option>
+          @if (selectedTransaction()?.status === 'PENDING') {
+          <option value="CLEARED">Validé (CLEARED)</option>
+          <option value="BOUNCED">Impayé / Rejeté (BOUNCED)</option>
+          <option value="CANCELLED">Annulé (CANCELLED)</option>
+          } @else if (selectedTransaction()?.status === 'CLEARED') {
+          <option value="BOUNCED">Impayé / Rejeté (BOUNCED)</option>
+          }
+        </select>
+      </div>
+
+      <!-- Specific alerts based on choice -->
+      @if (selectedTransaction()?.status === 'CLEARED' && selectedNewStatus() === 'BOUNCED') {
+      <div
+        class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-medium leading-relaxed"
+      >
+        <strong>Attention :</strong> Ce règlement était déjà validé. Le marquer comme impayé
+        diminuera le montant réglé du contrat de
+        <strong>{{ selectedTransaction()?.amount | number: '1.0-3' }} TND</strong> et rouvrira
+        automatiquement la dette du contrat (le contrat repasse à l'état Actif).
+      </div>
+      } @if (selectedTransaction()?.status === 'PENDING' && selectedNewStatus() === 'CANCELLED') {
+      <div
+        class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 font-medium leading-relaxed"
+      >
+        <strong>Note :</strong> Annuler ce règlement en attente le rendra définitivement inactif.
+        Aucune incidence financière n'aura lieu sur le contrat puisqu'il n'avait pas encore été
+        validé.
+      </div>
+      }
+
+      <!-- Modal Footer (Actions) -->
+      <div
+        class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end -mx-6 -mb-6 rounded-b-2xl"
+      >
+        <button
+          type="button"
+          (click)="closeStatusModal()"
+          class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="openConfirmStatusModal()"
+          [disabled]="!selectedNewStatus()"
+          class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Change Confirmation Modal -->
+<div
+  id="confirmStatusModal"
+  [class.flex]="isConfirmStatusModalOpen()"
+  [class.hidden]="!isConfirmStatusModalOpen()"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[70] items-center justify-center p-4 overflow-y-auto"
+>
+  <div
+    class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-200"
+    [class.scale-100]="isConfirmStatusModalOpen()"
+    [class.opacity-100]="isConfirmStatusModalOpen()"
+    [class.scale-95]="!isConfirmStatusModalOpen()"
+    [class.opacity-0]="!isConfirmStatusModalOpen()"
+  >
+    <div class="p-6">
+      <div
+        class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-4"
+      >
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-center text-slate-800 mb-2">Confirmer le changement</h3>
+      <p class="text-xs text-center text-slate-500 mb-4 leading-relaxed">
+        Êtes-vous sûr de vouloir modifier le statut de ce règlement ?
+      </p>
+
+      <div
+        class="bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs space-y-1.5 mb-6 text-slate-600"
+      >
+        <p>
+          N° Reçu :
+          <strong class="text-slate-800 font-bold">{{
+            selectedTransaction()?.receiptNumber || 'N/A'
+          }}</strong>
+        </p>
+        <p>
+          Montant :
+          <strong class="text-slate-800 font-bold"
+            >{{ selectedTransaction()?.amount | number: '1.0-3' }} TND</strong
+          >
+        </p>
+        <div class="flex items-center gap-1">
+          <span>Nouveau statut :</span>
+          <span
+            class="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-100"
+          >
+            {{ getFriendlyStatus(selectedNewStatus()) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          type="button"
+          (click)="closeConfirmStatusModal()"
+          class="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition-colors cursor-pointer"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="confirmStatusUpdate()"
+          [disabled]="isSubmitting()"
+          class="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+        >
+          @if (isSubmitting()) {
+          <svg
+            class="animate-spin h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          Traitement... } @else { Confirmer }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

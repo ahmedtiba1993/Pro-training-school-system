@@ -38,3 +38,7 @@ frontend/src/app/core/api/.openapi-generator/FILES
 /.env
 /docker-compose.yml
 /backend/Dockerfile
+/backend/.agents/skills/edumanager-backend/SKILL.md
+/frontend/.agent/skills/pfe-forntend/skill.md
+/frontend/.agent/skills/pfe-frontend/skill.md
+/frontend/src/app/features/admin/pages/billing/openapitools.json

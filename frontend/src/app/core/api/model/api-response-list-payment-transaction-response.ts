@@ -8,14 +8,14 @@
  * Do not edit the class manually.
  */
 import { ErrorDetail } from './error-detail';
-import { StudentAttendanceResponse } from './student-attendance-response';
+import { PaymentTransactionResponse } from './payment-transaction-response';
 
 
-export interface ApiResponseListStudentAttendanceResponse { 
+export interface ApiResponseListPaymentTransactionResponse { 
     success?: boolean;
     message?: string;
     errorCode?: string;
-    data?: Array<StudentAttendanceResponse>;
+    data?: Array<PaymentTransactionResponse>;
     errors?: Array<ErrorDetail>;
     timestamp?: string;
 }

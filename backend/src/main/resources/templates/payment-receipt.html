@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @page {
+        size: A4;
+        margin: 10mm;
+        background-color: white;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        color: #000;
+        margin: 0;
+        padding: 0;
+        font-size: 13px;
+      }
+
+      .container {
+        width: 100%;
+      }
+
+      /* ---------- Header ---------- */
+      .header {
+        display: table;
+        width: 100%;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 8px;
+      }
+
+      .header-left {
+        display: table-cell;
+        vertical-align: middle;
+      }
+
+      .header-left h1 {
+        font-size: 18px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: 0;
+      }
+
+      .header-left h2 {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin: 2px 0 0 0;
+      }
+
+      .header-right {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: right;
+      }
+
+      .receipt-badge {
+        display: inline-block;
+        font-size: 16px;
+        font-weight: bold;
+        border: 2px solid #000;
+        padding: 6px 18px;
+        text-transform: uppercase;
+      }
+
+      /* ---------- Sections ---------- */
+      .section {
+        margin-bottom: 12px;
+      }
+
+      .section-title {
+        font-size: 13px;
+        font-weight: bold;
+        text-transform: uppercase;
+        background-color: #f0f0f0;
+        border: 1px solid #000;
+        border-bottom: none;
+        padding: 4px 10px;
+        margin: 0;
+      }
+
+      .section-body {
+        border: 1px solid #000;
+        padding: 10px;
+      }
+
+      /* ---------- Section 1: Transaction ---------- */
+      .tx-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .tx-table td {
+        padding: 4px 8px;
+        font-size: 13px;
+      }
+
+      .tx-table .tx-label {
+        font-weight: bold;
+        width: 30%;
+        color: #444;
+      }
+
+      .tx-table .tx-value {
+        font-weight: 600;
+      }
+
+      .tx-table .tx-sep {
+        width: 20px;
+      }
+
+      /* ---------- Two-column layout (sections 2 and 3) ---------- */
+      .row-2 {
+        display: table;
+        width: 100%;
+        border-spacing: 8px 0;
+        margin-bottom: 12px;
+      }
+
+      .col-2 {
+        display: table-cell;
+        width: 50%;
+        vertical-align: top;
+      }
+
+      .col-field {
+        margin-bottom: 6px;
+        font-size: 13px;
+      }
+
+      .col-field:last-child {
+        margin-bottom: 0;
+      }
+
+      .col-field .label {
+        font-weight: bold;
+        color: #444;
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        margin-bottom: 1px;
+      }
+
+      .col-field .value {
+        font-weight: 600;
+      }
+
+      /* ---------- Amount highlight ---------- */
+      .amount-box {
+        border: 2px solid #000;
+        padding: 12px;
+        text-align: center;
+      }
+
+      .amount-label {
+        display: block;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 11px;
+        margin-bottom: 4px;
+        color: #444;
+      }
+
+      .amount-value {
+        font-weight: bold;
+        font-size: 26px;
+      }
+
+      .amount-in-words {
+        font-size: 11px;
+        font-style: italic;
+        margin-top: 6px;
+        color: #444;
+      }
+
+      /* ---------- Financial summary ---------- */
+      .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      .summary-table td {
+        border: 1px solid #000;
+        padding: 5px 10px;
+      }
+
+      .summary-table .summary-label {
+        font-weight: 600;
+        background-color: #f7f7f7;
+        width: 70%;
+      }
+
+      .summary-table .summary-value {
+        text-align: right;
+        font-weight: bold;
+      }
+
+      .summary-table .summary-total .summary-label {
+        background-color: #e0e0e0;
+        text-transform: uppercase;
+      }
+
+      /* ---------- Footer ---------- */
+      .footer {
+        margin-top: 20px;
+        display: table;
+        width: 100%;
+        text-align: center;
+        font-size: 13px;
+        font-weight: bold;
+      }
+
+      .footer-col {
+        display: table-cell;
+        width: 50%;
+      }
+
+      .signature-line {
+        border-top: 1px solid #000;
+        width: 70%;
+        margin: 40px auto 0 auto;
+        padding-top: 3px;
+        font-weight: normal;
+        font-size: 12px;
+      }
+
+      .bottom-note {
+        margin-top: 12px;
+        text-align: center;
+        font-size: 10px;
+        border-top: 1px solid #000;
+        padding-top: 6px;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- ====== Header ====== -->
+      <div class="header">
+        <div class="header-left">
+          <h1>Institut Poly Eléctronique</h1>
+          <h2>de Formation Professionnelle</h2>
+        </div>
+        <div class="header-right">
+          <div class="receipt-badge">Reçu de Paiement</div>
+        </div>
+      </div>
+
+      <!-- ====== Section 1: Transaction ====== -->
+      <div class="section">
+        <div class="section-title">1. Informations de la Transaction</div>
+        <div class="section-body">
+          <table class="tx-table">
+            <tr>
+              <td class="tx-label">N° Reçu</td>
+              <td class="tx-value" th:text="${receiptNumber}"></td>
+              <td class="tx-sep"></td>
+              <td class="tx-label">Date de Paiement</td>
+              <td class="tx-value" th:text="${paymentDate}"></td>
+            </tr>
+            <tr>
+              <td class="tx-label">Mode de Paiement</td>
+              <td class="tx-value" th:text="${paymentMethod}"></td>
+              <td class="tx-sep"></td>
+              <td class="tx-label">Statut</td>
+              <td class="tx-value" th:text="${status}"></td>
+            </tr>
+            <tr th:if="${reference}">
+              <td class="tx-label">Référence</td>
+              <td class="tx-value" colspan="4" th:text="${reference}"></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ====== Sections 2 and 3: Side by side ====== -->
+      <div class="row-2">
+        <!-- Section 2: Student -->
+        <div class="col-2">
+          <div class="section-title">2. Identité de l'Étudiant</div>
+          <div class="section-body">
+            <div class="col-field">
+              <span class="label">Nom et Prénom</span>
+              <span
+                class="value"
+                style="text-transform: uppercase"
+                th:text="${studentName}"
+              ></span>
+            </div>
+            <div class="col-field">
+              <span class="label">Matricule</span>
+              <span class="value" th:text="${studentMatricule}"></span>
+            </div>
+            <div class="col-field">
+              <span class="label">N° Contrat</span>
+              <span class="value" th:text="${contractNumber}"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Training -->
+        <div class="col-2">
+          <div class="section-title">3. Formation</div>
+          <div class="section-body">
+            <div class="col-field">
+              <span class="label">Niveau</span>
+              <span
+                class="value"
+                style="text-transform: uppercase"
+                th:text="${levelName}"
+              ></span>
+            </div>
+            <div class="col-field">
+              <span class="label">Spécialité</span>
+              <span
+                class="value"
+                style="text-transform: uppercase"
+                th:text="${specialtyName}"
+              ></span>
+            </div>
+            <div class="col-field">
+              <span class="label">Session / Promotion</span>
+              <span
+                class="value"
+                style="text-transform: uppercase"
+                th:text="${promotionName}"
+              ></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== Section 4: Paid Amount ====== -->
+      <div class="section">
+        <div class="section-title">4. Montant Réglé</div>
+        <div class="amount-box">
+          <span class="amount-label">Somme Reçue</span>
+          <span class="amount-value" th:text="${amountFormatted}"></span>
+          <div
+            class="amount-in-words"
+            th:text="'Arrêté la présente somme à : ' + ${amountInWords}"
+          ></div>
+        </div>
+      </div>
+
+      <!-- ====== Footer ====== -->
+      <div class="footer">
+        <div class="footer-col">
+          <div class="signature-line">Le Trésorier</div>
+        </div>
+      </div>
+
+      <div
+        class="bottom-note"
+        th:text="'Document officiel - Généré le ' + ${currentDate}"
+      ></div>
+    </div>
+  </body>
+</html>

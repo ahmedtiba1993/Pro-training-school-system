@@ -1,0 +1,520 @@
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+  <!-- Header & Breadcrumbs -->
+  <header
+    class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-20 relative"
+  >
+    <div>
+      <!-- Breadcrumbs -->
+      <div class="flex items-center gap-2 text-xs font-medium text-slate-500 mb-1">
+        <span class="text-slate-400">Facturation & Règlements</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <h1 class="text-xl font-bold text-slate-800">Historique Global des Transactions</h1>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">
+        Consulter et gérer tous les règlements financiers enregistrés dans le système.
+      </p>
+    </div>
+  </header>
+
+  <!-- Page Body -->
+  <div class="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50/50 space-y-6">
+    <!-- Filters Area -->
+    <div
+      class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col md:flex-row gap-4 items-end justify-between"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full md:w-auto">
+        <!-- Start date -->
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5"
+            >Date de Début</label
+          >
+          <input
+            type="date"
+            [ngModel]="startDate()"
+            (ngModelChange)="startDate.set($event)"
+            class="w-full sm:w-48 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 cursor-pointer"
+          />
+        </div>
+
+        <!-- End date -->
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5"
+            >Date de Fin</label
+          >
+          <input
+            type="date"
+            [ngModel]="endDate()"
+            (ngModelChange)="endDate.set($event)"
+            class="w-full sm:w-48 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 cursor-pointer"
+          />
+        </div>
+      </div>
+
+      <!-- Filtering Actions -->
+      <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5 shrink-0"
+        >
+          Réinitialiser
+        </button>
+        <button
+          type="button"
+          (click)="applyFilters()"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-100 flex items-center gap-1.5 cursor-pointer shrink-0"
+        >
+          <svg
+            class="w-3.5 h-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          Filtrer
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Transactions Table -->
+    <div
+      class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative z-10"
+    >
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead
+            class="bg-slate-50 border-b border-slate-150 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
+          >
+            <tr>
+              <th class="px-4 py-3">N° de Reçu</th>
+              <th class="px-4 py-3">Contrat Financier</th>
+              <th class="px-4 py-3">Date du Paiement</th>
+              <th class="px-4 py-3">Mode & Réf</th>
+              <th class="px-4 py-3 text-right">Montant</th>
+              <th class="px-4 py-3 text-center">Statut</th>
+              <th class="px-4 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @if (isLoading()) {
+            <tr>
+              <td colspan="7" class="px-4 py-8 text-center text-slate-400">
+                <div class="flex items-center justify-center gap-2">
+                  <svg
+                    class="animate-spin h-5 w-5 text-indigo-600"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  <span>Chargement des transactions...</span>
+                </div>
+              </td>
+            </tr>
+            } @else if (transactions().length === 0) {
+            <tr>
+              <td colspan="7" class="px-4 py-8 text-center text-slate-400">
+                Aucune transaction de paiement trouvée.
+              </td>
+            </tr>
+            } @else { @for (t of transactions(); track t.id) {
+            <tr class="hover:bg-slate-50/50 transition-colors group">
+              <!-- Receipt No -->
+              <td class="px-4 py-3 font-bold text-slate-800">
+                {{ t.receiptNumber || 'N/A' }}
+              </td>
+              <!-- Contract No -->
+              <td class="px-4 py-3 font-semibold text-slate-600">
+                <a
+                  [routerLink]="['/admin/billing/contracts', t.financialContractId, 'transactions']"
+                  class="text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1"
+                >
+                  <span>{{ t.contractNumber || 'Contrat N°' + t.financialContractId }}</span>
+                  <svg
+                    class="w-3 h-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </a>
+              </td>
+              <!-- Date -->
+              <td class="px-4 py-3 font-medium text-slate-600 whitespace-nowrap">
+                {{ formatDate(t.paymentDate) }}
+              </td>
+              <!-- Method & Reference -->
+              <td class="px-4 py-3 text-slate-600 whitespace-nowrap">
+                <span class="font-semibold text-xs">{{
+                  getFriendlyPaymentMethod(t.paymentMethod)
+                }}</span>
+                @if (t.reference) {
+                <span class="text-[10px] text-slate-400 font-normal block">{{ t.reference }}</span>
+                }
+              </td>
+              <!-- Amount -->
+              <td class="px-4 py-3 text-right font-black text-slate-800 whitespace-nowrap">
+                {{ t.amount | number: '1.0-3' }} TND
+              </td>
+              <!-- Status -->
+              <td class="px-4 py-3 text-center whitespace-nowrap">
+                <span
+                  class="px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border"
+                  [ngClass]="{
+                    'bg-emerald-50 text-emerald-700 border border-emerald-100':
+                      t.status === 'CLEARED',
+                    'bg-yellow-50 text-yellow-700 border border-yellow-100': t.status === 'PENDING',
+                    'bg-rose-50 text-rose-700 border border-rose-100': t.status === 'BOUNCED',
+                    'bg-slate-100 text-slate-600 border border-slate-200':
+                      t.status === 'CANCELLED' || t.status === 'REFUNDED'
+                  }"
+                >
+                  {{ getFriendlyStatus(t.status) }}
+                </span>
+              </td>
+              <!-- Actions -->
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                <div
+                  class="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  @if (t.status === 'PENDING' || t.status === 'CLEARED') {
+                  <button
+                    type="button"
+                    (click)="openStatusModal(t)"
+                    class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-[10px] font-bold rounded-lg shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                    title="Changer le statut du règlement"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                      />
+                    </svg>
+                    Statut
+                  </button>
+                  }
+                  <button
+                    type="button"
+                    (click)="printReceiptPdf(t.id!)"
+                    class="px-2.5 py-1 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 text-[10px] font-bold rounded-lg shadow-sm transition-all cursor-pointer"
+                    [disabled]="!t.id"
+                  >
+                    Imprimer
+                  </button>
+                </div>
+              </td>
+            </tr>
+            } }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination / Summary -->
+      <div
+        class="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500"
+      >
+        <p>
+          Affichage de {{ startElement() }} à {{ endElement() }} sur
+          {{ totalElements() }} transaction(s) enregistrée(s)
+        </p>
+
+        <div class="flex items-center gap-4">
+          <!-- Page Size Selector -->
+          <div class="flex items-center gap-2">
+            <span>Éléments par page:</span>
+            <select
+              [value]="pageSize()"
+              (change)="onPageSizeChange($event)"
+              class="px-2 py-1 bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-600 shadow-sm cursor-pointer"
+            >
+              <option [value]="5">5</option>
+              <option [value]="10">10</option>
+              <option [value]="20">20</option>
+              <option [value]="50">50</option>
+            </select>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              [disabled]="currentPage() === 0"
+              (click)="goToPage(currentPage() - 1)"
+              class="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-lg transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+            </button>
+            <span class="font-semibold text-slate-700">
+              Page {{ currentPage() + 1 }} sur {{ totalPages() || 1 }}
+            </span>
+            <button
+              type="button"
+              [disabled]="currentPage() >= totalPages() - 1"
+              (click)="goToPage(currentPage() + 1)"
+              class="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-lg transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Status Change Modal -->
+<div
+  id="statusModal"
+  [class.flex]="isStatusModalOpen()"
+  [class.hidden]="!isStatusModalOpen()"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto"
+>
+  <div
+    class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden my-auto transform transition-all duration-200"
+    [class.scale-100]="isStatusModalOpen()"
+    [class.opacity-100]="isStatusModalOpen()"
+  >
+    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-lg">Modifier le statut</h3>
+          <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+            Mettre à jour le statut du règlement
+          </p>
+        </div>
+      </div>
+      <button
+        (click)="closeStatusModal()"
+        class="text-slate-400 hover:text-slate-600 bg-white p-1 rounded-md shadow-sm border border-slate-100 transition-colors cursor-pointer"
+      >
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <!-- Payment details -->
+      <div class="p-4 bg-slate-50 border border-slate-200/60 rounded-xl space-y-2">
+        <p class="text-xs font-semibold text-slate-600">
+          Règlement N°:
+          <span class="font-bold text-slate-800">{{
+            selectedTransaction()?.receiptNumber || 'N/A'
+          }}</span>
+        </p>
+        <p class="text-xs font-semibold text-slate-600">
+          Montant :
+          <span class="font-black text-slate-800"
+            >{{ selectedTransaction()?.amount | number: '1.0-3' }} TND</span
+          >
+        </p>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-slate-600">Statut actuel :</span>
+          <span
+            class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border"
+            [ngClass]="{
+              'bg-emerald-50 text-emerald-700 border border-emerald-100':
+                selectedTransaction()?.status === 'CLEARED',
+              'bg-yellow-50 text-yellow-700 border border-yellow-100':
+                selectedTransaction()?.status === 'PENDING',
+              'bg-rose-50 text-rose-700 border border-rose-100':
+                selectedTransaction()?.status === 'BOUNCED',
+              'bg-slate-100 text-slate-600 border border-slate-200':
+                selectedTransaction()?.status === 'CANCELLED' ||
+                selectedTransaction()?.status === 'REFUNDED'
+            }"
+          >
+            {{ getFriendlyStatus(selectedTransaction()?.status) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- New status selection form -->
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2"
+          >Nouveau Statut</label
+        >
+        <select
+          [ngModel]="selectedNewStatus()"
+          (ngModelChange)="selectedNewStatus.set($event)"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white text-slate-700 cursor-pointer"
+        >
+          <option value="" disabled>Sélectionnez un statut</option>
+          @if (selectedTransaction()?.status === 'PENDING') {
+          <option value="CLEARED">Validé (Encaissé)</option>
+          <option value="BOUNCED">Rejeté / Impayé</option>
+          <option value="CANCELLED">Annulé</option>
+          } @else if (selectedTransaction()?.status === 'CLEARED') {
+          <option value="REFUNDED">Remboursé</option>
+          <option value="CANCELLED">Annulé</option>
+          }
+        </select>
+      </div>
+
+      <!-- Modal Footer (Actions) -->
+      <div class="flex gap-3 justify-end pt-4 border-t border-slate-100">
+        <button
+          type="button"
+          (click)="closeStatusModal()"
+          class="px-5 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          [disabled]="!selectedNewStatus()"
+          (click)="openConfirmStatusModal()"
+          class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          Changer le Statut
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Change Confirmation Modal -->
+<div
+  id="confirmStatusModal"
+  [class.flex]="isConfirmStatusModalOpen()"
+  [class.hidden]="!isConfirmStatusModalOpen()"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[65] items-center justify-center p-4 overflow-y-auto"
+>
+  <div
+    class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden my-auto transform transition-all duration-200"
+    [class.scale-100]="isConfirmStatusModalOpen()"
+    [class.opacity-100]="isConfirmStatusModalOpen()"
+  >
+    <div class="p-6">
+      <div
+        class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mx-auto mb-4"
+      >
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+      </div>
+      <h3 class="text-base font-bold text-center text-slate-800 mb-2">Confirmer le changement</h3>
+      <p class="text-xs text-center text-slate-500 leading-relaxed">
+        Êtes-vous sûr de vouloir changer le statut de ce règlement en
+        <strong class="text-slate-700">{{ getFriendlyStatus(selectedNewStatus()) }}</strong> ?
+      </p>
+
+      <div class="mt-6 flex gap-3">
+        <button
+          type="button"
+          (click)="closeConfirmStatusModal()"
+          class="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="confirmStatusUpdate()"
+          [disabled]="isSubmitting()"
+          class="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+        >
+          @if (isSubmitting()) {
+          <svg
+            class="animate-spin h-3.5 w-3.5 text-white"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          Mise à jour... } @else { Confirmer }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

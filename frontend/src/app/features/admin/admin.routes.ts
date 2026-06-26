@@ -30,6 +30,9 @@ import { TimeSlots } from './pages/schedule/time-slots/time-slots';
 import { ScheduleListTeacher } from './pages/schedule/schedule-list-teacher/schedule-list-teacher';
 import { CourseSession } from './pages/execution/course-session/course-session';
 import { AbsenceList } from './pages/execution/absence-list/absence-list';
+import { FinancialContractList } from './pages/billing/financial-contract-list/financial-contract-list';
+import { PaymentTransaction } from './pages/billing/payment-transaction/payment-transaction';
+import { PaymentTransactionList } from './pages/billing/payment-transaction-list/payment-transaction-list';
 
 
 export const ADMIN_ROUTES: Routes = [
@@ -65,6 +68,9 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'rooms', component: Room },
       { path: 'execution/course-sessions', component: CourseSession },
       { path: 'execution/course-sessions/:id/absences', component: AbsenceList },
+      { path: 'billing', component: FinancialContractList },
+      { path: 'billing/transactions', component: PaymentTransactionList },
+      { path: 'billing/contracts/:id/transactions', component: PaymentTransaction },
       { path: 'schedules', component: ScheduleList },
       { path: 'schedules/details/:id', component: ScheduleDetail },
       { path: 'schedules/teachers', component: ScheduleListTeacher },

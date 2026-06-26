@@ -9,11 +9,11 @@
  */
 
 
-export interface StudentAttendanceResponse { 
-    enrollmentId?: number;
-    firstName?: string;
-    lastName?: string;
-    studentCode?: string;
-    status?: string;
+export interface ActiveRevenueStatResponse { 
+    activeRevenue?: number;
+    totalCollected?: number;
+    remainingDebt?: number;
+    losses?: number;
+    pendingPayments?: number;
 }
 

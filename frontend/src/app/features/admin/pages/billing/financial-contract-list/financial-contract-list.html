@@ -1,0 +1,941 @@
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50">
+  <!-- Header -->
+  <header
+    class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-20 relative"
+  >
+    <div>
+      <!-- Breadcrumbs -->
+      <div class="flex items-center gap-2 text-xs font-medium text-slate-500 mb-1">
+        <a href="/admin/dashboard" class="hover:text-indigo-600 transition-colors">Accueil</a>
+        <svg
+          class="w-3 h-3 text-slate-400"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+        <span class="text-slate-400">Contrats Financiers Globaux</span>
+      </div>
+
+      <h1 class="text-xl font-bold text-slate-800">
+        Console des Contrats Financiers (`FinancialContract`)
+      </h1>
+      <p class="text-xs text-slate-500 mt-0.5">
+        Suivi de la dette globale, des encaissements et du recouvrement des frais de scolarité.
+      </p>
+    </div>
+  </header>
+
+  <!-- Page Body -->
+  <div class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
+    <!-- Segmented Control (Global Filter) -->
+    <div class="flex bg-slate-200/50 p-1.5 rounded-2xl w-fit shadow-inner border border-slate-200">
+      <button
+        type="button"
+        (click)="setSegmentedFilter('GLOBAL')"
+        [class.bg-white]="segmentedFilter() === 'GLOBAL'"
+        [class.text-slate-800]="segmentedFilter() === 'GLOBAL'"
+        [class.shadow-sm]="segmentedFilter() === 'GLOBAL'"
+        [class.font-bold]="segmentedFilter() === 'GLOBAL'"
+        [class.text-slate-500]="segmentedFilter() !== 'GLOBAL'"
+        [class.hover:text-slate-800]="segmentedFilter() !== 'GLOBAL'"
+        [class.font-medium]="segmentedFilter() !== 'GLOBAL'"
+        class="px-5 py-2 rounded-xl text-sm transition-all outline-none cursor-pointer"
+      >
+        Vue Globale
+      </button>
+      <button
+        type="button"
+        (click)="setSegmentedFilter('HOMOLOGUE')"
+        [class.bg-white]="segmentedFilter() === 'HOMOLOGUE'"
+        [class.text-slate-800]="segmentedFilter() === 'HOMOLOGUE'"
+        [class.shadow-sm]="segmentedFilter() === 'HOMOLOGUE'"
+        [class.font-bold]="segmentedFilter() === 'HOMOLOGUE'"
+        [class.text-slate-500]="segmentedFilter() !== 'HOMOLOGUE'"
+        [class.hover:text-slate-800]="segmentedFilter() !== 'HOMOLOGUE'"
+        [class.font-medium]="segmentedFilter() !== 'HOMOLOGUE'"
+        class="px-5 py-2 rounded-xl text-sm transition-all outline-none cursor-pointer"
+      >
+        Homologué
+      </button>
+      <button
+        type="button"
+        (click)="setSegmentedFilter('CONTINUE')"
+        [class.bg-white]="segmentedFilter() === 'CONTINUE'"
+        [class.text-slate-800]="segmentedFilter() === 'CONTINUE'"
+        [class.shadow-sm]="segmentedFilter() === 'CONTINUE'"
+        [class.font-bold]="segmentedFilter() === 'CONTINUE'"
+        [class.text-slate-500]="segmentedFilter() !== 'CONTINUE'"
+        [class.hover:text-slate-800]="segmentedFilter() !== 'CONTINUE'"
+        [class.font-medium]="segmentedFilter() !== 'CONTINUE'"
+        class="px-5 py-2 rounded-xl text-sm transition-all outline-none cursor-pointer"
+      >
+        Formation Continue
+      </button>
+      <button
+        type="button"
+        (click)="setSegmentedFilter('ACCELERE')"
+        [class.bg-white]="segmentedFilter() === 'ACCELERE'"
+        [class.text-slate-800]="segmentedFilter() === 'ACCELERE'"
+        [class.shadow-sm]="segmentedFilter() === 'ACCELERE'"
+        [class.font-bold]="segmentedFilter() === 'ACCELERE'"
+        [class.text-slate-500]="segmentedFilter() !== 'ACCELERE'"
+        [class.hover:text-slate-800]="segmentedFilter() !== 'ACCELERE'"
+        [class.font-medium]="segmentedFilter() !== 'ACCELERE'"
+        class="px-5 py-2 rounded-xl text-sm transition-all outline-none cursor-pointer"
+      >
+        Formation Accélérée
+      </button>
+    </div>
+
+    <!-- Financial Root Aggregate Indicators -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <!-- CA Total -->
+      <div
+        [class.hover:shadow-md]="!isStatsLoading() && activeRevenue() !== null"
+        [class.blur-[2px]]="!isStatsLoading() && activeRevenue() === null"
+        [class.opacity-60]="!isStatsLoading() && activeRevenue() === null"
+        [class.pointer-events-none]="isStatsLoading() || activeRevenue() === null"
+        [class.select-none]="isStatsLoading() || activeRevenue() === null"
+        class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center gap-3 transition-all"
+      >
+        <div
+          class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center shrink-0 border border-indigo-100/50"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3" />
+          </svg>
+        </div>
+        <div class="min-w-0 w-full">
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5 truncate">
+            📊 CA Actif (Global)
+          </p>
+          @if (isStatsLoading()) {
+          <div class="h-6 w-24 bg-slate-100 animate-pulse rounded-md mt-1"></div>
+          } @else {
+          <p
+            class="text-lg font-bold text-slate-800 truncate"
+            [title]="activeRevenue() !== null ? activeRevenue() + ' TND' : 'Indisponible'"
+          >
+            {{ activeRevenue() !== null ? (activeRevenue() | number: '1.0-3') + ' TND' : '— TND' }}
+          </p>
+          }
+        </div>
+      </div>
+
+      <!-- Encaissé -->
+      <div
+        [class.hover:shadow-md]="!isStatsLoading() && totalCollected() !== null"
+        [class.blur-[2px]]="!isStatsLoading() && totalCollected() === null"
+        [class.opacity-60]="!isStatsLoading() && totalCollected() === null"
+        [class.pointer-events-none]="isStatsLoading() || totalCollected() === null"
+        [class.select-none]="isStatsLoading() || totalCollected() === null"
+        class="bg-white rounded-xl border border-emerald-100 p-4 shadow-sm flex items-center gap-3 transition-all"
+      >
+        <div
+          class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center shrink-0 border border-emerald-100/50"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3" />
+          </svg>
+        </div>
+        <div class="min-w-0 w-full">
+          <p
+            class="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mb-0.5 truncate"
+          >
+            🟢 Encaissé
+          </p>
+          @if (isStatsLoading()) {
+          <div class="h-6 w-24 bg-emerald-50/50 animate-pulse rounded-md mt-1"></div>
+          } @else {
+          <p
+            class="text-lg font-bold text-emerald-600 truncate"
+            [title]="totalCollected() !== null ? totalCollected() + ' TND' : 'Indisponible'"
+          >
+            {{
+              totalCollected() !== null ? (totalCollected() | number: '1.0-3') + ' TND' : '— TND'
+            }}
+          </p>
+          }
+        </div>
+      </div>
+
+      <!-- Reste à Payer -->
+      <div
+        [class.hover:shadow-md]="!isStatsLoading() && remainingDebt() !== null"
+        [class.blur-[2px]]="!isStatsLoading() && remainingDebt() === null"
+        [class.opacity-60]="!isStatsLoading() && remainingDebt() === null"
+        [class.pointer-events-none]="isStatsLoading() || remainingDebt() === null"
+        [class.select-none]="isStatsLoading() || remainingDebt() === null"
+        class="bg-white rounded-xl border border-blue-100 p-4 shadow-sm flex items-center gap-3 transition-all"
+      >
+        <div
+          class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center shrink-0 border border-blue-100/50"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </div>
+        <div class="min-w-0 w-full">
+          <p class="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-0.5 truncate">
+            🔵 Reste à Payer
+          </p>
+          @if (isStatsLoading()) {
+          <div class="h-6 w-24 bg-blue-50/50 animate-pulse rounded-md mt-1"></div>
+          } @else {
+          <p
+            class="text-lg font-bold text-blue-600 truncate"
+            [title]="remainingDebt() !== null ? remainingDebt() + ' TND' : 'Indisponible'"
+          >
+            {{ remainingDebt() !== null ? (remainingDebt() | number: '1.0-3') + ' TND' : '— TND' }}
+          </p>
+          }
+        </div>
+      </div>
+
+      <!-- Impayés -->
+      <div
+        [class.hover:shadow-md]="!isStatsLoading() && pendingPayments() !== null"
+        [class.blur-[2px]]="!isStatsLoading() && pendingPayments() === null"
+        [class.opacity-60]="!isStatsLoading() && pendingPayments() === null"
+        [class.pointer-events-none]="isStatsLoading() || pendingPayments() === null"
+        [class.select-none]="isStatsLoading() || pendingPayments() === null"
+        class="bg-white rounded-xl border border-rose-100 p-4 shadow-sm flex items-center gap-3 transition-all"
+      >
+        <div
+          class="w-10 h-10 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center shrink-0 border border-rose-100/50"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon
+              points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"
+            />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+        <div class="min-w-0 w-full">
+          <p class="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-0.5 truncate">
+            🔴 Impayés (Dette active)
+          </p>
+          @if (isStatsLoading()) {
+          <div class="h-6 w-24 bg-rose-50/50 animate-pulse rounded-md mt-1"></div>
+          } @else {
+          <p
+            class="text-lg font-bold text-rose-600 truncate"
+            [title]="pendingPayments() !== null ? pendingPayments() + ' TND' : 'Indisponible'"
+          >
+            {{
+              pendingPayments() !== null ? (pendingPayments() | number: '1.0-3') + ' TND' : '— TND'
+            }}
+          </p>
+          }
+        </div>
+      </div>
+
+      <!-- Pertes -->
+      <div
+        [class.hover:shadow-md]="!isStatsLoading() && losses() !== null"
+        [class.blur-[2px]]="!isStatsLoading() && losses() === null"
+        [class.opacity-60]="!isStatsLoading() && losses() === null"
+        [class.pointer-events-none]="isStatsLoading() || losses() === null"
+        [class.select-none]="isStatsLoading() || losses() === null"
+        class="bg-white rounded-xl border border-slate-300 p-4 shadow-sm flex items-center gap-3 transition-all"
+      >
+        <div
+          class="w-10 h-10 bg-slate-100 text-slate-800 rounded-lg flex items-center justify-center shrink-0 border border-slate-200/50"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8m13-2-5 5m0-5 5 5"
+            />
+          </svg>
+        </div>
+        <div class="min-w-0 w-full">
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5 truncate">
+            ⚫️ Pertes (Abandons)
+          </p>
+          @if (isStatsLoading()) {
+          <div class="h-6 w-24 bg-slate-100 animate-pulse rounded-md mt-1"></div>
+          } @else {
+          <p
+            class="text-lg font-bold text-slate-700 truncate"
+            [title]="losses() !== null ? losses() + ' TND' : 'Indisponible'"
+          >
+            {{ losses() !== null ? (losses() | number: '1.0-3') + ' TND' : '— TND' }}
+          </p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Area -->
+    <div
+      class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col lg:flex-row gap-4 lg:items-center justify-between"
+    >
+      <!-- Search Input -->
+      <div class="relative w-full lg:w-96">
+        <svg
+          class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+          (keyup.enter)="applySearch()"
+          placeholder="Rechercher par élève, code, CIN..."
+          class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+        />
+      </div>
+
+      <!-- Filtering Dropdowns + Button -->
+      <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+        <select
+          [value]="statusFilter()"
+          (change)="onStatusChange($event)"
+          class="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-600 shadow-sm cursor-pointer"
+        >
+          <option value="ALL">Tous les Statuts</option>
+          <option value="OVERDUE">En retard de paiement (Dette active)</option>
+          <option value="PAID">Soldé (Aucune dette)</option>
+          <option value="DROPPED_OUT">Abandons (Pertes sèches)</option>
+          <option value="ACTIVE">Actif (DRAFT/ACTIVE/SETTLED)</option>
+        </select>
+
+        <select
+          [value]="promotionFilterId() === null ? 'ALL' : promotionFilterId()"
+          (change)="onPromotionChange($event)"
+          class="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-600 shadow-sm cursor-pointer"
+        >
+          <option value="ALL">Toutes les Promotions</option>
+          @for (promo of promotions(); track promo.id) {
+          <option [value]="promo.id">{{ promo.name }}</option>
+          }
+        </select>
+
+        <button
+          type="button"
+          (click)="applySearch()"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer shrink-0"
+        >
+          <svg
+            class="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          Rechercher
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Financial Contracts Table -->
+    <div
+      class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative z-10"
+    >
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead
+            class="bg-slate-50 border-b border-slate-150 text-slate-500 font-bold uppercase text-[10px] tracking-widest"
+          >
+            <tr>
+              <th class="px-3 py-3">Apprenant & Dossier</th>
+              <th class="px-3 py-3 whitespace-nowrap">Téléphones (Tuteur / Élève)</th>
+              <th class="px-3 py-3 text-right whitespace-nowrap">Net à payer</th>
+              <th class="px-3 py-3 text-right whitespace-nowrap">Total Encaissé</th>
+              <th class="px-3 py-3 text-right whitespace-nowrap">Dette Restante</th>
+              <th class="px-3 py-3 text-right whitespace-nowrap">Montant des Remises</th>
+              <th class="px-3 py-3 text-center whitespace-nowrap">Statut</th>
+              <th class="px-3 py-3 text-right whitespace-nowrap">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @if (isLoading()) {
+            <tr>
+              <td colspan="8" class="px-3 py-8 text-center text-slate-400">
+                <div class="flex items-center justify-center gap-2">
+                  <svg
+                    class="animate-spin h-5 w-5 text-indigo-600"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  <span>Chargement des données...</span>
+                </div>
+              </td>
+            </tr>
+            } @else if (filteredContracts().length === 0) {
+            <tr>
+              <td colspan="8" class="px-3 py-8 text-center text-slate-400">
+                Aucun contrat financier trouvé
+              </td>
+            </tr>
+            } @else { @for (contract of filteredContracts(); track contract.id) {
+            <tr class="hover:bg-slate-50/50 transition-colors group">
+              <td class="px-3 py-2.5">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0"
+                  >
+                    {{ getInitials(contract.studentFirstName, contract.studentLastName) }}
+                  </div>
+                  <div>
+                    <p class="font-bold text-slate-800">
+                      {{ contract.studentFirstName }} {{ contract.studentLastName }}
+                    </p>
+                    <span class="text-[9px] text-slate-400 font-bold block mt-0.5"
+                      >{{ contract.promotionName || 'Sans Promotion' }} •
+                      {{ contract.contractNumber }}</span
+                    >
+                  </div>
+                </div>
+              </td>
+              <td class="px-3 py-2.5 font-semibold text-slate-700 whitespace-nowrap">
+                <div class="flex flex-col gap-0.5">
+                  @if (contract.guardianPhone) {
+                  <span class="flex items-center gap-1">
+                    <svg
+                      class="w-3 h-3 text-slate-400"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                      />
+                    </svg>
+                    {{ contract.guardianPhone }}
+                    <span class="text-[8px] text-slate-400 font-normal">(Garant)</span>
+                  </span>
+                  } @if (contract.studentPhone) {
+                  <span class="flex items-center gap-1 text-[10px] text-slate-500 font-normal">
+                    <svg
+                      class="w-3 h-3 text-slate-400"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                      <line x1="12" y1="18" x2="12.01" y2="18" />
+                    </svg>
+                    {{ contract.studentPhone }}
+                  </span>
+                  }
+                </div>
+              </td>
+              <td class="px-3 py-2.5 text-right font-bold text-slate-700 whitespace-nowrap">
+                {{ contract.netToPay || 0 | number: '1.0-3' }} TND
+              </td>
+              <td class="px-3 py-2.5 text-right font-black text-emerald-600 whitespace-nowrap">
+                {{ contract.totalCollected || 0 | number: '1.0-3' }} TND
+              </td>
+              <td class="px-3 py-2.5 text-right font-black text-rose-600 whitespace-nowrap">
+                {{ contract.remainingDebt || 0 | number: '1.0-3' }} TND
+              </td>
+              <td class="px-3 py-2.5 text-right font-bold text-rose-500 whitespace-nowrap">
+                {{ contract.discountAmount || 0 | number: '1.0-3' }} TND
+              </td>
+              <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                <span
+                  class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider border"
+                  [ngClass]="getStatusBadgeClasses(contract)"
+                >
+                  {{ getStatusLabel(contract) }}
+                </span>
+              </td>
+              <td class="px-3 py-2.5 text-right whitespace-nowrap">
+                <div
+                  class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <button
+                    type="button"
+                    (click)="viewContractTransactions(contract)"
+                    class="p-1 bg-white border border-slate-200 hover:border-indigo-300 text-slate-500 hover:text-indigo-600 rounded transition-all cursor-pointer"
+                    title="Fiche financière détaillée de l'élève"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            } }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination / Summary -->
+      <div
+        class="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500"
+      >
+        <p id="pagination-text">
+          Affichage de {{ startElement() }} à {{ endElement() }} sur
+          {{ totalElements() }} contrat(s) financier(s) enregistré(s)
+        </p>
+
+        <div class="flex items-center gap-4">
+          <!-- Page Size Selector -->
+          <div class="flex items-center gap-2">
+            <span>Éléments par page:</span>
+            <select
+              [value]="pageSize()"
+              (change)="onPageSizeChange($event)"
+              class="px-2 py-1 bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-600 shadow-sm cursor-pointer"
+            >
+              <option [value]="5">5</option>
+              <option [value]="10">10</option>
+              <option [value]="20">20</option>
+              <option [value]="50">50</option>
+            </select>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              [disabled]="currentPage() === 0"
+              (click)="goToPage(currentPage() - 1)"
+              class="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-lg transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+            </button>
+            <span class="font-semibold text-slate-700"
+              >Page {{ currentPage() + 1 }} sur {{ totalPages() || 1 }}</span
+            >
+            <button
+              type="button"
+              [disabled]="currentPage() >= totalPages() - 1"
+              (click)="goToPage(currentPage() + 1)"
+              class="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-lg transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div
+  id="activateContractModal"
+  [class.flex]="isActivateModalOpen()"
+  [class.hidden]="!isActivateModalOpen()"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto"
+>
+  <div
+    class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden my-auto transform transition-all duration-200"
+    [class.scale-100]="isActivateModalOpen()"
+    [class.opacity-100]="isActivateModalOpen()"
+  >
+    <!-- Header -->
+    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-lg">Activer le Contrat</h3>
+          <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+            Validation & activation d'un contrat financier
+          </p>
+        </div>
+      </div>
+      <button
+        (click)="closeActivateModal()"
+        class="text-slate-400 hover:text-slate-600 bg-white p-1 rounded-md shadow-sm border border-slate-100 transition-colors"
+      >
+        <svg
+          class="w-5 h-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Summary -->
+    <div class="px-6 pt-6">
+      <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col gap-1.5">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]"
+            >Apprenant</span
+          >
+          <span class="font-bold text-slate-700">
+            {{ selectedContractForActivation()?.studentFirstName }}
+            {{ selectedContractForActivation()?.studentLastName }}
+          </span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]"
+            >N° Contrat</span
+          >
+          <span class="font-mono font-bold text-slate-800">{{
+            selectedContractForActivation()?.contractNumber
+          }}</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]"
+            >Chiffre d'Affaires Brut</span
+          >
+          <span class="font-bold text-slate-700"
+            >{{ selectedContractForActivation()?.totalAmount || 0 | number: '1.0-3' }} TND</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form
+      [formGroup]="activationForm"
+      (ngSubmit)="openConfirmModal()"
+      class="p-6 space-y-5"
+      id="activationForm"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <!-- Discount Amount -->
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+            Montant de la remise (TND)
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="any"
+            formControlName="discountAmount"
+            placeholder="0.000"
+            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-slate-800"
+          />
+          @if (activationForm.get('discountAmount')?.invalid &&
+          activationForm.get('discountAmount')?.touched) {
+          <p class="text-rose-500 text-[10px] mt-1 font-semibold">
+            La remise doit être positive ou nulle.
+          </p>
+          }
+        </div>
+
+        <!-- Payment Date -->
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+            Date de signature / paiement
+          </label>
+          <input
+            type="datetime-local"
+            formControlName="paymentDate"
+            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-slate-800"
+          />
+          @if (activationForm.get('paymentDate')?.invalid &&
+          activationForm.get('paymentDate')?.touched) {
+          <p class="text-rose-500 text-[10px] mt-1 font-semibold">
+            La date de paiement est requise.
+          </p>
+          }
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <!-- Payment Method -->
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+            Mode de règlement initial
+          </label>
+          <select
+            formControlName="paymentMethod"
+            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white font-medium text-slate-800"
+          >
+            <option value="CASH">Espèces</option>
+            <option value="CHECK">Chèque</option>
+            <option value="BANK_TRANSFER">Virement Bancaire</option>
+            <option value="CREDIT_CARD">Carte Bancaire</option>
+            <option value="ONLINE_STRIPE">Stripe (En ligne)</option>
+          </select>
+        </div>
+
+        <!-- Reference -->
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+            Référence / N° Pièce @if (activationForm.get('paymentMethod')?.value === 'CHECK' ||
+            activationForm.get('paymentMethod')?.value === 'BANK_TRANSFER') {
+            <span class="text-rose-500 font-bold">*</span>
+            }
+          </label>
+          <input
+            type="text"
+            formControlName="reference"
+            placeholder="Ex: CHQ-928192, VIR-2918"
+            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-slate-800"
+          />
+          @if (activationForm.get('reference')?.invalid && activationForm.get('reference')?.touched)
+          {
+          <p class="text-rose-500 text-[10px] mt-1 font-semibold">
+            La référence est obligatoire pour les chèques et virements.
+          </p>
+          }
+        </div>
+      </div>
+    </form>
+
+    <!-- Actions -->
+    <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end rounded-b-2xl">
+      <button
+        type="button"
+        (click)="closeActivateModal()"
+        class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
+      >
+        Annuler
+      </button>
+      <button
+        type="submit"
+        form="activationForm"
+        [disabled]="activationForm.invalid || isSubmitting()"
+        class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+      >
+        @if (isSubmitting()) {
+        <span
+          class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+        ></span>
+        Activation... } @else {
+        <svg
+          class="w-4 h-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        Activer le contrat }
+      </button>
+    </div>
+  </div>
+</div>
+
+<div
+  id="confirmActivationModal"
+  [class.flex]="isConfirmModalOpen()"
+  [class.hidden]="!isConfirmModalOpen()"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4 overflow-y-auto"
+>
+  <div
+    class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 transform transition-all duration-200"
+    [class.scale-100]="isConfirmModalOpen()"
+    [class.opacity-100]="isConfirmModalOpen()"
+  >
+    <div class="flex items-start gap-4">
+      <div
+        class="w-10 h-10 bg-amber-50 border border-amber-100 text-amber-600 rounded-xl flex items-center justify-center shrink-0"
+      >
+        <svg
+          class="w-5 h-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      </div>
+      <div class="space-y-2 min-w-0 flex-1">
+        <h3 class="font-bold text-slate-800 text-lg">Confirmer l'activation ?</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Êtes-vous sûr de vouloir activer ce contrat financier avec les détails suivants ?
+        </p>
+
+        <!-- Recapitulation details -->
+        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 space-y-1 text-xs">
+          <div class="flex justify-between">
+            <span class="text-slate-400 font-medium">Élève :</span>
+            <span class="font-bold text-slate-700">
+              {{ selectedContractForActivation()?.studentFirstName }}
+              {{ selectedContractForActivation()?.studentLastName }}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400 font-medium">Contrat :</span>
+            <span class="font-mono font-bold text-slate-700">{{
+              selectedContractForActivation()?.contractNumber
+            }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400 font-medium">Remise :</span>
+            <span class="font-bold text-slate-700"
+              >{{ activationForm.get('discountAmount')?.value || 0 | number: '1.0-3' }} TND</span
+            >
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400 font-medium">Mode Règlement :</span>
+            <span class="font-bold text-indigo-600">{{
+              getFriendlyPaymentMethod(activationForm.get('paymentMethod')?.value)
+            }}</span>
+          </div>
+          @if (activationForm.get('reference')?.value) {
+          <div class="flex justify-between">
+            <span class="text-slate-400 font-medium">Référence :</span>
+            <span class="font-mono font-bold text-slate-700">{{
+              activationForm.get('reference')?.value
+            }}</span>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 flex gap-3 justify-end">
+      <button
+        type="button"
+        (click)="closeConfirmModal()"
+        class="px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
+      >
+        Annuler
+      </button>
+      <button
+        type="button"
+        (click)="submitActivation()"
+        [disabled]="isSubmitting()"
+        class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center gap-1.5"
+      >
+        @if (isSubmitting()) {
+        <span
+          class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"
+        ></span>
+        } Confirmer l'activation
+      </button>
+    </div>
+  </div>
+</div>
