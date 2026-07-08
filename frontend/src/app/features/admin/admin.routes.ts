@@ -28,6 +28,9 @@ import { ScheduleList } from './pages/schedule/schedule-list/schedule-list';
 import { ScheduleDetail } from './pages/schedule/schedule-detail/schedule-detail';
 import { TimeSlots } from './pages/schedule/time-slots/time-slots';
 import { ScheduleListTeacher } from './pages/schedule/schedule-list-teacher/schedule-list-teacher';
+import { ExamTimeSlot } from './pages/examscheduling/exam-time-slot/exam-time-slot';
+import { ExamTimetable } from './pages/examscheduling/exam-timetable/exam-timetable';
+import { ExamTimetableDetail } from './pages/examscheduling/exam-timetable-detail/exam-timetable-detail';
 import { CourseSession } from './pages/execution/course-session/course-session';
 import { AbsenceList } from './pages/execution/absence-list/absence-list';
 import { FinancialContractList } from './pages/billing/financial-contract-list/financial-contract-list';
@@ -74,7 +77,10 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'schedules', component: ScheduleList },
       { path: 'schedules/details/:id', component: ScheduleDetail },
       { path: 'schedules/teachers', component: ScheduleListTeacher },
-      { path: 'time-slots', component: TimeSlots }
+      { path: 'time-slots', component: TimeSlots },
+      { path: 'exam-time-slots', component: ExamTimeSlot },
+      { path: 'exam-timetables', component: ExamTimetable },
+      { path: 'exam-timetables/:id', component: ExamTimetableDetail }
     ]
   }
 ];

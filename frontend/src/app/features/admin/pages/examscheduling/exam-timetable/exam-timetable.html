@@ -1,0 +1,358 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-10 relative">
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Calendriers d'Examens</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Planification, épreuves et suivi des sessions d'examens par classe</p>
+    </div>
+
+    <div class="flex items-center gap-3 w-full sm:w-auto">
+      <button (click)="openCreateModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition-all shadow-md shadow-indigo-100 w-full sm:w-auto cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+          <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+        Nouveau Calendrier
+      </button>
+    </div>
+  </header>
+
+  <!-- Content Container (Scrollable) -->
+  <div class="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50/50 space-y-6">
+
+    <!-- Toolbar Filters -->
+    <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+      <div class="relative w-full lg:w-96">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+          placeholder="Rechercher par nom, classe, session..."
+          class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm font-medium"
+        />
+      </div>
+
+      <div class="flex items-center gap-3 w-full lg:w-auto justify-end">
+        <select (change)="selectedStatus.set($any($event.target).value)" class="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-600 shadow-sm">
+          <option value="">Tous les états</option>
+          <option value="DRAFT">Brouillon</option>
+          <option value="PUBLISHED">Publié</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Main Workspace Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      @if (isLoading()) {
+        <div class="p-12 text-center text-slate-500 font-medium">
+          <span class="inline-block w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin mr-3"></span>
+          Chargement des calendriers d'examens...
+        </div>
+      } @else if (errorMsg()) {
+        <div class="p-12 text-center text-rose-500 font-medium bg-rose-50/50 border border-rose-100 rounded-2xl m-6">
+          {{ errorMsg() }}
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <th class="py-4 px-6">Calendrier</th>
+                <th class="py-4 px-6">Classe / Groupe</th>
+                <th class="py-4 px-6">Période</th>
+                <th class="py-4 px-6">Session d'Examen</th>
+                <th class="py-4 px-6">Session Type</th>
+                <th class="py-4 px-6">Statut</th>
+                <th class="py-4 px-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm font-medium text-slate-700">
+              @for (timetable of filteredTimetables(); track timetable.id) {
+                <tr class="hover:bg-slate-50/30 transition-colors">
+                  <!-- Name -->
+                  <td class="py-4 px-6 font-bold text-slate-900">
+                    <a [routerLink]="['/admin/exam-timetables', timetable.id]" class="hover:text-indigo-600 transition-colors">
+                      {{ timetable.name }}
+                    </a>
+                  </td>
+                  
+                  <!-- Class Group -->
+                  <td class="py-4 px-6">
+                    {{ timetable.classGroupName }}
+                  </td>
+                  
+                  <!-- Period -->
+                  <td class="py-4 px-6 text-slate-500">
+                    {{ timetable.periodLabel }}
+                  </td>
+                  
+                  <!-- Exam Session -->
+                  <td class="py-4 px-6">
+                    <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">
+                      {{ timetable.examSessionLabel }}
+                    </span>
+                  </td>
+                  
+                  <!-- Session Type -->
+                  <td class="py-4 px-6">
+                    @if (timetable.sessionType === 'MAIN') {
+                      <span class="text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Principale</span>
+                    } @else if (timetable.sessionType === 'RETAKE') {
+                      <span class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Rattrapage</span>
+                    } @else {
+                      <span class="text-xs text-slate-500 bg-slate-50 px-2 py-0.5 rounded font-bold uppercase">{{ timetable.sessionType }}</span>
+                    }
+                  </td>
+                  
+                  <!-- Status -->
+                  <td class="py-4 px-6">
+                    @if (timetable.status === 'PUBLISHED') {
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        Publié
+                      </span>
+                    } @else {
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                        Brouillon
+                      </span>
+                    }
+                  </td>
+                  
+                  <!-- Actions -->
+                  <td class="py-4 px-6 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <a
+                        [routerLink]="['/admin/exam-timetables', timetable.id]"
+                        class="p-2 text-slate-400 hover:text-indigo-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:border-indigo-100 transition-all cursor-pointer flex items-center justify-center"
+                        title="Voir les détails"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </a>
+                      @if (timetable.status === 'DRAFT') {
+                        <button
+                          (click)="openPublishConfirmModal(timetable.id)"
+                          class="px-3.5 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow-md shadow-indigo-100 hover:bg-indigo-700 transition-all cursor-pointer flex items-center gap-1.5"
+                          title="Publier le calendrier"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          </svg>
+                          Publier
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="py-12 text-center text-slate-500 font-medium bg-slate-50/20">
+                    Aucun calendrier d'examen trouvé.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- POPUP MODAL (CREATE TIMETABLE) -->
+  @if (showModal()) {
+    <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background backdrop -->
+        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" (click)="closeCreateModal()"></div>
+
+        <!-- This element is to trick the browser into centering the modal contents. -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <!-- Modal panel -->
+        <div class="relative inline-block align-middle bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-200">
+          <div class="bg-white px-6 pt-6 pb-4 sm:p-6 sm:pb-4 space-y-6">
+            <!-- Modal Header -->
+            <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+              <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-slate-800" id="modal-title">Nouveau Calendrier d'Examens</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Planifier une session d'évaluation pour une classe</p>
+              </div>
+            </div>
+
+            <!-- Form -->
+            <form [formGroup]="timetableForm" (ngSubmit)="onSubmit()" class="space-y-4">
+              <!-- Name -->
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nom du calendrier</label>
+                <input
+                  type="text"
+                  formControlName="name"
+                  placeholder="Ex: Calendrier d'examens Semestre 1"
+                  class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-slate-800"
+                />
+                @if (timetableForm.get('name')?.invalid && timetableForm.get('name')?.touched) {
+                  <p class="text-xs text-rose-500 mt-1">Le nom est obligatoire (min. 2 caractères).</p>
+                }
+              </div>
+
+              <!-- Class Group Selection -->
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Classe / Groupe</label>
+                <select
+                  formControlName="classGroupId"
+                  class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-slate-700 bg-white"
+                >
+                  <option [value]="null" disabled selected>Choisir une classe...</option>
+                  @for (cls of classGroups(); track cls.id) {
+                    <option [value]="cls.id">{{ cls.name }}</option>
+                  }
+                </select>
+                @if (timetableForm.get('classGroupId')?.invalid && timetableForm.get('classGroupId')?.touched) {
+                  <p class="text-xs text-rose-500 mt-1">La classe est obligatoire.</p>
+                }
+              </div>
+
+              <!-- Period Selection -->
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Période académique</label>
+                <select
+                  formControlName="periodId"
+                  class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-slate-700 bg-white"
+                >
+                  <option [value]="null" disabled selected>Choisir une période...</option>
+                  @for (p of periods(); track p.id) {
+                    <option [value]="p.id">{{ p.label }}</option>
+                  }
+                </select>
+                @if (timetableForm.get('periodId')?.invalid && timetableForm.get('periodId')?.touched) {
+                  <p class="text-xs text-rose-500 mt-1">La période est obligatoire.</p>
+                }
+              </div>
+
+              <!-- Exam Session Selection -->
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Session d'examen</label>
+                <select
+                  formControlName="examSessionId"
+                  [disabled]="!timetableForm.get('periodId')?.value"
+                  class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-slate-700 bg-white disabled:opacity-50 disabled:bg-slate-50"
+                >
+                  <option [value]="null" disabled selected>
+                    {{ timetableForm.get('periodId')?.value ? 'Choisir une session...' : 'Veuillez d\'abord choisir une période' }}
+                  </option>
+                  @for (sess of examSessions(); track sess.id) {
+                    <option [value]="sess.id">{{ sess.label }} ({{ sess.sessionType === 'MAIN' ? 'Principale' : 'Rattrapage' }})</option>
+                  }
+                </select>
+                @if (timetableForm.get('examSessionId')?.invalid && timetableForm.get('examSessionId')?.touched) {
+                  <p class="text-xs text-rose-500 mt-1">La session d'examen est obligatoire.</p>
+                }
+              </div>
+
+              <!-- Action buttons -->
+              <div class="pt-4 border-t border-slate-100 flex gap-3 justify-end">
+                <button
+                  type="button"
+                  (click)="closeCreateModal()"
+                  class="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="timetableForm.invalid || isSubmitting()"
+                  class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  @if (isSubmitting()) {
+                    <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    Enregistrement...
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    Créer le calendrier
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- CONFIRM PUBLISH MODAL -->
+  @if (showPublishModal()) {
+    <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background backdrop -->
+        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" (click)="closePublishConfirmModal()"></div>
+
+        <!-- Trick browser into centering -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <!-- Modal panel -->
+        <div class="relative inline-block align-middle bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-slate-200">
+          <div class="bg-white p-6 space-y-6">
+            <!-- Icon & Header -->
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center shrink-0 border border-amber-100">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div class="space-y-1">
+                <h3 class="text-lg font-bold text-slate-800" id="modal-title">Confirmer la publication</h3>
+                <p class="text-sm text-slate-500">
+                  Êtes-vous sûr de vouloir publier ce calendrier d'examens ?
+                </p>
+              </div>
+            </div>
+
+            <!-- Warning Alert Box -->
+            <div class="bg-amber-50/50 border border-amber-100 rounded-xl p-3.5">
+              <p class="text-xs text-amber-800 font-medium leading-relaxed">
+                <strong>Attention :</strong> Une fois publié, vous ne pourrez plus modifier ou ajouter d'épreuves à ce calendrier. Le statut passera définitivement à « Publié ».
+              </p>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex gap-3 justify-end">
+              <button
+                type="button"
+                (click)="closePublishConfirmModal()"
+                [disabled]="isPublishing()"
+                class="px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                (click)="confirmPublish()"
+                [disabled]="isPublishing()"
+                class="px-5 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-amber-100 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                @if (isPublishing()) {
+                  <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Publication...
+                } @else {
+                  Confirmer et publier
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</main>

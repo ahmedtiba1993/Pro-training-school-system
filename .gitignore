@@ -42,3 +42,5 @@ frontend/src/app/core/api/.openapi-generator/FILES
 /frontend/.agent/skills/pfe-forntend/skill.md
 /frontend/.agent/skills/pfe-frontend/skill.md
 /frontend/src/app/features/admin/pages/billing/openapitools.json
+/frontend/.agents/skills/education-frontend/SKILL.md
+/frontend/.agents/rules/education-frontend.md
