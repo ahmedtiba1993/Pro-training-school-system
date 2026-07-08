@@ -23,6 +23,8 @@ api/continuous-promotion-controller.service.ts
 api/continuous-promotion-controller.serviceInterface.ts
 api/course-session-controller.service.ts
 api/course-session-controller.serviceInterface.ts
+api/dashboard-controller.service.ts
+api/dashboard-controller.serviceInterface.ts
 api/enrollment-controller.service.ts
 api/enrollment-controller.serviceInterface.ts
 api/enrollment-document-controller.service.ts
@@ -39,6 +41,8 @@ api/exam-timetable-controller.service.ts
 api/exam-timetable-controller.serviceInterface.ts
 api/financial-contract-controller.service.ts
 api/financial-contract-controller.serviceInterface.ts
+api/grade-record-controller.service.ts
+api/grade-record-controller.serviceInterface.ts
 api/holiday-controller.service.ts
 api/holiday-controller.serviceInterface.ts
 api/level-controller.service.ts
@@ -105,6 +109,7 @@ model/api-response-continuous-promotion-response.ts
 model/api-response-course-session-response.ts
 model/api-response-course-session-stats-response.ts
 model/api-response-enrollment-response.ts
+model/api-response-enrollment-stats-response.ts
 model/api-response-exam-session-response.ts
 model/api-response-exam-time-slot-response.ts
 model/api-response-exam-timetable-response.ts
@@ -174,7 +179,9 @@ model/api-response-timetable-slot-detail-response.ts
 model/api-response-timetable-teacher-view-response.ts
 model/api-response-timetable-view-response.ts
 model/api-response-void.ts
+model/assessment-grades-request.ts
 model/assessment-lookup-response.ts
+model/assessment-request.ts
 model/attendance-item-request.ts
 model/attendance-request.ts
 model/attendance-stats-response.ts
@@ -201,6 +208,7 @@ model/enrollment-list-response.ts
 model/enrollment-request.ts
 model/enrollment-response.ts
 model/enrollment-search-request.ts
+model/enrollment-stats-response.ts
 model/error-detail.ts
 model/exam-room-allocation-request.ts
 model/exam-schedule-request.ts
@@ -215,6 +223,7 @@ model/existence-check-response.ts
 model/financial-contract-list-response.ts
 model/financial-contract-search-request.ts
 model/force-complete-command.ts
+model/grade-record-input.ts
 model/graduation-record-response.ts
 model/holiday-request.ts
 model/holiday-response.ts

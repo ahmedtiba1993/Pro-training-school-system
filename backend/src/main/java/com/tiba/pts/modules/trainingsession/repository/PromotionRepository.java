@@ -25,4 +25,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
   boolean existsByCodeIgnoreCase(String generatedCode);
 
   List<Promotion> findByStatusIn(List<PromotionStatus> statuses);
+
+  @Query("SELECT COALESCE(SUM(p.enrollmentCount), 0) FROM Promotion p WHERE p.status = com.tiba.pts.modules.trainingsession.domain.enums.PromotionStatus.IN_PROGRESS")
+  long countActiveSessionStudents();
 }

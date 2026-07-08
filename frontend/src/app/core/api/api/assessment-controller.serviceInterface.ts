@@ -12,6 +12,9 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { ApiResponseListAssessmentLookupResponse } from '../model/models';
+import { ApiResponseLong } from '../model/models';
+import { ApiResponseVoid } from '../model/models';
+import { AssessmentRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -25,9 +28,41 @@ export interface AssessmentControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint post /api/v1/assessments
+     * @param assessmentRequest 
+     */
+    createAssessment(assessmentRequest: AssessmentRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/assessments/timetable/{timetableId}/unscheduled
      * @param timetableId 
      */
     getUnscheduledAssessmentsForTimetable(timetableId: number, extraHttpRequestParams?: any): Observable<ApiResponseListAssessmentLookupResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/assessments/{id}/lock
+     * @param id 
+     */
+    lock(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/assessments/{id}/start-grading
+     * @param id 
+     */
+    startGrading(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/assessments/{id}/submit
+     * @param id 
+     */
+    submit(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
 }

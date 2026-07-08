@@ -3,6 +3,7 @@ package com.tiba.pts.modules.enrollment.repository;
 import com.tiba.pts.modules.enrollment.domain.entity.Enrollment;
 import com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus;
 import com.tiba.pts.modules.enrollment.dto.response.UnassignedEnrollmentResponse;
+import com.tiba.pts.modules.enrollment.repository.projection.EnrollmentGenderStatsProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -90,5 +91,26 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
       )
   """)
   long countByIdInAndClassGroupId(@Param("ids") List<Long> ids, @Param("classGroupId") Long classGroupId);
+
+  @EntityGraph(
+      attributePaths = {
+        "student",
+        "promotion",
+        "promotion.training",
+        "promotion.training.level",
+        "promotion.training.specialty"
+      })
+  List<Enrollment> findByStatusIn(List<EnrollmentStatus> statuses);
+
+  @Query("""
+      SELECT 
+        COUNT(e) AS totalCount,
+        COUNT(CASE WHEN e.student.gender = com.tiba.pts.modules.profiles.domain.enums.Gender.MALE THEN 1 END) AS maleCount,
+        COUNT(CASE WHEN e.student.gender = com.tiba.pts.modules.profiles.domain.enums.Gender.FEMALE THEN 1 END) AS femaleCount
+      FROM Enrollment e
+      WHERE e.status IN :statuses
+      """)
+  EnrollmentGenderStatsProjection countByStatusInGroupedByGender(
+      @Param("statuses") List<EnrollmentStatus> statuses);
 }
 
