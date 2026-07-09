@@ -38,12 +38,13 @@ public class TimetableSlotController {
       @PathVariable Long id, @Valid @RequestBody TimetableSlotRequest request) {
     ApiResponse<Long> response =
         ApiResponse.success(
-            "TIMETABLE_SLOT_UPDATED_SUCCESSFULLY", timetableSlotService.updateTimetableSlot(id, request));
+            "TIMETABLE_SLOT_UPDATED_SUCCESSFULLY",
+            timetableSlotService.updateTimetableSlot(id, request));
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   @GetMapping("/view/{scheduleId}")
-  @PreAuthorize("hasAnyRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN','STUDENT')")
   public ResponseEntity<ApiResponse<TimetableViewResponse>> getTimetableView(
       @PathVariable Long scheduleId) {
     TimetableViewResponse viewResponse = timetableSlotService.getTimetableView(scheduleId);
@@ -56,7 +57,8 @@ public class TimetableSlotController {
   @PreAuthorize("hasAnyRole('ADMIN')")
   public ResponseEntity<ApiResponse<TimetableTeacherViewResponse>> getTimetableViewByTeacher(
       @PathVariable Long teacherId) {
-    TimetableTeacherViewResponse viewResponse = timetableSlotService.getTimetableViewByTeacher(teacherId);
+    TimetableTeacherViewResponse viewResponse =
+        timetableSlotService.getTimetableViewByTeacher(teacherId);
     ApiResponse<TimetableTeacherViewResponse> response =
         ApiResponse.success("TIMETABLE_VIEW_RETRIEVED_SUCCESSFULLY", viewResponse);
     return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -73,24 +75,24 @@ public class TimetableSlotController {
   }
 
   @GetMapping("/view/{scheduleId}/export/pdf")
-  @PreAuthorize("hasAnyRole('ADMIN')")
-  public ResponseEntity<byte[]> exportTimetablePdfBySchedule(
-      @PathVariable Long scheduleId) {
+  @PreAuthorize("hasAnyRole('ADMIN','STUDENT')")
+  public ResponseEntity<byte[]> exportTimetablePdfBySchedule(@PathVariable Long scheduleId) {
     byte[] pdfBytes = timetableSlotService.exportTimetablePdfBySchedule(scheduleId);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_PDF);
-    headers.setContentDispositionFormData("attachment", "emploi_du_temps_schedule_" + scheduleId + ".pdf");
+    headers.setContentDispositionFormData(
+        "attachment", "emploi_du_temps_schedule_" + scheduleId + ".pdf");
     return ResponseEntity.ok().headers(headers).body(pdfBytes);
   }
 
   @GetMapping("/view/teacher/{teacherId}/export/pdf")
   @PreAuthorize("hasAnyRole('ADMIN')")
-  public ResponseEntity<byte[]> exportTimetablePdfByTeacher(
-      @PathVariable Long teacherId) {
+  public ResponseEntity<byte[]> exportTimetablePdfByTeacher(@PathVariable Long teacherId) {
     byte[] pdfBytes = timetableSlotService.exportTimetablePdfByTeacher(teacherId);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_PDF);
-    headers.setContentDispositionFormData("attachment", "emploi_du_temps_enseignant_" + teacherId + ".pdf");
+    headers.setContentDispositionFormData(
+        "attachment", "emploi_du_temps_enseignant_" + teacherId + ".pdf");
     return ResponseEntity.ok().headers(headers).body(pdfBytes);
   }
 }

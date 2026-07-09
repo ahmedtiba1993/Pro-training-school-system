@@ -226,4 +226,11 @@ public class ScheduleService {
       }
     }
   }
+
+  @Transactional(readOnly = true)
+  public List<ScheduleResponse> getSchedulesByStudentId(Long studentId) {
+    return scheduleRepository.findSchedulesByStudentId(studentId).stream()
+        .map(scheduleMapper::toResponse)
+        .toList();
+  }
 }

@@ -1,0 +1,148 @@
+<header
+  class="h-16 w-full bg-white border-b border-slate-200 flex items-center justify-between pl-16 pr-8 lg:px-8 z-10 shrink-0"
+>
+  <h1 class="text-2xl font-bold text-indigo-900">Mon Emploi du Temps</h1>
+</header>
+
+<div class="flex-1 overflow-y-auto bg-slate-50/50 p-4 lg:p-8">
+  @if (isLoading()) {
+    <div class="h-full flex items-center justify-center">
+      <div class="flex flex-col items-center text-slate-400 gap-3">
+        <svg
+          class="w-8 h-8 animate-spin text-indigo-600"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+        </svg>
+        <p class="text-sm">Chargement de votre emploi du temps...</p>
+      </div>
+    </div>
+  } @else {
+    <div class="max-w-7xl mx-auto space-y-6 animate-fade-in">
+      @if (schedules().length > 0) {
+        
+        <!-- Table for Desktop -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
+          <div class="p-0 overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+              <thead class="bg-slate-50 border-b border-slate-150 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <tr>
+                  <th class="px-6 py-4">Libellé</th>
+                  <th class="px-6 py-4">Classe / Groupe</th>
+                  <th class="px-6 py-4">Formation</th>
+                  <th class="px-6 py-4">Période</th>
+                  <th class="px-6 py-4">Statut</th>
+                  <th class="px-6 py-4"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                @for (schedule of schedules(); track schedule.id) {
+                  <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-5 font-semibold text-slate-800">
+                      {{ schedule.label }}
+                    </td>
+                    <td class="px-6 py-5 text-indigo-900 font-medium">
+                      {{ schedule.classGroupName || 'Non spécifiée' }}
+                    </td>
+                    <td class="px-6 py-5 text-slate-600">
+                      {{ schedule.trainingName || 'Non spécifiée' }}
+                    </td>
+                    <td class="px-6 py-5 text-slate-500 font-medium">
+                      {{ schedule.periodLabel || '-' }}
+                    </td>
+                    <td class="px-6 py-5">
+                      @let statusConfig = getStatusConfig(schedule.status);
+                      <span
+                        class="px-2.5 py-1 border rounded-full text-xs font-semibold"
+                        [ngClass]="statusConfig.classes"
+                      >
+                        {{ statusConfig.label }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-5 text-right">
+                      @if (schedule.id) {
+                        <a
+                          [routerLink]="['/student/schedules', schedule.id]"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-xs font-semibold transition-all border border-indigo-150"
+                        >
+                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          Grille
+                        </a>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cards for Mobile -->
+        <div class="grid grid-cols-1 gap-4 md:hidden">
+          @for (schedule of schedules(); track schedule.id) {
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <span class="text-xs font-bold text-slate-400 uppercase">Libellé</span>
+                <span class="font-bold text-slate-800">{{ schedule.label }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase">Classe / Groupe</span>
+                <span class="font-bold text-indigo-950 text-sm">{{ schedule.classGroupName || 'Non spécifiée' }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase">Formation</span>
+                <span class="font-semibold text-slate-700 text-sm">{{ schedule.trainingName || 'Non spécifiée' }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase">Période</span>
+                <span class="font-medium text-slate-600 text-sm">{{ schedule.periodLabel || '-' }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase">Statut</span>
+                @let statusConfig = getStatusConfig(schedule.status);
+                <span
+                  class="px-2.5 py-0.5 border rounded-full text-[11px] font-semibold"
+                  [ngClass]="statusConfig.classes"
+                >
+                  {{ statusConfig.label }}
+                </span>
+              </div>
+              @if (schedule.id) {
+                <div class="pt-2 border-t border-slate-100 mt-2">
+                  <a
+                    [routerLink]="['/student/schedules', schedule.id]"
+                    class="w-full flex items-center justify-center gap-2 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-150 rounded-xl text-sm font-semibold transition-all text-center"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Voir la grille
+                  </a>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+      } @else {
+        <!-- Empty State -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center max-w-md mx-auto">
+          <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100 shadow-inner">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-slate-800 mb-1">Aucun emploi du temps</h3>
+          <p class="text-slate-500 text-sm mb-0">Aucun emploi du temps n'est actuellement publié pour votre groupe ou classe.</p>
+        </div>
+      }
+    </div>
+  }
+</div>

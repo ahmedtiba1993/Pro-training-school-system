@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.tiba.pts.core.exception.ResourceNotFoundException;
+import com.tiba.pts.modules.user.domain.entity.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
 
 @RestController
@@ -68,6 +71,31 @@ public class ScheduleController {
         ApiResponse.success(
             "SCHEDULE_STATUS_CHANGED_SUCCESSFULLY", scheduleService.changeStatus(id, request));
 
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/student/{studentId}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ApiResponse<List<ScheduleResponse>>> getSchedulesByStudentId(
+      @PathVariable Long studentId) {
+    ApiResponse<List<ScheduleResponse>> response =
+        ApiResponse.success(
+            "STUDENT_SCHEDULES_FETCHED_SUCCESSFULLY",
+            scheduleService.getSchedulesByStudentId(studentId));
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/my")
+  @PreAuthorize("hasRole('STUDENT')")
+  public ResponseEntity<ApiResponse<List<ScheduleResponse>>> getMySchedules(
+      @AuthenticationPrincipal User currentUser) {
+    if (currentUser.getPerson() == null) {
+      throw new ResourceNotFoundException("STUDENT_NOT_FOUND");
+    }
+    ApiResponse<List<ScheduleResponse>> response =
+        ApiResponse.success(
+            "STUDENT_SCHEDULES_FETCHED_SUCCESSFULLY",
+            scheduleService.getSchedulesByStudentId(currentUser.getPerson().getId()));
     return ResponseEntity.ok(response);
   }
 }
