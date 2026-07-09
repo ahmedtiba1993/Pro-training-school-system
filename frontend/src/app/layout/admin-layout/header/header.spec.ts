@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { Header } from './header';
+import { AuthService } from '../../../core/auth/auth.service';
+import { signal } from '@angular/core';
 
 describe('Header', () => {
   let component: Header;
@@ -8,16 +9,30 @@ describe('Header', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Header]
+      imports: [Header],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: {
+            logout: () => {},
+            currentUser: signal({
+              firstName: 'Admin',
+              lastName: 'Principal',
+              role: 'ROLE_ADMIN'
+            })
+          }
+        }
+      ]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(Header);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 });
+

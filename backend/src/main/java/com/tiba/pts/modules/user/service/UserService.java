@@ -6,7 +6,9 @@ import com.tiba.pts.modules.profiles.domain.entity.Person;
 import com.tiba.pts.modules.profiles.repository.PersonRepository;
 import com.tiba.pts.modules.user.domain.enums.Role;
 import com.tiba.pts.modules.user.domain.enums.UserStatus;
+import com.tiba.pts.core.exception.BusinessValidationException;
 import com.tiba.pts.modules.user.dto.request.AdminChangePasswordRequest;
+import com.tiba.pts.modules.user.dto.request.FirstLoginPasswordChangeRequest;
 import com.tiba.pts.modules.user.dto.request.UserCreateRequest;
 import com.tiba.pts.modules.user.domain.entity.User;
 import com.tiba.pts.modules.user.dto.response.UserResponse;
@@ -141,5 +143,26 @@ public class UserService {
       user.setStatus(newStatus);
       userRepository.save(user);
     }
+  }
+
+  @Transactional
+  public void changePasswordFirstLogin(Long userId, FirstLoginPasswordChangeRequest request) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("USER_NOT_FOUND"));
+
+    if (!user.isForcePasswordChange()) {
+      throw new BusinessValidationException("PASSWORD_CHANGE_NOT_FORCED");
+    }
+
+    user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+    user.setForcePasswordChange(false);
+
+    if (user.getStatus() == UserStatus.PENDING) {
+      user.setStatus(UserStatus.ACTIVE);
+    }
+
+    userRepository.save(user);
   }
 }

@@ -15,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.tiba.pts.core.exception.ResourceNotFoundException;
+import com.tiba.pts.modules.user.domain.entity.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
 
 @RestController
@@ -107,5 +110,18 @@ public class StudentController {
             .build();
 
     return ResponseEntity.ok(apiResponse);
+  }
+
+  @GetMapping("/profile")
+  @PreAuthorize("hasRole('STUDENT')")
+  public ResponseEntity<ApiResponse<StudentResponse>> getMyProfile(
+      @AuthenticationPrincipal User currentUser) {
+    if (currentUser.getPerson() == null) {
+      throw new ResourceNotFoundException("STUDENT_NOT_FOUND");
+    }
+    StudentResponse student = studentService.getStudentById(currentUser.getPerson().getId());
+    ApiResponse<StudentResponse> response =
+        ApiResponse.success("STUDENT_PROFILE_RETRIEVED_SUCCESSFULLY", student);
+    return ResponseEntity.ok(response);
   }
 }

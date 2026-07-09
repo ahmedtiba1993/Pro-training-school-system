@@ -55,6 +55,13 @@ export interface StudentControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/profiles/students/profile
+     */
+    getMyProfile(extraHttpRequestParams?: any): Observable<ApiResponseStudentResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/profiles/students/{id}
      * @param id 
      */

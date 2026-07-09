@@ -222,6 +222,7 @@ model/exam-timetable-response.ts
 model/existence-check-response.ts
 model/financial-contract-list-response.ts
 model/financial-contract-search-request.ts
+model/first-login-password-change-request.ts
 model/force-complete-command.ts
 model/grade-record-input.ts
 model/graduation-record-response.ts

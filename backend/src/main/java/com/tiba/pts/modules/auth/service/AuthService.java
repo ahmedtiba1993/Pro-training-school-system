@@ -39,7 +39,7 @@ public class AuthService {
             token,
             "Bearer",
             expiration,
-            new UserInfo(user.getId(), user.getUsername(), user.getRole().name()));
+            new UserInfo(user.getId(), user.getUsername(), user.getRole().name(), user.isForcePasswordChange()));
 
     return new AuthResponse(true, "Authentication successful", authData, null, LocalDateTime.now());
   }

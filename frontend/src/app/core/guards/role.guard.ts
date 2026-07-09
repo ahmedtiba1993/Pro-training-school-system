@@ -13,6 +13,13 @@ export const roleGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
+  // Force password change check
+  const forceChange = localStorage.getItem('forcePasswordChange') === 'true';
+  if (forceChange) {
+    router.navigate(['/auth/change-password']);
+    return false;
+  }
+
   // If the token is valid, verify the roles
   const userRole = localStorage.getItem('role');
   const expectedRoles = route.data['roles'] as Array<string>;

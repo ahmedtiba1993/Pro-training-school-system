@@ -4,8 +4,11 @@ import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.modules.user.domain.enums.Role;
 import com.tiba.pts.modules.user.domain.enums.UserStatus;
+import com.tiba.pts.modules.user.domain.entity.User;
 import com.tiba.pts.modules.user.dto.request.AdminChangePasswordRequest;
+import com.tiba.pts.modules.user.dto.request.FirstLoginPasswordChangeRequest;
 import com.tiba.pts.modules.user.dto.response.UserResponse;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.tiba.pts.modules.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +47,17 @@ public class UserController {
       @PathVariable Long id, @Valid @RequestBody AdminChangePasswordRequest request) {
 
     userService.changeUserPassword(id, request);
+    ApiResponse<Void> response = ApiResponse.success("PASSWORD_CHANGED_SUCCESSFULLY", null);
+    return ResponseEntity.ok(response);
+  }
+
+  @PostMapping("/change-password-first-login")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<ApiResponse<Void>> changePasswordFirstLogin(
+      @AuthenticationPrincipal User currentUser,
+      @Valid @RequestBody FirstLoginPasswordChangeRequest request) {
+
+    userService.changePasswordFirstLogin(currentUser.getId(), request);
     ApiResponse<Void> response = ApiResponse.success("PASSWORD_CHANGED_SUCCESSFULLY", null);
     return ResponseEntity.ok(response);
   }

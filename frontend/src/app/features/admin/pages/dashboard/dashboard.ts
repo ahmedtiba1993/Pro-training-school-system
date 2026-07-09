@@ -1,9 +1,10 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { DashboardControllerService, EnrollmentStatsResponse } from '../../../../core/api';
+import { Header } from '../../../../layout/admin-layout/header/header';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
+  imports: [Header],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })

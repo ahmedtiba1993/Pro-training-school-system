@@ -1,6 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
+import { BASE_PATH } from '../api/variables';
 
 // --- IMPORTS FROM SWAGGER-GENERATED CODE ---
 // (Adjust the path if necessary)
@@ -14,9 +16,22 @@ export class AuthService {
   // Inject the Swagger-generated service
   private authApi = inject(AuthControllerService);
   private router = inject(Router);
+  private http = inject(HttpClient);
+  private basePath = inject(BASE_PATH, { optional: true }) || 'http://localhost:8080';
 
   // Signal to store the currently logged-in user
   currentUser = signal<any>(null);
+
+  constructor() {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        this.currentUser.set(JSON.parse(storedUser));
+      } catch (e) {
+        localStorage.removeItem('user');
+      }
+    }
+  }
 
   // Login method
   login(request: AuthRequest) {
@@ -32,6 +47,14 @@ export class AuthService {
 
           // Save the user role
           localStorage.setItem('role', response.data.user?.role || '');
+
+          // Save user object and forcePasswordChange flag
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+          if (response.data.user?.forcePasswordChange) {
+            localStorage.setItem('forcePasswordChange', 'true');
+          } else {
+            localStorage.removeItem('forcePasswordChange');
+          }
         }
       })
     );
@@ -45,6 +68,16 @@ export class AuthService {
 
     // Redirect to login page
     this.router.navigate(['/auth/login']);
+  }
+
+  // Custom password change endpoint on first login
+  changePasswordFirstLogin(newPassword: string, confirmNewPassword: string) {
+    const baseUrl = Array.isArray(this.basePath) ? this.basePath[0] : this.basePath;
+    const url = `${baseUrl}/api/v1/users/change-password-first-login`;
+    return this.http.post<any>(url, {
+      newPassword,
+      confirmNewPassword
+    });
   }
 
   hasValidToken(): boolean {
@@ -62,6 +95,8 @@ export class AuthService {
       if (!isValid) {
         localStorage.removeItem('token');
         localStorage.removeItem('role');
+        localStorage.removeItem('user');
+        localStorage.removeItem('forcePasswordChange');
         this.currentUser.set(null);
       }
 
@@ -70,6 +105,8 @@ export class AuthService {
       // Token malformé
       localStorage.removeItem('token');
       localStorage.removeItem('role');
+      localStorage.removeItem('user');
+      localStorage.removeItem('forcePasswordChange');
       return false;
     }
   }

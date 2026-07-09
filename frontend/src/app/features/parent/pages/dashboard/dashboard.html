@@ -1,0 +1,174 @@
+<header
+  class="h-16 w-full bg-white border-b border-slate-200 flex items-center justify-between px-8 z-10 shrink-0"
+>
+  <h1 class="text-2xl font-bold text-indigo-900">Espace Parent</h1>
+
+  <div class="flex items-center gap-3">
+    <span class="text-sm font-medium text-slate-600">
+      {{ authService.currentUser()?.firstName || 'Parent' }} {{ authService.currentUser()?.lastName || '' }}
+    </span>
+    <div
+      class="h-10 w-10 rounded-full bg-indigo-100 border-2 border-indigo-600 flex items-center justify-center text-indigo-700 font-bold"
+    >
+      {{ (authService.currentUser()?.firstName?.[0] || 'P') }}
+    </div>
+  </div>
+</header>
+
+<div class="flex-1 overflow-y-auto p-8 bg-slate-50">
+  <div class="max-w-7xl mx-auto space-y-8 animate-fade-in">
+    <!-- Welcome Banner -->
+    <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-8 rounded-3xl shadow-sm relative overflow-hidden">
+      <!-- Background subtle shapes -->
+      <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-white/5 blur-3xl"></div>
+      <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-white/5 blur-3xl"></div>
+
+      <div class="relative z-10 max-w-2xl space-y-3">
+        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-indigo-200">
+          Suivi Scolaire
+        </span>
+        <h2 class="text-3xl font-extrabold tracking-tight">
+          Bienvenue, {{ authService.currentUser()?.firstName || 'Parent' }} !
+        </h2>
+        <p class="text-indigo-100 text-sm md:text-base leading-relaxed">
+          Suivez le parcours académique de vos enfants, visualisez leurs emplois du temps et restez informé des frais de scolarité et de facturation en cours.
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Info Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Card 1: Children Count -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 transition hover:shadow-md">
+        <div class="p-4 bg-indigo-50 text-indigo-600 rounded-xl">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Enfants Rattachés</p>
+          <h3 class="text-2xl font-bold text-slate-800 mt-1">1 Élève</h3>
+          <p class="text-xs text-indigo-600 font-medium mt-1">Scolarité active</p>
+        </div>
+      </div>
+
+      <!-- Card 2: Invoices -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 transition hover:shadow-md">
+        <div class="p-4 bg-emerald-50 text-emerald-600 rounded-xl">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-slate-400 uppercase tracking-wider">État Facturation</p>
+          <h3 class="text-2xl font-bold text-emerald-700 mt-1">Règlements à Jour</h3>
+          <p class="text-xs text-slate-500 mt-1">Aucune échéance en retard</p>
+        </div>
+      </div>
+
+      <!-- Card 3: School Communications -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 transition hover:shadow-md">
+        <div class="p-4 bg-amber-50 text-amber-600 rounded-xl">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Dernière Note</p>
+          <h3 class="text-2xl font-bold text-slate-800 mt-1">Publiée</h3>
+          <p class="text-xs text-amber-600 font-medium mt-1">Consulter le carnet de notes</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Family Details & Links -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Shortcuts -->
+      <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2 space-y-6">
+        <div>
+          <h3 class="text-lg font-bold text-slate-800">Mes Raccourcis</h3>
+          <p class="text-sm text-slate-400">Accédez rapidement aux services scolaires et administratifs.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Link to child scolarite -->
+          <div class="p-5 rounded-2xl border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/20 transition group flex flex-col justify-between h-40">
+            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl w-fit group-hover:scale-110 transition">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800">Scolarité Enfants</h4>
+              <p class="text-xs text-slate-400 mt-1">Consultez l'inscription, la classe et les appréciations.</p>
+            </div>
+          </div>
+
+          <!-- Link to child schedule -->
+          <div class="p-5 rounded-2xl border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/20 transition group flex flex-col justify-between h-40">
+            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl w-fit group-hover:scale-110 transition">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800">Agenda & Emplois du Temps</h4>
+              <p class="text-xs text-slate-400 mt-1">Consultez le planning hebdomadaire de cours de vos enfants.</p>
+            </div>
+          </div>
+
+          <!-- Link to bills -->
+          <div class="p-5 rounded-2xl border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/20 transition group flex flex-col justify-between h-40">
+            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl w-fit group-hover:scale-110 transition">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800">Factures & Reçus</h4>
+              <p class="text-xs text-slate-400 mt-1">Visualisez l'état des paiements et téléchargez les factures.</p>
+            </div>
+          </div>
+
+          <!-- Link to grades -->
+          <div class="p-5 rounded-2xl border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/20 transition group flex flex-col justify-between h-40">
+            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl w-fit group-hover:scale-110 transition">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800">Carnet de Notes</h4>
+              <p class="text-xs text-slate-400 mt-1">Suivez les résultats académiques et les évaluations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Support Card -->
+      <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between space-y-6">
+        <div class="space-y-4">
+          <h3 class="text-lg font-bold text-slate-800">Support aux Parents</h3>
+          <p class="text-sm text-slate-500 leading-relaxed">
+            Pour tout problème de connexion parent-élève, ou toute question concernant la facturation, veuillez envoyer un e-mail à l'assistance technique.
+          </p>
+        </div>
+
+        <div class="space-y-3 pt-6 border-t border-slate-100">
+          <div class="flex items-center gap-3 text-sm text-slate-600">
+            <svg class="w-5 h-5 text-indigo-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span class="truncate">parent-support&#64;pro-school.com</span>
+          </div>
+          <div class="flex items-center gap-3 text-sm text-slate-600">
+            <svg class="w-5 h-5 text-indigo-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.73.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            <span>+33 1 23 45 67 89</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

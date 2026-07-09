@@ -14,6 +14,7 @@ import { Observable }                                        from 'rxjs';
 import { AdminChangePasswordRequest } from '../model/models';
 import { ApiResponsePageResponseUserResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
+import { FirstLoginPasswordChangeRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -40,6 +41,14 @@ export interface UserControllerServiceInterface {
      * @param adminChangePasswordRequest 
      */
     changePassword(id: number, adminChangePasswordRequest: AdminChangePasswordRequest, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint post /api/v1/users/change-password-first-login
+     * @param firstLoginPasswordChangeRequest 
+     */
+    changePasswordFirstLogin(firstLoginPasswordChangeRequest: FirstLoginPasswordChangeRequest, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 

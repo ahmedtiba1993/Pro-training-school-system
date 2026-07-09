@@ -32,11 +32,33 @@ export class Login implements OnInit {
   ngOnInit(): void {
     if (this.authService.hasValidToken()) {
       const role = localStorage.getItem('role');
-      if (role === 'ROLE_ADMIN') {
+      this.redirectByRole(role);
+    }
+  }
+
+  private redirectByRole(role: string | null): void {
+    const forceChange = localStorage.getItem('forcePasswordChange') === 'true';
+    if (forceChange) {
+      this.router.navigate(['/auth/change-password']);
+      return;
+    }
+
+    switch (role) {
+      case 'ROLE_ADMIN':
         this.router.navigate(['/admin/dashboard']);
-      } else {
+        break;
+      case 'ROLE_STUDENT':
+        this.router.navigate(['/student/dashboard']);
+        break;
+      case 'ROLE_PARENT':
+        this.router.navigate(['/parent/dashboard']);
+        break;
+      case 'ROLE_TEACHER':
+        this.router.navigate(['/teacher/dashboard']);
+        break;
+      default:
         this.router.navigate(['/']);
-      }
+        break;
     }
   }
 
@@ -58,23 +80,19 @@ export class Login implements OnInit {
       this.authService.login(request).subscribe({
         next: response => {
           console.log(response);
-
-          const role = response.data?.user?.role;
-
-          if (role === 'ROLE_ADMIN') {
-            this.router.navigate(['/admin/dashboard']);
-          } else {
-            this.router.navigate(['/']);
-          }
+          const role = response.data?.user?.role || null;
+          this.redirectByRole(role);
         },
         error: err => {
           this.isLoading.set(false);
           if (err.error && err.error.errorCode === 'BAD_CREDENTIALS') {
             this.errorMessage.set('Identifiant ou mot de passe incorrect.');
+          } else if (err.error && err.error.errorCode === 'ACCOUNT_SUSPENDED') {
+            this.errorMessage.set('Votre compte est temporairement suspendu. Veuillez contacter l\'administration.');
           } else if (err.status === 0) {
             this.errorMessage.set('Impossible de contacter le serveur. Vérifiez votre connexion.');
           } else {
-            this.errorMessage.set('Une erreur inattendue est survenue.');
+            this.errorMessage.set(err.error?.message || 'Une erreur inattendue est survenue.');
           }
         }
       });

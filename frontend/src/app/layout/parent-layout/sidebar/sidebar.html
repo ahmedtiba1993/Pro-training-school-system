@@ -1,0 +1,109 @@
+<aside
+  class="fixed lg:sticky top-0 left-0 h-screen w-72 bg-white border-r border-slate-100 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-sm"
+>
+  <!-- LOGO -->
+  <div class="p-6 flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-3">
+      <div
+        class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200"
+      >
+        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </div>
+      <span
+        class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-indigo-500"
+      >
+        EduParent
+      </span>
+    </div>
+  </div>
+
+  <!-- NAVIGATION MENU -->
+  <nav class="px-4 py-4 flex-1 space-y-6 overflow-y-auto">
+    <!-- GENERAL -->
+    <div>
+      <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+        Principal
+      </p>
+      <div class="space-y-1">
+        <a
+          routerLink="/parent/dashboard"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>Tableau de bord</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- FAMILY -->
+    <div>
+      <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+        Ma Famille
+      </p>
+      <div class="space-y-1">
+        <!-- Children Listing -->
+        <a
+          routerLink="/parent/children"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900 cursor-not-allowed opacity-75"
+          (click)="$event.preventDefault()"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <span>Scolarité de mes Enfants</span>
+        </a>
+
+        <!-- Children Schedules -->
+        <a
+          routerLink="/parent/schedules"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900 cursor-not-allowed opacity-75"
+          (click)="$event.preventDefault()"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>Emploi du Temps</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- FINANCE -->
+    <div>
+      <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+        Finances
+      </p>
+      <div class="space-y-1">
+        <!-- Payments / Invoices -->
+        <a
+          routerLink="/parent/billing"
+          routerLinkActive="bg-indigo-50 text-indigo-700 font-medium"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900 cursor-not-allowed opacity-75"
+          (click)="$event.preventDefault()"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+          <span>Factures & Règlements</span>
+        </a>
+
+        <!-- Logout -->
+        <button
+          (click)="authService.logout()"
+          class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-rose-500 hover:bg-rose-50 hover:text-rose-700 cursor-pointer"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Déconnexion</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+</aside>

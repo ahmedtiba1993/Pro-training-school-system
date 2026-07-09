@@ -137,6 +137,7 @@ export * from './exam-timetable-response';
 export * from './existence-check-response';
 export * from './financial-contract-list-response';
 export * from './financial-contract-search-request';
+export * from './first-login-password-change-request';
 export * from './force-complete-command';
 export * from './grade-record-input';
 export * from './graduation-record-response';
