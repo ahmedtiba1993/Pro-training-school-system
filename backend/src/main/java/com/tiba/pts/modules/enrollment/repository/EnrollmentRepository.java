@@ -54,6 +54,15 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
   boolean existsByStudentIdAndStatusIn(Long studentId, List<EnrollmentStatus> statuses);
 
+  @EntityGraph(
+      attributePaths = {
+        "promotion",
+        "promotion.training",
+        "promotion.training.level",
+        "promotion.training.specialty"
+      })
+  List<Enrollment> findByStudentId(Long studentId);
+
   @Query(
       "SELECT new com.tiba.pts.modules.enrollment.dto.response.UnassignedEnrollmentResponse("
           + "e.id, e.enrollmentNumber, e.student.firstName, e.student.lastName, e.student.studentCode, e.student.birthDate) "

@@ -1,0 +1,244 @@
+<header
+  class="h-16 w-full bg-white border-b border-slate-200 flex items-center justify-between pl-16 pr-8 lg:px-8 z-10 shrink-0"
+>
+  <div class="flex items-center gap-4">
+    <a
+      routerLink="/student/enrollments"
+      class="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+      title="Retour aux inscriptions"
+    >
+      <svg
+        class="w-5 h-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M19 12H5"/>
+        <path d="M12 19l-7-7 7-7"/>
+      </svg>
+    </a>
+    <div>
+      <h1 class="text-2xl font-bold text-indigo-900">Détails de l'Inscription</h1>
+    </div>
+  </div>
+</header>
+
+<div class="flex-1 overflow-y-auto bg-slate-50/50">
+  @if (isLoading()) {
+    <div class="h-full flex items-center justify-center">
+      <div class="flex flex-col items-center text-slate-400 gap-3">
+        <svg
+          class="w-8 h-8 animate-spin text-indigo-600"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+        </svg>
+        <p class="text-sm">Chargement des détails...</p>
+      </div>
+    </div>
+  } @else {
+    @if (isNotFound()) {
+      <div class="h-full flex flex-col items-center justify-center p-8 text-center bg-slate-50">
+        <svg
+          class="w-12 h-12 text-slate-300 mb-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <h2 class="text-xl font-bold text-slate-700 mb-2">Inscription introuvable</h2>
+        <p class="text-slate-500 mb-6">Cette demande d'inscription n'existe pas ou vous n'y avez pas accès.</p>
+        <a
+          routerLink="/student/enrollments"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
+        >Retour aux inscriptions</a>
+      </div>
+    } @else {
+      @if (enrollment(); as enr) {
+        <div class="max-w-7xl mx-auto p-4 lg:p-8 space-y-6 animate-fade-in">
+          
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- LEFT COLUMN: Enrollment Identity & Status Info -->
+            <div class="lg:col-span-2 space-y-6">
+              
+              <!-- Card 1: Identity -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50/50">
+                  <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Dossier d'inscription
+                    </span>
+                    <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight mt-0.5">
+                      {{ enr.enrollmentNumber }}
+                    </h2>
+                  </div>
+
+                  <!-- Status Badge -->
+                  @let statusConfig = getStatusConfig(enr.status);
+                  <span
+                    class="px-3 py-1 border rounded-full text-xs font-bold uppercase tracking-wider"
+                    [ngClass]="statusConfig.classes"
+                  >
+                    {{ statusConfig.label }}
+                  </span>
+                </div>
+
+                <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Promotion Ciblée
+                    </p>
+                    <p class="text-base font-bold text-indigo-900">
+                      {{ enr.promotion?.name || 'Non spécifiée' }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Type d'inscription
+                    </p>
+                    <span
+                      class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold mt-0.5"
+                      [ngClass]="getTypeClasses(enr.type)"
+                    >
+                      {{ getTypeLabel(enr.type) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 2: Status Explanation & Description -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                  <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Suivi de votre dossier
+                </h3>
+                <p class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  {{ statusConfig.desc }}
+                </p>
+              </div>
+
+              <!-- Card 3: Administrative Observations (If any) -->
+              @if (enr.observation) {
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 space-y-3 animate-pulse-once">
+                  <h3 class="font-bold text-amber-800 flex items-center gap-2 text-lg">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Remarque de l'administration
+                  </h3>
+                  <p class="text-sm text-amber-700 leading-relaxed font-medium">
+                    {{ enr.observation }}
+                  </p>
+                </div>
+              }
+
+            </div>
+
+            <!-- RIGHT COLUMN: Submitted Documents Checklist -->
+            <div class="lg:col-span-1 space-y-6">
+              
+              <!-- Card 4: Documents Checklist -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-slate-100 bg-slate-50/50">
+                  <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Pièces Justificatives
+                  </h3>
+                </div>
+
+                <div class="p-6 space-y-6">
+                  <!-- Progress Bar -->
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <span>Dossier Complet</span>
+                      <span class="text-indigo-600">{{ providedDocsCount() }} / {{ totalDocsCount() }}</span>
+                    </div>
+                    <div class="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-indigo-600 transition-all duration-500 rounded-full"
+                        [style.width.%]="totalDocsCount() > 0 ? (providedDocsCount() / totalDocsCount()) * 100 : 0"
+                      ></div>
+                    </div>
+                    @if (isDossierComplet()) {
+                      <p class="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-1">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Toutes les pièces obligatoires ont été fournies.
+                      </p>
+                    } @else {
+                      <p class="text-xs text-amber-600 font-semibold flex items-center gap-1 mt-1">
+                        <svg class="w-3.5 h-3.5 animate-bounce-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01" />
+                        </svg>
+                        Certains documents manquent au dossier.
+                      </p>
+                    }
+                  </div>
+
+                  <!-- Documents list -->
+                  <div class="divide-y divide-slate-100">
+                    @for (doc of documents(); track doc.id) {
+                      <div class="py-4 flex items-start justify-between gap-4 first:pt-0 last:pb-0">
+                        <div class="space-y-1">
+                          <h4 class="text-sm font-semibold text-slate-800 leading-snug">
+                            {{ doc.documentLabel }}
+                          </h4>
+                        </div>
+
+                        <!-- Status Icon -->
+                        @if (doc.provided) {
+                          <span
+                            class="shrink-0 w-6 h-6 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center border border-emerald-100"
+                            title="Fourni"
+                          >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </span>
+                        } @else {
+                          <span
+                            class="shrink-0 w-6 h-6 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center border border-orange-100"
+                            title="Manquant"
+                          >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01" />
+                            </svg>
+                          </span>
+                        }
+                      </div>
+                    } @empty {
+                      <p class="text-sm text-slate-500 italic text-center py-4">
+                        Aucun document demandé pour cette promotion.
+                      </p>
+                    }
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+          
+        </div>
+      }
+    }
+  }
+</div>

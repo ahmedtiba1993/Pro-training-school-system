@@ -7,11 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { EnrollmentResponse } from './enrollment-response';
 
 
 export interface EnrollmentStatsResponse { 
     totalCount?: number;
     maleCount?: number;
     femaleCount?: number;
+    enrollments?: Array<EnrollmentResponse>;
 }
 

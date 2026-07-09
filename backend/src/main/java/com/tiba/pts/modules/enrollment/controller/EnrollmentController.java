@@ -19,6 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.tiba.pts.core.exception.ResourceNotFoundException;
+import com.tiba.pts.modules.enrollment.dto.response.StudentEnrollmentSimpleResponse;
+import com.tiba.pts.modules.user.domain.entity.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
 
 @RestController
@@ -97,5 +101,29 @@ public class EnrollmentController {
 
     return ResponseEntity.ok(
         ApiResponse.success("UNASSIGNED_ENROLLMENTS_FETCHED_SUCCESSFULLY", response));
+  }
+
+  @GetMapping("/my")
+  @PreAuthorize("hasRole('STUDENT')")
+  public ResponseEntity<ApiResponse<List<StudentEnrollmentSimpleResponse>>> getMyEnrollments(
+      @AuthenticationPrincipal User currentUser) {
+    if (currentUser.getPerson() == null) {
+      throw new ResourceNotFoundException("STUDENT_NOT_FOUND");
+    }
+    List<StudentEnrollmentSimpleResponse> response =
+        enrollmentService.getMyEnrollments(currentUser.getPerson().getId());
+    return ResponseEntity.ok(ApiResponse.success("STUDENT_ENROLLMENTS_RETRIEVED", response));
+  }
+
+  @GetMapping("/my/{id}")
+  @PreAuthorize("hasRole('STUDENT')")
+  public ResponseEntity<ApiResponse<EnrollmentResponse>> getMyEnrollmentDetails(
+      @PathVariable Long id, @AuthenticationPrincipal User currentUser) {
+    if (currentUser.getPerson() == null) {
+      throw new ResourceNotFoundException("STUDENT_NOT_FOUND");
+    }
+    EnrollmentResponse response =
+        enrollmentService.getMyEnrollmentDetails(id, currentUser.getPerson().getId());
+    return ResponseEntity.ok(ApiResponse.success("STUDENT_ENROLLMENT_DETAILS_RETRIEVED", response));
   }
 }

@@ -15,6 +15,7 @@ import com.tiba.pts.modules.enrollment.dto.request.EnrollmentSearchRequest;
 import com.tiba.pts.modules.enrollment.dto.request.UnassignedEnrollmentSearchRequest;
 import com.tiba.pts.modules.enrollment.dto.response.EnrollmentListResponse;
 import com.tiba.pts.modules.enrollment.dto.response.EnrollmentResponse;
+import com.tiba.pts.modules.enrollment.dto.response.StudentEnrollmentSimpleResponse;
 import com.tiba.pts.modules.enrollment.dto.response.UnassignedEnrollmentResponse;
 import com.tiba.pts.modules.enrollment.mapper.EnrollmentMapper;
 import com.tiba.pts.modules.enrollment.repository.EnrollmentDocumentSubmissionRepository;
@@ -521,5 +522,24 @@ public class EnrollmentService {
         searchParams.getCin(),
         searchParams.getPhone(),
         searchParams.getStudentCode());
+  }
+
+  @Transactional(readOnly = true)
+  public List<StudentEnrollmentSimpleResponse> getMyEnrollments(Long studentId) {
+    return enrollmentRepository.findByStudentId(studentId).stream()
+        .map(enrollmentMapper::toSimpleResponse)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public EnrollmentResponse getMyEnrollmentDetails(Long enrollmentId, Long studentId) {
+    Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+        .orElseThrow(() -> new ResourceNotFoundException("ENROLLMENT_NOT_FOUND"));
+
+    if (!enrollment.getStudent().getId().equals(studentId)) {
+      throw new ResourceNotFoundException("ENROLLMENT_NOT_FOUND");
+    }
+
+    return enrollmentMapper.toResponse(enrollment);
   }
 }

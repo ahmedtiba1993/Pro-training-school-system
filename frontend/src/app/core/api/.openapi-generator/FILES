@@ -145,6 +145,7 @@ model/api-response-list-room-response.ts
 model/api-response-list-schedule-response.ts
 model/api-response-list-specialty-response.ts
 model/api-response-list-student-attendance-response.ts
+model/api-response-list-student-enrollment-simple-response.ts
 model/api-response-list-student-response.ts
 model/api-response-list-subject-response.ts
 model/api-response-list-subject-short-response.ts
@@ -276,6 +277,7 @@ model/schedule-update-request.ts
 model/specialty-request.ts
 model/specialty-response.ts
 model/student-attendance-response.ts
+model/student-enrollment-simple-response.ts
 model/student-info-request.ts
 model/student-list-response.ts
 model/student-parent-info-request.ts

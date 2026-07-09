@@ -30,6 +30,8 @@ public interface EnrollmentMapper {
   @Mapping(target = "enrollmentSubmittedDocuments", source = "enrollmentDocumentSubmissions")
   EnrollmentResponse toResponse(Enrollment entity);
 
+  StudentEnrollmentSimpleResponse toSimpleResponse(Enrollment entity);
+
   @Mapping(target = "document.id", source = "enrollmentDocumentId")
   EnrollmentDocumentSubmission toSubmittedDocument(SubmittedDocumentRequest request);
 

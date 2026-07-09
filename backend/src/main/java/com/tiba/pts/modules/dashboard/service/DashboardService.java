@@ -45,10 +45,16 @@ public class DashboardService {
       femaleCount = statsProjection.getFemaleCount();
     }
 
+    List<Enrollment> enrollments = enrollmentRepository.findByStatusIn(statuses);
+    List<EnrollmentResponse> enrollmentResponses = enrollments.stream()
+        .map(enrollmentMapper::toResponse)
+        .toList();
+
     return EnrollmentStatsResponse.builder()
         .totalCount(totalCount)
         .maleCount(maleCount)
         .femaleCount(femaleCount)
+        .enrollments(enrollmentResponses)
         .build();
   }
 }
