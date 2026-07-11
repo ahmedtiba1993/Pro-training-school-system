@@ -46,6 +46,7 @@ export * from './api-response-list-exam-schedule-response';
 export * from './api-response-list-exam-session-response';
 export * from './api-response-list-exam-time-slot-response';
 export * from './api-response-list-exam-timetable-response';
+export * from './api-response-list-financial-contract-list-response';
 export * from './api-response-list-holiday-response';
 export * from './api-response-list-level-response';
 export * from './api-response-list-ongoing-promotion-response';

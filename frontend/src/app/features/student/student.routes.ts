@@ -7,6 +7,8 @@ import { StudentEnrollmentDetail } from './pages/enrollments/detail/detail';
 import { StudentSchedules } from './pages/schedules/schedules';
 import { StudentScheduleDetail } from './pages/schedules/detail/detail';
 import { StudentAttendanceComponent } from './pages/attendance/attendance';
+import { StudentContractsComponent } from './pages/contracts/contracts';
+import { StudentContractTransactionsComponent } from './pages/contracts/transactions/transactions';
 
 export const STUDENT_ROUTES: Routes = [
   {
@@ -20,6 +22,8 @@ export const STUDENT_ROUTES: Routes = [
       { path: 'schedules', component: StudentSchedules },
       { path: 'schedules/:id', component: StudentScheduleDetail },
       { path: 'attendance', component: StudentAttendanceComponent },
+      { path: 'contracts', component: StudentContractsComponent },
+      { path: 'contracts/:id/transactions', component: StudentContractTransactionsComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   }

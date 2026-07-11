@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public interface FinancialContractRepository extends JpaRepository<FinancialContract, Long> {
@@ -69,10 +70,11 @@ public interface FinancialContractRepository extends JpaRepository<FinancialCont
   // UNIFIED FINANCIAL STATISTICS
 
   /**
-   * Aggregated statistics for Accredited promotions (AccreditedPromotion)
-   * of the default academic year (isDefault = true).
+   * Aggregated statistics for Accredited promotions (AccreditedPromotion) of the default academic
+   * year (isDefault = true).
    */
-  @Query("""
+  @Query(
+      """
       SELECT
         COALESCE(SUM(CASE
           WHEN fc.status IN ('ACTIVE', 'FULLY_PAID') THEN (fc.totalAmount - fc.discountAmount)
@@ -96,11 +98,12 @@ public interface FinancialContractRepository extends JpaRepository<FinancialCont
   FinancialStatProjection getAccreditedStats(@Param("trainingType") TrainingType trainingType);
 
   /**
-   * Aggregated statistics for ongoing promotions (ACCELERATED / CONTINUOUS)
-   * filtered by active pedagogical statuses (ENROLLMENT, IN_PROGRESS, EVALUATION).
-   * Returns 4 metrics in a single DB round-trip via Spring Data projection.
+   * Aggregated statistics for ongoing promotions (ACCELERATED / CONTINUOUS) filtered by active
+   * pedagogical statuses (ENROLLMENT, IN_PROGRESS, EVALUATION). Returns 4 metrics in a single DB
+   * round-trip via Spring Data projection.
    */
-  @Query("""
+  @Query(
+      """
       SELECT
         COALESCE(SUM(CASE
           WHEN fc.status IN ('ACTIVE', 'FULLY_PAID') THEN (fc.totalAmount - fc.discountAmount)
@@ -123,10 +126,11 @@ public interface FinancialContractRepository extends JpaRepository<FinancialCont
   FinancialStatProjection getOngoingStats(@Param("type") TrainingType type);
 
   /**
-   * Pending payments (cheques/transfers awaiting bank validation).
-   * Kept separate since it queries PaymentTransaction, not FinancialContract.
+   * Pending payments (cheques/transfers awaiting bank validation). Kept separate since it queries
+   * PaymentTransaction, not FinancialContract.
    */
-  @Query("""
+  @Query(
+      """
       SELECT COALESCE(SUM(pt.amount), 0)
       FROM PaymentTransaction pt
         JOIN pt.financialContract fc
@@ -140,13 +144,23 @@ public interface FinancialContractRepository extends JpaRepository<FinancialCont
   BigDecimal calculateTotalPendingTransactions(@Param("trainingType") TrainingType trainingType);
 
   /**
-   * Global remaining debt across all ACTIVE contracts.
-   * Optionally filtered by training type (null = all types).
+   * Global remaining debt across all ACTIVE contracts. Optionally filtered by training type (null =
+   * all types).
    */
-  @Query("""
+  @Query(
+      """
       SELECT COALESCE(SUM(fc.totalAmount - fc.discountAmount - fc.paidAmount), 0)
       FROM FinancialContract fc
       WHERE fc.status = 'ACTIVE'
       """)
   BigDecimal calculateGlobalRemainingDebt();
+
+  @Query(
+      """
+      SELECT c FROM FinancialContract c
+        JOIN FETCH c.enrollment e
+        JOIN FETCH e.student s
+      WHERE s.id = :studentId
+      """)
+  List<FinancialContract> findAllByStudentId(@Param("studentId") Long studentId);
 }

@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -215,6 +216,12 @@ public class FinancialContractService {
             .build();
 
     paymentTransactionService.create(transactionRequest);
+  }
+
+  @Transactional(readOnly = true)
+  public List<FinancialContractListResponse> getContractsByStudentId(Long studentId) {
+    List<FinancialContract> contracts = financialContractRepository.findAllByStudentId(studentId);
+    return financialContractMapper.toListResponseCollection(contracts);
   }
 
 }

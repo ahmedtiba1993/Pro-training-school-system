@@ -48,7 +48,7 @@ public class PaymentTransactionController {
   }
 
   @GetMapping("/contract/{contractId}")
-  @PreAuthorize("hasAnyRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT')")
   public ResponseEntity<ApiResponse<List<PaymentTransactionResponse>>> getByContractId(
       @PathVariable Long contractId) {
     List<PaymentTransactionResponse> transactions =

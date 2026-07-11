@@ -20,6 +20,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.tiba.pts.modules.user.domain.entity.User;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.tiba.pts.core.exception.ResourceNotFoundException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/financial-contracts")
@@ -63,6 +68,21 @@ public class FinancialContractController {
         request.getPaymentDate());
     return ResponseEntity.ok(
         ApiResponse.success("FINANCIAL_CONTRACT_ACTIVATED_SUCCESSFULLY"));
+  }
+
+  @GetMapping("/my-contracts")
+  @PreAuthorize("hasRole('STUDENT')")
+  public ResponseEntity<ApiResponse<List<FinancialContractListResponse>>> getMyContracts(
+      @AuthenticationPrincipal User currentUser) {
+
+    if (currentUser.getPerson() == null) {
+      throw new ResourceNotFoundException("STUDENT_NOT_FOUND");
+    }
+
+    List<FinancialContractListResponse> response =
+        financialContractService.getContractsByStudentId(currentUser.getPerson().getId());
+    return ResponseEntity.ok(
+        ApiResponse.success("FINANCIAL_CONTRACTS_RETRIEVED_SUCCESSFULLY", response));
   }
 }
 

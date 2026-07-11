@@ -14,6 +14,7 @@ import { Observable }                                        from 'rxjs';
 import { ActivateContractRequest } from '../model/models';
 import { ApiResponseActiveRevenueStatResponse } from '../model/models';
 import { ApiResponsePageResponseFinancialContractListResponse } from '../model/models';
+import { ApiResponseListFinancialContractListResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
 import { FinancialContractSearchRequest } from '../model/models';
 
@@ -50,5 +51,12 @@ export interface FinancialContractControllerServiceInterface {
      * @param searchParams 
      */
     getAllFinancialContractsPaged(searchParams: FinancialContractSearchRequest, extraHttpRequestParams?: any): Observable<ApiResponsePageResponseFinancialContractListResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/financial-contracts/my-contracts
+     */
+    getMyContracts(extraHttpRequestParams?: any): Observable<ApiResponseListFinancialContractListResponse>;
 
 }
