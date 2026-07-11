@@ -163,6 +163,7 @@ model/api-response-page-response-continuous-promotion-response.ts
 model/api-response-page-response-course-session-response.ts
 model/api-response-page-response-financial-contract-list-response.ts
 model/api-response-page-response-payment-transaction-response.ts
+model/api-response-page-response-student-attendance-record-response.ts
 model/api-response-page-response-student-list-response.ts
 model/api-response-page-response-teacher-response.ts
 model/api-response-page-response-training-response.ts
@@ -242,6 +243,7 @@ model/page-response-course-session-response.ts
 model/page-response-enrollment-list-response.ts
 model/page-response-financial-contract-list-response.ts
 model/page-response-payment-transaction-response.ts
+model/page-response-student-attendance-record-response.ts
 model/page-response-student-list-response.ts
 model/page-response-teacher-response.ts
 model/page-response-training-response.ts
@@ -276,6 +278,7 @@ model/schedule-status-request.ts
 model/schedule-update-request.ts
 model/specialty-request.ts
 model/specialty-response.ts
+model/student-attendance-record-response.ts
 model/student-attendance-response.ts
 model/student-enrollment-simple-response.ts
 model/student-info-request.ts

@@ -1,16 +1,22 @@
 package com.tiba.pts.modules.execution.controller;
 
 import com.tiba.pts.core.dto.ApiResponse;
+import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.modules.execution.dto.request.AttendanceRequest;
 import com.tiba.pts.modules.execution.dto.response.AttendanceRecordResponse;
 import com.tiba.pts.modules.execution.dto.response.AttendanceStatsResponse;
+import com.tiba.pts.modules.execution.dto.response.StudentAttendanceRecordResponse;
 import com.tiba.pts.modules.execution.dto.response.StudentAttendanceResponse;
 import com.tiba.pts.modules.execution.service.AttendanceRecordService;
+import com.tiba.pts.modules.user.domain.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,12 +51,26 @@ public class AttendanceRecordController {
 
   @GetMapping("/session/{courseSessionId}/students")
   @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<List<StudentAttendanceResponse>>> getStudentsAttendanceForSession(
-      @PathVariable Long courseSessionId) {
-    List<StudentAttendanceResponse> data = attendanceRecordService.getStudentsAttendanceForSession(courseSessionId);
+  public ResponseEntity<ApiResponse<List<StudentAttendanceResponse>>>
+      getStudentsAttendanceForSession(@PathVariable Long courseSessionId) {
+    List<StudentAttendanceResponse> data =
+        attendanceRecordService.getStudentsAttendanceForSession(courseSessionId);
     ApiResponse<List<StudentAttendanceResponse>> response =
         ApiResponse.success("SESSION_STUDENT_ATTENDANCE_RETRIEVED", data);
     return ResponseEntity.ok(response);
   }
-}
 
+  @GetMapping("/student")
+  @PreAuthorize("hasAnyRole('ROLE_STUDENT')")
+  public ResponseEntity<ApiResponse<PageResponse<StudentAttendanceRecordResponse>>>
+      getAttendanceRecordsByStudent(
+          @AuthenticationPrincipal User currentUser,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size) {
+    PageResponse<StudentAttendanceRecordResponse> data =
+        attendanceRecordService.getStudentAttendance(currentUser.getPerson().getId(), page, size);
+    ApiResponse<PageResponse<StudentAttendanceRecordResponse>> response =
+        ApiResponse.success("STUDENT_ATTENDANCE_RECORDS_RETRIEVED", data);
+    return ResponseEntity.ok(response);
+  }
+}

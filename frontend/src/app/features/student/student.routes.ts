@@ -6,6 +6,7 @@ import { StudentEnrollments } from './pages/enrollments/enrollments';
 import { StudentEnrollmentDetail } from './pages/enrollments/detail/detail';
 import { StudentSchedules } from './pages/schedules/schedules';
 import { StudentScheduleDetail } from './pages/schedules/detail/detail';
+import { StudentAttendanceComponent } from './pages/attendance/attendance';
 
 export const STUDENT_ROUTES: Routes = [
   {
@@ -18,6 +19,7 @@ export const STUDENT_ROUTES: Routes = [
       { path: 'enrollments/:id', component: StudentEnrollmentDetail },
       { path: 'schedules', component: StudentSchedules },
       { path: 'schedules/:id', component: StudentScheduleDetail },
+      { path: 'attendance', component: StudentAttendanceComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   }

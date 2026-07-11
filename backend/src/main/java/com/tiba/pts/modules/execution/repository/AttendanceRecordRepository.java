@@ -2,6 +2,8 @@ package com.tiba.pts.modules.execution.repository;
 
 import com.tiba.pts.modules.execution.domain.entity.AttendanceRecord;
 import com.tiba.pts.modules.execution.dto.response.StudentAttendanceResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,4 +36,15 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
   """)
   List<StudentAttendanceResponse> findEligibleStudentsForCallSheet(
       @Param("classGroupId") Long classGroupId, @Param("sessionDate") LocalDate sessionDate);
+
+  @Query(
+      value =
+          "SELECT ar FROM AttendanceRecord ar "
+              + "JOIN FETCH ar.courseSession cs "
+              + "WHERE ar.enrollment.student.id = :studentId",
+      countQuery =
+          "SELECT COUNT(ar) FROM AttendanceRecord ar "
+              + "WHERE ar.enrollment.student.id = :studentId")
+  Page<AttendanceRecord> findByEnrollmentStudentId(
+      @Param("studentId") Long studentId, Pageable pageable);
 }

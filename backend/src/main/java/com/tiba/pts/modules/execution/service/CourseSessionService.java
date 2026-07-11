@@ -2,7 +2,6 @@ package com.tiba.pts.modules.execution.service;
 
 import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.core.exception.BusinessValidationException;
-import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.classmanagement.domain.entity.ClassGroup;
 import com.tiba.pts.modules.classmanagement.domain.enums.ClassStatus;
 import com.tiba.pts.modules.classmanagement.repository.ClassGroupRepository;

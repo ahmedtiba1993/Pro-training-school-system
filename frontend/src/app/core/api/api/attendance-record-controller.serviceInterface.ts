@@ -14,6 +14,7 @@ import { Observable }                                        from 'rxjs';
 import { ApiResponseAttendanceStatsResponse } from '../model/models';
 import { ApiResponseListStudentAttendanceResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
+import { ApiResponsePageResponseStudentAttendanceRecordResponse } from '../model/models';
 import { AttendanceRequest } from '../model/models';
 
 
@@ -24,6 +25,15 @@ import { Configuration }                                     from '../configurat
 export interface AttendanceRecordControllerServiceInterface {
     defaultHeaders: HttpHeaders;
     configuration: Configuration;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/attendances/student
+     * @param page 
+     * @param size 
+     */
+    getAttendanceRecordsByStudent(page?: number, size?: number, extraHttpRequestParams?: any): Observable<ApiResponsePageResponseStudentAttendanceRecordResponse>;
 
     /**
      * 

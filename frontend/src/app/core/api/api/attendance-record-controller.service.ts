@@ -23,6 +23,8 @@ import { ApiResponseListStudentAttendanceResponse } from '../model/api-response-
 // @ts-ignore
 import { ApiResponseLong } from '../model/api-response-long';
 // @ts-ignore
+import { ApiResponsePageResponseStudentAttendanceRecordResponse } from '../model/api-response-page-response-student-attendance-record-response';
+// @ts-ignore
 import { AttendanceRequest } from '../model/attendance-request';
 
 // @ts-ignore
@@ -42,6 +44,85 @@ export class AttendanceRecordControllerService extends BaseService implements At
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
+    }
+
+    /**
+     * @endpoint get /api/v1/attendances/student
+     * @param page 
+     * @param size 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getAttendanceRecordsByStudent(page?: number, size?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponsePageResponseStudentAttendanceRecordResponse>;
+    public getAttendanceRecordsByStudent(page?: number, size?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponsePageResponseStudentAttendanceRecordResponse>>;
+    public getAttendanceRecordsByStudent(page?: number, size?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponsePageResponseStudentAttendanceRecordResponse>>;
+    public getAttendanceRecordsByStudent(page?: number, size?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        if (page !== undefined && page !== null) {
+            localVarQueryParameters = this.addToHttpParams(
+                localVarQueryParameters,
+                'page',
+                <any>page,
+                QueryParamStyle.Form,
+                true,
+            );
+        }
+        if (size !== undefined && size !== null) {
+            localVarQueryParameters = this.addToHttpParams(
+                localVarQueryParameters,
+                'size',
+                <any>size,
+                QueryParamStyle.Form,
+                true,
+            );
+        }
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/attendances/student`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponsePageResponseStudentAttendanceRecordResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
     }
 
     /**

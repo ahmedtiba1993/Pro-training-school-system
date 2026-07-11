@@ -1,5 +1,6 @@
 package com.tiba.pts.modules.execution.service;
 
+import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.core.exception.BusinessValidationException;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.enrollment.domain.entity.Enrollment;
@@ -9,6 +10,7 @@ import com.tiba.pts.modules.execution.domain.entity.CourseSession;
 import com.tiba.pts.modules.execution.domain.enums.SessionStatus;
 import com.tiba.pts.modules.execution.dto.request.AttendanceRequest;
 import com.tiba.pts.modules.execution.dto.response.AttendanceRecordResponse;
+import com.tiba.pts.modules.execution.dto.response.StudentAttendanceRecordResponse;
 import com.tiba.pts.modules.execution.mapper.AttendanceRecordMapper;
 import com.tiba.pts.modules.execution.repository.AttendanceRecordRepository;
 import com.tiba.pts.modules.execution.repository.CourseSessionRepository;
@@ -21,6 +23,10 @@ import com.tiba.pts.modules.execution.dto.response.AttendanceStatsResponse;
 import com.tiba.pts.modules.execution.dto.response.StudentAttendanceResponse;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +43,7 @@ public class AttendanceRecordService {
   private final EnrollmentRepository enrollmentRepository;
   private final AttendanceRecordRepository attendanceRecordRepository;
   private final ClassAssignmentRepository classAssignmentRepository;
+  private final AttendanceRecordMapper attendanceRecordMapper;
 
   @Transactional
   public Long submitAttendance(AttendanceRequest request) {
@@ -157,5 +164,19 @@ public class AttendanceRecordService {
     }
 
     return students;
+  }
+
+  @Transactional(readOnly = true)
+  public PageResponse<StudentAttendanceRecordResponse> getStudentAttendance(
+      Long studentId, int page, int size) {
+    Pageable pageable =
+        PageRequest.of(page, size, Sort.by("courseSession.sessionDate").descending());
+
+    // Exécution de la requête de base de données paginée
+    Page<AttendanceRecord> attendanceRecordPage =
+        attendanceRecordRepository.findByEnrollmentStudentId(studentId, pageable);
+
+    // Retour de la réponse enveloppée dans PageResponse
+    return PageResponse.of(attendanceRecordPage, attendanceRecordMapper::toStudentResponse);
   }
 }

@@ -2,6 +2,7 @@ package com.tiba.pts.modules.execution.mapper;
 
 import com.tiba.pts.modules.execution.domain.entity.AttendanceRecord;
 import com.tiba.pts.modules.execution.dto.response.AttendanceRecordResponse;
+import com.tiba.pts.modules.execution.dto.response.StudentAttendanceRecordResponse;
 import com.tiba.pts.modules.profiles.mapper.RefTeacherSpecialtyMapper;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
@@ -19,4 +20,9 @@ public interface AttendanceRecordMapper {
       expression =
           "java(entity.getEnrollment() != null && entity.getEnrollment().getStudent() != null ? entity.getEnrollment().getStudent().getFirstName() + \" \" + entity.getEnrollment().getStudent().getLastName() : null)")
   AttendanceRecordResponse toResponse(AttendanceRecord entity);
+
+  @Mapping(target = "sessionDate", source = "courseSession.sessionDate")
+  @Mapping(target = "startTime", source = "courseSession.startTime")
+  @Mapping(target = "endTime", source = "courseSession.endTime")
+  StudentAttendanceRecordResponse toStudentResponse(AttendanceRecord entity);
 }

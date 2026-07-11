@@ -1,0 +1,185 @@
+<header
+  class="h-16 w-full bg-white border-b border-slate-200 flex items-center justify-between pl-16 pr-8 lg:px-8 z-10 shrink-0"
+>
+  <h1 class="text-2xl font-bold text-indigo-900">Mes Présences & Absences</h1>
+</header>
+
+<div class="flex-1 overflow-y-auto bg-slate-50/50 p-4 lg:p-8 space-y-6">
+  
+  <!-- Records Table / List -->
+  <div class="max-w-7xl mx-auto">
+    @if (isLoading() && records().length === 0) {
+      <div class="h-64 flex items-center justify-center bg-white rounded-2xl border border-slate-200">
+        <div class="flex flex-col items-center text-slate-400 gap-3">
+          <svg
+            class="w-8 h-8 animate-spin text-indigo-600"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+          <p class="text-sm">Chargement des feuilles de présence...</p>
+        </div>
+      </div>
+    } @else {
+      @if (records().length > 0) {
+        
+        <!-- Table view for Desktop -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
+          <div class="p-0 overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+              <thead class="bg-slate-50 border-b border-slate-150 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <tr>
+                  <th class="px-6 py-4">Date de la Session</th>
+                  <th class="px-6 py-4">Horaires</th>
+                  <th class="px-6 py-4">Statut d'Assiduité</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                @for (record of records(); track record.id) {
+                  <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-5 font-semibold text-slate-800">
+                      {{ record.sessionDate | date: 'dd MMMM yyyy' }}
+                    </td>
+                    <td class="px-6 py-5 font-medium text-slate-500">
+                      @if (record.startTime && record.endTime) {
+                        {{ formatTime(record.startTime) }} - {{ formatTime(record.endTime) }}
+                      } @else {
+                        -
+                      }
+                    </td>
+                    <td class="px-6 py-5">
+                      <span
+                        class="px-2.5 py-1 rounded-full text-xs font-bold border uppercase tracking-wider"
+                        [ngClass]="{
+                          'bg-emerald-50 text-emerald-700 border-emerald-100': record.status === 'PRESENT',
+                          'bg-rose-50 text-rose-700 border-rose-100': record.status === 'ABSENT'
+                        }"
+                      >
+                        {{ record.status === 'PRESENT' ? 'Présent' : 'Absent' }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Footer -->
+          <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <span class="text-xs font-semibold text-slate-500">
+              Total : {{ totalElements() }} enregistrement(s)
+            </span>
+            <div class="flex items-center gap-3">
+              <button
+                (click)="prevPage()"
+                [disabled]="pageNumber() === 0"
+                class="p-2 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors cursor-pointer bg-white"
+                title="Page précédente"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span class="text-xs font-bold text-slate-600">
+                Page {{ pageNumber() + 1 }} sur {{ totalPages() }}
+              </span>
+              <button
+                (click)="nextPage()"
+                [disabled]="isLast()"
+                class="p-2 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors cursor-pointer bg-white"
+                title="Page suivante"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Card view for Mobile -->
+        <div class="grid grid-cols-1 gap-4 md:hidden">
+          @for (record of records(); track record.id) {
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <span class="text-xs font-bold text-slate-400 uppercase">Session</span>
+                <span class="font-bold text-slate-800 text-sm">
+                  {{ record.sessionDate | date: 'dd MMMM yyyy' }}
+                </span>
+              </div>
+              @if (record.startTime && record.endTime) {
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <span class="text-xs font-bold text-slate-400 uppercase">Horaires</span>
+                  <span class="font-semibold text-slate-650 text-xs">
+                    {{ formatTime(record.startTime) }} - {{ formatTime(record.endTime) }}
+                  </span>
+                </div>
+              }
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase">Statut</span>
+                <span
+                  class="px-2.5 py-0.5 border rounded-full text-[11px] font-bold uppercase tracking-wider"
+                  [ngClass]="{
+                    'bg-emerald-50 text-emerald-700 border-emerald-100': record.status === 'PRESENT',
+                    'bg-rose-50 text-rose-700 border-rose-100': record.status === 'ABSENT'
+                  }"
+                >
+                  {{ record.status === 'PRESENT' ? 'Présent' : 'Absent' }}
+                </span>
+              </div>
+            </div>
+          }
+
+          <!-- Pagination Footer Mobile -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col items-center gap-3">
+            <span class="text-xs font-semibold text-slate-500">
+              Affichage de {{ records().length }} sur {{ totalElements() }} sessions
+            </span>
+            <div class="flex items-center gap-4 w-full">
+              <button
+                (click)="prevPage()"
+                [disabled]="pageNumber() === 0"
+                class="flex-1 py-2.5 border border-slate-200 rounded-xl hover:bg-slate-100 text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 bg-white"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                Précédent
+              </button>
+              <span class="text-xs font-bold text-slate-700 whitespace-nowrap">
+                {{ pageNumber() + 1 }} / {{ totalPages() }}
+              </span>
+              <button
+                (click)="nextPage()"
+                [disabled]="isLast()"
+                class="flex-1 py-2.5 border border-slate-200 rounded-xl hover:bg-slate-100 text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 bg-white"
+              >
+                Suivant
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      } @else {
+        <!-- Empty State -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center max-w-md mx-auto">
+          <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100 shadow-inner">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-slate-800 mb-1">Aucun enregistrement d'assiduité</h3>
+          <p class="text-slate-500 text-sm mb-0">Aucun appel ou enregistrement de présence n'a été effectué pour votre compte.</p>
+        </div>
+      }
+    }
+  </div>
+
+</div>
