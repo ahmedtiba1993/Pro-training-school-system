@@ -233,4 +233,11 @@ public class ScheduleService {
         .map(scheduleMapper::toResponse)
         .toList();
   }
+
+  @Transactional(readOnly = true)
+  public List<ScheduleResponse> getSchedulesByTeacherId(Long teacherId) {
+    return scheduleRepository.findSchedulesByTeacherId(teacherId).stream()
+        .map(scheduleMapper::toResponse)
+        .toList();
+  }
 }

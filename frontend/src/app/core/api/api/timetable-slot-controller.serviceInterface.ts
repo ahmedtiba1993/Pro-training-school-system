@@ -37,6 +37,13 @@ export interface TimetableSlotControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/admin/timetable-slots/view/teacher/my/export/pdf
+     */
+    exportMyTimetablePdf(extraHttpRequestParams?: any): Observable<string>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/admin/timetable-slots/view/{scheduleId}/export/pdf
      * @param scheduleId 
      */
@@ -49,6 +56,13 @@ export interface TimetableSlotControllerServiceInterface {
      * @param teacherId 
      */
     exportTimetablePdfByTeacher(teacherId: number, extraHttpRequestParams?: any): Observable<string>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/admin/timetable-slots/view/teacher/my
+     */
+    getMyTimetableView(extraHttpRequestParams?: any): Observable<ApiResponseTimetableTeacherViewResponse>;
 
     /**
      * 

@@ -98,4 +98,29 @@ public class ScheduleController {
             scheduleService.getSchedulesByStudentId(currentUser.getPerson().getId()));
     return ResponseEntity.ok(response);
   }
+
+  @GetMapping("/teacher/{teacherId}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ApiResponse<List<ScheduleResponse>>> getSchedulesByTeacherId(
+      @PathVariable Long teacherId) {
+    ApiResponse<List<ScheduleResponse>> response =
+        ApiResponse.success(
+            "TEACHER_SCHEDULES_FETCHED_SUCCESSFULLY",
+            scheduleService.getSchedulesByTeacherId(teacherId));
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/teacher/my")
+  @PreAuthorize("hasRole('TEACHER')")
+  public ResponseEntity<ApiResponse<List<ScheduleResponse>>> getMySchedulesForTeacher(
+      @AuthenticationPrincipal User currentUser) {
+    if (currentUser.getPerson() == null) {
+      throw new ResourceNotFoundException("TEACHER_NOT_FOUND");
+    }
+    ApiResponse<List<ScheduleResponse>> response =
+        ApiResponse.success(
+            "TEACHER_SCHEDULES_FETCHED_SUCCESSFULLY",
+            scheduleService.getSchedulesByTeacherId(currentUser.getPerson().getId()));
+    return ResponseEntity.ok(response);
+  }
 }

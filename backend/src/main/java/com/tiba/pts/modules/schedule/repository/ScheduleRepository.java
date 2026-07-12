@@ -52,4 +52,19 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
         )
   """)
   List<Schedule> findSchedulesByStudentId(@Param("studentId") Long studentId);
+
+  @EntityGraph(
+      attributePaths = {
+        "classGroup",
+        "classGroup.promotion.training.level",
+        "classGroup.promotion.training.specialty",
+        "period"
+      })
+  @Query("""
+      SELECT DISTINCT s FROM Schedule s
+      JOIN TimetableSlot ts ON ts.schedule = s
+      WHERE s.status = com.tiba.pts.modules.schedule.domain.enums.ScheduleStatus.ACTIVE
+        AND ts.teacher.id = :teacherId
+  """)
+  List<Schedule> findSchedulesByTeacherId(@Param("teacherId") Long teacherId);
 }

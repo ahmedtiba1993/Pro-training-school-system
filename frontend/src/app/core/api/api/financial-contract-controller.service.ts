@@ -21,11 +21,11 @@ import { ActivateContractRequest } from '../model/activate-contract-request';
 // @ts-ignore
 import { ApiResponseActiveRevenueStatResponse } from '../model/api-response-active-revenue-stat-response';
 // @ts-ignore
+import { ApiResponseListFinancialContractListResponse } from '../model/api-response-list-financial-contract-list-response';
+// @ts-ignore
 import { ApiResponsePageResponseFinancialContractListResponse } from '../model/api-response-page-response-financial-contract-list-response';
 // @ts-ignore
 import { ApiResponseVoid } from '../model/api-response-void';
-// @ts-ignore
-import { ApiResponseListFinancialContractListResponse } from '../model/api-response-list-financial-contract-list-response';
 // @ts-ignore
 import { FinancialContractSearchRequest } from '../model/financial-contract-search-request';
 

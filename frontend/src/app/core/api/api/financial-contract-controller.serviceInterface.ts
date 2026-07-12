@@ -13,8 +13,8 @@ import { Observable }                                        from 'rxjs';
 
 import { ActivateContractRequest } from '../model/models';
 import { ApiResponseActiveRevenueStatResponse } from '../model/models';
-import { ApiResponsePageResponseFinancialContractListResponse } from '../model/models';
 import { ApiResponseListFinancialContractListResponse } from '../model/models';
+import { ApiResponsePageResponseFinancialContractListResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
 import { FinancialContractSearchRequest } from '../model/models';
 

@@ -12,7 +12,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import com.tiba.pts.core.exception.ResourceNotFoundException;
+import com.tiba.pts.modules.user.domain.entity.User;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -93,6 +96,34 @@ public class TimetableSlotController {
     headers.setContentType(MediaType.APPLICATION_PDF);
     headers.setContentDispositionFormData(
         "attachment", "emploi_du_temps_enseignant_" + teacherId + ".pdf");
+    return ResponseEntity.ok().headers(headers).body(pdfBytes);
+  }
+
+  @GetMapping("/view/teacher/my")
+  @PreAuthorize("hasRole('TEACHER')")
+  public ResponseEntity<ApiResponse<TimetableTeacherViewResponse>> getMyTimetableView(
+      @AuthenticationPrincipal User currentUser) {
+    if (currentUser.getPerson() == null) {
+      throw new ResourceNotFoundException("TEACHER_NOT_FOUND");
+    }
+    TimetableTeacherViewResponse viewResponse =
+        timetableSlotService.getTimetableViewByTeacher(currentUser.getPerson().getId());
+    ApiResponse<TimetableTeacherViewResponse> response =
+        ApiResponse.success("TIMETABLE_VIEW_RETRIEVED_SUCCESSFULLY", viewResponse);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  @GetMapping("/view/teacher/my/export/pdf")
+  @PreAuthorize("hasRole('TEACHER')")
+  public ResponseEntity<byte[]> exportMyTimetablePdf(@AuthenticationPrincipal User currentUser) {
+    if (currentUser.getPerson() == null) {
+      throw new ResourceNotFoundException("TEACHER_NOT_FOUND");
+    }
+    byte[] pdfBytes = timetableSlotService.exportTimetablePdfByTeacher(currentUser.getPerson().getId());
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDispositionFormData(
+        "attachment", "emploi_du_temps_enseignant_" + currentUser.getPerson().getId() + ".pdf");
     return ResponseEntity.ok().headers(headers).body(pdfBytes);
   }
 }

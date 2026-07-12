@@ -131,6 +131,7 @@ model/api-response-list-exam-schedule-response.ts
 model/api-response-list-exam-session-response.ts
 model/api-response-list-exam-time-slot-response.ts
 model/api-response-list-exam-timetable-response.ts
+model/api-response-list-financial-contract-list-response.ts
 model/api-response-list-holiday-response.ts
 model/api-response-list-level-response.ts
 model/api-response-list-ongoing-promotion-response.ts

@@ -61,24 +61,22 @@ export class AttendanceRecordControllerService extends BaseService implements At
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
-        if (page !== undefined && page !== null) {
-            localVarQueryParameters = this.addToHttpParams(
-                localVarQueryParameters,
-                'page',
-                <any>page,
-                QueryParamStyle.Form,
-                true,
-            );
-        }
-        if (size !== undefined && size !== null) {
-            localVarQueryParameters = this.addToHttpParams(
-                localVarQueryParameters,
-                'size',
-                <any>size,
-                QueryParamStyle.Form,
-                true,
-            );
-        }
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'size',
+            <any>size,
+            QueryParamStyle.Form,
+            true,
+        );
 
 
         let localVarHeaders = this.defaultHeaders;

@@ -19,6 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import com.tiba.pts.core.exception.ResourceNotFoundException;
+import com.tiba.pts.modules.user.domain.entity.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 @RequestMapping("/api/v1/teachers")
@@ -90,5 +93,18 @@ public class TeacherController {
     Long updatedId = teacherService.updateTeacher(id, request);
 
     return ResponseEntity.ok(ApiResponse.success("TEACHER_UPDATED_SUCCESSFULLY", updatedId));
+  }
+
+  @GetMapping("/profile")
+  @PreAuthorize("hasRole('TEACHER')")
+  public ResponseEntity<ApiResponse<TeacherResponse>> getMyTeacherProfile(
+      @AuthenticationPrincipal User currentUser) {
+    if (currentUser.getPerson() == null) {
+      throw new ResourceNotFoundException("TEACHER_NOT_FOUND");
+    }
+    TeacherResponse teacher = teacherService.getTeacherById(currentUser.getPerson().getId());
+    ApiResponse<TeacherResponse> response =
+        ApiResponse.success("TEACHER_PROFILE_RETRIEVED_SUCCESSFULLY", teacher);
+    return ResponseEntity.ok(response);
   }
 }

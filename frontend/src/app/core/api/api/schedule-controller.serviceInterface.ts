@@ -62,10 +62,25 @@ export interface ScheduleControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/schedules/teacher/my
+     */
+    getMySchedulesForTeacher(extraHttpRequestParams?: any): Observable<ApiResponseListScheduleResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/schedules/student/{studentId}
      * @param studentId 
      */
     getSchedulesByStudentId(studentId: number, extraHttpRequestParams?: any): Observable<ApiResponseListScheduleResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/schedules/teacher/{teacherId}
+     * @param teacherId 
+     */
+    getSchedulesByTeacherId(teacherId: number, extraHttpRequestParams?: any): Observable<ApiResponseListScheduleResponse>;
 
     /**
      * 

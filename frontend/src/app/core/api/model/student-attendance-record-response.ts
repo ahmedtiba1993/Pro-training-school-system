@@ -12,9 +12,9 @@
 export interface StudentAttendanceRecordResponse { 
     id?: number;
     sessionDate?: string;
+    status?: StudentAttendanceRecordResponse.StatusEnum;
     startTime?: string;
     endTime?: string;
-    status?: StudentAttendanceRecordResponse.StatusEnum;
 }
 export namespace StudentAttendanceRecordResponse {
     export const StatusEnum = {

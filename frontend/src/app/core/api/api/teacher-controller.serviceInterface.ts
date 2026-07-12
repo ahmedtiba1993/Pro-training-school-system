@@ -62,6 +62,13 @@ export interface TeacherControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/teachers/profile
+     */
+    getMyTeacherProfile(extraHttpRequestParams?: any): Observable<ApiResponseTeacherResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/teachers/{id}
      * @param id 
      */
