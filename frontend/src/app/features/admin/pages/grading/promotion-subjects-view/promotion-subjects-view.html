@@ -1,0 +1,1624 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50/30">
+  <!-- HEADER -->
+  <header class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sticky top-0 z-10">
+    <div class="flex items-center gap-4">
+      <a
+        [routerLink]="backRoute"
+        class="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex items-center justify-center"
+        title="Retour aux promotions"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </a>
+      <div>
+        <h1 class="text-xl font-bold text-slate-800">Programme d'Études & Évaluations</h1>
+        <p class="text-xs text-slate-500">Planification des modules, coefficients et gestion des épreuves</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- PAGE SCROLL AREA -->
+  <div class="flex-1 overflow-y-auto p-4 lg:p-8">
+    <!-- GLOBAL ERROR ALERT DISPLAY -->
+    @if (error()) {
+      <div class="bg-rose-50 border border-rose-200 rounded-2xl p-5 mb-8 flex items-center gap-3 text-rose-700 shadow-xs">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+        <p class="text-sm font-semibold">{{ error() }}</p>
+      </div>
+    }
+
+
+    <!-- COHORT CONTEXT BANNER (KPI) -->
+    @if (isStatsLoading()) {
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 animate-pulse">
+        <div class="flex items-center gap-4 w-full sm:w-auto">
+          <div class="w-12 h-12 bg-slate-200 rounded-xl shrink-0"></div>
+          <div class="space-y-2 flex-1">
+            <div class="h-4 bg-slate-200 rounded w-48"></div>
+            <div class="h-3 bg-slate-200 rounded w-32"></div>
+          </div>
+        </div>
+        <div class="h-10 bg-slate-200 rounded w-full lg:w-64"></div>
+      </div>
+    } @else if (stats(); as data) {
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 animate-in fade-in duration-200">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+              <line x1="4" y1="22" x2="4" y2="15"></line>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">{{ data.promotionName }}</h2>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-1 text-sm font-medium text-slate-500">
+              <span class="flex items-center gap-1.5">{{ data.trainingLabel }}</span>
+              <span class="hidden sm:inline text-slate-300">•</span>
+              <span>{{ data.academicYearLabel }}</span>
+              <span class="hidden sm:inline text-slate-300">•</span>
+              <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded text-[10px] font-bold uppercase tracking-wider">
+                {{
+                  data.promotionType === 'CONTINUOUS'
+                    ? 'Continue'
+                    : data.promotionType === 'ACCELERATED'
+                    ? 'Accélérée'
+                    : 'Classique'
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-4 w-full lg:w-auto justify-between sm:justify-start border-t lg:border-t-0 border-slate-100 pt-4 lg:pt-0">
+          <div class="text-center px-4 sm:border-r border-slate-200 flex-1 sm:flex-none">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Matières</p>
+            <p class="text-xl font-bold text-slate-800">{{ data.totalSubjects }}</p>
+          </div>
+          <div class="text-center px-4 flex-1 sm:flex-none">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Coef</p>
+            <p class="text-xl font-bold text-indigo-600">{{ data.totalCoefficient }}</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- DISPLAY SEPARATION -->
+    <div class="space-y-8">
+      <!-- ACCREDITED STRUCTURE: BY PERIOD -->
+      @if (isAccredited()) {
+        @if (isPeriodsLoading()) {
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 flex flex-col items-center justify-center gap-3">
+            <div class="w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider animate-pulse">Chargement des périodes...</p>
+          </div>
+        } @else {
+          @for (period of periods(); track period.id!) {
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-300">
+              <div
+                (click)="togglePeriod(period.id!)"
+                class="bg-slate-50 hover:bg-slate-100/70 border-b border-slate-100 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer select-none transition-colors"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="text-slate-400 transition-transform duration-200 ease-in-out"
+                    [class.rotate-180]="isPeriodExpanded(period.id!)"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                  <div class="w-10 h-10 bg-white border border-slate-200 text-indigo-600 rounded-xl flex items-center justify-center shadow-sm font-black text-sm uppercase tracking-wide">
+                    P{{ period.orderIndex != null ? period.orderIndex + 1 : $index + 1 }}
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-slate-800 text-base leading-tight">{{ period.label }}</h3>
+                    <p class="text-[11px] text-slate-400 font-medium mt-0.5">
+                      Période du {{ period.startDate | date: 'dd/MM/yyyy' }} au {{ period.endDate | date: 'dd/MM/yyyy' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              @if (isPeriodExpanded(period.id!)) {
+                <div class="animate-in fade-in slide-in-from-top-2 duration-200">
+                  @if (isPeriodSubjectsLoading(period.id!)) {
+                    <div class="p-8 flex items-center justify-center gap-2 bg-white">
+                      <div class="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span class="text-xs text-slate-400 font-medium uppercase tracking-wider">Récupération des matières...</span>
+                    </div>
+                  } @else {
+                    <div class="overflow-x-auto">
+                      <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-white border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px] tracking-widest">
+                          <tr>
+                            <th class="px-6 py-4">Matière / Module</th>
+                            <th class="px-6 py-4 text-center">Coef</th>
+                            <th class="px-6 py-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                          @for (subject of subjectsByPeriod()[period.id!]; track subject.id) {
+                            <tr class="hover:bg-slate-50/70 transition-colors group">
+                              <td class="px-6 py-4">
+                                <p class="font-bold text-slate-800">{{ subject.subjectName }}</p>
+                                <p class="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">ID_MOD-{{ subject.id }}</p>
+                              </td>
+                              <td class="px-6 py-4 text-center">
+                                <span class="font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200 text-xs">{{ subject.coefficient }}</span>
+                              </td>
+                              <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                  <!-- VIEW ASSESSMENTS BUTTON -->
+                                  <button
+                                    type="button"
+                                    (click)="openAssessmentsListModal(subject)"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
+                                    title="Voir les épreuves de cette matière"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                      <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                    <span>Épreuves</span>
+                                  </button>
+
+                                  <!-- ADD ASSESSMENT BUTTON -->
+                                  <button
+                                    type="button"
+                                    (click)="openAddAssessmentModal(subject)"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200 transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
+                                    title="Ajouter une épreuve"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    <span>Ajouter</span>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          } @empty {
+                            <tr>
+                              <td colspan="3" class="px-6 py-8 text-center text-slate-400 font-medium text-xs">Aucune matière affectée.</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                    
+                    <div class="bg-indigo-50/30 border-t border-indigo-100/60 p-4 flex items-center justify-between text-xs font-semibold">
+                      <span class="text-indigo-900 font-bold">Total résumé pour {{ period.label }}</span>
+                      <div class="flex gap-6 text-indigo-700">
+                        <span><span class="text-[10px] text-indigo-400 font-medium uppercase tracking-wider mr-1">Coef</span>{{ getPeriodCoefTotal(period.id!) }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+      <!-- CONTINUOUS / ACCELERATED PATHS: DIRECT GLOBAL LIST -->
+      } @else {
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-300">
+          <div class="p-6 border-b border-slate-100 bg-slate-50/60">
+            <h3 class="font-bold text-slate-800 text-base">Liste Globale des Matières</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Plan d'études direct sans séparation temporelle par périodes.</p>
+          </div>
+
+          @if (isFlatSubjectsLoading()) {
+            <div class="p-12 flex flex-col items-center justify-center gap-3">
+              <div class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider animate-pulse">Chargement du plan d'études...</p>
+            </div>
+          } @else {
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-white border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px] tracking-widest">
+                  <tr>
+                    <th class="px-6 py-4">Matière / Module</th>
+                    <th class="px-6 py-4 text-center">Coef</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                  @for (subject of flatSubjects(); track subject.id) {
+                    <tr class="hover:bg-slate-50/70 transition-colors group">
+                      <td class="px-6 py-4">
+                        <p class="font-bold text-slate-800">{{ subject.subjectName }}</p>
+                        <p class="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">ID_MOD-{{ subject.id }}</p>
+                      </td>
+                      <td class="px-6 py-4 text-center">
+                        <span class="font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200 text-xs">{{ subject.coefficient }}</span>
+                      </td>
+                      <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                          <!-- VIEW ASSESSMENTS BUTTON -->
+                          <button
+                            type="button"
+                            (click)="openAssessmentsListModal(subject)"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
+                            title="Voir les épreuves de cette matière"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                              <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <span>Épreuves</span>
+                          </button>
+
+                          <!-- ADD ASSESSMENT BUTTON -->
+                          <button
+                            type="button"
+                            (click)="openAddAssessmentModal(subject)"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200 transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
+                            title="Ajouter une épreuve"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                              <line x1="12" y1="5" x2="12" y2="19"></line>
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            <span>Ajouter</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="3" class="px-6 py-12 text-center text-slate-400 font-medium text-xs">Aucune matière rattachée à cette formation.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="bg-indigo-50/30 border-t border-indigo-100/60 p-5 flex items-center justify-between text-xs font-bold">
+              <span class="text-indigo-900">Totalisation du plan d'études</span>
+              <div class="flex gap-8 text-indigo-700">
+                <span>Somme Coef:<span class="text-sm ml-1 text-indigo-900">{{ flatTotalCoef() }}</span></span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ASSESSMENTS LIST PER SUBJECT (ASSESSMENT DETAILS)                  -->
+  <!-- ========================================================================= -->
+  @if (isListModalOpen()) {
+    <div class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6">
+      <!-- Backdrop click to close -->
+      <div class="fixed inset-0" (click)="closeAssessmentsListModal()"></div>
+
+      <!-- Modal Content Card -->
+      <div class="relative bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-7xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-10 flex flex-col max-h-[90vh]">
+        
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 shrink-0">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center shadow-xs shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                <path d="M9 14l2 2 4-4"></path>
+              </svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="text-lg font-bold text-slate-800">Épreuves d'évaluation (Assessments)</h3>
+                <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold rounded">
+                  Coef: {{ selectedSubjectForList()?.coefficient }}
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 font-medium truncate max-w-lg mt-0.5">
+                Matière : <span class="font-semibold text-indigo-600">{{ selectedSubjectForList()?.subjectName }}</span>
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeAssessmentsListModal()"
+            class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition-colors cursor-pointer"
+            title="Fermer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Summary KPI Capsule & Progress Bar -->
+        <div class="bg-indigo-50/50 border-b border-indigo-100/70 p-5 shrink-0 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-semibold">
+            <div class="flex items-center gap-4 text-slate-600">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                <span>Total épreuves : <strong class="text-slate-800">{{ currentSubjectAssessments().length }}</strong></span>
+              </div>
+              <span class="text-slate-300">•</span>
+              <div>
+                <span>Pondération cumulée (weight_percentage) : 
+                  <strong [class.text-emerald-600]="currentSubjectTotalWeight() === 100" [class.text-amber-600]="currentSubjectTotalWeight() < 100" [class.text-rose-600]="currentSubjectTotalWeight() > 100">
+                    {{ currentSubjectTotalWeight() }}%
+                  </strong> / 100%
+                </span>
+              </div>
+            </div>
+
+            <div>
+              @if (currentSubjectTotalWeight() === 100) {
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100/80 text-emerald-700 rounded-lg text-[11px] font-bold">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  Pondération complète (100%)
+                </span>
+              } @else if (currentSubjectTotalWeight() < 100) {
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100/80 text-amber-800 rounded-lg text-[11px] font-bold">
+                  Reste {{ 100 - currentSubjectTotalWeight() }}% à planifier
+                </span>
+              } @else {
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-rose-100 text-rose-800 rounded-lg text-[11px] font-bold">
+                  Dépassement de {{ currentSubjectTotalWeight() - 100 }}%
+                </span>
+              }
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full bg-slate-200/80 rounded-full h-2 overflow-hidden">
+            <div
+              class="h-2 rounded-full transition-all duration-300"
+              [class.bg-emerald-500]="currentSubjectTotalWeight() === 100"
+              [class.bg-amber-500]="currentSubjectTotalWeight() < 100"
+              [class.bg-rose-500]="currentSubjectTotalWeight() > 100"
+              [style.width.%]="currentSubjectTotalWeight() > 100 ? 100 : currentSubjectTotalWeight()"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Assessments List Body (Scrollable) -->
+        <div class="overflow-y-auto flex-1 p-6">
+          @if (isAssessmentsListLoading()) {
+            <div class="p-16 flex flex-col items-center justify-center gap-3">
+              <div class="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider animate-pulse">Chargement des épreuves...</p>
+            </div>
+          } @else if (listModalError()) {
+            <div class="p-8 text-center bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 space-y-3">
+              <p class="text-sm font-bold">{{ listModalError() }}</p>
+              @if (selectedSubjectForList()?.id; as subId) {
+                <button
+                  type="button"
+                  (click)="loadAssessmentsForSubject(subId)"
+                  class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+                >
+                  Réessayer
+                </button>
+              }
+            </div>
+          } @else if (currentSubjectAssessments().length === 0) {
+            <div class="p-12 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+              <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-slate-400 flex items-center justify-center mx-auto mb-3 shadow-2xs">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h4 class="text-sm font-bold text-slate-800">Aucune épreuve configurée</h4>
+              <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+                Cette matière ne possède pas encore d'évaluations planifiées.
+              </p>
+              <button
+                type="button"
+                (click)="openAddAssessmentFromList()"
+                class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Créer la première épreuve</span>
+              </button>
+            </div>
+          } @else {
+            <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs">
+              <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+                  <tr>
+                    <th class="px-5 py-3.5">Titre de l'épreuve</th>
+                    <th class="px-5 py-3.5 text-center">Type</th>
+                    <th class="px-5 py-3.5 text-center">Poids</th>
+                    <th class="px-5 py-3.5 text-center">Barème</th>
+                    <th class="px-5 py-3.5 text-center">Statut</th>
+                    <th class="px-5 py-3.5 text-right">Workflow & Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white">
+                  @for (assessment of currentSubjectAssessments(); track assessment.id) {
+                    <tr class="hover:bg-slate-50/60 transition-colors">
+                      <td class="px-5 py-4">
+                        <p class="font-bold text-slate-800 text-xs sm:text-sm">{{ assessment.title }}</p>
+                      </td>
+                      <td class="px-5 py-4 text-center">
+                        <span class="inline-block px-2.5 py-1 rounded-md border text-[11px] font-bold" [ngClass]="getAssessmentTypeBadgeClasses(assessment.assessmentType)">
+                          {{ assessment.assessmentType }}
+                        </span>
+                      </td>
+                      <td class="px-5 py-4 text-center">
+                        <span class="font-black text-indigo-700 bg-indigo-50/80 px-2.5 py-1 rounded-md border border-indigo-100 text-xs">
+                          {{ assessment.weightPercentage }}%
+                        </span>
+                      </td>
+                      <td class="px-5 py-4 text-center">
+                        <span class="font-bold text-slate-800 text-xs bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                          Sur {{ assessment.totalMarks }}
+                        </span>
+                      </td>
+                      <td class="px-5 py-4 text-center">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[11px] font-semibold" [ngClass]="getAssessmentStatusBadgeClasses(assessment.status)">
+                          <span class="w-1.5 h-1.5 rounded-full" [ngClass]="getAssessmentStatusDotColor(assessment.status)"></span>
+                          {{ getAssessmentStatusLabel(assessment.status) }}
+                        </span>
+                      </td>
+                      <!-- WORKFLOW ACTIONS -->
+                      <td class="px-5 py-4 text-right">
+                        @if (updatingStatusAssessmentId() === assessment.id) {
+                          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-semibold text-indigo-600">
+                            <svg class="animate-spin h-3.5 w-3.5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>En cours...</span>
+                          </div>
+                        } @else {
+                          <div class="flex items-center justify-end gap-1.5">
+                            @switch (assessment.status) {
+                              @case ('DRAFT') {
+                                <!-- Schedule assessment -->
+                                <button
+                                  type="button"
+                                  (click)="promptMarkAsPlanned(assessment)"
+                                  class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+                                  title="Marquer comme Planifiée (DRAFT ➔ PLANNED)"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                  </svg>
+                                  <span>Planifier</span>
+                                </button>
+                                <!-- Edit assessment -->
+                                <button
+                                  type="button"
+                                  (click)="openEditAssessmentModal(assessment)"
+                                  class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+                                  title="Modifier les paramètres de l'épreuve"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                  </svg>
+                                  <span>Modifier</span>
+                                </button>
+                                <!-- Delete assessment permanently (DRAFT only) -->
+                                <button
+                                  type="button"
+                                  (click)="promptDeleteAssessment(assessment)"
+                                  class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                  title="Supprimer définitivement l'épreuve (Brouillon)"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                  </svg>
+                                </button>
+                                <!-- Cancel assessment -->
+                                <button
+                                  type="button"
+                                  (click)="promptCancelAssessment(assessment)"
+                                  class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                  title="Annuler l'épreuve (force majeure)"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                  </svg>
+                                </button>
+                              }
+                              @case ('PLANNED') {
+                                <!-- Open grading (PLANNED to GRADING_IN_PROGRESS) -->
+                                <button
+                                  type="button"
+                                  (click)="promptOpenForGrading(assessment)"
+                                  class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+                                  title="Ouvrir la saisie des notes (PLANNED ➔ GRADING_IN_PROGRESS)"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 16.5-3.5z"></path>
+                                  </svg>
+                                  <span>Ouvrir notation</span>
+                                </button>
+                                <!-- Edit assessment -->
+                                <button
+                                  type="button"
+                                  (click)="openEditAssessmentModal(assessment)"
+                                  class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+                                  title="Modifier les paramètres de l'épreuve"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                  </svg>
+                                  <span>Modifier</span>
+                                </button>
+                                <!-- Cancel assessment -->
+                                <button
+                                  type="button"
+                                  (click)="promptCancelAssessment(assessment)"
+                                  class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                  title="Annuler l'épreuve"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                  </svg>
+                                </button>
+                              }
+                              @case ('GRADING_IN_PROGRESS') {
+                                <!-- Submit to admin (GRADING_IN_PROGRESS to SUBMITTED_TO_ADMIN) -->
+                                <button
+                                  type="button"
+                                  (click)="promptSubmitToAdmin(assessment)"
+                                  class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+                                  title="Soumettre les notes à l'administration (GRADING_IN_PROGRESS ➔ SUBMITTED_TO_ADMIN)"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                  </svg>
+                                  <span>Soumettre notes</span>
+                                </button>
+                                <!-- Cancel assessment -->
+                                <button
+                                  type="button"
+                                  (click)="promptCancelAssessment(assessment)"
+                                  class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                  title="Annuler l'épreuve"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                  </svg>
+                                </button>
+                              }
+                              @case ('SUBMITTED_TO_ADMIN') {
+                                <!-- Publish assessment (SUBMITTED_TO_ADMIN to PUBLISHED) -->
+                                <button
+                                  type="button"
+                                  (click)="promptPublishAssessment(assessment)"
+                                  class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+                                  title="Publier officiellement les notes aux étudiants (SUBMITTED_TO_ADMIN ➔ PUBLISHED)"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                                    <polyline points="16 6 12 2 8 6"></polyline>
+                                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                                  </svg>
+                                  <span>Publier</span>
+                                </button>
+                                <!-- Reject and return to teacher (SUBMITTED_TO_ADMIN to GRADING_IN_PROGRESS) -->
+                                <button
+                                  type="button"
+                                  (click)="promptRejectAndReturn(assessment)"
+                                  class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+                                  title="Refuser et renvoyer à l'enseignant pour correction (SUBMITTED_TO_ADMIN ➔ GRADING_IN_PROGRESS)"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                  </svg>
+                                  <span>Renvoyer au prof</span>
+                                </button>
+                                <!-- Cancel assessment -->
+                                <button
+                                  type="button"
+                                  (click)="promptCancelAssessment(assessment)"
+                                  class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                  title="Annuler l'épreuve"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                  </svg>
+                                </button>
+                              }
+                              @case ('PUBLISHED') {
+                                <!-- Lock assessment (PUBLISHED to LOCKED) -->
+                                <button
+                                  type="button"
+                                  (click)="promptLockAssessment(assessment)"
+                                  class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+                                  title="Clôture annuelle et verrouillage définitif (PUBLISHED ➔ LOCKED)"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                  </svg>
+                                  <span>Verrouiller</span>
+                                </button>
+                              }
+                              @case ('LOCKED') {
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-md border border-purple-100">
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                  </svg>
+                                  <span>Clôturée</span>
+                                </span>
+                              }
+                              @case ('CANCELLED') {
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-100">
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                  </svg>
+                                  <span>Annulée</span>
+                                </span>
+                              }
+                              @default {
+                                <span class="text-xs text-slate-400">-</span>
+                              }
+                            }
+                          </div>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between gap-3 shrink-0">
+          <button
+            type="button"
+            (click)="closeAssessmentsListModal()"
+            class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/80 border border-slate-200 rounded-xl transition-all shadow-xs cursor-pointer"
+          >
+            Fermer
+          </button>
+          <button
+            type="button"
+            (click)="openAddAssessmentFromList()"
+            class="px-5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl transition-all shadow-sm shadow-indigo-600/20 flex items-center gap-2 cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Ajouter une épreuve</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ADD ASSESSMENT (API)                                               -->
+  <!-- ========================================================================= -->
+  @if (isModalOpen()) {
+    <div class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <!-- Backdrop click to close -->
+      <div class="fixed inset-0" (click)="closeAddAssessmentModal()"></div>
+
+      <!-- Modal Content Card -->
+      <div class="relative bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-10">
+        
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center shadow-xs shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-800">Ajouter une épreuve</h3>
+              <p class="text-xs text-slate-500 font-medium truncate max-w-xs mt-0.5">
+                Matière : <span class="font-semibold text-indigo-600">{{ selectedSubject()?.subjectName }}</span>
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeAddAssessmentModal()"
+            [disabled]="isSubmittingAssessment()"
+            class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+            title="Fermer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Configuration Summary Capsule -->
+        <div class="bg-indigo-50/60 border-b border-indigo-100 px-6 py-3 flex items-center justify-between text-xs text-indigo-900 font-medium">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+            <span>Aperçu de la saisie :</span>
+          </div>
+          <span class="font-bold px-2.5 py-1 bg-white border border-indigo-200 text-indigo-700 rounded-lg text-[11px] shadow-2xs truncate max-w-[280px]">
+            @if (assessmentForm.get('type')?.value || assessmentForm.get('weight')?.value != null || assessmentForm.get('maxScore')?.value != null) {
+              Type: {{ getSelectedTypeFrenchName() || '-' }} | Poids: {{ assessmentForm.get('weight')?.value != null ? assessmentForm.get('weight')?.value + '%' : '-' }} | Sur: {{ assessmentForm.get('maxScore')?.value != null ? assessmentForm.get('maxScore')?.value : '-' }}
+            } @else {
+              En attente de saisie...
+            }
+          </span>
+        </div>
+
+
+        <!-- Modal Form -->
+        <form [formGroup]="assessmentForm" (ngSubmit)="onSubmitAssessment()">
+          <div class="p-6 space-y-4">
+            
+            <!-- Assessment title -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                Titre de l'épreuve <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                formControlName="title"
+                placeholder="Ex: Devoir Surveillé 1, TP Noté 1, Examen Final..."
+                class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs"
+                [class.border-red-400]="assessmentForm.get('title')?.invalid && assessmentForm.get('title')?.touched"
+              />
+              @if (assessmentForm.get('title')?.invalid && assessmentForm.get('title')?.touched) {
+                <p class="text-xs text-red-500 mt-1">Le titre de l'épreuve est requis.</p>
+              }
+            </div>
+
+            <!-- Assessment type (Organized by category) -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                Type d'évaluation <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <select
+                  formControlName="type"
+                  (change)="onTypeChange(assessmentForm.get('type')?.value)"
+                  class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs cursor-pointer appearance-none"
+                  [class.border-red-400]="assessmentForm.get('type')?.invalid && assessmentForm.get('type')?.touched"
+                >
+                  <option value="" disabled selected>-- Sélectionner le type d'épreuve --</option>
+                  <optgroup label="Contrôle Continu (Géré par le professeur)">
+                    <option [value]="'DS'">DS - Devoir Surveillé (Contrôle écrit en classe)</option>
+                    <option [value]="'TP'">TP - Travaux Pratiques (Note de labo ou d'atelier)</option>
+                  </optgroup>
+                  <optgroup label="Examens Terminaux">
+                    <option [value]="'FINAL_EXAM'">FINAL_EXAM - Examen Principal de fin de semestre</option>
+                    <option [value]="'RETAKE'">RETAKE - Examen de Rattrapage</option>
+                  </optgroup>
+                </select>
+                <div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+              </div>
+              @if (assessmentForm.get('type')?.invalid && assessmentForm.get('type')?.touched) {
+                <p class="text-xs text-red-500 mt-1">Veuillez sélectionner un type d'épreuve.</p>
+              }
+              @if (assessmentForm.get('type')?.value === 'RETAKE') {
+                <p class="text-[11px] text-amber-600 font-medium mt-1.5 flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                  <span>Rattrapage : la pondération est fixée à 0% dans la moyenne générale.</span>
+                </p>
+              }
+            </div>
+
+            <!-- Grid weight & max score -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                  Poids / Pondération (%) <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <input
+                    type="number"
+                    formControlName="weight"
+                    min="0"
+                    max="100"
+                    step="1"
+                    placeholder="Ex: 30"
+                    class="w-full pl-4 pr-9 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs"
+                    [class.border-red-400]="assessmentForm.get('weight')?.invalid && assessmentForm.get('weight')?.touched"
+                  />
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">%</span>
+                </div>
+                @if (assessmentForm.get('weight')?.invalid && assessmentForm.get('weight')?.touched) {
+                  <p class="text-xs text-red-500 mt-1">Poids valide requis (0-100%).</p>
+                }
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                  Barème (Note sur) <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <input
+                    type="number"
+                    formControlName="maxScore"
+                    min="0.5"
+                    max="100"
+                    step="0.5"
+                    placeholder="Ex: 20"
+                    class="w-full pl-4 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs"
+                    [class.border-red-400]="assessmentForm.get('maxScore')?.invalid && assessmentForm.get('maxScore')?.touched"
+                  />
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">pts</span>
+                </div>
+                @if (assessmentForm.get('maxScore')?.invalid && assessmentForm.get('maxScore')?.touched) {
+                  <p class="text-xs text-red-500 mt-1">Barème requis (ex: 20).</p>
+                }
+              </div>
+            </div>
+
+            <!-- Description / Instructions (optional) -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                Consignes ou remarques <span class="text-slate-400 text-[10px] font-normal lowercase">(optionnel)</span>
+              </label>
+              <textarea
+                formControlName="description"
+                rows="2"
+                placeholder="Consignes particulières, barème spécifique..."
+                class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs resize-none"
+              ></textarea>
+            </div>
+
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="p-6 border-t border-slate-100 bg-slate-50/60 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              (click)="closeAddAssessmentModal()"
+              [disabled]="isSubmittingAssessment()"
+              class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="isSubmittingAssessment()"
+              class="px-5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed active:scale-95 rounded-xl transition-all shadow-sm shadow-indigo-600/20 flex items-center gap-2 cursor-pointer"
+            >
+              @if (isSubmittingAssessment()) {
+                <svg class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Enregistrement...</span>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Ajouter l'épreuve</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: STATUS CHANGE CONFIRMATION                                        -->
+  <!-- ========================================================================= -->
+  @if (confirmStatusModal(); as modalData) {
+    <div class="fixed inset-0 z-60 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div class="fixed inset-0" (click)="closeConfirmStatusModal()"></div>
+      <div class="relative bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-10">
+        
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+              [class.bg-blue-50]="modalData.action === 'plan'"
+              [class.border-blue-100]="modalData.action === 'plan'"
+              [class.text-blue-600]="modalData.action === 'plan'"
+              [class.bg-amber-50]="modalData.action === 'open_grading' || modalData.action === 'reject'"
+              [class.border-amber-100]="modalData.action === 'open_grading' || modalData.action === 'reject'"
+              [class.text-amber-600]="modalData.action === 'open_grading' || modalData.action === 'reject'"
+              [class.bg-indigo-50]="modalData.action === 'submit'"
+              [class.border-indigo-100]="modalData.action === 'submit'"
+              [class.text-indigo-600]="modalData.action === 'submit'"
+              [class.bg-emerald-50]="modalData.action === 'publish'"
+              [class.border-emerald-100]="modalData.action === 'publish'"
+              [class.text-emerald-600]="modalData.action === 'publish'"
+              [class.bg-rose-50]="modalData.action === 'cancel'"
+              [class.border-rose-100]="modalData.action === 'cancel'"
+              [class.text-rose-600]="modalData.action === 'cancel'"
+              [class.bg-purple-50]="modalData.action === 'lock'"
+              [class.border-purple-100]="modalData.action === 'lock'"
+              [class.text-purple-600]="modalData.action === 'lock'"
+            >
+              @switch (modalData.action) {
+                @case ('plan') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                }
+                @case ('open_grading') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                }
+                @case ('submit') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                }
+                @case ('reject') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                  </svg>
+                }
+                @case ('publish') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 6 12 2 8 6"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                  </svg>
+                }
+                @case ('cancel') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                }
+                @case ('lock') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                }
+              }
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-800">{{ modalData.title }}</h3>
+              <p class="text-xs text-slate-500 font-medium">Changement de statut de l'épreuve</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeConfirmStatusModal()"
+            [disabled]="updatingStatusAssessmentId() !== null"
+            class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+            title="Fermer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 space-y-4">
+          
+          <!-- Transition Flow Banner -->
+          <div class="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+            <div class="flex flex-col gap-1 items-start">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Statut actuel</span>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-semibold" [ngClass]="getAssessmentStatusBadgeClasses(modalData.fromStatus)">
+                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="getAssessmentStatusDotColor(modalData.fromStatus)"></span>
+                {{ getAssessmentStatusLabel(modalData.fromStatus) }}
+              </span>
+            </div>
+
+            <div class="flex items-center text-slate-400 px-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </div>
+
+            <div class="flex flex-col gap-1 items-end">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nouveau statut</span>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-semibold" [ngClass]="getAssessmentStatusBadgeClasses(modalData.toStatus)">
+                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="getAssessmentStatusDotColor(modalData.toStatus)"></span>
+                {{ getAssessmentStatusLabel(modalData.toStatus) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Assessment Summary Card -->
+          <div class="p-3.5 bg-indigo-50/50 border border-indigo-100 rounded-xl space-y-2 text-xs">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-slate-800 text-sm">{{ modalData.assessment.title }}</span>
+              <span class="inline-block px-2 py-0.5 rounded border text-[10px] font-bold" [ngClass]="getAssessmentTypeBadgeClasses(modalData.assessment.assessmentType)">
+                {{ modalData.assessment.assessmentType }}
+              </span>
+            </div>
+            <div class="flex items-center gap-4 text-slate-500 font-medium">
+              <span>Matière : <strong class="text-slate-700">{{ selectedSubjectForList()?.subjectName }}</strong></span>
+              <span>•</span>
+              <span>Pondération : <strong class="text-indigo-700">{{ modalData.assessment.weightPercentage }}%</strong></span>
+              <span>•</span>
+              <span>Barème : <strong class="text-slate-700">Sur {{ modalData.assessment.totalMarks }}</strong></span>
+            </div>
+          </div>
+
+          <!-- Description / Impact -->
+          <p class="text-xs text-slate-600 leading-relaxed bg-white p-1">
+            {{ modalData.message }}
+          </p>
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-slate-100 bg-slate-50/70 flex items-center justify-end gap-3 shrink-0">
+          <button
+            type="button"
+            (click)="closeConfirmStatusModal()"
+            [disabled]="updatingStatusAssessmentId() !== null"
+            class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/80 border border-slate-200 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            (click)="executeConfirmedStatusAction()"
+            [disabled]="updatingStatusAssessmentId() !== null"
+            class="px-5 py-2.5 text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
+            [ngClass]="modalData.confirmButtonClass"
+          >
+            @if (updatingStatusAssessmentId() !== null) {
+              <svg class="animate-spin -ml-1 mr-1 h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Traitement en cours...</span>
+            } @else {
+              <span>{{ modalData.confirmLabel }}</span>
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ASSESSMENT CREATION CONFIRMATION                                  -->
+  <!-- ========================================================================= -->
+  @if (confirmCreateModal(); as createData) {
+    <div class="fixed inset-0 z-60 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div class="fixed inset-0" (click)="closeConfirmCreateModal()"></div>
+      <div class="relative bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-10">
+        
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 shrink-0">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-800">Confirmer la création de l'épreuve</h3>
+              <p class="text-xs text-slate-500 font-medium">Vérification des paramètres de l'évaluation</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeConfirmCreateModal()"
+            [disabled]="isSubmittingAssessment()"
+            class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+            title="Fermer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 space-y-4">
+          
+          <!-- Assessment Details Card -->
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+            <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-200/80">
+              <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Matière ciblée</span>
+              <span class="font-bold text-indigo-700 text-xs sm:text-sm">{{ createData.subjectName }}</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div class="col-span-2 sm:col-span-1">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Titre de l'épreuve</p>
+                <p class="font-bold text-slate-800 text-sm truncate">{{ createData.request.title }}</p>
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Type d'évaluation</p>
+                <span class="inline-block px-2.5 py-1 rounded-md border text-[11px] font-bold" [ngClass]="getAssessmentTypeBadgeClasses(createData.request.assessmentType)">
+                  {{ createData.request.assessmentType }}
+                </span>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pondération</p>
+                <span class="font-black text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100 text-xs">
+                  {{ createData.request.weightPercentage }}%
+                </span>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Barème (Note sur)</p>
+                <span class="font-bold text-slate-800 bg-white px-2.5 py-1 rounded-md border border-slate-200 text-xs shadow-2xs">
+                  Sur {{ createData.request.totalMarks }} pts
+                </span>
+              </div>
+            </div>
+
+            @if (createData.description) {
+              <div class="pt-2.5 border-t border-slate-200/80 text-xs">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Consignes</p>
+                <p class="text-slate-600 italic leading-relaxed">{{ createData.description }}</p>
+              </div>
+            }
+          </div>
+
+          <!-- Status Notice Info -->
+          <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2.5 text-xs text-blue-800">
+            <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1"></span>
+            <span class="leading-relaxed">Cette épreuve sera enregistrée au statut initial <strong>Brouillon (DRAFT)</strong>. Vous pourrez la planifier et ouvrir la notation par la suite via le workflow.</span>
+          </div>
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-slate-100 bg-slate-50/70 flex items-center justify-end gap-3 shrink-0">
+          <button
+            type="button"
+            (click)="closeConfirmCreateModal()"
+            [disabled]="isSubmittingAssessment()"
+            class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/80 border border-slate-200 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+          >
+            Modifier la saisie
+          </button>
+          <button
+            type="button"
+            (click)="confirmAndCreateAssessment()"
+            [disabled]="isSubmittingAssessment()"
+            class="px-5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl transition-all shadow-sm shadow-indigo-600/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            @if (isSubmittingAssessment()) {
+              <svg class="animate-spin -ml-1 mr-1 h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Création en cours...</span>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Confirmer & Créer</span>
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: EDIT ASSESSMENT (API PUT /api/v1/assessments/{id})                 -->
+  <!-- ========================================================================= -->
+  @if (editingAssessment(); as editTarget) {
+    <div class="fixed inset-0 z-60 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <!-- Backdrop click to close -->
+      <div class="fixed inset-0" (click)="closeEditAssessmentModal()"></div>
+
+      <!-- Modal Content Card -->
+      <div class="relative bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-10">
+        
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center shadow-xs shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-800">Modifier l'épreuve</h3>
+              <p class="text-xs text-slate-500 font-medium truncate max-w-xs mt-0.5">
+                Matière : <span class="font-semibold text-indigo-600">{{ selectedSubjectForList()?.subjectName || editTarget.subjectName }}</span>
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeEditAssessmentModal()"
+            [disabled]="isSubmittingEdit()"
+            class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+            title="Fermer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Configuration Summary Capsule -->
+        <div class="bg-indigo-50/60 border-b border-indigo-100 px-6 py-3 flex items-center justify-between text-xs text-indigo-900 font-medium">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+            <span>Aperçu des modifications :</span>
+          </div>
+          <span class="font-bold px-2.5 py-1 bg-white border border-indigo-200 text-indigo-700 rounded-lg text-[11px] shadow-2xs truncate max-w-[280px]">
+            Type: {{ getSelectedEditTypeFrenchName() || '-' }} | Poids: {{ editAssessmentForm.get('weight')?.value != null ? editAssessmentForm.get('weight')?.value + '%' : '-' }} | Sur: {{ editAssessmentForm.get('maxScore')?.value != null ? editAssessmentForm.get('maxScore')?.value : '-' }}
+          </span>
+        </div>
+
+        @if (editErrorMessage()) {
+          <div class="mx-6 mt-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>{{ editErrorMessage() }}</span>
+          </div>
+        }
+
+        <!-- Modal Form -->
+        <form [formGroup]="editAssessmentForm" (ngSubmit)="onSubmitEditAssessment()">
+          <div class="p-6 space-y-4">
+            
+            <!-- Assessment title -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                Titre de l'épreuve <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                formControlName="title"
+                placeholder="Ex: Devoir Surveillé 1, TP Noté 1, Examen Final..."
+                class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs"
+                [class.border-red-400]="editAssessmentForm.get('title')?.invalid && editAssessmentForm.get('title')?.touched"
+              />
+              @if (editAssessmentForm.get('title')?.invalid && editAssessmentForm.get('title')?.touched) {
+                <p class="text-xs text-red-500 mt-1">Le titre de l'épreuve est requis.</p>
+              }
+            </div>
+
+            <!-- Assessment type (Organized by category) -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                Type d'évaluation <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <select
+                  formControlName="type"
+                  (change)="onEditTypeChange(editAssessmentForm.get('type')?.value)"
+                  class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs cursor-pointer appearance-none"
+                  [class.border-red-400]="editAssessmentForm.get('type')?.invalid && editAssessmentForm.get('type')?.touched"
+                >
+                  <option value="" disabled>-- Sélectionner le type d'épreuve --</option>
+                  <optgroup label="Contrôle Continu (Géré par le professeur)">
+                    <option [value]="'DS'">DS - Devoir Surveillé (Contrôle écrit en classe)</option>
+                    <option [value]="'TP'">TP - Travaux Pratiques (Note de labo ou d'atelier)</option>
+                  </optgroup>
+                  <optgroup label="Examens Terminaux">
+                    <option [value]="'FINAL_EXAM'">FINAL_EXAM - Examen Principal de fin de semestre</option>
+                    <option [value]="'RETAKE'">RETAKE - Examen de Rattrapage</option>
+                  </optgroup>
+                </select>
+                <div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+              </div>
+              @if (editAssessmentForm.get('type')?.invalid && editAssessmentForm.get('type')?.touched) {
+                <p class="text-xs text-red-500 mt-1">Veuillez sélectionner un type d'épreuve.</p>
+              }
+              @if (editAssessmentForm.get('type')?.value === 'RETAKE') {
+                <p class="text-[11px] text-amber-600 font-medium mt-1.5 flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                  <span>Rattrapage : la pondération est fixée à 0% dans la moyenne générale.</span>
+                </p>
+              }
+            </div>
+
+            <!-- Grid weight & max score -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                  Poids / Pondération (%) <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <input
+                    type="number"
+                    formControlName="weight"
+                    min="0"
+                    max="100"
+                    step="1"
+                    placeholder="Ex: 30"
+                    class="w-full pl-4 pr-9 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs"
+                    [class.border-red-400]="editAssessmentForm.get('weight')?.invalid && editAssessmentForm.get('weight')?.touched"
+                  />
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">%</span>
+                </div>
+                @if (editAssessmentForm.get('weight')?.invalid && editAssessmentForm.get('weight')?.touched) {
+                  <p class="text-xs text-red-500 mt-1">Poids valide requis (0-100%).</p>
+                }
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                  Barème (Note sur) <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <input
+                    type="number"
+                    formControlName="maxScore"
+                    min="0.5"
+                    max="100"
+                    step="0.5"
+                    placeholder="Ex: 20"
+                    class="w-full pl-4 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs"
+                    [class.border-red-400]="editAssessmentForm.get('maxScore')?.invalid && editAssessmentForm.get('maxScore')?.touched"
+                  />
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">pts</span>
+                </div>
+                @if (editAssessmentForm.get('maxScore')?.invalid && editAssessmentForm.get('maxScore')?.touched) {
+                  <p class="text-xs text-red-500 mt-1">Barème requis (ex: 20).</p>
+                }
+              </div>
+            </div>
+
+            <!-- Description / Instructions (optional) -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                Consignes ou remarques <span class="text-slate-400 text-[10px] font-normal lowercase">(optionnel)</span>
+              </label>
+              <textarea
+                formControlName="description"
+                rows="2"
+                placeholder="Consignes particulières, barème spécifique..."
+                class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs resize-none"
+              ></textarea>
+            </div>
+
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="p-6 border-t border-slate-100 bg-slate-50/60 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              (click)="closeEditAssessmentModal()"
+              [disabled]="isSubmittingEdit()"
+              class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="isSubmittingEdit()"
+              class="px-5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed active:scale-95 rounded-xl transition-all shadow-sm shadow-indigo-600/20 flex items-center gap-2 cursor-pointer"
+            >
+              @if (isSubmittingEdit()) {
+                <svg class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Enregistrement...</span>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Enregistrer les modifications</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: EDIT ASSESSMENT CONFIRMATION (z-70)                                -->
+  <!-- ========================================================================= -->
+  @if (confirmEditModal(); as modalData) {
+    <div class="fixed inset-0 z-70 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div class="fixed inset-0" (click)="closeConfirmEditModal()"></div>
+      <div class="relative bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-10">
+        
+        <div class="p-6 border-b border-slate-100 flex items-center gap-3.5 bg-slate-50/60">
+          <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0 shadow-2xs">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-800">Confirmer la modification</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Vérifiez les paramètres mis à jour de l'épreuve</p>
+          </div>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Matière</span>
+              <p class="text-xs font-bold text-slate-800">{{ modalData.subjectName }}</p>
+            </div>
+
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Titre de l'épreuve</span>
+              @if (modalData.oldTitle !== modalData.newTitle) {
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-xs text-slate-400 line-through">{{ modalData.oldTitle }}</span>
+                  <span class="text-xs font-bold text-indigo-600">➔ {{ modalData.newTitle }}</span>
+                </div>
+              } @else {
+                <p class="text-xs font-bold text-slate-800">{{ modalData.newTitle }}</p>
+              }
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-200/70">
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Type</span>
+                <span class="inline-block mt-0.5 px-2 py-0.5 rounded-md border text-[11px] font-bold" [ngClass]="getAssessmentTypeBadgeClasses(modalData.newType)">
+                  {{ modalData.typeFrenchName }}
+                </span>
+              </div>
+
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pondération</span>
+                @if (modalData.oldWeight !== modalData.newWeight) {
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="text-xs text-slate-400 line-through">{{ modalData.oldWeight }}%</span>
+                    <span class="text-xs font-black text-indigo-600">➔ {{ modalData.newWeight }}%</span>
+                  </div>
+                } @else {
+                  <span class="text-xs font-black text-indigo-700">{{ modalData.newWeight }}%</span>
+                }
+              </div>
+
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Barème</span>
+                @if (modalData.oldMarks !== modalData.newMarks) {
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="text-xs text-slate-400 line-through">Sur {{ modalData.oldMarks }}</span>
+                    <span class="text-xs font-bold text-indigo-600">➔ Sur {{ modalData.newMarks }}</span>
+                  </div>
+                } @else {
+                  <span class="text-xs font-bold text-slate-800">Sur {{ modalData.newMarks }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6 border-t border-slate-100 bg-slate-50/60 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            (click)="closeConfirmEditModal()"
+            [disabled]="isSubmittingEdit()"
+            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50"
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            (click)="confirmAndUpdateAssessment()"
+            [disabled]="isSubmittingEdit()"
+            class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed active:scale-95 rounded-xl transition-all shadow-sm shadow-indigo-600/20 flex items-center gap-2 cursor-pointer"
+          >
+            @if (isSubmittingEdit()) {
+              <svg class="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Mise à jour...</span>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Confirmer la modification</span>
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+</main>

@@ -12,6 +12,7 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { ApiResponseListAssessmentLookupResponse } from '../model/models';
+import { ApiResponseListAssessmentResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
 import { AssessmentRequest } from '../model/models';
@@ -28,10 +29,43 @@ export interface AssessmentControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint patch /api/v1/assessments/{id}/cancel
+     * @param id 
+     */
+    cancelAssessment(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
      * @endpoint post /api/v1/assessments
      * @param assessmentRequest 
      */
     createAssessment(assessmentRequest: AssessmentRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint delete /api/v1/assessments/{id}
+     * @param id 
+     */
+    deleteAssessment(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/assessments/promotion-subject/{promotionSubjectId}
+     * @param promotionSubjectId 
+     * @param status 
+     */
+    getAssessmentsByPromotionSubject(promotionSubjectId: number, status?: 'DRAFT' | 'PLANNED' | 'GRADING_IN_PROGRESS' | 'SUBMITTED_TO_ADMIN' | 'PUBLISHED' | 'CANCELLED' | 'LOCKED', extraHttpRequestParams?: any): Observable<ApiResponseListAssessmentResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/assessments/promotion-subject/{promotionSubjectId}/grading
+     * @param promotionSubjectId 
+     */
+    getGradingAssessmentsByPromotionSubject(promotionSubjectId: number, extraHttpRequestParams?: any): Observable<ApiResponseListAssessmentResponse>;
 
     /**
      * 
@@ -47,22 +81,55 @@ export interface AssessmentControllerServiceInterface {
      * @endpoint patch /api/v1/assessments/{id}/lock
      * @param id 
      */
-    lock(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+    lockAssessment(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 
      * 
-     * @endpoint patch /api/v1/assessments/{id}/start-grading
+     * @endpoint patch /api/v1/assessments/{id}/mark-planned
      * @param id 
      */
-    startGrading(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+    markAsPlanned(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 
      * 
-     * @endpoint patch /api/v1/assessments/{id}/submit
+     * @endpoint patch /api/v1/assessments/{id}/open-grading
      * @param id 
      */
-    submit(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+    openForGrading(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/assessments/{id}/publish
+     * @param id 
+     */
+    publishAssessment(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/assessments/{id}/reject-return-to-teacher
+     * @param id 
+     */
+    rejectAndReturnToTeacher(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/assessments/{id}/submit-to-admin
+     * @param id 
+     */
+    submitToAdmin(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint put /api/v1/assessments/{id}
+     * @param id 
+     * @param assessmentRequest 
+     */
+    updateAssessment(id: number, assessmentRequest: AssessmentRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
 
 }

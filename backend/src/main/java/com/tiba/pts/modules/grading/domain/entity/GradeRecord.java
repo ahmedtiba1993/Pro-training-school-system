@@ -43,4 +43,11 @@ public class GradeRecord extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "attendance_status", nullable = false, length = 30)
   private AttendanceStatus attendanceStatus;
+
+  @Column(name = "is_overridden", nullable = false)
+  @Builder.Default
+  private Boolean isOverridden = false;
+
+  @Column(name = "override_reason", columnDefinition = "TEXT")
+  private String overrideReason;
 }

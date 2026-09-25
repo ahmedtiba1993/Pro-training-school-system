@@ -6,10 +6,5 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record AssessmentGradesRequest(
-    @NotNull(message = "ASSESSMENT_ID_REQUIRED")
-    Long assessmentId,
-
-    @NotEmpty(message = "GRADES_LIST_REQUIRED")
-    @Valid
-    List<GradeRecordInput> grades
-) {}
+    @NotNull(message = "ASSESSMENT_ID_REQUIRED") Long assessmentId,
+    @NotEmpty(message = "GRADES_LIST_REQUIRED") @Valid List<GradeRecordRequest> grades) {}

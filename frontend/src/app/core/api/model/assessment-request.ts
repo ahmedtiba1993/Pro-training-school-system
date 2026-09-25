@@ -15,22 +15,25 @@ export interface AssessmentRequest {
     assessmentType: AssessmentRequest.AssessmentTypeEnum;
     totalMarks: number;
     weightPercentage: number;
-    status: AssessmentRequest.StatusEnum;
+    status?: AssessmentRequest.StatusEnum;
+    description?: string;
+    passingMarks?: number;
 }
 export namespace AssessmentRequest {
     export const AssessmentTypeEnum = {
         Ds: 'DS',
         Tp: 'TP',
-        Oral: 'ORAL',
-        Project: 'PROJECT',
         FinalExam: 'FINAL_EXAM',
         Retake: 'RETAKE'
     } as const;
     export type AssessmentTypeEnum = typeof AssessmentTypeEnum[keyof typeof AssessmentTypeEnum];
     export const StatusEnum = {
+        Draft: 'DRAFT',
         Planned: 'PLANNED',
-        Grading: 'GRADING',
-        Submitted: 'SUBMITTED',
+        GradingInProgress: 'GRADING_IN_PROGRESS',
+        SubmittedToAdmin: 'SUBMITTED_TO_ADMIN',
+        Published: 'PUBLISHED',
+        Cancelled: 'CANCELLED',
         Locked: 'LOCKED'
     } as const;
     export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];

@@ -1,0 +1,281 @@
+package com.tiba.pts.modules.grading.service;
+
+import com.tiba.pts.core.exception.BusinessValidationException;
+import com.tiba.pts.core.exception.EntityAlreadyExistsException;
+import com.tiba.pts.core.exception.ResourceNotFoundException;
+import com.tiba.pts.modules.examscheduling.repository.ExamTimetableRepository;
+import com.tiba.pts.modules.grading.domain.entity.Assessment;
+import com.tiba.pts.modules.grading.domain.enums.AssessmentStatus;
+import com.tiba.pts.modules.grading.domain.enums.AssessmentType;
+import com.tiba.pts.modules.grading.dto.request.AssessmentRequest;
+import com.tiba.pts.modules.grading.mapper.AssessmentMapper;
+import com.tiba.pts.modules.grading.repository.AssessmentRepository;
+import com.tiba.pts.modules.trainingsession.domain.entity.AccreditedPromotion;
+import com.tiba.pts.modules.trainingsession.domain.entity.Promotion;
+import com.tiba.pts.modules.trainingsession.domain.entity.PromotionSubject;
+import com.tiba.pts.modules.trainingsession.domain.enums.PromotionStatus;
+import com.tiba.pts.modules.trainingsession.repository.PromotionSubjectRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class AssessmentServiceTest {
+
+  @Mock
+  private AssessmentRepository assessmentRepository;
+
+  @Mock
+  private ExamTimetableRepository examTimetableRepository;
+
+  @Mock
+  private AssessmentMapper assessmentMapper;
+
+  @Mock
+  private PromotionSubjectRepository promotionSubjectRepository;
+
+  @InjectMocks
+  private AssessmentService assessmentService;
+
+  private Promotion promotion;
+  private PromotionSubject promotionSubject;
+  private Assessment assessment;
+
+  @BeforeEach
+  void setUp() {
+    AccreditedPromotion accreditedPromotion = new AccreditedPromotion();
+    accreditedPromotion.setId(100L);
+    accreditedPromotion.setStatus(PromotionStatus.IN_PROGRESS);
+    promotion = accreditedPromotion;
+
+    promotionSubject = new PromotionSubject();
+    promotionSubject.setId(10L);
+    promotionSubject.setPromotion(promotion);
+
+    assessment =
+        Assessment.builder()
+            .id(1L)
+            .title("Devoir 1")
+            .assessmentType(AssessmentType.DS)
+            .totalMarks(20.0)
+            .weightPercentage(30)
+            .status(AssessmentStatus.PLANNED)
+            .promotionSubject(promotionSubject)
+            .build();
+  }
+
+  @Test
+  void updateAssessment_shouldSucceed_whenValidRequest() {
+    // Given
+    AssessmentRequest request =
+        new AssessmentRequest(10L, "Devoir Modifié", AssessmentType.TP, 20.0, 40);
+
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+    when(assessmentRepository.existsByPromotionSubjectIdAndAssessmentTypeAndIdNot(10L, AssessmentType.TP, 1L))
+        .thenReturn(false);
+    when(assessmentRepository.existsByPromotionSubjectIdAndTitleIgnoreCaseAndIdNot(10L, "Devoir Modifié", 1L))
+        .thenReturn(false);
+    when(assessmentRepository.sumWeightPercentageByPromotionSubjectId(10L)).thenReturn(60);
+    when(assessmentRepository.save(any(Assessment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    // When
+    Long resultId = assessmentService.updateAssessment(1L, request);
+
+    // Then
+    assertEquals(1L, resultId);
+    assertEquals("Devoir Modifié", assessment.getTitle());
+    assertEquals(AssessmentType.TP, assessment.getAssessmentType());
+    assertEquals(20.0, assessment.getTotalMarks());
+    assertEquals(40, assessment.getWeightPercentage());
+    verify(assessmentRepository).save(assessment);
+  }
+
+  @Test
+  void updateAssessment_shouldThrowException_whenNotFound() {
+    AssessmentRequest request =
+        new AssessmentRequest(10L, "Titre", AssessmentType.TP, 20.0, 40);
+
+    when(assessmentRepository.findById(99L)).thenReturn(Optional.empty());
+
+    ResourceNotFoundException exception =
+        assertThrows(ResourceNotFoundException.class, () -> assessmentService.updateAssessment(99L, request));
+
+    assertEquals("ASSESSMENT_NOT_FOUND", exception.getMessage());
+  }
+
+  @Test
+  void updateAssessment_shouldThrowException_whenStatusIsNotPlanned() {
+    assessment.setStatus(AssessmentStatus.GRADING);
+    AssessmentRequest request =
+        new AssessmentRequest(10L, "Titre", AssessmentType.TP, 20.0, 40);
+
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+
+    BusinessValidationException exception =
+        assertThrows(
+            BusinessValidationException.class, () -> assessmentService.updateAssessment(1L, request));
+
+    assertEquals("ASSESSMENT_CAN_ONLY_BE_UPDATED_IN_PLANNED_STATUS", exception.getMessage());
+  }
+
+  @Test
+  void updateAssessment_shouldThrowException_whenPromotionCompleted() {
+    promotion.setStatus(PromotionStatus.COMPLETED);
+    AssessmentRequest request =
+        new AssessmentRequest(10L, "Titre", AssessmentType.TP, 20.0, 40);
+
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+
+    BusinessValidationException exception =
+        assertThrows(
+            BusinessValidationException.class, () -> assessmentService.updateAssessment(1L, request));
+
+    assertEquals("PROMOTION_STATUS_FORBIDS_ASSESSMENT_UPDATE", exception.getMessage());
+  }
+
+  @Test
+  void updateAssessment_shouldThrowException_whenPromotionCancelled() {
+    promotion.setStatus(PromotionStatus.CANCELLED);
+    AssessmentRequest request =
+        new AssessmentRequest(10L, "Titre", AssessmentType.TP, 20.0, 40);
+
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+
+    BusinessValidationException exception =
+        assertThrows(
+            BusinessValidationException.class, () -> assessmentService.updateAssessment(1L, request));
+
+    assertEquals("PROMOTION_STATUS_FORBIDS_ASSESSMENT_UPDATE", exception.getMessage());
+  }
+
+  @Test
+  void updateAssessment_shouldThrowException_whenAssessmentTypeAlreadyExists() {
+    AssessmentRequest request =
+        new AssessmentRequest(10L, "Titre", AssessmentType.FINAL_EXAM, 20.0, 40);
+
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+    when(assessmentRepository.existsByPromotionSubjectIdAndAssessmentTypeAndIdNot(10L, AssessmentType.FINAL_EXAM, 1L))
+        .thenReturn(true);
+
+    EntityAlreadyExistsException exception =
+        assertThrows(
+            EntityAlreadyExistsException.class, () -> assessmentService.updateAssessment(1L, request));
+
+    assertEquals("ASSESSMENT_ALREADY_EXISTS_FOR_TYPE", exception.getMessage());
+  }
+
+  @Test
+  void updateAssessment_shouldThrowException_whenTitleAlreadyExists() {
+    AssessmentRequest request =
+        new AssessmentRequest(10L, "Devoir 2", AssessmentType.DS, 20.0, 30);
+
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+    when(assessmentRepository.existsByPromotionSubjectIdAndTitleIgnoreCaseAndIdNot(10L, "Devoir 2", 1L))
+        .thenReturn(true);
+
+    EntityAlreadyExistsException exception =
+        assertThrows(
+            EntityAlreadyExistsException.class, () -> assessmentService.updateAssessment(1L, request));
+
+    assertEquals("ASSESSMENT_TITLE_ALREADY_EXISTS", exception.getMessage());
+  }
+
+  @Test
+  void updateAssessment_shouldForceWeightToZero_whenRetake() {
+    AssessmentRequest request =
+        new AssessmentRequest(10L, "Rattrapage", AssessmentType.RETAKE, 20.0, 50);
+
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+    when(assessmentRepository.existsByPromotionSubjectIdAndAssessmentTypeAndIdNot(10L, AssessmentType.RETAKE, 1L))
+        .thenReturn(false);
+    when(assessmentRepository.existsByPromotionSubjectIdAndTitleIgnoreCaseAndIdNot(10L, "Rattrapage", 1L))
+        .thenReturn(false);
+    when(assessmentRepository.sumWeightPercentageByPromotionSubjectId(10L)).thenReturn(60);
+    when(assessmentRepository.save(any(Assessment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    Long resultId = assessmentService.updateAssessment(1L, request);
+
+    assertEquals(1L, resultId);
+    assertEquals(0, assessment.getWeightPercentage());
+    assertEquals(AssessmentType.RETAKE, assessment.getAssessmentType());
+  }
+
+  @Test
+  void updateAssessment_shouldThrowException_whenWeightExceeds100() {
+    // Current sum is 90, old weight was 30, new weight is 50 -> (90 - 30) + 50 = 110 > 100
+    AssessmentRequest request =
+        new AssessmentRequest(10L, "Devoir 1", AssessmentType.DS, 20.0, 50);
+
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+    when(assessmentRepository.sumWeightPercentageByPromotionSubjectId(10L)).thenReturn(90);
+
+    BusinessValidationException exception =
+        assertThrows(
+            BusinessValidationException.class, () -> assessmentService.updateAssessment(1L, request));
+
+    assertEquals("WEIGHT_PERCENTAGE_SUM_EXCEEDS_100", exception.getMessage());
+  }
+
+  @Test
+  void startGrading_shouldSucceed_whenStatusIsPlannedAndPromotionIsActive() {
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+    when(assessmentRepository.save(any(Assessment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    assessmentService.startGrading(1L);
+
+    assertEquals(AssessmentStatus.GRADING, assessment.getStatus());
+    verify(assessmentRepository).save(assessment);
+  }
+
+  @Test
+  void startGrading_shouldThrowException_whenAssessmentNotFound() {
+    when(assessmentRepository.findById(99L)).thenReturn(Optional.empty());
+
+    ResourceNotFoundException exception =
+        assertThrows(ResourceNotFoundException.class, () -> assessmentService.startGrading(99L));
+
+    assertEquals("ASSESSMENT_NOT_FOUND", exception.getMessage());
+  }
+
+  @Test
+  void startGrading_shouldThrowException_whenStatusIsNotPlanned() {
+    assessment.setStatus(AssessmentStatus.GRADING);
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+
+    BusinessValidationException exception =
+        assertThrows(BusinessValidationException.class, () -> assessmentService.startGrading(1L));
+
+    assertEquals("ASSESSMENT_CAN_ONLY_BE_GRADED_IN_PLANNED_STATUS", exception.getMessage());
+  }
+
+  @Test
+  void startGrading_shouldThrowException_whenPromotionIsCompleted() {
+    promotion.setStatus(PromotionStatus.COMPLETED);
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+
+    BusinessValidationException exception =
+        assertThrows(BusinessValidationException.class, () -> assessmentService.startGrading(1L));
+
+    assertEquals("PROMOTION_STATUS_FORBIDS_STARTING_GRADING", exception.getMessage());
+  }
+
+  @Test
+  void startGrading_shouldThrowException_whenPromotionIsCancelled() {
+    promotion.setStatus(PromotionStatus.CANCELLED);
+    when(assessmentRepository.findById(1L)).thenReturn(Optional.of(assessment));
+
+    BusinessValidationException exception =
+        assertThrows(BusinessValidationException.class, () -> assessmentService.startGrading(1L));
+
+    assertEquals("PROMOTION_STATUS_FORBIDS_STARTING_GRADING", exception.getMessage());
+  }
+}

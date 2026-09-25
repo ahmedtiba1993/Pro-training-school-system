@@ -1,0 +1,4 @@
+/* Styles for read-only promotion subjects view */
+.rotate-180 {
+  transform: rotate(180deg);
+}

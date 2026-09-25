@@ -36,6 +36,14 @@ import { AbsenceList } from './pages/execution/absence-list/absence-list';
 import { FinancialContractList } from './pages/billing/financial-contract-list/financial-contract-list';
 import { PaymentTransaction } from './pages/billing/payment-transaction/payment-transaction';
 import { PaymentTransactionList } from './pages/billing/payment-transaction-list/payment-transaction-list';
+import { ActivePromotions } from './pages/grading/active-promotions/active-promotions';
+import { PromotionSubjectsView } from './pages/grading/promotion-subjects-view/promotion-subjects-view';
+import { GradeEntry } from './pages/grading/grade-entry/grade-entry';
+import { PromotionAssessments } from './pages/grading/promotion-assessments/promotion-assessments';
+import { AssessmentGrades } from './pages/grading/assessment-grades/assessment-grades';
+
+
+
 
 
 export const ADMIN_ROUTES: Routes = [
@@ -80,7 +88,15 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'time-slots', component: TimeSlots },
       { path: 'exam-time-slots', component: ExamTimeSlot },
       { path: 'exam-timetables', component: ExamTimetable },
-      { path: 'exam-timetables/:id', component: ExamTimetableDetail }
+      { path: 'exam-timetables/:id', component: ExamTimetableDetail },
+      { path: 'grading', component: ActivePromotions },
+      { path: 'grading/:id/subjects', component: PromotionSubjectsView },
+      { path: 'grades', component: GradeEntry },
+      { path: 'grades/:id/assessments', component: PromotionAssessments },
+      { path: 'grades/:id/assessments/:assessmentId', component: AssessmentGrades },
+      { path: 'grades/assessments/:assessmentId', component: AssessmentGrades },
+      { path: 'grades/:id', redirectTo: '/admin/grades/:id/assessments', pathMatch: 'full' },
+      { path: 'grading/grades', redirectTo: '/admin/grades', pathMatch: 'full' }
     ]
   }
 ];

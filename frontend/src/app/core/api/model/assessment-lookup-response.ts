@@ -18,8 +18,6 @@ export namespace AssessmentLookupResponse {
     export const AssessmentTypeEnum = {
         Ds: 'DS',
         Tp: 'TP',
-        Oral: 'ORAL',
-        Project: 'PROJECT',
         FinalExam: 'FINAL_EXAM',
         Retake: 'RETAKE'
     } as const;

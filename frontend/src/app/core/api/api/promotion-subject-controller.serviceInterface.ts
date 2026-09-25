@@ -53,6 +53,14 @@ export interface PromotionSubjectControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint get /api/v1/promotion-subjects/exam-timetable/{timetableId}
+     * @param timetableId 
+     */
+    getSubjectsByExamTimetable(timetableId: number, extraHttpRequestParams?: any): Observable<ApiResponseListPromotionSubjectResponse>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/promotion-subjects/promotion/{promotionId}/period/{periodId}
      * @param promotionId 
      * @param periodId 

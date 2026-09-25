@@ -44,3 +44,15 @@ frontend/src/app/core/api/.openapi-generator/FILES
 /frontend/src/app/features/admin/pages/billing/openapitools.json
 /frontend/.agents/skills/education-frontend/SKILL.md
 /frontend/.agents/rules/education-frontend.md
+/backend/.agents/rules/AGENTS.md
+/frontend/AGENTS.md
+/frontend/.agents/rules/frontend-workflow.md
+/RAPPORT_COMPLET_PROJET_ET_MODULES_PTS.html
+/RAPPORT_COMPLET_PROJET_ET_MODULES_PTS.pdf
+/backend/.agents/skills/pts-document-pdf/SKILL.md
+/backend/.agents/skills/pts-security-auth/SKILL.md
+/frontend/.agents/skills/angular-reactive-signals/SKILL.md
+/frontend/.agents/skills/feature-architecture-routing/SKILL.md
+/frontend/.agents/skills/openapi-api-integration/SKILL.md
+/frontend/.agents/skills/tailwind4-ui-system/SKILL.md
+/frontend/.agents/skills/vitest-angular-testing/SKILL.md

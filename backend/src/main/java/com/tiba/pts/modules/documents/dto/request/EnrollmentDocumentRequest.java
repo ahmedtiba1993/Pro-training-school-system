@@ -16,6 +16,7 @@ public class EnrollmentDocumentRequest {
   @NotBlank(message = "LABEL_REQUIRED")
   private String label;
 
+  @NotBlank(message = "LABEL_AR_REQUIRED")
   private String labelAr;
 
   @NotBlank(message = "CODE_REQUIRED")

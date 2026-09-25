@@ -121,5 +121,15 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
       """)
   EnrollmentGenderStatsProjection countByStatusInGroupedByGender(
       @Param("statuses") List<EnrollmentStatus> statuses);
+
+  @EntityGraph(attributePaths = {"student"})
+  @Query("""
+      SELECT e FROM Enrollment e
+      WHERE e.promotion.id = :promotionId
+        AND e.status IN (com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus.VALIDATED,
+                         com.tiba.pts.modules.enrollment.domain.enums.EnrollmentStatus.CONDITIONALLY_VALIDATED)
+      ORDER BY e.student.lastName ASC, e.student.firstName ASC
+  """)
+  List<Enrollment> findActiveEnrollmentsByPromotionId(@Param("promotionId") Long promotionId);
 }
 

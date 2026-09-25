@@ -12,12 +12,12 @@ export class Sidebar {
   private router = inject(Router);
   public authService = inject(AuthService);
 
-  // Menu state managed
+  // Menu states
   isAnneeScolaireOpen = signal<boolean>(false);
   isPromotionsMenuOpen = signal<boolean>(false);
   isSpecialtiesMenuOpen = signal<boolean>(false);
 
-  // Signal for the professors menu
+  // Professors menu state
   isProfessorsMenuOpen = signal<boolean>(false);
 
   togglePromotions(): void {
@@ -32,7 +32,7 @@ export class Sidebar {
     this.isAnneeScolaireOpen.update(state => !state);
   }
 
-  // the professors menu
+  // Toggle professors menu
   toggleProfessors(): void {
     this.isProfessorsMenuOpen.update(state => !state);
   }

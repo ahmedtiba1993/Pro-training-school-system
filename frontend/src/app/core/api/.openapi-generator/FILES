@@ -121,6 +121,7 @@ model/api-response-list-accredited-promotion-response.ts
 model/api-response-list-accredited-promotion-stats-response.ts
 model/api-response-list-active-class-group-response.ts
 model/api-response-list-assessment-lookup-response.ts
+model/api-response-list-assessment-response.ts
 model/api-response-list-class-group-response.ts
 model/api-response-list-class-student-response.ts
 model/api-response-list-continuous-promotion-response.ts
@@ -132,6 +133,7 @@ model/api-response-list-exam-session-response.ts
 model/api-response-list-exam-time-slot-response.ts
 model/api-response-list-exam-timetable-response.ts
 model/api-response-list-financial-contract-list-response.ts
+model/api-response-list-grade-record-response.ts
 model/api-response-list-holiday-response.ts
 model/api-response-list-level-response.ts
 model/api-response-list-ongoing-promotion-response.ts
@@ -182,9 +184,9 @@ model/api-response-timetable-slot-detail-response.ts
 model/api-response-timetable-teacher-view-response.ts
 model/api-response-timetable-view-response.ts
 model/api-response-void.ts
-model/assessment-grades-request.ts
 model/assessment-lookup-response.ts
 model/assessment-request.ts
+model/assessment-response.ts
 model/attendance-item-request.ts
 model/attendance-request.ts
 model/attendance-stats-response.ts
@@ -227,7 +229,8 @@ model/financial-contract-list-response.ts
 model/financial-contract-search-request.ts
 model/first-login-password-change-request.ts
 model/force-complete-command.ts
-model/grade-record-input.ts
+model/grade-record-request.ts
+model/grade-record-response.ts
 model/graduation-record-response.ts
 model/holiday-request.ts
 model/holiday-response.ts

@@ -11,7 +11,7 @@
 
 export interface EnrollmentDocumentRequest { 
     label: string;
-    labelAr?: string;
+    labelAr: string;
     code: string;
     quantity: number;
     nature: EnrollmentDocumentRequest.NatureEnum;

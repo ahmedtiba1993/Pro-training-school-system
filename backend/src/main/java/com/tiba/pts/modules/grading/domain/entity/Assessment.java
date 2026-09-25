@@ -41,4 +41,10 @@ public class Assessment extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 30)
   private AssessmentStatus status;
+
+  @Column(columnDefinition = "TEXT")
+  private String description;
+
+  @Column(name = "passing_marks")
+  private Double passingMarks;
 }

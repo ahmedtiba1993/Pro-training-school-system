@@ -15,6 +15,9 @@ import com.tiba.pts.modules.trainingsession.dto.response.PromotionSubjectRespons
 import com.tiba.pts.modules.trainingsession.mapper.PromotionSubjectMapper;
 import com.tiba.pts.modules.trainingsession.repository.PromotionRepository;
 import com.tiba.pts.modules.trainingsession.repository.PromotionSubjectRepository;
+import com.tiba.pts.core.exception.ResourceNotFoundException;
+import com.tiba.pts.modules.examscheduling.domain.entity.ExamTimetable;
+import com.tiba.pts.modules.examscheduling.repository.ExamTimetableRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,7 @@ public class PromotionSubjectService {
   private final PromotionRepository promotionRepository;
   private final SubjectRepository subjectRepository;
   private final PeriodRepository periodRepository;
+  private final ExamTimetableRepository examTimetableRepository;
   private final PromotionSubjectMapper promotionSubjectMapper;
 
   @Transactional
@@ -234,5 +238,36 @@ public class PromotionSubjectService {
 
     // Physical deletion of the binding
     promotionSubjectRepository.delete(promotionSubject);
+  }
+
+  /**
+   * Retrieves the subjects assigned to a promotion based on the ExamTimetable ID.
+   * Verifies the academic period from the ExamTimetable and returns the promotion subjects of that period.
+   */
+  @Transactional(readOnly = true)
+  public List<PromotionSubjectResponse> getSubjectsByExamTimetable(Long examTimetableId) {
+    ExamTimetable examTimetable = examTimetableRepository.findById(examTimetableId)
+        .orElseThrow(() -> new ResourceNotFoundException("EXAM_TIMETABLE_NOT_FOUND"));
+
+    Period period = examTimetable.getPeriod();
+    if (period == null || period.getId() == null) {
+      throw new BusinessValidationException("EXAM_TIMETABLE_PERIOD_NOT_FOUND");
+    }
+    Long periodId = period.getId();
+
+    if (examTimetable.getClassGroup() == null || examTimetable.getClassGroup().getPromotion() == null) {
+      throw new BusinessValidationException("PROMOTION_NOT_FOUND");
+    }
+    Long promotionId = examTimetable.getClassGroup().getPromotion().getId();
+
+    Promotion promotion = examTimetable.getClassGroup().getPromotion();
+    List<PromotionSubject> promotionSubjects;
+    if (promotion instanceof AccreditedPromotion) {
+      promotionSubjects = promotionSubjectRepository.findByPromotionIdAndAcademicPeriodId(promotionId, periodId);
+    } else {
+      promotionSubjects = promotionSubjectRepository.findByPromotionId(promotionId);
+    }
+
+    return promotionSubjectMapper.toResponseList(promotionSubjects);
   }
 }

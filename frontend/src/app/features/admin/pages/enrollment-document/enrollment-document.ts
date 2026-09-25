@@ -47,6 +47,7 @@ export class EnrollmentDocumentComponent implements OnInit {
   documentForm: FormGroup = this.fb.group({
     code: ['', [Validators.required, Validators.minLength(2)]],
     label: ['', [Validators.required, Validators.minLength(3)]],
+    labelAr: ['', [Validators.required, Validators.minLength(3)]],
     quantity: [1, [Validators.required, Validators.min(1)]],
     nature: ['ORIGINAL', Validators.required],
     condition: ['ALL_REGISTRATIONS', Validators.required],
@@ -134,6 +135,7 @@ export class EnrollmentDocumentComponent implements OnInit {
       this.documentForm.patchValue({
         code: doc.code,
         label: doc.label,
+        labelAr: doc.labelAr || '',
         quantity: doc.quantity,
         nature: doc.nature,
         condition: doc.condition,
@@ -149,6 +151,8 @@ export class EnrollmentDocumentComponent implements OnInit {
 
       this.documentForm.reset({
         code: '',
+        label: '',
+        labelAr: '',
         quantity: 1,
         nature: 'ORIGINAL',
         condition: 'ALL_REGISTRATIONS',

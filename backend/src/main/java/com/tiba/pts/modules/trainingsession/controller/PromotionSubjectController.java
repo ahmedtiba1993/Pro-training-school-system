@@ -82,6 +82,18 @@ public class PromotionSubjectController {
         ApiResponse.success("SUBJECTS_FOR_PROMOTION_AND_PERIOD_RETRIEVED", data));
   }
 
+  @GetMapping("/exam-timetable/{timetableId}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ApiResponse<List<PromotionSubjectResponse>>> getSubjectsByExamTimetable(
+      @PathVariable Long timetableId) {
+
+    List<PromotionSubjectResponse> data =
+        promotionSubjectService.getSubjectsByExamTimetable(timetableId);
+
+    return ResponseEntity.ok(
+        ApiResponse.success("PROMOTION_SUBJECTS_RETRIEVED_SUCCESSFULLY", data));
+  }
+
   /**
    * Endpoint to delete the assignment of a subject to a promotion. Secure operation and
    * restricted to administrators and secretariat.

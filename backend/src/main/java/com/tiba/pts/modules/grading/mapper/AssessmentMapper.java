@@ -3,6 +3,7 @@ package com.tiba.pts.modules.grading.mapper;
 import com.tiba.pts.modules.grading.domain.entity.Assessment;
 import com.tiba.pts.modules.grading.dto.request.AssessmentRequest;
 import com.tiba.pts.modules.grading.dto.response.AssessmentLookupResponse;
+import com.tiba.pts.modules.grading.dto.response.AssessmentResponse;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,5 +18,9 @@ public interface AssessmentMapper {
   Assessment toEntity(AssessmentRequest request);
 
   @Mapping(target = "subjectName", source = "promotionSubject.subject.name")
-  AssessmentLookupResponse toResponse(Assessment assessment);
+  AssessmentLookupResponse toLookupResponse(Assessment assessment);
+
+  @Mapping(target = "promotionSubjectId", source = "promotionSubject.id")
+  @Mapping(target = "subjectName", source = "promotionSubject.subject.name")
+  AssessmentResponse toResponse(Assessment assessment);
 }

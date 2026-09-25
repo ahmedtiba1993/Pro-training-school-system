@@ -11,8 +11,10 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ApiResponseListGradeRecordResponse } from '../model/models';
+import { ApiResponseLong } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
-import { AssessmentGradesRequest } from '../model/models';
+import { GradeRecordRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -27,8 +29,25 @@ export interface GradeRecordControllerServiceInterface {
      * 
      * 
      * @endpoint post /api/v1/grades
-     * @param assessmentGradesRequest 
+     * @param gradeRecordRequest 
      */
-    saveGrades(assessmentGradesRequest: AssessmentGradesRequest, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+    addGradeRecord(gradeRecordRequest: GradeRecordRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint post /api/v1/grades/assessment/{assessmentId}
+     * @param assessmentId 
+     * @param gradeRecordRequest 
+     */
+    addGradeRecords(assessmentId: number, gradeRecordRequest: Array<GradeRecordRequest>, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/grades/assessment/{assessmentId}
+     * @param assessmentId 
+     */
+    getAllGradesByAssessment(assessmentId: number, extraHttpRequestParams?: any): Observable<ApiResponseListGradeRecordResponse>;
 
 }

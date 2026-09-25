@@ -1,0 +1,411 @@
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+  <!-- HEADER -->
+  <header class="bg-white border-b border-slate-200 shrink-0 px-8 py-4 z-10 relative">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-xs text-slate-500 mb-1.5 font-medium">
+          <a routerLink="/admin/grades" class="hover:text-indigo-600 transition-colors flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            Saisie & Consultation des Notes
+          </a>
+          <span class="text-slate-300">/</span>
+          @if (promotionId()) {
+            <a [routerLink]="['/admin/grades', promotionId(), 'assessments']" class="hover:text-indigo-600 transition-colors truncate max-w-xs">
+              {{ promotionName() || ('Promotion #' + promotionId()) }}
+            </a>
+            <span class="text-slate-300">/</span>
+          }
+          <span class="text-slate-800 font-semibold truncate max-w-xs">
+            {{ assessment()?.title || ('Épreuve #' + assessmentId()) }}
+          </span>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-bold text-slate-800">
+            {{ assessment()?.title || 'Saisie & Consultation des Notes' }}
+          </h1>
+          @if (assessment()?.subjectName) {
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-slate-500">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
+              {{ assessment()?.subjectName }}
+            </span>
+          }
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+            Barème : / {{ maxScore() }} pts
+          </span>
+          @if (isEditMode()) {
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">
+              Mode Modification Actif
+            </span>
+          }
+        </div>
+        <p class="text-xs text-slate-500 mt-0.5">
+          @if (isEditMode()) {
+            Modifiez directement les présences, notes et commentaires dans le tableau puis enregistrez vos modifications
+          } @else {
+            Liste des notes et présences des élèves pour cette épreuve. Cliquez sur « Modifier » pour changer les données.
+          }
+        </p>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="flex items-center gap-3">
+        @if (!isEditMode()) {
+          <button
+            type="button"
+            (click)="goBack()"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all shadow-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            <span>Retour aux épreuves</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="startEdit()"
+            [disabled]="isLoading() || records().length === 0"
+            class="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm shadow-indigo-200"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            <span>Modifier les notes</span>
+          </button>
+        } @else {
+          <button
+            type="button"
+            (click)="cancelEdit()"
+            [disabled]="isSaving()"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 transition-all shadow-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+            <span>Annuler</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="saveGrades()"
+            [disabled]="isSaving()"
+            class="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-sm shadow-emerald-200"
+          >
+            @if (isSaving()) {
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Enregistrement...</span>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+              </svg>
+              <span>Enregistrer les modifications</span>
+            }
+          </button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN SCROLLABLE CONTAINER -->
+  <div class="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50/50">
+
+    <!-- KPI STATS -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Étudiants</p>
+          <p class="text-xl font-bold text-slate-800">{{ totalCount() }}</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Présents</p>
+          <p class="text-xl font-bold text-emerald-600">{{ presentCount() }}</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="15" y1="9" x2="9" y2="15" />
+            <line x1="9" y1="9" x2="15" y2="15" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Absents</p>
+          <p class="text-xl font-bold text-rose-600">{{ absentCount() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm flex items-center justify-between">
+      <div class="relative w-full max-w-md">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+          placeholder="Rechercher par matricule, nom ou prénom..."
+          class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
+        />
+      </div>
+
+      <div class="text-xs text-slate-500 font-medium">
+        <span>{{ (isEditMode() ? filteredEditableRecords() : filteredRecords()).length }} étudiant(s)</span>
+      </div>
+    </div>
+
+    <!-- LOADING SKELETON -->
+    @if (isLoading()) {
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm animate-pulse space-y-4">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="grid grid-cols-6 gap-4 py-3 border-b border-slate-100 items-center">
+            <div class="h-4 bg-slate-200 rounded"></div>
+            <div class="h-4 bg-slate-200 rounded"></div>
+            <div class="h-4 bg-slate-200 rounded"></div>
+            <div class="h-6 bg-slate-100 rounded-full"></div>
+            <div class="h-4 bg-slate-200 rounded"></div>
+            <div class="h-4 bg-slate-100 rounded"></div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- EMPTY STATE -->
+      @if ((isEditMode() ? filteredEditableRecords() : filteredRecords()).length === 0) {
+        <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center max-w-xl mx-auto shadow-sm my-8">
+          <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-slate-800 mb-1">Aucun enregistrement trouvé</h3>
+          <p class="text-sm text-slate-500">
+            Aucun étudiant ne correspond aux critères actuels.
+          </p>
+        </div>
+      } @else {
+        <!-- TABLE (VIEW OR EDIT MODE) -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th class="py-3.5 px-5 w-36">MATRICULE</th>
+                  <th class="py-3.5 px-5">NOM</th>
+                  <th class="py-3.5 px-5">PRÉNOM</th>
+                  <th class="py-3.5 px-5 w-48">PRÉSENCE</th>
+                  <th class="py-3.5 px-5 w-40">NOTE ( / {{ maxScore() }} )</th>
+                  <th class="py-3.5 px-5 min-w-[220px]">COMMENTAIRE</th>
+                </tr>
+              </thead>
+
+              <tbody class="divide-y divide-slate-100 text-sm">
+                <!-- ============================================== -->
+                <!-- VIEW MODE (READ-ONLY)                          -->
+                <!-- ============================================== -->
+                @if (!isEditMode()) {
+                  @for (record of filteredRecords(); track record.id || record.enrollmentId) {
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                      <!-- STUDENT NUMBER -->
+                      <td class="py-3.5 px-5 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                          {{ record.matricule || '—' }}
+                        </span>
+                      </td>
+
+                      <!-- LAST NAME -->
+                      <td class="py-3.5 px-5 font-bold text-slate-800 uppercase tracking-wide whitespace-nowrap">
+                        {{ record.nom || '—' }}
+                      </td>
+
+                      <!-- FIRST NAME -->
+                      <td class="py-3.5 px-5 font-medium text-slate-600 capitalize whitespace-nowrap">
+                        {{ record.prenom || '—' }}
+                      </td>
+
+                      <!-- ATTENDANCE -->
+                      <td class="py-3.5 px-5 whitespace-nowrap">
+                        <span
+                          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border"
+                          [ngClass]="getPresenceBadgeClass(record.presence)"
+                        >
+                          <span class="w-1.5 h-1.5 rounded-full" [ngClass]="getPresenceDotClass(record.presence)"></span>
+                          {{ getPresenceLabel(record.presence) }}
+                        </span>
+                      </td>
+
+                      <!-- GRADE -->
+                      <td class="py-3.5 px-5 whitespace-nowrap">
+                        @if (record.note !== null && record.note !== undefined) {
+                          <span class="font-bold text-indigo-600 text-base">{{ record.note }}</span>
+                          <span class="text-xs text-slate-400 font-normal"> / {{ maxScore() }}</span>
+                        } @else {
+                          <span class="text-slate-400 font-normal">—</span>
+                        }
+                      </td>
+
+                      <!-- COMMENT -->
+                      <td class="py-3.5 px-5 text-slate-600 text-xs max-w-xs truncate">
+                        {{ record.commentaire || '—' }}
+                      </td>
+                    </tr>
+                  }
+                } @else {
+                  <!-- ============================================== -->
+                  <!-- EDIT MODE (INLINE FORM)                        -->
+                  <!-- ============================================== -->
+                  @for (item of filteredEditableRecords(); track item.enrollmentId || item.id) {
+                    <tr class="hover:bg-amber-50/30 transition-colors bg-amber-50/10">
+                      <!-- STUDENT NUMBER -->
+                      <td class="py-3 px-5 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                          {{ item.matricule || '—' }}
+                        </span>
+                      </td>
+
+                      <!-- LAST NAME -->
+                      <td class="py-3 px-5 font-bold text-slate-800 uppercase tracking-wide whitespace-nowrap">
+                        {{ item.nom || '—' }}
+                      </td>
+
+                      <!-- FIRST NAME -->
+                      <td class="py-3 px-5 font-medium text-slate-600 capitalize whitespace-nowrap">
+                        {{ item.prenom || '—' }}
+                      </td>
+
+                      <!-- ATTENDANCE (INTERACTIVE SELECT) -->
+                      <td class="py-3 px-5 whitespace-nowrap">
+                        <select
+                          [ngModel]="item.presence"
+                          (ngModelChange)="onPresenceChange(item, $event)"
+                          class="w-full text-xs font-semibold px-2.5 py-1.5 rounded-lg border outline-none transition-all cursor-pointer shadow-2xs"
+                          [ngClass]="{
+                            'bg-emerald-50 text-emerald-700 border-emerald-300': item.presence === 'PRESENT',
+                            'bg-amber-50 text-amber-700 border-amber-300': item.presence === 'ABSENT_JUSTIFIED',
+                            'bg-rose-50 text-rose-700 border-rose-300': item.presence === 'ABSENT_UNJUSTIFIED'
+                          }"
+                        >
+                          <option value="PRESENT">🟢 Présent</option>
+                          <option value="ABSENT_JUSTIFIED">🟡 Absent justifié</option>
+                          <option value="ABSENT_UNJUSTIFIED">🔴 Absent non justifié</option>
+                        </select>
+                      </td>
+
+                      <!-- GRADE (INTERACTIVE INPUT) -->
+                      <td class="py-3 px-5 whitespace-nowrap">
+                        <div class="relative flex items-center">
+                          <input
+                            type="number"
+                            step="0.25"
+                            min="0"
+                            [max]="maxScore()"
+                            [disabled]="item.presence !== 'PRESENT'"
+                            [value]="item.note !== null && item.note !== undefined ? item.note : ''"
+                            (input)="onNoteChange(item, $any($event.target).value)"
+                            placeholder="—"
+                            class="w-24 px-3 py-1.5 text-sm font-bold text-center rounded-lg border outline-none transition-all shadow-2xs"
+                            [ngClass]="{
+                              'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed': item.presence !== 'PRESENT',
+                              'bg-white text-slate-800 border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500': item.presence === 'PRESENT'
+                            }"
+                          />
+                          <span class="ml-2 text-xs font-medium text-slate-400">/ {{ maxScore() }}</span>
+                        </div>
+                      </td>
+
+                      <!-- COMMENT (INTERACTIVE INPUT) -->
+                      <td class="py-3 px-5">
+                        <input
+                          type="text"
+                          [value]="item.commentaire || ''"
+                          (input)="onCommentChange(item, $any($event.target).value)"
+                          placeholder="Remarque enseignant..."
+                          class="w-full px-3 py-1.5 text-xs text-slate-700 bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium shadow-2xs"
+                        />
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- TABLE FOOTER -->
+          <div class="bg-slate-50 border-t border-slate-200 px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+            <div>
+              <span>Affichage de <strong>{{ (isEditMode() ? filteredEditableRecords() : filteredRecords()).length }}</strong> sur <strong>{{ totalCount() }}</strong> étudiants</span>
+            </div>
+
+            @if (isEditMode()) {
+              <div class="flex items-center gap-3">
+                <button
+                  type="button"
+                  (click)="cancelEdit()"
+                  [disabled]="isSaving()"
+                  class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 bg-slate-200 hover:bg-slate-300 disabled:opacity-50 transition-all"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  type="button"
+                  (click)="saveGrades()"
+                  [disabled]="isSaving()"
+                  class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-sm"
+                >
+                  @if (isSaving()) {
+                    <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Enregistrement...</span>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span>Enregistrer</span>
+                  }
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</main>
