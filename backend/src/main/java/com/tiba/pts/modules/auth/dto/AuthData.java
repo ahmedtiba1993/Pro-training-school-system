@@ -1,3 +1,17 @@
 package com.tiba.pts.modules.auth.dto;
 
-public record AuthData(String token, String type, long expiresIn, UserInfo user) {}
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class AuthData {
+  private String token;
+  private String type;
+  private long expiresIn;
+  private UserInfo user;
+}

@@ -6,8 +6,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +26,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   private final UserDetailsServiceImpl userDetailsService;
   private final HandlerExceptionResolver resolver;
 
-  @Autowired
   public JwtAuthFilter(
       JwtService jwtService,
       UserDetailsServiceImpl userDetailsService,
@@ -54,6 +54,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
         UserDetails user = userDetailsService.loadUserByUsername(username);
 
+        if (!user.isEnabled()) {
+          throw new DisabledException("ACCOUNT_DISABLED");
+        }
+        if (!user.isAccountNonLocked()) {
+          throw new LockedException("ACCOUNT_SUSPENDED");
+        }
+
         if (jwtService.isTokenValid(jwt, user)) {
           UsernamePasswordAuthenticationToken auth =
               new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
@@ -64,7 +71,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       }
       filterChain.doFilter(request, response);
 
-    } catch (JwtException e) {
+    } catch (JwtException | DisabledException | LockedException e) {
       resolver.resolveException(request, response, null, e);
     }
   }

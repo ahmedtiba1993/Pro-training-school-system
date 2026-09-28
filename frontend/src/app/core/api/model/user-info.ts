@@ -9,11 +9,10 @@
  */
 
 
-export interface AuthResponse { 
-    success?: boolean;
-    message?: string;
-    data?: any | null;
-    errorCode?: string;
-    timestamp?: string;
+export interface UserInfo { 
+    id?: number;
+    username?: string;
+    role?: string;
+    forcePasswordChange?: boolean;
 }
 

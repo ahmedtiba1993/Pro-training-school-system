@@ -5,7 +5,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,10 @@ public class JwtService {
   @Value("${jwt.secret}")
   private String secret;
 
+  @Getter
+  @Value("${jwt.expiration:3600}")
+  private Long expirationInSeconds;
+
   private SecretKey key;
 
   @PostConstruct
@@ -26,11 +32,20 @@ public class JwtService {
   }
 
   public String generateToken(UserDetails user) {
+    String role =
+        user.getAuthorities().stream()
+            .findFirst()
+            .map(GrantedAuthority::getAuthority)
+            .orElse("");
+
+    long now = System.currentTimeMillis();
+    long expirationMillis = expirationInSeconds * 1000L;
+
     return Jwts.builder()
         .subject(user.getUsername())
-        .claim("role", user.getAuthorities().iterator().next().getAuthority())
-        .issuedAt(new Date())
-        .expiration(new Date(System.currentTimeMillis() + 86400000))
+        .claim("role", role)
+        .issuedAt(new Date(now))
+        .expiration(new Date(now + expirationMillis))
         .signWith(key)
         .compact();
   }
@@ -40,8 +55,15 @@ public class JwtService {
   }
 
   public boolean isTokenValid(String token, UserDetails user) {
-    return extractUsername(token).equals(user.getUsername())
-        && !extractClaims(token).getExpiration().before(new Date());
+    String username = extractUsername(token);
+    return username.equals(user.getUsername())
+        && !isTokenExpired(token)
+        && user.isEnabled()
+        && user.isAccountNonLocked();
+  }
+
+  public boolean isTokenExpired(String token) {
+    return extractClaims(token).getExpiration().before(new Date());
   }
 
   private Claims extractClaims(String token) {

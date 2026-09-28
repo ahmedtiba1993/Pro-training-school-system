@@ -1,13 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { BASE_PATH } from '../api/variables';
 
 // --- IMPORTS FROM SWAGGER-GENERATED CODE ---
 // (Adjust the path if necessary)
 import { AuthControllerService } from '../api/api/auth-controller.service';
-import { AuthRequest, AuthResponse } from '../api/model/models';
+import { ApiResponseAuthData, AuthRequest, UserInfo } from '../api/model/models';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class AuthService {
   private basePath = inject(BASE_PATH, { optional: true }) || 'http://localhost:8080';
 
   // Signal to store the currently logged-in user
-  currentUser = signal<any>(null);
+  currentUser = signal<UserInfo | null>(null);
 
   constructor() {
     const storedUser = localStorage.getItem('user');
@@ -34,22 +35,26 @@ export class AuthService {
   }
 
   // Login method
-  login(request: AuthRequest) {
+  login(request: AuthRequest): Observable<ApiResponseAuthData> {
     // Call the generated .login method
     return this.authApi.login(request).pipe(
-      tap((response: AuthResponse) => {
+      tap((response: ApiResponseAuthData) => {
         if (response.success && response.data) {
           // Save the token
-          localStorage.setItem('token', response.data.token!);
+          if (response.data.token) {
+            localStorage.setItem('token', response.data.token);
+          }
 
           // Update the user signal
-          this.currentUser.set(response.data.user);
+          this.currentUser.set(response.data.user ?? null);
 
           // Save the user role
           localStorage.setItem('role', response.data.user?.role || '');
 
           // Save user object and forcePasswordChange flag
-          localStorage.setItem('user', JSON.stringify(response.data.user));
+          if (response.data.user) {
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+          }
           if (response.data.user?.forcePasswordChange) {
             localStorage.setItem('forcePasswordChange', 'true');
           } else {

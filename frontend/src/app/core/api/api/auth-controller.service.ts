@@ -17,9 +17,9 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { AuthRequest } from '../model/auth-request';
+import { ApiResponseAuthData } from '../model/api-response-auth-data';
 // @ts-ignore
-import { AuthResponse } from '../model/auth-response';
+import { AuthRequest } from '../model/auth-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -47,9 +47,9 @@ export class AuthControllerService extends BaseService implements AuthController
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public login(authRequest: AuthRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AuthResponse>;
-    public login(authRequest: AuthRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AuthResponse>>;
-    public login(authRequest: AuthRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AuthResponse>>;
+    public login(authRequest: AuthRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseAuthData>;
+    public login(authRequest: AuthRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseAuthData>>;
+    public login(authRequest: AuthRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseAuthData>>;
     public login(authRequest: AuthRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (authRequest === null || authRequest === undefined) {
             throw new Error('Required parameter authRequest was null or undefined when calling login.');
@@ -94,7 +94,7 @@ export class AuthControllerService extends BaseService implements AuthController
 
         let localVarPath = `/api/auth/login`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<AuthResponse>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiResponseAuthData>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: authRequest,

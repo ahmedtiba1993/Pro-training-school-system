@@ -102,6 +102,7 @@ model/api-response-accredited-promotion-response.ts
 model/api-response-active-academic-year-response.ts
 model/api-response-active-revenue-stat-response.ts
 model/api-response-attendance-stats-response.ts
+model/api-response-auth-data.ts
 model/api-response-boolean.ts
 model/api-response-class-group-detail-response.ts
 model/api-response-class-management-stats-response.ts
@@ -190,8 +191,8 @@ model/assessment-response.ts
 model/attendance-item-request.ts
 model/attendance-request.ts
 model/attendance-stats-response.ts
+model/auth-data.ts
 model/auth-request.ts
-model/auth-response.ts
 model/class-assignment-request.ts
 model/class-group-detail-response.ts
 model/class-group-request.ts
@@ -323,6 +324,7 @@ model/training-type-count-response.ts
 model/unassigned-enrollment-response.ts
 model/unassigned-enrollment-search-request.ts
 model/update-specialty-request.ts
+model/user-info.ts
 model/user-response.ts
 param.ts
 provide-api.ts

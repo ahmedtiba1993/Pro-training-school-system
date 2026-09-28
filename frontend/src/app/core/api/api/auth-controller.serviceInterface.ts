@@ -11,8 +11,8 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ApiResponseAuthData } from '../model/models';
 import { AuthRequest } from '../model/models';
-import { AuthResponse } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -29,6 +29,6 @@ export interface AuthControllerServiceInterface {
      * @endpoint post /api/auth/login
      * @param authRequest 
      */
-    login(authRequest: AuthRequest, extraHttpRequestParams?: any): Observable<AuthResponse>;
+    login(authRequest: AuthRequest, extraHttpRequestParams?: any): Observable<ApiResponseAuthData>;
 
 }

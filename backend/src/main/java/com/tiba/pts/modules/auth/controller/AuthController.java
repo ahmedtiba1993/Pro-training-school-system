@@ -1,8 +1,10 @@
 package com.tiba.pts.modules.auth.controller;
 
+import com.tiba.pts.core.dto.ApiResponse;
+import com.tiba.pts.modules.auth.dto.AuthData;
 import com.tiba.pts.modules.auth.dto.AuthRequest;
-import com.tiba.pts.modules.auth.dto.AuthResponse;
 import com.tiba.pts.modules.auth.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,8 +20,8 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/login")
-  public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-
-    return ResponseEntity.ok(authService.login(request));
+  public ResponseEntity<ApiResponse<AuthData>> login(@Valid @RequestBody AuthRequest request) {
+    AuthData authData = authService.login(request);
+    return ResponseEntity.ok(ApiResponse.success("AUTH_LOGIN_SUCCESS", authData));
   }
 }

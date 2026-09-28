@@ -55,9 +55,8 @@ export interface AssessmentControllerServiceInterface {
      * 
      * @endpoint get /api/v1/assessments/promotion-subject/{promotionSubjectId}
      * @param promotionSubjectId 
-     * @param status 
      */
-    getAssessmentsByPromotionSubject(promotionSubjectId: number, status?: 'DRAFT' | 'PLANNED' | 'GRADING_IN_PROGRESS' | 'SUBMITTED_TO_ADMIN' | 'PUBLISHED' | 'CANCELLED' | 'LOCKED', extraHttpRequestParams?: any): Observable<ApiResponseListAssessmentResponse>;
+    getAssessmentsByPromotionSubject(promotionSubjectId: number, extraHttpRequestParams?: any): Observable<ApiResponseListAssessmentResponse>;
 
     /**
      * 

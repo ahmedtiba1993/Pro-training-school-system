@@ -233,29 +233,17 @@ export class AssessmentControllerService extends BaseService implements Assessme
     /**
      * @endpoint get /api/v1/assessments/promotion-subject/{promotionSubjectId}
      * @param promotionSubjectId 
-     * @param status 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAssessmentsByPromotionSubject(promotionSubjectId: number, status?: 'DRAFT' | 'PLANNED' | 'GRADING_IN_PROGRESS' | 'SUBMITTED_TO_ADMIN' | 'PUBLISHED' | 'CANCELLED' | 'LOCKED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListAssessmentResponse>;
-    public getAssessmentsByPromotionSubject(promotionSubjectId: number, status?: 'DRAFT' | 'PLANNED' | 'GRADING_IN_PROGRESS' | 'SUBMITTED_TO_ADMIN' | 'PUBLISHED' | 'CANCELLED' | 'LOCKED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListAssessmentResponse>>;
-    public getAssessmentsByPromotionSubject(promotionSubjectId: number, status?: 'DRAFT' | 'PLANNED' | 'GRADING_IN_PROGRESS' | 'SUBMITTED_TO_ADMIN' | 'PUBLISHED' | 'CANCELLED' | 'LOCKED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListAssessmentResponse>>;
-    public getAssessmentsByPromotionSubject(promotionSubjectId: number, status?: 'DRAFT' | 'PLANNED' | 'GRADING_IN_PROGRESS' | 'SUBMITTED_TO_ADMIN' | 'PUBLISHED' | 'CANCELLED' | 'LOCKED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getAssessmentsByPromotionSubject(promotionSubjectId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseListAssessmentResponse>;
+    public getAssessmentsByPromotionSubject(promotionSubjectId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseListAssessmentResponse>>;
+    public getAssessmentsByPromotionSubject(promotionSubjectId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseListAssessmentResponse>>;
+    public getAssessmentsByPromotionSubject(promotionSubjectId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (promotionSubjectId === null || promotionSubjectId === undefined) {
             throw new Error('Required parameter promotionSubjectId was null or undefined when calling getAssessmentsByPromotionSubject.');
         }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'status',
-            <any>status,
-            QueryParamStyle.Form,
-            true,
-        );
-
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -290,7 +278,6 @@ export class AssessmentControllerService extends BaseService implements Assessme
         return this.httpClient.request<ApiResponseListAssessmentResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
