@@ -12,7 +12,11 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { ApiResponseAuthData } from '../model/models';
+import { ApiResponseTokenRefreshResponse } from '../model/models';
+import { ApiResponseVoid } from '../model/models';
 import { AuthRequest } from '../model/models';
+import { LogoutRequest } from '../model/models';
+import { TokenRefreshRequest } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -30,5 +34,21 @@ export interface AuthControllerServiceInterface {
      * @param authRequest 
      */
     login(authRequest: AuthRequest, extraHttpRequestParams?: any): Observable<ApiResponseAuthData>;
+
+    /**
+     * 
+     * 
+     * @endpoint post /api/auth/logout
+     * @param logoutRequest 
+     */
+    logout(logoutRequest: LogoutRequest, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
+     * @endpoint post /api/auth/refresh
+     * @param tokenRefreshRequest 
+     */
+    refreshToken(tokenRefreshRequest: TokenRefreshRequest, extraHttpRequestParams?: any): Observable<ApiResponseTokenRefreshResponse>;
 
 }

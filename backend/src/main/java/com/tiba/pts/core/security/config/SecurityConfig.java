@@ -51,7 +51,12 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             auth -> {
               auth.requestMatchers(
-                      "/api/auth/login", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                      "/api/auth/login",
+                      "/api/auth/refresh",
+                      "/api/auth/logout",
+                      "/v3/api-docs/**",
+                      "/swagger-ui/**",
+                      "/swagger-ui.html")
                   .permitAll();
 
               // Isolation stricte de la console H2 en environnement de dev uniquement

@@ -54,11 +54,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
         UserDetails user = userDetailsService.loadUserByUsername(username);
 
-        if (!user.isEnabled()) {
-          throw new DisabledException("ACCOUNT_DISABLED");
-        }
         if (!user.isAccountNonLocked()) {
           throw new LockedException("ACCOUNT_SUSPENDED");
+        }
+        if (!user.isEnabled()) {
+          throw new DisabledException("ACCOUNT_DISABLED");
         }
 
         if (jwtService.isTokenValid(jwt, user)) {

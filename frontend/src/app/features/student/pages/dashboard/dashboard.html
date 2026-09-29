@@ -5,12 +5,12 @@
 
   <div class="flex items-center gap-3">
     <span class="text-sm font-medium text-slate-600">
-      {{ authService.currentUser()?.firstName || 'Étudiant' }} {{ authService.currentUser()?.lastName || '' }}
+      {{ authService.currentUser()?.username || 'Étudiant' }}
     </span>
     <div
       class="h-10 w-10 rounded-full bg-indigo-100 border-2 border-indigo-600 flex items-center justify-center text-indigo-700 font-bold"
     >
-      {{ (authService.currentUser()?.firstName?.[0] || 'E') }}
+      {{ (authService.currentUser()?.username?.[0] || 'E') }}
     </div>
   </div>
 </header>
@@ -28,7 +28,7 @@
           Portail Académique
         </span>
         <h2 class="text-3xl font-extrabold tracking-tight">
-          Ravi de vous revoir, {{ authService.currentUser()?.firstName || 'Étudiant' }} !
+          Ravi de vous revoir, {{ authService.currentUser()?.username || 'Étudiant' }} !
         </h2>
         <p class="text-indigo-100 text-sm md:text-base leading-relaxed">
           Bienvenue sur votre espace personnel. Vous pouvez consulter vos cours, planifier votre emploi du temps et suivre l'évolution de vos notes de promotion en temps réel.

@@ -1,6 +1,7 @@
 package com.tiba.pts.core.security.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -21,14 +22,16 @@ public class JwtService {
   private String secret;
 
   @Getter
-  @Value("${jwt.expiration:3600}")
+  @Value("${jwt.expiration:1800}")
   private Long expirationInSeconds;
 
   private SecretKey key;
+  private JwtParser jwtParser;
 
   @PostConstruct
   public void init() {
-    key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+    this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+    this.jwtParser = Jwts.parser().verifyWith(this.key).build();
   }
 
   public String generateToken(UserDetails user) {
@@ -55,9 +58,12 @@ public class JwtService {
   }
 
   public boolean isTokenValid(String token, UserDetails user) {
-    String username = extractUsername(token);
+    Claims claims = extractClaims(token);
+    String username = claims.getSubject();
+    boolean isExpired = claims.getExpiration().before(new Date());
+
     return username.equals(user.getUsername())
-        && !isTokenExpired(token)
+        && !isExpired
         && user.isEnabled()
         && user.isAccountNonLocked();
   }
@@ -66,7 +72,7 @@ public class JwtService {
     return extractClaims(token).getExpiration().before(new Date());
   }
 
-  private Claims extractClaims(String token) {
-    return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+  public Claims extractClaims(String token) {
+    return jwtParser.parseSignedClaims(token).getPayload();
   }
 }

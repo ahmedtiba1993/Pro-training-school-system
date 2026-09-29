@@ -7,14 +7,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { UserInfo } from './user-info';
 
 
-export interface AuthData { 
-    token?: string;
+export interface TokenRefreshResponse { 
+    accessToken?: string;
     refreshToken?: string;
-    type?: string;
+    tokenType?: string;
     expiresIn?: number;
-    user?: UserInfo;
 }
 

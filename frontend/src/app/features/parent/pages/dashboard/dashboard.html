@@ -5,12 +5,12 @@
 
   <div class="flex items-center gap-3">
     <span class="text-sm font-medium text-slate-600">
-      {{ authService.currentUser()?.firstName || 'Parent' }} {{ authService.currentUser()?.lastName || '' }}
+      {{ authService.currentUser()?.username || 'Parent' }}
     </span>
     <div
       class="h-10 w-10 rounded-full bg-indigo-100 border-2 border-indigo-600 flex items-center justify-center text-indigo-700 font-bold"
     >
-      {{ (authService.currentUser()?.firstName?.[0] || 'P') }}
+      {{ (authService.currentUser()?.username?.[0] || 'P') }}
     </div>
   </div>
 </header>
@@ -28,7 +28,7 @@
           Suivi Scolaire
         </span>
         <h2 class="text-3xl font-extrabold tracking-tight">
-          Bienvenue, {{ authService.currentUser()?.firstName || 'Parent' }} !
+          Bienvenue, {{ authService.currentUser()?.username || 'Parent' }} !
         </h2>
         <p class="text-indigo-100 text-sm md:text-base leading-relaxed">
           Suivez le parcours académique de vos enfants, visualisez leurs emplois du temps et restez informé des frais de scolarité et de facturation en cours.

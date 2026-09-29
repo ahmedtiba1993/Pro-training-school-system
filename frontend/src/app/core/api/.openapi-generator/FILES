@@ -184,6 +184,7 @@ model/api-response-teacher-response.ts
 model/api-response-timetable-slot-detail-response.ts
 model/api-response-timetable-teacher-view-response.ts
 model/api-response-timetable-view-response.ts
+model/api-response-token-refresh-response.ts
 model/api-response-void.ts
 model/assessment-lookup-response.ts
 model/assessment-request.ts
@@ -238,6 +239,7 @@ model/holiday-response.ts
 model/level-request.ts
 model/level-response.ts
 model/level-summary-response.ts
+model/logout-request.ts
 model/models.ts
 model/ongoing-promotion-response.ts
 model/page-response-academic-year-response.ts
@@ -318,6 +320,8 @@ model/timetable-slot-info-response.ts
 model/timetable-slot-request.ts
 model/timetable-teacher-view-response.ts
 model/timetable-view-response.ts
+model/token-refresh-request.ts
+model/token-refresh-response.ts
 model/training-request.ts
 model/training-response.ts
 model/training-type-count-response.ts
