@@ -13,7 +13,9 @@ import { Observable }                                        from 'rxjs';
 
 import { AdminChangePasswordRequest } from '../model/models';
 import { ApiResponsePageResponseUserResponse } from '../model/models';
+import { ApiResponseUserResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
+import { ChangePasswordRequest } from '../model/models';
 import { FirstLoginPasswordChangeRequest } from '../model/models';
 
 
@@ -28,6 +30,14 @@ export interface UserControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint post /api/v1/users/{id}/activate
+     * @param id 
+     */
+    activateUser(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
      * @endpoint post /api/v1/users/{id}/archive
      * @param id 
      */
@@ -36,11 +46,10 @@ export interface UserControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint patch /api/v1/users/{id}/password
-     * @param id 
-     * @param adminChangePasswordRequest 
+     * @endpoint post /api/v1/users/change-password
+     * @param changePasswordRequest 
      */
-    changePassword(id: number, adminChangePasswordRequest: AdminChangePasswordRequest, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+    changePassword(changePasswordRequest: ChangePasswordRequest, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 
@@ -65,10 +74,27 @@ export interface UserControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint post /api/v1/users/{id}/reactivate
+     * @endpoint get /api/v1/users/{id}
      * @param id 
      */
-    reactivateUser(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+    getUserById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseUserResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/users/username/{username}
+     * @param username 
+     */
+    getUserByUsername(username: string, extraHttpRequestParams?: any): Observable<ApiResponseUserResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/users/{id}/password
+     * @param id 
+     * @param adminChangePasswordRequest 
+     */
+    resetPassword(id: number, adminChangePasswordRequest: AdminChangePasswordRequest, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 

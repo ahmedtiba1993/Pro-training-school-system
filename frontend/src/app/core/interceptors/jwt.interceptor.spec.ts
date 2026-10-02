@@ -168,4 +168,33 @@ describe('authInterceptor', () => {
     expect(mockAuthService.refreshToken).not.toHaveBeenCalled();
     expect(errorThrown).toBe(true);
   });
+
+  it('devrait déconnecter immédiatement l\'utilisateur en cas d\'erreur AUTH_FORCE_PASSWORD_CHANGE', () => {
+    mockAuthService.getToken.mockReturnValue('my-token');
+
+    const req = new HttpRequest<unknown>('GET', '/api/v1/users');
+    const errorResponse = new HttpErrorResponse({
+      status: 403,
+      error: {
+        errorCode: 'AUTH_FORCE_PASSWORD_CHANGE',
+        message: 'Password change is required before accessing any resource',
+        success: false
+      }
+    });
+
+    const next: HttpHandlerFn = () => throwError(() => errorResponse);
+
+    let errorThrown = false;
+    TestBed.runInInjectionContext(() => {
+      authInterceptor(req, next).subscribe({
+        error: (err) => {
+          errorThrown = true;
+          expect(err).toBe(errorResponse);
+        }
+      });
+    });
+
+    expect(mockAuthService.forceLogout).toHaveBeenCalled();
+    expect(errorThrown).toBe(true);
+  });
 });

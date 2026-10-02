@@ -185,6 +185,7 @@ model/api-response-timetable-slot-detail-response.ts
 model/api-response-timetable-teacher-view-response.ts
 model/api-response-timetable-view-response.ts
 model/api-response-token-refresh-response.ts
+model/api-response-user-response.ts
 model/api-response-void.ts
 model/assessment-lookup-response.ts
 model/assessment-request.ts
@@ -194,6 +195,7 @@ model/attendance-request.ts
 model/attendance-stats-response.ts
 model/auth-data.ts
 model/auth-request.ts
+model/change-password-request.ts
 model/class-assignment-request.ts
 model/class-group-detail-response.ts
 model/class-group-request.ts

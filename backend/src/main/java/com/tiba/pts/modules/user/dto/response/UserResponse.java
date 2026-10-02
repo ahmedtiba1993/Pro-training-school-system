@@ -20,4 +20,6 @@ public class UserResponse {
   private Long personId;
   private String firstName;
   private String lastName;
+  private String phone;
+  private String email;
 }

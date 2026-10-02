@@ -1,5 +1,6 @@
 package com.tiba.pts.core.security.config;
 
+import com.tiba.pts.core.security.filter.ForcePasswordChangeFilter;
 import com.tiba.pts.core.security.jwt.JwtAuthFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ import java.util.List;
 public class SecurityConfig {
 
   private final JwtAuthFilter jwtAuthFilter;
+  private final ForcePasswordChangeFilter forcePasswordChangeFilter;
   private final Environment environment;
 
   @Value("${app.cors.allowed-origins}")
@@ -54,6 +56,7 @@ public class SecurityConfig {
                       "/api/auth/login",
                       "/api/auth/refresh",
                       "/api/auth/logout",
+                      "/api/v1/auth/logout",
                       "/v3/api-docs/**",
                       "/swagger-ui/**",
                       "/swagger-ui.html")
@@ -75,7 +78,8 @@ public class SecurityConfig {
                 headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny);
               }
             })
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(forcePasswordChangeFilter, JwtAuthFilter.class);
 
     return http.build();
   }

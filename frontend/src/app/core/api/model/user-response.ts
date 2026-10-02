@@ -18,6 +18,8 @@ export interface UserResponse {
     personId?: number;
     firstName?: string;
     lastName?: string;
+    phone?: string;
+    email?: string;
 }
 export namespace UserResponse {
     export const RoleEnum = {

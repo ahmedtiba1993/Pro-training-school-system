@@ -167,6 +167,55 @@ export class AuthService {
     }
   }
 
+  decodeToken(): any | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const normalizedBase64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(normalizedBase64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch {
+      try {
+        const payloadBase64 = token.split('.')[1];
+        return JSON.parse(atob(payloadBase64));
+      } catch {
+        return null;
+      }
+    }
+  }
+
+  getUserIdFromToken(): number | null {
+    const decoded = this.decodeToken();
+    if (decoded) {
+      const rawId = decoded.id ?? decoded.userId ?? decoded.uid;
+      if (rawId !== undefined && rawId !== null && !isNaN(Number(rawId))) {
+        return Number(rawId);
+      }
+    }
+
+    // Fallback: check currentUser signal or localStorage
+    if (this.currentUser()?.id) {
+      return this.currentUser()!.id!;
+    }
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        if (parsed?.id && !isNaN(Number(parsed.id))) {
+          return Number(parsed.id);
+        }
+      } catch {}
+    }
+
+    return null;
+  }
+
   hasValidToken(): boolean {
     // If access token is valid and not expired
     if (!this.isAccessTokenExpired()) {

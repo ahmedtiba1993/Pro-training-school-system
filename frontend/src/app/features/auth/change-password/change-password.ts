@@ -67,7 +67,14 @@ export class ChangePassword implements OnInit {
         },
         error: err => {
           this.isLoading.set(false);
-          if (err.error && err.error.message) {
+          const rawError = err?.error?.errorCode || err?.error?.message || err?.error?.code || '';
+          if (rawError === 'USER_OLD_PASSWORD_INCORRECT' || (typeof rawError === 'string' && rawError.includes('OLD_PASSWORD_INCORRECT'))) {
+            this.errorMessage.set('Le mot de passe actuel est incorrect.');
+          } else if (rawError === 'USER_PASSWORD_CONFIRMATION_MISMATCH' || rawError === 'PASSWORD_CONFIRMATION_MISMATCH') {
+            this.errorMessage.set('Le nouveau mot de passe et sa confirmation ne correspondent pas.');
+          } else if (rawError === 'USER_PASSWORD_TOO_WEAK' || rawError === 'PASSWORD_TOO_WEAK') {
+            this.errorMessage.set('Le nouveau mot de passe est trop faible. Veuillez choisir un mot de passe plus sécurisé.');
+          } else if (err?.error?.message) {
             this.errorMessage.set(err.error.message);
           } else {
             this.errorMessage.set('Une erreur est survenue lors de la modification de votre mot de passe.');

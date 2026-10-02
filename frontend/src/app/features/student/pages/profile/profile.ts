@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
-import { StudentControllerService } from '../../../core/api/api/student-controller.service';
-import { StudentResponse } from '../../../core/api/model/student-response';
+import { StudentControllerService } from '../../../../core/api/api/student-controller.service';
+import { StudentResponse } from '../../../../core/api/model/student-response';
 
 @Component({
   selector: 'app-student-profile',

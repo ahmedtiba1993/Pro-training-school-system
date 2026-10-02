@@ -13,16 +13,18 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+  @EntityGraph(attributePaths = {"person"})
+  Optional<User> findById(Long id);
+
+  @EntityGraph(attributePaths = {"person"})
   Optional<User> findByUsername(String username);
 
   boolean existsByUsername(String username);
 
   Optional<User> findByPersonId(Long personId);
 
-  /**
-   * Global paginated retrieval with optional filters. Resolves the N+1 SELECT issue via
-   * EntityGraph.
-   */
+  long countByRoleAndStatus(Role role, UserStatus status);
+
   @EntityGraph(attributePaths = {"person"})
   @Query(
       "SELECT u FROM User u LEFT JOIN u.person p WHERE "

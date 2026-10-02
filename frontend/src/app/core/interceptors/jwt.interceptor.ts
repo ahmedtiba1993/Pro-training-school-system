@@ -38,6 +38,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
+      // If backend reports password change required, disconnect user immediately
+      const errorCode = error.error?.errorCode;
+      const isForcePasswordChange =
+        errorCode === 'AUTH_FORCE_PASSWORD_CHANGE' ||
+        (typeof error.error === 'string' && error.error.includes('AUTH_FORCE_PASSWORD_CHANGE'));
+
+      if (isForcePasswordChange) {
+        authService.forceLogout();
+        return throwError(() => error);
+      }
+
       // If error is not 401, propagate directly
       if (error.status !== 401) {
         return throwError(() => error);

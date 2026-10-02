@@ -1,5 +1,6 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
-import {NgClass} from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   AbstractControl,
   FormControl,
@@ -9,13 +10,12 @@ import {
   Validators
 } from '@angular/forms';
 
-import {UserControllerService} from '../../../../../core/api/api/user-controller.service';
-import {UserResponse} from '../../../../../core/api/model/user-response';
-import {AdminChangePasswordRequest} from '../../../../../core/api/model/admin-change-password-request';
+import { UserControllerService } from '../../../../../core/api/api/user-controller.service';
+import { UserResponse } from '../../../../../core/api/model/user-response';
+import { AdminChangePasswordRequest } from '../../../../../core/api/model/admin-change-password-request';
+import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
 
-import {PaginationComponent} from '../../../../../shared/components/pagination/pagination';
-
-type ActionType = 'SUSPEND' | 'REACTIVATE' | 'ARCHIVE';
+type ActionType = 'SUSPEND' | 'REACTIVATE' | 'ARCHIVE' | 'VALIDATE';
 
 @Component({
   selector: 'app-account-list',
@@ -39,7 +39,7 @@ export class AccountList implements OnInit {
 
   // --- PAGINATION (Signals) ---
   currentPage = signal<number>(0);
-  pageSize = signal<number>(5);
+  pageSize = signal<number>(10);
   totalElements = signal<number>(0);
 
   // --- MODALS (Signals) ---
@@ -54,13 +54,16 @@ export class AccountList implements OnInit {
     userId: null
   });
 
+  // --- CONTEXT MENU (Signal) ---
+  activeMenuUserId = signal<number | null>(null);
+
   // --- FORM ---
   passwordForm = new FormGroup(
     {
       newPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
       confirmNewPasswd: new FormControl('', [Validators.required])
     },
-    {validators: this.passwordMatchValidator}
+    { validators: this.passwordMatchValidator }
   );
 
   ngOnInit(): void {
@@ -68,7 +71,6 @@ export class AccountList implements OnInit {
   }
 
   // --- FILTER METHODS ---
-
   updateKeyword(event: Event): void {
     this.searchKeyword.set((event.target as HTMLInputElement).value);
   }
@@ -82,7 +84,7 @@ export class AccountList implements OnInit {
   }
 
   onSearch(): void {
-    this.currentPage.set(0); // Reset page to 0 on a new search
+    this.currentPage.set(0);
     this.loadUsers();
   }
 
@@ -90,9 +92,7 @@ export class AccountList implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    // Get values
-    const kw = this.searchKeyword() || undefined;
-
+    const kw = this.searchKeyword().trim() || undefined;
     const role = (this.searchRole() || undefined) as
       | 'ROLE_ADMIN'
       | 'ROLE_TEACHER'
@@ -106,18 +106,16 @@ export class AccountList implements OnInit {
       | 'ARCHIVED'
       | undefined;
 
-    // API call with the correct types
     this.userApiService
       .getAllUsersPaged(kw, role, status, this.currentPage(), this.pageSize())
       .subscribe({
         next: response => {
-          const content = response.data?.content || [];
-          this.totalElements.set(response?.data?.totalElements || 0);
-          this.users.set(content);
+          this.users.set(response.data?.content ?? []);
+          this.totalElements.set(response.data?.totalElements ?? 0);
           this.isLoading.set(false);
         },
-        error: err => {
-          this.error.set(err.error?.message || 'Error loading users');
+        error: (err: HttpErrorResponse) => {
+          this.error.set(err.error?.message || 'Erreur lors du chargement des utilisateurs');
           this.isLoading.set(false);
         }
       });
@@ -128,34 +126,48 @@ export class AccountList implements OnInit {
     this.loadUsers();
   }
 
+  // --- MENU ACTIONS ---
+  toggleMenu(userId: number, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.activeMenuUserId.update(current => (current === userId ? null : userId));
+  }
+
+  closeMenu(): void {
+    this.activeMenuUserId.set(null);
+  }
+
   // --- STATUS ACTIONS ---
   openConfirmModal(type: ActionType, userId: number): void {
-    this.confirmModal.set({isOpen: true, type, userId});
+    this.closeMenu();
+    this.confirmModal.set({ isOpen: true, type, userId });
   }
 
   closeConfirmModal(): void {
-    this.confirmModal.set({isOpen: false, type: null, userId: null});
+    this.confirmModal.set({ isOpen: false, type: null, userId: null });
   }
 
   executeConfirmAction(): void {
-    const {type, userId} = this.confirmModal();
+    const { type, userId } = this.confirmModal();
     if (!userId || !type) return;
     this.closeConfirmModal();
     if (type === 'SUSPEND') this.suspendAccount(userId);
-    if (type === 'REACTIVATE') this.reactivateAccount(userId);
+    if (type === 'REACTIVATE' || type === 'VALIDATE') this.reactivateAccount(userId);
     if (type === 'ARCHIVE') this.archiveAccount(userId);
   }
 
   private suspendAccount(id: number): void {
     this.processingUserId.set(id);
     this.error.set(null);
+
     this.userApiService.suspendUser(id).subscribe({
       next: () => {
         this.processingUserId.set(null);
         this.loadUsers();
       },
-      error: err => {
-        this.error.set(err.error?.message || 'Error during suspension');
+      error: (err: HttpErrorResponse) => {
+        this.error.set(err.error?.message || 'Erreur lors de la suspension');
         this.processingUserId.set(null);
       }
     });
@@ -164,13 +176,14 @@ export class AccountList implements OnInit {
   private reactivateAccount(id: number): void {
     this.processingUserId.set(id);
     this.error.set(null);
-    this.userApiService.reactivateUser(id).subscribe({
+
+    this.userApiService.activateUser(id).subscribe({
       next: () => {
         this.processingUserId.set(null);
         this.loadUsers();
       },
-      error: err => {
-        this.error.set(err.error?.message || 'Error during reactivation');
+      error: (err: HttpErrorResponse) => {
+        this.error.set(err.error?.message || "Erreur lors de l'activation");
         this.processingUserId.set(null);
       }
     });
@@ -179,20 +192,22 @@ export class AccountList implements OnInit {
   private archiveAccount(id: number): void {
     this.processingUserId.set(id);
     this.error.set(null);
+
     this.userApiService.archiveUser(id).subscribe({
       next: () => {
         this.processingUserId.set(null);
         this.loadUsers();
       },
-      error: err => {
-        this.error.set(err.error?.message || "Error during archiving");
+      error: (err: HttpErrorResponse) => {
+        this.error.set(err.error?.message || "Erreur lors de l'archivage");
         this.processingUserId.set(null);
       }
     });
   }
 
-  // --- PASSWORD ACTIONS  ---
+  // --- PASSWORD ACTIONS ---
   openPasswordModal(userId: number): void {
+    this.closeMenu();
     this.selectedUserIdForPassword.set(userId);
     this.passwordForm.reset();
     this.passwordError.set(null);
@@ -213,20 +228,20 @@ export class AccountList implements OnInit {
     this.isChangingPassword.set(true);
     this.passwordError.set(null);
 
+    const userId = this.selectedUserIdForPassword()!;
     const request: AdminChangePasswordRequest = {
       newPassword: this.passwordForm.value.newPassword!,
       confirmNewPassword: this.passwordForm.value.confirmNewPasswd!
     };
-    const userId = this.selectedUserIdForPassword()!;
 
-    this.userApiService.changePassword(userId, request).subscribe({
+    this.userApiService.resetPassword(userId, request).subscribe({
       next: () => {
         this.isChangingPassword.set(false);
         this.closePasswordModal();
         this.loadUsers();
       },
-      error: err => {
-        this.passwordError.set(err.error?.message || 'An error occurred.');
+      error: (err: HttpErrorResponse) => {
+        this.passwordError.set(err.error?.message || 'Erreur lors du changement de mot de passe');
         this.isChangingPassword.set(false);
       }
     });
@@ -236,40 +251,62 @@ export class AccountList implements OnInit {
     const password = form.get('newPassword')?.value;
     const confirm = form.get('confirmNewPasswd')?.value;
     if (password && confirm && password !== confirm) {
-      form.get('confirmNewPasswd')?.setErrors({passwordMismatch: true});
-      return {passwordMismatch: true};
+      form.get('confirmNewPasswd')?.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
     }
-    if (form.get('confirmNewPasswd')?.hasError('passwordMismatch'))
+    if (form.get('confirmNewPasswd')?.hasError('passwordMismatch')) {
       form.get('confirmNewPasswd')?.setErrors(null);
+    }
     return null;
   }
 
-  // --- UI HELPERS  ---
+  // --- UI HELPERS ---
   getInitials(user: UserResponse): string {
-    if (user.firstName && user.lastName)
+    if (user.firstName && user.lastName) {
       return (user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase();
-    if (user.username) return user.username.substring(0, 2).toUpperCase();
+    }
+    if (user.username) {
+      return user.username.substring(0, 2).toUpperCase();
+    }
     return '??';
   }
 
   getFullName(user: UserResponse): string {
-    if (user.firstName && user.lastName)
+    if (user.firstName && user.lastName) {
       return `${user.firstName.charAt(0).toUpperCase() +
-      user.firstName.slice(1).toLowerCase()} ${user.lastName.toUpperCase()}`;
+        user.firstName.slice(1).toLowerCase()} ${user.lastName.toUpperCase()}`;
+    }
     return user.username || 'Inconnu';
   }
 
   getRoleFormat(role?: string): { label: string; class: string } {
     switch (role) {
       case 'ROLE_ADMIN':
+      case 'ADMIN':
         return {
           label: 'Administrateur',
-          class: 'bg-purple-100 text-purple-700 border-purple-200'
+          class: 'bg-purple-50 text-purple-700 border-purple-200'
+        };
+      case 'ROLE_TEACHER':
+      case 'ROLE_PROFESSOR':
+      case 'PROFESSOR':
+      case 'TEACHER':
+        return {
+          label: 'Professeur',
+          class: 'bg-blue-50 text-blue-700 border-blue-200'
         };
       case 'ROLE_STUDENT':
-        return {label: 'Apprenant', class: 'bg-indigo-50 text-indigo-700 border-indigo-100'};
+      case 'STUDENT':
+        return {
+          label: 'Étudiant',
+          class: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+        };
       case 'ROLE_PARENT':
-        return {label: 'Parent', class: 'bg-teal-50 text-teal-700 border-teal-100'};
+      case 'PARENT':
+        return {
+          label: 'Parent',
+          class: 'bg-orange-50 text-orange-700 border-orange-200'
+        };
       default:
         return {
           label: role ? role.replace('ROLE_', '') : 'Inconnu',
@@ -281,15 +318,15 @@ export class AccountList implements OnInit {
   getStatusFormat(status?: string): { label: string; class: string } {
     switch (status) {
       case 'ACTIVE':
-        return {label: 'Actif', class: 'bg-emerald-50 text-emerald-700 border-emerald-100'};
+        return { label: 'Actif', class: 'bg-emerald-50 text-emerald-700 border-emerald-100' };
       case 'PENDING':
-        return {label: 'En attente', class: 'bg-amber-50 text-amber-700 border-amber-100'};
+        return { label: 'En attente', class: 'bg-amber-50 text-amber-700 border-amber-100' };
       case 'SUSPENDED':
-        return {label: 'Suspendu', class: 'bg-red-50 text-red-700 border-red-100'};
+        return { label: 'Suspendu', class: 'bg-red-50 text-red-700 border-red-100' };
       case 'ARCHIVED':
-        return {label: 'Archivé', class: 'bg-slate-100 text-slate-600 border-slate-200'};
+        return { label: 'Archivé', class: 'bg-slate-100 text-slate-600 border-slate-200' };
       default:
-        return {label: status || 'Inconnu', class: 'bg-gray-100 text-gray-700 border-gray-200'};
+        return { label: status || 'Inconnu', class: 'bg-gray-100 text-gray-700 border-gray-200' };
     }
   }
 }

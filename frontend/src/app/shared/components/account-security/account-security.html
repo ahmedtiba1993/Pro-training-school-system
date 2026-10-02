@@ -1,0 +1,445 @@
+<!-- HEADER -->
+<header
+  class="h-16 w-full bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-8 z-10 shrink-0"
+>
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+      </svg>
+    </div>
+    <div>
+      <h1 class="text-xl font-bold text-slate-900 leading-tight">Sécurité et connexion</h1>
+      <p class="text-xs text-slate-500">Paramètres d'accès, identifiants et intégrité du compte</p>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3">
+    @if (user(); as u) {
+      <div class="hidden sm:flex flex-col text-right">
+        <span class="text-xs font-semibold text-slate-800">{{ u.firstName }} {{ u.lastName }}</span>
+        <span class="text-[11px] text-slate-400 font-mono">{{ u.username }}</span>
+      </div>
+      <div
+        class="h-9 w-9 rounded-xl bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-xs shadow-xs"
+      >
+        {{ getInitials(u.firstName, u.lastName) }}
+      </div>
+    }
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="flex-1 overflow-y-auto bg-slate-50/50 p-4 lg:p-8">
+  <div class="max-w-6xl mx-auto space-y-6 animate-fade-in">
+
+    <!-- LOADING STATE -->
+    @if (isLoading()) {
+      <div class="space-y-6">
+        <!-- Skeleton Header Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 animate-pulse flex items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl bg-slate-200"></div>
+          <div class="space-y-2 flex-1">
+            <div class="h-5 bg-slate-200 rounded-md w-1/4"></div>
+            <div class="h-4 bg-slate-100 rounded-md w-1/3"></div>
+          </div>
+        </div>
+
+        <!-- Skeleton Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 animate-pulse">
+            <div class="h-5 bg-slate-200 rounded-md w-1/3"></div>
+            <div class="h-10 bg-slate-100 rounded-xl"></div>
+            <div class="h-10 bg-slate-100 rounded-xl"></div>
+            <div class="h-10 bg-slate-100 rounded-xl"></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 animate-pulse">
+            <div class="h-5 bg-slate-200 rounded-md w-1/3"></div>
+            <div class="h-10 bg-slate-100 rounded-xl"></div>
+            <div class="h-10 bg-slate-100 rounded-xl"></div>
+            <div class="h-10 bg-slate-100 rounded-xl"></div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ERROR STATE -->
+    @else if (errorMessage()) {
+      <div class="bg-white rounded-2xl border border-rose-200 p-8 text-center max-w-xl mx-auto space-y-4 shadow-sm">
+        <div class="w-14 h-14 mx-auto rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
+          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Impossible de charger vos informations</h2>
+          <p class="text-sm text-slate-500 mt-1">{{ errorMessage() }}</p>
+        </div>
+        <button
+          (click)="fetchUserData()"
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium text-sm hover:bg-indigo-700 transition shadow-sm cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          <span>Réessayer</span>
+        </button>
+      </div>
+    }
+
+    <!-- LOADED DATA -->
+    @else if (user(); as u) {
+      
+      <!-- HERO BANNER / PROFILE SUMMARY -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-gradient-to-r from-slate-50 via-white to-indigo-50/30">
+          <div class="flex items-center gap-4">
+            <div
+              class="w-16 h-16 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-md shadow-indigo-100 shrink-0"
+            >
+              {{ getInitials(u.firstName, u.lastName) }}
+            </div>
+            <div>
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <h2 class="text-xl font-bold text-slate-800">
+                  {{ u.firstName }} {{ u.lastName }}
+                </h2>
+                <!-- Status Badge -->
+                @let statusCfg = getStatusConfig(u.status);
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border {{ statusCfg.badgeClass }}">
+                  <span class="w-2 h-2 rounded-full {{ statusCfg.dotClass }}"></span>
+                  {{ statusCfg.label }}
+                </span>
+                <!-- Role Badge -->
+                @let roleCfg = getRoleConfig(u.role);
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border {{ roleCfg.badgeClass }}">
+                  {{ roleCfg.label }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action -->
+          <div class="flex items-center gap-3">
+            <button
+              (click)="openPasswordModal()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition shadow-xs cursor-pointer"
+            >
+              <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+              </svg>
+              <span>Changer le mot de passe</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN CARDS GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- CARD 1: IDENTIFIANTS DE CONNEXION -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </div>
+              <h3 class="font-bold text-slate-800 text-sm">Identifiants de connexion</h3>
+            </div>
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Accès Système</span>
+          </div>
+
+          <div class="p-6 space-y-4 flex-1">
+            <!-- Username row with copy button -->
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div>
+                <span class="text-xs text-slate-400 font-medium block">Nom d'utilisateur / Identifiant</span>
+                <span class="text-base font-bold text-slate-800 font-mono select-all">{{ u.username }}</span>
+              </div>
+              <button
+                (click)="copyUsername()"
+                [class.bg-emerald-50]="copiedUsername()"
+                [class.text-emerald-700]="copiedUsername()"
+                [class.border-emerald-200]="copiedUsername()"
+                class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                title="Copier l'identifiant"
+              >
+                @if (copiedUsername()) {
+                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  <span>Copié !</span>
+                } @else {
+                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                  </svg>
+                  <span>Copier</span>
+                }
+              </button>
+            </div>
+
+            <!-- Role & Status details -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-xs text-slate-400 font-medium block">Rôle attribué</span>
+                <span class="text-sm font-semibold text-slate-700 mt-0.5 block">{{ u.role }}</span>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-xs text-slate-400 font-medium block">État d'activation</span>
+                <span class="text-sm font-semibold text-slate-700 mt-0.5 block">{{ u.status }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: INFORMATIONS PERSONNELLES LIEES -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+              </div>
+              <h3 class="font-bold text-slate-800 text-sm">Informations personnelles</h3>
+            </div>
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Profil Lié</span>
+          </div>
+
+          <div class="p-6 space-y-4 flex-1">
+            <!-- Full Name -->
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div>
+                <span class="text-xs text-slate-400 font-medium block">Nom complet</span>
+                <span class="text-sm font-bold text-slate-800 mt-0.5 block">{{ u.firstName }} {{ u.lastName }}</span>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-xs text-slate-400 font-medium block">Courrier électronique</span>
+                <span class="text-sm font-semibold text-slate-700 truncate block">
+                  {{ u.email || 'Aucune adresse renseignée' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H3.75A2.25 2.25 0 001.5 4.5v2.25z" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-xs text-slate-400 font-medium block">Téléphone de contact</span>
+                <span class="text-sm font-semibold text-slate-700 truncate block">
+                  {{ u.phone || 'Aucun numéro renseigné' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3: DÉCONNEXION DU COMPTE -->
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-xs p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">Déconnexion du compte</h3>
+              <p class="text-xs text-slate-500">Terminer immédiatement votre session actuelle sur cet appareil</p>
+            </div>
+          </div>
+
+          <button
+            (click)="authService.logout()"
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-rose-200 bg-rose-50/50 text-rose-700 font-semibold text-sm hover:bg-rose-100 hover:border-rose-300 transition cursor-pointer shrink-0"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>Se déconnecter</span>
+          </button>
+        </div>
+
+      </div>
+    }
+
+  </div>
+</div>
+
+<!-- PASSWORD CHANGE MODAL -->
+@if (showPasswordModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fade-in">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 text-base">Modifier le mot de passe</h3>
+            <p class="text-xs text-slate-500">Mettez à jour vos identifiants d'accès</p>
+          </div>
+        </div>
+        <button
+          (click)="closePasswordModal()"
+          class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+          aria-label="Fermer"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-4">
+        <!-- Error Alert -->
+        @if (passwordError()) {
+          <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+            <span>{{ passwordError() }}</span>
+          </div>
+        }
+
+        <!-- Success Alert -->
+        @if (passwordSuccess()) {
+          <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{{ passwordSuccess() }}</span>
+          </div>
+        }
+
+        <!-- Ancien mot de passe -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-700 block">Mot de passe actuel</label>
+          <div class="relative">
+            <input
+              [type]="showOld() ? 'text' : 'password'"
+              [value]="oldPassword()"
+              (input)="oldPassword.set($any($event.target).value)"
+              placeholder="••••••••"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 pr-10"
+            />
+            <button
+              type="button"
+              (click)="showOld.set(!showOld())"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                @if (showOld()) {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                } @else {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                }
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Nouveau mot de passe -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-700 block">Nouveau mot de passe</label>
+          <div class="relative">
+            <input
+              [type]="showNew() ? 'text' : 'password'"
+              [value]="newPassword()"
+              (input)="newPassword.set($any($event.target).value)"
+              placeholder="••••••••"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 pr-10"
+            />
+            <button
+              type="button"
+              (click)="showNew.set(!showNew())"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                @if (showNew()) {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                } @else {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                }
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirmer le nouveau mot de passe -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-700 block">Confirmer le nouveau mot de passe</label>
+          <div class="relative">
+            <input
+              [type]="showConfirm() ? 'text' : 'password'"
+              [value]="confirmNewPassword()"
+              (input)="confirmNewPassword.set($any($event.target).value)"
+              placeholder="••••••••"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 pr-10"
+            />
+            <button
+              type="button"
+              (click)="showConfirm.set(!showConfirm())"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                @if (showConfirm()) {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                } @else {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                }
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          (click)="closePasswordModal()"
+          class="px-4 py-2 rounded-xl text-slate-600 text-sm font-medium hover:bg-slate-200/60 transition cursor-pointer"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          (click)="submitPasswordChange()"
+          [disabled]="passwordLoading()"
+          class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 text-white font-medium text-sm hover:bg-indigo-700 transition disabled:opacity-50 cursor-pointer shadow-sm"
+        >
+          @if (passwordLoading()) {
+            <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+            </svg>
+            <span>Modification...</span>
+          } @else {
+            <span>Enregistrer</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

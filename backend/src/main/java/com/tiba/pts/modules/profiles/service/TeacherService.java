@@ -159,7 +159,7 @@ public class TeacherService {
           userService.createUser(userRequest);
         } else {
           // The trainer already had an account (e.g., return from suspension) -> Reactivation
-          userService.reactivateUser(teacher.getUser().getId());
+          userService.activateUser(teacher.getUser().getId());
         }
         break;
 

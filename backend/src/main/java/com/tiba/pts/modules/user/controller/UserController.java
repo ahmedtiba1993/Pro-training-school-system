@@ -6,6 +6,7 @@ import com.tiba.pts.modules.user.domain.enums.Role;
 import com.tiba.pts.modules.user.domain.enums.UserStatus;
 import com.tiba.pts.modules.user.domain.entity.User;
 import com.tiba.pts.modules.user.dto.request.AdminChangePasswordRequest;
+import com.tiba.pts.modules.user.dto.request.ChangePasswordRequest;
 import com.tiba.pts.modules.user.dto.request.FirstLoginPasswordChangeRequest;
 import com.tiba.pts.modules.user.dto.response.UserResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,14 +18,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping({"/api/v1/users"})
 @RequiredArgsConstructor
 public class UserController {
 
   private final UserService userService;
 
   @GetMapping
-  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<PageResponse<UserResponse>>> getAllUsersPaged(
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) Role role,
@@ -41,14 +42,39 @@ public class UserController {
     return ResponseEntity.ok(response);
   }
 
+  @GetMapping("/{id}")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
+    UserResponse user = userService.getUserById(id);
+    return ResponseEntity.ok(ApiResponse.success("USER_RETRIEVED", user));
+  }
+
+  @GetMapping("/username/{username}")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<ApiResponse<UserResponse>> getUserByUsername(
+      @PathVariable String username) {
+    UserResponse user = userService.getUserByUsername(username);
+    return ResponseEntity.ok(ApiResponse.success("USER_RETRIEVED", user));
+  }
+
   @PatchMapping("/{id}/password")
-  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<Void>> changePassword(
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> resetPassword(
       @PathVariable Long id, @Valid @RequestBody AdminChangePasswordRequest request) {
 
-    userService.changeUserPassword(id, request);
+    userService.resetPassword(id, request);
     ApiResponse<Void> response = ApiResponse.success("PASSWORD_CHANGED_SUCCESSFULLY", null);
     return ResponseEntity.ok(response);
+  }
+
+  @PostMapping("/change-password")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<ApiResponse<Void>> changePassword(
+      @AuthenticationPrincipal User currentUser,
+      @Valid @RequestBody ChangePasswordRequest request) {
+
+    userService.changePassword(currentUser.getId(), request);
+    return ResponseEntity.ok(ApiResponse.success("PASSWORD_CHANGED_SUCCESSFULLY", null));
   }
 
   @PostMapping("/change-password-first-login")
@@ -64,26 +90,26 @@ public class UserController {
 
   // Suspend access
   @PostMapping("/{id}/suspend")
-  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Void>> suspendUser(@PathVariable Long id) {
 
     userService.suspendUser(id);
     return ResponseEntity.ok(ApiResponse.success("USER_SUSPENDED_SUCCESSFULLY", null));
   }
 
-  // Reactivate access
-  @PostMapping("/{id}/reactivate")
-  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-  public ResponseEntity<ApiResponse<Void>> reactivateUser(@PathVariable Long id) {
+  // Activate access
+  @PostMapping("/{id}/activate")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> activateUser(@PathVariable Long id) {
 
-    userService.reactivateUser(id);
+    userService.activateUser(id);
 
-    return ResponseEntity.ok(ApiResponse.success("USER_REACTIVATED_SUCCESSFULLY", null));
+    return ResponseEntity.ok(ApiResponse.success("USER_ACTIVATED_SUCCESSFULLY", null));
   }
 
   // Archive account
   @PostMapping("/{id}/archive")
-  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Void>> archiveUser(@PathVariable Long id) {
 
     userService.archiveUser(id);

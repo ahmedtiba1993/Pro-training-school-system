@@ -33,7 +33,12 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(AccessDeniedException.class)
-  public ResponseEntity<ApiResponse<Void>> handleAccessDenied() {
+  public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
+    if ("AUTH_FORCE_PASSWORD_CHANGE".equals(ex.getMessage())) {
+      ApiResponse<Void> response =
+          ApiResponse.error("Password change is required before accessing any resource", "AUTH_FORCE_PASSWORD_CHANGE");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
     ApiResponse<Void> response =
         ApiResponse.error("Access denied: Insufficient permissions", "ERR_ACCESS_DENIED");
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
