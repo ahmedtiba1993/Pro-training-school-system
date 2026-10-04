@@ -4,8 +4,10 @@ import com.tiba.pts.core.dto.ApiResponse;
 import com.tiba.pts.core.dto.PageResponse;
 import com.tiba.pts.modules.academicyear.domain.enums.YearStatus;
 import com.tiba.pts.modules.academicyear.dto.request.AcademicYearRequest;
+import com.tiba.pts.modules.academicyear.dto.response.AcademicCalendarResponse;
 import com.tiba.pts.modules.academicyear.dto.response.AcademicYearResponse;
 import com.tiba.pts.modules.academicyear.dto.response.ActiveAcademicYearResponse;
+import com.tiba.pts.modules.academicyear.dto.response.PublicAcademicYearResponse;
 import com.tiba.pts.modules.academicyear.service.AcademicYearService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -101,6 +103,24 @@ public class AcademicYearController {
     ActiveAcademicYearResponse currentYear = academicYearService.getCurrentAcademicYear();
     ApiResponse<ActiveAcademicYearResponse> response =
         ApiResponse.success("CURRENT_ACADEMIC_YEAR_RETRIEVED", currentYear);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/default")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<ApiResponse<PublicAcademicYearResponse>> getDefaultAcademicYear() {
+    PublicAcademicYearResponse defaultYear = academicYearService.getDefaultAcademicYear();
+    ApiResponse<PublicAcademicYearResponse> response =
+        ApiResponse.success("ACADEMIC_YEAR_DEFAULT_RETRIEVED", defaultYear);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/calendar")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<ApiResponse<AcademicCalendarResponse>> getDefaultAcademicCalendar() {
+    AcademicCalendarResponse calendar = academicYearService.getDefaultAcademicCalendar();
+    ApiResponse<AcademicCalendarResponse> response =
+        ApiResponse.success("ACADEMIC_YEAR_CALENDAR_RETRIEVED", calendar);
     return ResponseEntity.ok(response);
   }
 }

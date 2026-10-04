@@ -1,7 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { signal } from '@angular/core';
+import { of } from 'rxjs';
 import { TeacherDashboard } from './dashboard';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { signal } from '@angular/core';
+import { AcademicYearControllerService } from '../../../../core/api';
 
 describe('TeacherDashboard', () => {
   let component: TeacherDashboard;
@@ -19,6 +22,23 @@ describe('TeacherDashboard', () => {
               lastName: 'Teacher',
               role: 'ROLE_TEACHER'
             })
+          }
+        },
+        {
+          provide: AcademicYearControllerService,
+          useValue: {
+            getDefaultAcademicYear: vi.fn().mockReturnValue(of({
+              success: true,
+              data: {
+                id: 1,
+                label: '2025-2026',
+                startDate: '2025-09-01',
+                endDate: '2026-06-30',
+                status: 'IN_PROGRESS',
+                isDefault: true,
+                isLocked: false
+              }
+            }))
           }
         }
       ]

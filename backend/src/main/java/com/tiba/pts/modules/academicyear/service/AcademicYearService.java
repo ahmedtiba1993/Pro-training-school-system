@@ -5,12 +5,15 @@ import com.tiba.pts.core.exception.BusinessValidationException;
 import com.tiba.pts.core.exception.EntityAlreadyExistsException;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.academicyear.domain.entity.AcademicYear;
+import com.tiba.pts.modules.academicyear.domain.entity.Holiday;
 import com.tiba.pts.modules.academicyear.domain.entity.Period;
 import com.tiba.pts.modules.academicyear.domain.enums.SessionType;
 import com.tiba.pts.modules.academicyear.domain.enums.YearStatus;
 import com.tiba.pts.modules.academicyear.dto.request.AcademicYearRequest;
+import com.tiba.pts.modules.academicyear.dto.response.AcademicCalendarResponse;
 import com.tiba.pts.modules.academicyear.dto.response.AcademicYearResponse;
 import com.tiba.pts.modules.academicyear.dto.response.ActiveAcademicYearResponse;
+import com.tiba.pts.modules.academicyear.dto.response.PublicAcademicYearResponse;
 import com.tiba.pts.modules.academicyear.mapper.AcademicYearMapper;
 import com.tiba.pts.modules.academicyear.repository.AcademicYearRepository;
 import com.tiba.pts.modules.academicyear.repository.ExamSessionRepository;
@@ -227,6 +230,31 @@ public class AcademicYearService {
         currentPeriodLabel,
         periodProgress,
         remainingDaysInCurrentPeriod);
+  }
+
+  /** Returns the default academic year. */
+  @Transactional(readOnly = true)
+  public PublicAcademicYearResponse getDefaultAcademicYear() {
+    return academicYearRepository
+        .findByIsDefaultTrue()
+        .map(academicYearMapper::toPublicResponse)
+        .orElseThrow(() -> new ResourceNotFoundException("ACADEMIC_YEAR_NOT_FOUND"));
+  }
+
+  /** Returns the full calendar for the default academic year. */
+  @Transactional(readOnly = true)
+  public AcademicCalendarResponse getDefaultAcademicCalendar() {
+    AcademicYear defaultYear =
+        academicYearRepository
+            .findByIsDefaultTrue()
+            .orElseThrow(() -> new ResourceNotFoundException("ACADEMIC_YEAR_NOT_FOUND"));
+
+    List<Period> periods =
+        periodRepository.findByAcademicYearIdOrderByStartDateAsc(defaultYear.getId());
+    List<Holiday> holidays =
+        holidayRepository.findByAcademicYearIdOrderByStartDateAsc(defaultYear.getId());
+
+    return academicYearMapper.toCalendarResponse(defaultYear, periods, holidays);
   }
 
   // ==========================================

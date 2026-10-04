@@ -1,10 +1,14 @@
 package com.tiba.pts.modules.academicyear.mapper;
 
 import com.tiba.pts.modules.academicyear.domain.entity.AcademicYear;
+import com.tiba.pts.modules.academicyear.domain.entity.ExamSession;
+import com.tiba.pts.modules.academicyear.domain.entity.Holiday;
+import com.tiba.pts.modules.academicyear.domain.entity.Period;
 import com.tiba.pts.modules.academicyear.dto.request.AcademicYearRequest;
-import com.tiba.pts.modules.academicyear.dto.response.AcademicYearResponse;
-import com.tiba.pts.modules.academicyear.dto.response.ActiveAcademicYearResponse;
+import com.tiba.pts.modules.academicyear.dto.response.*;
 import org.mapstruct.*;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface AcademicYearMapper {
@@ -18,6 +22,8 @@ public interface AcademicYearMapper {
   AcademicYear toEntity(AcademicYearRequest request);
 
   AcademicYearResponse toResponse(AcademicYear entity);
+
+  PublicAcademicYearResponse toPublicResponse(AcademicYear entity);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "isDefault", ignore = true)
@@ -33,4 +39,22 @@ public interface AcademicYearMapper {
       String currentPeriodLabel,
       int periodProgress,
       long remainingDaysInCurrentPeriod);
+
+  @Mapping(target = "id", source = "year.id")
+  @Mapping(target = "label", source = "year.label")
+  @Mapping(target = "startDate", source = "year.startDate")
+  @Mapping(target = "endDate", source = "year.endDate")
+  @Mapping(target = "periods", source = "periods")
+  @Mapping(target = "holidays", source = "holidays")
+  AcademicCalendarResponse toCalendarResponse(
+      AcademicYear year,
+      List<Period> periods,
+      List<Holiday> holidays);
+
+  CalendarPeriodResponse toCalendarPeriodResponse(Period period);
+
+  CalendarSessionResponse toCalendarSessionResponse(ExamSession session);
+
+  @Mapping(target = "numberOfDays", expression = "java(holiday.getNumberOfDays())")
+  CalendarHolidayResponse toCalendarHolidayResponse(Holiday holiday);
 }

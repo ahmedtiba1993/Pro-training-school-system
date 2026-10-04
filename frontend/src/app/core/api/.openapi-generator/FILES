@@ -83,6 +83,7 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/academic-calendar-response.ts
 model/academic-year-request.ts
 model/academic-year-response.ts
 model/accelerated-promotion-request.ts
@@ -96,6 +97,7 @@ model/active-academic-year-response.ts
 model/active-class-group-response.ts
 model/active-revenue-stat-response.ts
 model/admin-change-password-request.ts
+model/api-response-academic-calendar-response.ts
 model/api-response-academic-year-response.ts
 model/api-response-accelerated-promotion-response.ts
 model/api-response-accredited-promotion-response.ts
@@ -175,6 +177,7 @@ model/api-response-page-response-user-response.ts
 model/api-response-period-response.ts
 model/api-response-promotion-statistics-response.ts
 model/api-response-promotion-stats-response.ts
+model/api-response-public-academic-year-response.ts
 model/api-response-ref-teacher-specialty-response.ts
 model/api-response-room-status-stats-response.ts
 model/api-response-schedule-response.ts
@@ -195,6 +198,9 @@ model/attendance-request.ts
 model/attendance-stats-response.ts
 model/auth-data.ts
 model/auth-request.ts
+model/calendar-holiday-response.ts
+model/calendar-period-response.ts
+model/calendar-session-response.ts
 model/change-password-request.ts
 model/class-assignment-request.ts
 model/class-group-detail-response.ts
@@ -272,6 +278,7 @@ model/promotion-stats-response.ts
 model/promotion-subject-request.ts
 model/promotion-subject-response.ts
 model/promotion-summary-response.ts
+model/public-academic-year-response.ts
 model/ref-teacher-specialty-request.ts
 model/ref-teacher-specialty-response.ts
 model/ref-teacher-specialty-simple-response.ts

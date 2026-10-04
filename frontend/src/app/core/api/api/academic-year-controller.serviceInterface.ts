@@ -12,11 +12,13 @@ import { HttpHeaders }                                       from '@angular/comm
 import { Observable }                                        from 'rxjs';
 
 import { AcademicYearRequest } from '../model/models';
+import { ApiResponseAcademicCalendarResponse } from '../model/models';
 import { ApiResponseAcademicYearResponse } from '../model/models';
 import { ApiResponseActiveAcademicYearResponse } from '../model/models';
 import { ApiResponseListAcademicYearResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ApiResponsePageResponseAcademicYearResponse } from '../model/models';
+import { ApiResponsePublicAcademicYearResponse } from '../model/models';
 import { ApiResponseVoid } from '../model/models';
 
 
@@ -68,6 +70,20 @@ export interface AcademicYearControllerServiceInterface {
      * @endpoint get /api/v1/academic-years/current
      */
     getCurrentAcademicYear(extraHttpRequestParams?: any): Observable<ApiResponseActiveAcademicYearResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/academic-years/calendar
+     */
+    getDefaultAcademicCalendar(extraHttpRequestParams?: any): Observable<ApiResponseAcademicCalendarResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/academic-years/default
+     */
+    getDefaultAcademicYear(extraHttpRequestParams?: any): Observable<ApiResponsePublicAcademicYearResponse>;
 
     /**
      * 
