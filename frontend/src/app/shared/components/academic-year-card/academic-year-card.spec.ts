@@ -42,6 +42,15 @@ describe('AcademicYearCardComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should display the animated loader while loading', () => {
+    component.isLoading.set(true);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('Chargement de l\'année scolaire en cours...');
+    expect(compiled.querySelector('.animate-spin')).toBeTruthy();
+  });
+
   it('should load and display the default academic year', () => {
     expect(component.academicYear()).toEqual(mockYearResponse.data);
     expect(component.isLoading()).toBe(false);

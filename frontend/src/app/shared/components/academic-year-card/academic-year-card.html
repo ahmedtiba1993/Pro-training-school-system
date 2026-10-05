@@ -1,17 +1,18 @@
 @if (isLoading()) {
-  <!-- Skeleton Loader -->
-  <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs animate-pulse">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-slate-200"></div>
-        <div class="space-y-2">
-          <div class="w-32 h-3.5 bg-slate-200 rounded"></div>
-          <div class="w-48 h-6 bg-slate-200 rounded"></div>
-        </div>
+  <!-- Animated Spinner Loader -->
+  <div
+    role="status"
+    aria-live="polite"
+    class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex items-center justify-center min-h-[104px] relative overflow-hidden"
+  >
+    <div class="flex items-center gap-4">
+      <div class="relative flex items-center justify-center shrink-0">
+        <div class="w-10 h-10 rounded-full border-3 border-indigo-100"></div>
+        <div class="absolute top-0 left-0 w-10 h-10 rounded-full border-3 border-indigo-600 border-t-transparent animate-spin"></div>
       </div>
-      <div class="flex flex-col sm:items-end gap-2">
-        <div class="w-28 h-6 bg-slate-200 rounded-full"></div>
-        <div class="w-36 h-4 bg-slate-200 rounded"></div>
+      <div class="flex flex-col">
+        <span class="text-sm font-bold text-slate-800 tracking-tight">Chargement de l'année scolaire en cours...</span>
+        <span class="text-xs text-slate-400 font-medium">Récupération des données académiques</span>
       </div>
     </div>
   </div>
@@ -35,12 +36,13 @@
       <button
         type="button"
         (click)="loadDefaultAcademicYear()"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl transition-colors cursor-pointer self-start sm:self-auto shrink-0 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+        [disabled]="isLoading()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-700 active:bg-amber-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl transition-colors cursor-pointer self-start sm:self-auto shrink-0 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
       >
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
-        Actualiser
+        <span>Actualiser</span>
       </button>
     </div>
   </div>
@@ -58,7 +60,8 @@
     <button
       type="button"
       (click)="loadDefaultAcademicYear()"
-      class="px-4 py-2 text-xs font-semibold bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white rounded-xl transition-colors cursor-pointer self-start sm:self-auto shrink-0 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
+      [disabled]="isLoading()"
+      class="px-4 py-2 text-xs font-semibold bg-rose-600 hover:bg-rose-700 active:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl transition-colors cursor-pointer self-start sm:self-auto shrink-0 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
     >
       Réessayer
     </button>
