@@ -10,6 +10,7 @@ import { StudentAttendanceComponent } from './pages/attendance/attendance';
 import { StudentContractsComponent } from './pages/contracts/contracts';
 import { StudentContractTransactionsComponent } from './pages/contracts/transactions/transactions';
 import { StudentSecurity } from './pages/security/security';
+import { StudentCalendar } from './pages/calendar/calendar';
 
 export const STUDENT_ROUTES: Routes = [
   {
@@ -18,6 +19,7 @@ export const STUDENT_ROUTES: Routes = [
     children: [
       { path: 'dashboard', component: StudentDashboard },
       { path: 'profile', component: StudentProfileComponent },
+      { path: 'calendar', component: StudentCalendar },
       { path: 'security', component: StudentSecurity },
       { path: 'enrollments', component: StudentEnrollments },
       { path: 'enrollments/:id', component: StudentEnrollmentDetail },

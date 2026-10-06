@@ -81,7 +81,7 @@ public class AcademicYearService {
       }
     }
 
-    // 🚨 New method: Protection against destructive shrinkage
+    //  New method: Protection against destructive shrinkage
     validateShrinkageProtection(id, request.startDate(), request.endDate());
 
     // Classic validation (Uniqueness & Overlapping)
