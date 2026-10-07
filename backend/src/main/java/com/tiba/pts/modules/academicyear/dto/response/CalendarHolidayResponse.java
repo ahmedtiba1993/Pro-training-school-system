@@ -16,6 +16,7 @@ public class CalendarHolidayResponse {
 
   private Long id;
   private String label;
+  private String labelAr;
   private HolidayType type;
   private LocalDate startDate;
   private LocalDate endDate;

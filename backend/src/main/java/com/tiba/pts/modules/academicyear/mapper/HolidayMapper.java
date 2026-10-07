@@ -4,13 +4,17 @@ import com.tiba.pts.modules.academicyear.domain.entity.AcademicYear;
 import com.tiba.pts.modules.academicyear.domain.entity.Holiday;
 import com.tiba.pts.modules.academicyear.dto.request.HolidayRequest;
 import com.tiba.pts.modules.academicyear.dto.response.HolidayResponse;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(
+    componentModel = "spring",
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    builder = @Builder(disableBuilder = true))
 public interface HolidayMapper {
 
   @Mapping(target = "id", ignore = true)

@@ -12,6 +12,7 @@
 export interface HolidayResponse { 
     id?: number;
     label?: string;
+    labelAr?: string;
     startDate?: string;
     endDate?: string;
     type?: HolidayResponse.TypeEnum;

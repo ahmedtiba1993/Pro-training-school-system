@@ -98,7 +98,11 @@
         </div>
         @if (nextHoliday(); as next) {
         <p class="text-sm font-medium text-indigo-100 mt-2 truncate" [title]="next.label">
-          {{ next.label }} (À partir du {{ next.startDate | date: 'dd MMM yyyy' }})
+          {{ next.label }}
+          @if (next.labelAr) {
+          <span class="text-indigo-200 text-xs font-semibold" dir="rtl"> ({{ next.labelAr }})</span>
+          }
+          (À partir du {{ next.startDate | date: 'dd MMM yyyy' }})
         </p>
         }
       </div>
@@ -165,6 +169,11 @@
               <h3 class="font-bold text-slate-900 truncate" [title]="holiday.label">
                 {{ holiday.label }}
               </h3>
+              @if (holiday.labelAr) {
+              <p class="text-xs font-medium text-slate-500 truncate mt-0.5" dir="rtl" [title]="holiday.labelAr">
+                {{ holiday.labelAr }}
+              </p>
+              }
             </div>
 
             <button
@@ -218,6 +227,11 @@
               <h3 class="font-bold text-slate-800 truncate" [title]="holiday.label">
                 {{ holiday.label }}
               </h3>
+              @if (holiday.labelAr) {
+              <p class="text-xs font-medium text-slate-400 truncate mt-0.5" dir="rtl" [title]="holiday.labelAr">
+                {{ holiday.labelAr }}
+              </p>
+              }
             </div>
 
             <button
@@ -282,7 +296,7 @@
     <form [formGroup]="holidayForm" (ngSubmit)="submitHoliday()" class="p-6 space-y-6">
       <div>
         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-wider"
-          >Libellé <span class="text-red-500">*</span></label
+          >Libellé (Français) <span class="text-red-500">*</span></label
         >
         <input
           type="text"
@@ -296,6 +310,22 @@
         @if (holidayForm.get('label')?.invalid && holidayForm.get('label')?.touched) {
         <p class="text-red-500 text-xs font-medium mt-1">Le libellé est obligatoire.</p>
         }
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider"
+            >Libellé en arabe</label
+          >
+          <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Optionnel</span>
+        </div>
+        <input
+          type="text"
+          dir="rtl"
+          formControlName="labelAr"
+          placeholder="مثال: عطلة الشتاء، عيد الاستقلال..."
+          class="w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-xl text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all text-right font-arabic"
+        />
       </div>
 
       <div>

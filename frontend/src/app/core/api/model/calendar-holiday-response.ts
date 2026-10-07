@@ -12,6 +12,7 @@
 export interface CalendarHolidayResponse { 
     id?: number;
     label?: string;
+    labelAr?: string;
     type?: CalendarHolidayResponse.TypeEnum;
     startDate?: string;
     endDate?: string;

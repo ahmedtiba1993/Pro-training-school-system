@@ -313,6 +313,11 @@
                         {{ getHolidayTypeLabel(holiday.type) }}
                       </span>
                       <h4 class="text-sm font-bold text-slate-900">{{ holiday.label || 'Jour de congé' }}</h4>
+                      @if (holiday.labelAr) {
+                        <span class="text-xs font-medium text-slate-500 font-arabic" dir="rtl">
+                          ({{ holiday.labelAr }})
+                        </span>
+                      }
                     </div>
                     <div class="flex items-center gap-2 text-xs text-slate-500">
                       <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

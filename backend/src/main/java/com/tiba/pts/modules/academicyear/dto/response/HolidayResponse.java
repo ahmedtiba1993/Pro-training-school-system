@@ -6,6 +6,7 @@ import java.time.LocalDate;
 public record HolidayResponse(
     Long id,
     String label,
+    String labelAr,
     LocalDate startDate,
     LocalDate endDate,
     HolidayType type,

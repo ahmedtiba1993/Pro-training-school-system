@@ -10,6 +10,7 @@ import java.time.LocalDate;
 
 public record HolidayRequest(
     @NotBlank(message = "TITLE_REQUIRED") String label,
+    String labelAr,
     @NotNull(message = "START_DATE_REQUIRED") LocalDate startDate,
     LocalDate endDate,
     @NotNull(message = "HOLIDAY_TYPE_REQUIRED") HolidayType type,
@@ -18,6 +19,9 @@ public record HolidayRequest(
   public HolidayRequest {
     if (label != null) {
       label = label.trim();
+    }
+    if (labelAr != null) {
+      labelAr = labelAr.trim();
     }
   }
 

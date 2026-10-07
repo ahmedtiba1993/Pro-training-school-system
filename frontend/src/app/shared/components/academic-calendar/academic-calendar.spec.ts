@@ -40,6 +40,7 @@ describe('AcademicCalendarComponent', () => {
       {
         id: 201,
         label: 'Vacances d\'hiver',
+        labelAr: 'عطلة الشتاء',
         type: 'SCHOOL_BREAK',
         startDate: '2025-12-20',
         endDate: '2026-01-04',
@@ -82,6 +83,15 @@ describe('AcademicCalendarComponent', () => {
     expect(component.periodsCount()).toBe(1);
     expect(component.holidaysCount()).toBe(1);
     expect(component.sessionsCount()).toBe(1);
+  });
+
+  it('devrait afficher le libellé en arabe (labelAr) des congés dans le template', () => {
+    fixture.detectChanges();
+    component.setTab('HOLIDAYS');
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('عطلة الشتاء');
   });
 
   it('devrait mettre à jour l\'onglet actif avec setTab', () => {

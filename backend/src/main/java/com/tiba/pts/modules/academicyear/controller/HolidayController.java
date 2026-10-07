@@ -21,7 +21,7 @@ public class HolidayController {
   private final HolidayService holidayService;
 
   @PostMapping
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> createHoliday(
       @Valid @RequestBody HolidayRequest request) {
     Long holidayId = holidayService.createHoliday(request);
@@ -30,7 +30,7 @@ public class HolidayController {
   }
 
   @GetMapping("/all")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<List<HolidayResponse>>> getAllHolidaysUnpaged() {
     List<HolidayResponse> data = holidayService.getAllHolidays();
     ApiResponse<List<HolidayResponse>> response =
@@ -39,7 +39,7 @@ public class HolidayController {
   }
 
   @GetMapping("/academic-year/{academicYearId}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<List<HolidayResponse>>> getHolidaysByAcademicYearId(
       @PathVariable Long academicYearId) {
     List<HolidayResponse> data = holidayService.getHolidaysByAcademicYear(academicYearId);
@@ -49,7 +49,7 @@ public class HolidayController {
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<HolidayResponse>> updateHoliday(
       @PathVariable Long id, @Valid @RequestBody HolidayRequest request) {
     HolidayResponse updatedHoliday = holidayService.updateHoliday(id, request);

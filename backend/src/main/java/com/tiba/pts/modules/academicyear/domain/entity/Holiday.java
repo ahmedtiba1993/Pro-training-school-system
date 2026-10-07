@@ -23,6 +23,8 @@ public class Holiday extends BaseEntity {
   @Column(nullable = false)
   private String label;
 
+  private String labelAr;
+
   @Column(nullable = false)
   private LocalDate startDate;
 

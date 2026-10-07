@@ -4,6 +4,7 @@ import {
   AcademicYearControllerService,
   HolidayControllerService,
   HolidayRequest,
+  HolidayResponse,
   AcademicYearResponse
 } from '../../../../../core/api';
 import { ToastService } from '../../../../../shared/services/toast.service';
@@ -25,7 +26,7 @@ export class Holiday implements OnInit {
   // --- GLOBAL STATES ---
   academicYears = signal<AcademicYearResponse[]>([]);
   selectedYearId = signal<number | null>(null);
-  holidays = signal<any[]>([]);
+  holidays = signal<HolidayResponse[]>([]);
 
   isLoading = signal<boolean>(true);
   isSaving = signal<boolean>(false);
@@ -37,6 +38,7 @@ export class Holiday implements OnInit {
   // --- FORM ---
   holidayForm = this.fb.group({
     label: ['', [Validators.required]],
+    labelAr: [''],
     type: ['SCHOOL_BREAK', [Validators.required]],
     startDate: ['', [Validators.required]],
     endDate: ['']
@@ -50,15 +52,15 @@ export class Holiday implements OnInit {
   nextHoliday = computed(() => {
     const today = new Date().getTime();
     const upcoming = this.holidays()
-      .filter(h => new Date(h.startDate).getTime() >= today)
-      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+      .filter(h => !!h.startDate && new Date(h.startDate).getTime() >= today)
+      .sort((a, b) => new Date(a.startDate!).getTime() - new Date(b.startDate!).getTime());
 
     return upcoming.length > 0 ? upcoming[0] : null;
   });
 
   daysUntilNextHoliday = computed(() => {
     const next = this.nextHoliday();
-    if (!next) return null;
+    if (!next || !next.startDate) return null;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -132,15 +134,16 @@ export class Holiday implements OnInit {
 
   openModal() {
     this.editingHolidayId.set(null);
-    this.holidayForm.reset({ type: 'SCHOOL_BREAK' });
+    this.holidayForm.reset({ type: 'SCHOOL_BREAK', labelAr: '' });
     this.showHolidayModal.set(true);
   }
 
-  editHoliday(holiday: any) {
-    this.editingHolidayId.set(holiday.id);
+  editHoliday(holiday: HolidayResponse) {
+    this.editingHolidayId.set(holiday.id ?? null);
 
     this.holidayForm.patchValue({
       label: holiday.label,
+      labelAr: holiday.labelAr || '',
       type: holiday.type,
       startDate: this.formatDateForInput(holiday.startDate),
       endDate: this.formatDateForInput(holiday.endDate)
@@ -165,9 +168,12 @@ export class Holiday implements OnInit {
 
     this.isSaving.set(true);
 
+    const labelArValue = this.holidayForm.value.labelAr?.trim();
+
     // PAYLOAD PERFECTLY ALIGNED WITH YOUR JSON
     const payload: HolidayRequest = {
       label: this.holidayForm.value.label!,
+      labelAr: labelArValue ? labelArValue : undefined,
       type: this.holidayForm.value.type! as any,
       startDate: this.holidayForm.value.startDate! as any,
       endDate: this.holidayForm.value.endDate! as any,
@@ -224,7 +230,7 @@ export class Holiday implements OnInit {
     return d.toISOString().split('T')[0];
   }
 
-  getTypeBadgeClass(type: string): string {
+  getTypeBadgeClass(type: string | undefined): string {
     switch (type) {
       case 'PUBLIC_HOLIDAY':
         return 'bg-amber-100 text-amber-700 border-amber-200';
@@ -237,7 +243,7 @@ export class Holiday implements OnInit {
     }
   }
 
-  getTypeLabel(type: string): string {
+  getTypeLabel(type: string | undefined): string {
     switch (type) {
       case 'PUBLIC_HOLIDAY':
         return 'Jour Férié';
@@ -246,7 +252,7 @@ export class Holiday implements OnInit {
       case 'EXCEPTIONAL':
         return 'Fermeture Exceptionnelle';
       default:
-        return type;
+        return type || 'Congé';
     }
   }
 }

@@ -11,6 +11,7 @@
 
 export interface HolidayRequest { 
     label: string;
+    labelAr?: string;
     startDate: string;
     endDate?: string;
     type: HolidayRequest.TypeEnum;
