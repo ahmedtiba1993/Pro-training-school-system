@@ -35,6 +35,19 @@ export class Holiday implements OnInit {
   showHolidayModal = signal<boolean>(false);
   editingHolidayId = signal<number | null>(null);
 
+  // Selected academic year details & status
+  selectedYear = computed(() => {
+    const id = this.selectedYearId();
+    return this.academicYears().find(y => y.id === id) || null;
+  });
+
+  isYearPlanned = computed(() => this.selectedYear()?.status === 'PLANNED');
+
+  // --- DELETE MODAL STATES ---
+  showDeleteModal = signal<boolean>(false);
+  selectedHolidayForDelete = signal<HolidayResponse | null>(null);
+  isDeleting = signal<boolean>(false);
+
   // --- FORM ---
   holidayForm = this.fb.group({
     label: ['', [Validators.required]],
@@ -203,6 +216,53 @@ export class Holiday implements OnInit {
         error: err => this.handleBackendError(err)
       });
     }
+  }
+
+  // ==========================================
+  // DELETE ACTIONS
+  // ==========================================
+
+  openDeleteModal(holiday: HolidayResponse) {
+    this.selectedHolidayForDelete.set(holiday);
+    this.showDeleteModal.set(true);
+  }
+
+  closeDeleteModal() {
+    this.showDeleteModal.set(false);
+    this.selectedHolidayForDelete.set(null);
+  }
+
+  confirmDelete() {
+    const holiday = this.selectedHolidayForDelete();
+    const yearId = this.selectedYearId();
+    if (!holiday || !holiday.id || !yearId) return;
+
+    if (!this.isYearPlanned()) {
+      this.toast.error("Impossible de supprimer ce congé : l'année scolaire doit être au statut Planifiée.");
+      return;
+    }
+
+    this.isDeleting.set(true);
+
+    this.holidayApi.deleteHoliday(holiday.id).subscribe({
+      next: () => {
+        this.toast.success('Congé supprimé avec succès !');
+        this.isDeleting.set(false);
+        this.closeDeleteModal();
+        this.loadHolidaysForYear(yearId);
+      },
+      error: err => {
+        this.isDeleting.set(false);
+        const errorCode = err?.error?.message;
+
+        if (errorCode === 'ACADEMIC_HOLIDAY_CANNOT_BE_DELETED_NOT_PLANNED') {
+          this.toast.error("Impossible de supprimer ce congé : l'année scolaire doit être au statut Planifiée.");
+        } else {
+          this.toast.error('Erreur lors de la suppression du congé.');
+          console.error('Erreur API DeleteHoliday:', err);
+        }
+      }
+    });
   }
 
   // ==========================================

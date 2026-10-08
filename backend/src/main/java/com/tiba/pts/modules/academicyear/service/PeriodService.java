@@ -12,6 +12,7 @@ import com.tiba.pts.modules.academicyear.dto.response.DefaultPeriodResponse;
 import com.tiba.pts.modules.academicyear.dto.response.PeriodResponse;
 import com.tiba.pts.modules.academicyear.mapper.PeriodMapper;
 import com.tiba.pts.modules.academicyear.repository.AcademicYearRepository;
+import com.tiba.pts.modules.academicyear.repository.ExamSessionRepository;
 import com.tiba.pts.modules.academicyear.repository.PeriodRepository;
 import com.tiba.pts.modules.trainingsession.domain.entity.AccreditedPromotion;
 import com.tiba.pts.modules.trainingsession.domain.entity.Promotion;
@@ -33,6 +34,7 @@ public class PeriodService {
   private final AcademicYearRepository academicYearRepository;
   private final PeriodMapper periodMapper;
   private final PromotionRepository promotionRepository;
+  private final ExamSessionRepository examSessionRepository;
 
   @Transactional
   public Long createPeriod(PeriodRequest request) {
@@ -164,6 +166,41 @@ public class PeriodService {
     }
 
     return periodMapper.toResponse(updatedPeriod);
+  }
+
+  @Transactional
+  public void deletePeriod(Long id) {
+    Period period =
+        periodRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("ACADEMIC_PERIOD_NOT_FOUND"));
+
+    if (Boolean.TRUE.equals(period.getIsLocked())) {
+      throw new BusinessValidationException("ACADEMIC_PERIOD_CANNOT_BE_DELETED_LOCKED");
+    }
+
+    if (period.getAcademicYear().getStatus() != YearStatus.PLANNED) {
+      throw new BusinessValidationException("ACADEMIC_PERIOD_CANNOT_BE_DELETED_NOT_PLANNED");
+    }
+
+    if (examSessionRepository.existsByPeriodId(period.getId())) {
+      throw new BusinessValidationException("ACADEMIC_PERIOD_CANNOT_BE_DELETED_HAS_SESSIONS");
+    }
+
+    Long academicYearId = period.getAcademicYear().getId();
+    Integer deletedOrderIndex = period.getOrderIndex();
+
+    periodRepository.delete(period);
+
+    if (deletedOrderIndex != null) {
+      List<Period> subsequentPeriods =
+          periodRepository.findByAcademicYearIdAndOrderIndexGreaterThanOrderByOrderIndexAsc(
+              academicYearId, deletedOrderIndex);
+      for (Period subsequentPeriod : subsequentPeriods) {
+        subsequentPeriod.setOrderIndex(subsequentPeriod.getOrderIndex() - 1);
+      }
+      periodRepository.saveAll(subsequentPeriods);
+    }
   }
 
   /** Toggles the lock state (isLocked) of a period. */

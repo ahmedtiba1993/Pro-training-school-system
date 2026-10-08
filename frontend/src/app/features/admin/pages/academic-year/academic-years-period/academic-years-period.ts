@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe, NgClass } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -36,6 +36,9 @@ export class AcademicYearsPeriod implements OnInit {
   academicYear = signal<AcademicYearResponse | null>(null);
   periods = signal<PeriodResponse[]>([]);
 
+  // Computed: Parent academic year status
+  isYearPlanned = computed(() => this.academicYear()?.status === 'PLANNED');
+
   isLoading = signal<boolean>(true);
   isSaving = signal<boolean>(false);
   errorMessage = signal<string>('');
@@ -58,6 +61,16 @@ export class AcademicYearsPeriod implements OnInit {
   showSessionLockModal = signal<boolean>(false);
   selectedSessionForLock = signal<ExamSessionResponse | null>(null);
   isTogglingSessionLock = signal<boolean>(false);
+
+  // --- DELETE (PERIOD) MODAL STATES ---
+  showDeletePeriodModal = signal<boolean>(false);
+  selectedPeriodForDelete = signal<PeriodResponse | null>(null);
+  isDeletingPeriod = signal<boolean>(false);
+
+  // --- DELETE (SESSION) MODAL STATES ---
+  showDeleteSessionModal = signal<boolean>(false);
+  selectedSessionForDelete = signal<ExamSessionResponse | null>(null);
+  isDeletingSession = signal<boolean>(false);
 
   // --- FORMS  ---
   sessionForm = this.fb.group({
@@ -428,6 +441,114 @@ export class AcademicYearsPeriod implements OnInit {
           this.toast.error('Erreur lors de la modification du verrouillage de la session.');
         }
         console.error('Erreur API ToggleSessionLock:', err);
+      }
+    });
+  }
+
+  // ==========================================
+  // DELETE ACTIONS (PERIOD)
+  // ==========================================
+  openDeletePeriodModal(period: PeriodResponse) {
+    this.selectedPeriodForDelete.set(period);
+    this.showDeletePeriodModal.set(true);
+  }
+
+  closeDeletePeriodModal() {
+    this.showDeletePeriodModal.set(false);
+    this.selectedPeriodForDelete.set(null);
+  }
+
+  confirmDeletePeriod() {
+    const period = this.selectedPeriodForDelete();
+    if (!period || !period.id) return;
+
+    if (!this.isYearPlanned()) {
+      this.toast.error("Impossible de supprimer la période : l'année scolaire parente doit être au statut Planifiée.");
+      return;
+    }
+
+    if (period.isLocked) {
+      this.toast.error("Impossible de supprimer une période verrouillée.");
+      return;
+    }
+
+    this.isDeletingPeriod.set(true);
+
+    this.periodApi.deletePeriod(period.id).subscribe({
+      next: () => {
+        this.toast.success('Période supprimée avec succès !');
+        this.isDeletingPeriod.set(false);
+        this.closeDeletePeriodModal();
+        this.loadPeriods();
+      },
+      error: err => {
+        this.isDeletingPeriod.set(false);
+        const errorCode = err?.error?.message;
+
+        if (errorCode === 'ACADEMIC_PERIOD_CANNOT_BE_DELETED_LOCKED') {
+          this.toast.error('Impossible de supprimer une période verrouillée.');
+        } else if (errorCode === 'ACADEMIC_PERIOD_CANNOT_BE_DELETED_NOT_PLANNED') {
+          this.toast.error("Impossible de supprimer la période : l'année scolaire parente doit être au statut Planifiée.");
+        } else if (errorCode === 'ACADEMIC_PERIOD_CANNOT_BE_DELETED_HAS_SESSIONS') {
+          this.toast.error("Impossible de supprimer la période : elle contient encore des sessions d'examen.");
+        } else {
+          this.toast.error('Erreur lors de la suppression de la période.');
+          console.error('Erreur API DeletePeriod:', err);
+        }
+      }
+    });
+  }
+
+  // ==========================================
+  // DELETE ACTIONS (SESSION)
+  // ==========================================
+  openDeleteSessionModal(session: ExamSessionResponse) {
+    this.selectedSessionForDelete.set(session);
+    this.showDeleteSessionModal.set(true);
+  }
+
+  closeDeleteSessionModal() {
+    this.showDeleteSessionModal.set(false);
+    this.selectedSessionForDelete.set(null);
+  }
+
+  confirmDeleteSession() {
+    const session = this.selectedSessionForDelete();
+    if (!session || !session.id) return;
+
+    if (!this.isYearPlanned()) {
+      this.toast.error("Impossible de supprimer la session : l'année scolaire parente doit être au statut Planifiée.");
+      return;
+    }
+
+    if (session.isLocked) {
+      this.toast.error("Impossible de supprimer une session d'examen verrouillée.");
+      return;
+    }
+
+    this.isDeletingSession.set(true);
+
+    this.examSessionApi.deleteExamSession(session.id).subscribe({
+      next: () => {
+        this.toast.success("Session d'examen supprimée avec succès !");
+        this.isDeletingSession.set(false);
+        this.closeDeleteSessionModal();
+        this.loadPeriods();
+      },
+      error: err => {
+        this.isDeletingSession.set(false);
+        const errorCode = err?.error?.message;
+
+        if (errorCode === 'ACADEMIC_EXAM_SESSION_CANNOT_BE_DELETED_LOCKED') {
+          this.toast.error("Impossible de supprimer une session d'examen verrouillée.");
+        } else if (errorCode === 'ACADEMIC_EXAM_SESSION_CANNOT_BE_DELETED_NOT_PLANNED') {
+          this.toast.error("Impossible de supprimer la session : l'année scolaire parente doit être au statut Planifiée.");
+        } else if (errorCode === 'ACADEMIC_EXAM_SESSION_CANNOT_DELETE_MAIN_WITH_RETAKE') {
+          this.toast.error("Impossible de supprimer la session principale tant qu'une session de rattrapage existe.");
+        } else {
+          this.toast.error("Erreur lors de la suppression de la session d'examen.");
+          console.error('Erreur API DeleteExamSession:', err);
+        }
       }
     });
   }

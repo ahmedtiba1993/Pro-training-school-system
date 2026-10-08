@@ -27,6 +27,13 @@ public interface PeriodRepository extends JpaRepository<Period, Long> {
       @Param("endDate") LocalDate endDate,
       @Param("id") Long id);
 
+  // Check if any periods exist for an academic year
+  boolean existsByAcademicYearId(Long academicYearId);
+
+  // Retrieve periods with orderIndex greater than a given value
+  List<Period> findByAcademicYearIdAndOrderIndexGreaterThanOrderByOrderIndexAsc(
+      Long academicYearId, Integer orderIndex);
+
   // Label uniqueness (Excludes the current ID for updates)
   boolean existsByAcademicYearIdAndLabelIgnoreCaseAndIdNot(Long yearId, String label, Long id);
 

@@ -37,6 +37,14 @@ export interface ExamSessionControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint delete /api/v1/exam-sessions/{id}
+     * @param id 
+     */
+    deleteExamSession(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/exam-sessions/period/{periodId}
      * @param periodId 
      */

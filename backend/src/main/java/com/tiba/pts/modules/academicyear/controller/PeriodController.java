@@ -49,6 +49,13 @@ public class PeriodController {
     return ResponseEntity.ok(response);
   }
 
+  @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> deletePeriod(@PathVariable Long id) {
+    periodService.deletePeriod(id);
+    return ResponseEntity.ok(ApiResponse.success("ACADEMIC_PERIOD_DELETED_SUCCESSFULLY"));
+  }
+
   @PatchMapping("/{id}/toggle-lock")
   @PreAuthorize("hasAnyRole('ADMIN')")
   public ResponseEntity<ApiResponse<Void>> togglePeriodLock(@PathVariable Long id) {

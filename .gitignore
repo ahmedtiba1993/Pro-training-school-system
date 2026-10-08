@@ -60,3 +60,4 @@ frontend/src/app/core/api/.openapi-generator/FILES
 /backend/doc/01-module-core.md.md
 /backend/doc/modules/02-auth-user.md
 /backend/src/main/resources/db/migration/V1_0_2__harden_refresh_tokens.sql
+/backend/doc/modules/03-academic-year.md

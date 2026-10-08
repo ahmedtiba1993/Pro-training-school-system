@@ -142,4 +142,18 @@ public class HolidayService {
     // We assume you have a toResponse method in your mapper
     return holidayMapper.toResponse(savedHoliday);
   }
+
+  @Transactional
+  public void deleteHoliday(Long id) {
+    Holiday holiday =
+        holidayRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("ACADEMIC_HOLIDAY_NOT_FOUND"));
+
+    if (holiday.getAcademicYear().getStatus() != YearStatus.PLANNED) {
+      throw new BusinessValidationException("ACADEMIC_HOLIDAY_CANNOT_BE_DELETED_NOT_PLANNED");
+    }
+
+    holidayRepository.delete(holiday);
+  }
 }

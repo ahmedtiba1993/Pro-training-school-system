@@ -308,4 +308,9 @@ public class AccreditedPromotionService {
     }
     return academicYearLabel.replaceAll("[^0-9]", "");
   }
+
+  @Transactional(readOnly = true)
+  public boolean hasPromotionsForAcademicYear(Long academicYearId) {
+    return accreditedPromotionRepository.existsByAcademicYearId(academicYearId);
+  }
 }

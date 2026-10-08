@@ -50,6 +50,13 @@ public class ExamSessionController {
     return ResponseEntity.ok(response);
   }
 
+  @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> deleteExamSession(@PathVariable Long id) {
+    examSessionService.deleteExamSession(id);
+    return ResponseEntity.ok(ApiResponse.success("ACADEMIC_EXAM_SESSION_DELETED_SUCCESSFULLY"));
+  }
+
   @PatchMapping("/{id}/toggle-lock")
   @PreAuthorize("hasAnyRole('ADMIN')")
   public ResponseEntity<ApiResponse<Void>> toggleSessionLock(@PathVariable Long id) {

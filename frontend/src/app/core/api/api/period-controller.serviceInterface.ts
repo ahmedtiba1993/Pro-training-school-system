@@ -38,6 +38,14 @@ export interface PeriodControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint delete /api/v1/periods/{id}
+     * @param id 
+     */
+    deletePeriod(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/periods/academic-year/{academicYearId}
      * @param academicYearId 
      */

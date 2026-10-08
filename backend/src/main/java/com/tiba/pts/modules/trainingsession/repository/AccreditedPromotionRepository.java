@@ -22,6 +22,8 @@ public interface AccreditedPromotionRepository extends JpaRepository<AccreditedP
 
   boolean existsByTrainingIdAndAcademicYearId(Long trainingId, Long academicYearId);
 
+  boolean existsByAcademicYearId(Long academicYearId);
+
   @Modifying
   @Query(
       """

@@ -50,6 +50,14 @@ export interface AcademicYearControllerServiceInterface {
     /**
      * 
      * 
+     * @endpoint delete /api/v1/academic-years/{id}
+     * @param id 
+     */
+    deleteAcademicYear(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
+
+    /**
+     * 
+     * 
      * @endpoint get /api/v1/academic-years/{id}
      * @param id 
      */

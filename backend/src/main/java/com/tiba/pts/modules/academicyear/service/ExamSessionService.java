@@ -174,6 +174,32 @@ public class ExamSessionService {
     return examSessionMapper.toResponse(savedSession);
   }
 
+  @Transactional
+  public void deleteExamSession(Long id) {
+    ExamSession session =
+        examSessionRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("ACADEMIC_EXAM_SESSION_NOT_FOUND"));
+
+    if (Boolean.TRUE.equals(session.getIsLocked())) {
+      throw new BusinessValidationException("ACADEMIC_EXAM_SESSION_CANNOT_BE_DELETED_LOCKED");
+    }
+
+    Period period = session.getPeriod();
+    if (period.getAcademicYear().getStatus() != YearStatus.PLANNED) {
+      throw new BusinessValidationException("ACADEMIC_EXAM_SESSION_CANNOT_BE_DELETED_NOT_PLANNED");
+    }
+
+    if (session.getSessionType() == SessionType.MAIN
+        && examSessionRepository.existsByPeriodIdAndSessionType(
+            period.getId(), SessionType.RETAKE)) {
+      throw new BusinessValidationException(
+          "ACADEMIC_EXAM_SESSION_CANNOT_DELETE_MAIN_WITH_RETAKE");
+    }
+
+    examSessionRepository.delete(session);
+  }
+
   /** Toggles the lock state (isLocked) of an exam session. */
   @Transactional
   public void toggleSessionLock(Long id) {

@@ -14,6 +14,7 @@ import { Observable }                                        from 'rxjs';
 import { ApiResponseHolidayResponse } from '../model/models';
 import { ApiResponseListHolidayResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
+import { ApiResponseVoid } from '../model/models';
 import { HolidayRequest } from '../model/models';
 
 
@@ -32,6 +33,14 @@ export interface HolidayControllerServiceInterface {
      * @param holidayRequest 
      */
     createHoliday(holidayRequest: HolidayRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint delete /api/v1/holidays/{id}
+     * @param id 
+     */
+    deleteHoliday(id: number, extraHttpRequestParams?: any): Observable<ApiResponseVoid>;
 
     /**
      * 

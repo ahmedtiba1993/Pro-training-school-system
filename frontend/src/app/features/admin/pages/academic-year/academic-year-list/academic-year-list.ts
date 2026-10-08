@@ -63,6 +63,11 @@ export class AcademicYearList implements OnInit {
   selectedYearForToggleLock = signal<AcademicYearResponse | null>(null);
   isTogglingLock = signal<boolean>(false);
 
+  // --- DELETE CONFIRMATION MODAL ---
+  showDeleteModal = signal<boolean>(false);
+  selectedYearForDelete = signal<AcademicYearResponse | null>(null);
+  isDeleting = signal<boolean>(false);
+
   // --- STATUS CHANGE MODAL ---
   showStatusConfirmModal = signal<boolean>(false);
   pendingNextStatus = signal<string | null>(null);
@@ -299,6 +304,63 @@ export class AcademicYearList implements OnInit {
           this.toast.error('Erreur lors de la modification du verrouillage.');
         }
         console.error('Erreur API ToggleLock:', err);
+      }
+    });
+  }
+
+  // ==========================================
+  // DELETE ACTIONS
+  // ==========================================
+  openDeleteModal(year: AcademicYearResponse): void {
+    this.selectedYearForDelete.set(year);
+    this.showDeleteModal.set(true);
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal.set(false);
+    this.selectedYearForDelete.set(null);
+  }
+
+  confirmDelete(): void {
+    const year = this.selectedYearForDelete();
+    if (!year || !year.id) return;
+
+    if (year.status !== 'PLANNED') {
+      this.toast.error("L'année académique doit être au statut Planifiée pour être supprimée.");
+      return;
+    }
+
+    if (year.isDefault) {
+      this.toast.error("Impossible de supprimer l'année académique définie par défaut.");
+      return;
+    }
+
+    this.isDeleting.set(true);
+
+    this.apiService.deleteAcademicYear(year.id).subscribe({
+      next: () => {
+        this.toast.success('Année académique supprimée avec succès.');
+        this.isDeleting.set(false);
+        this.closeDeleteModal();
+        this.loadAcademicYears();
+        this.loadCurrentActiveYear();
+      },
+      error: err => {
+        this.isDeleting.set(false);
+        const errorMsg = err.error?.message;
+
+        if (errorMsg === 'ACADEMIC_YEAR_CANNOT_BE_DELETED_NOT_PLANNED') {
+          this.toast.error("L'année académique doit être au statut Planifiée pour être supprimée.");
+        } else if (errorMsg === 'ACADEMIC_YEAR_CANNOT_BE_DELETED_IS_DEFAULT') {
+          this.toast.error("Impossible de supprimer l'année académique définie par défaut.");
+        } else if (errorMsg === 'ACADEMIC_YEAR_CANNOT_BE_DELETED_HAS_PERIODS') {
+          this.toast.error("Impossible de supprimer l'année : elle contient encore des périodes scolaires.");
+        } else if (errorMsg === 'ACADEMIC_YEAR_CANNOT_BE_DELETED_HAS_PROMOTIONS') {
+          this.toast.error("Impossible de supprimer l'année : elle est rattachée à des promotions accréditées.");
+        } else {
+          this.toast.error("Erreur lors de la suppression de l'année académique.");
+          console.error('Erreur API DeleteAcademicYear:', err);
+        }
       }
     });
   }

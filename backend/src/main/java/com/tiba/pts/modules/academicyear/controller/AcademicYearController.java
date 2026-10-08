@@ -66,6 +66,13 @@ public class AcademicYearController {
     return ResponseEntity.ok(response);
   }
 
+  @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> deleteAcademicYear(@PathVariable Long id) {
+    academicYearService.deleteAcademicYear(id);
+    return ResponseEntity.ok(ApiResponse.success("ACADEMIC_YEAR_DELETED_SUCCESSFULLY"));
+  }
+
   @PatchMapping("/{id}/set-default")
   @PreAuthorize("hasAnyRole('ADMIN')")
   public ResponseEntity<ApiResponse<Void>> setDefaultAcademicYear(@PathVariable Long id) {

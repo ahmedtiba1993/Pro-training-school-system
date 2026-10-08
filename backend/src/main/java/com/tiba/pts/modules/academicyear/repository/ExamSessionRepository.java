@@ -14,6 +14,9 @@ import java.util.Optional;
 @Repository
 public interface ExamSessionRepository extends JpaRepository<ExamSession, Long> {
 
+  // To quickly check if any session exists for a period
+  boolean existsByPeriodId(Long periodId);
+
   // To quickly check if a session (MAIN or RETAKE) already exists
   boolean existsByPeriodIdAndSessionType(Long periodId, SessionType sessionType);
 

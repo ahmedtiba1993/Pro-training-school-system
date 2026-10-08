@@ -57,4 +57,11 @@ public class HolidayController {
         ApiResponse.success("HOLIDAY_UPDATED_SUCCESSFULLY", updatedHoliday);
     return ResponseEntity.ok(response);
   }
+
+  @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Void>> deleteHoliday(@PathVariable Long id) {
+    holidayService.deleteHoliday(id);
+    return ResponseEntity.ok(ApiResponse.success("ACADEMIC_HOLIDAY_DELETED_SUCCESSFULLY"));
+  }
 }

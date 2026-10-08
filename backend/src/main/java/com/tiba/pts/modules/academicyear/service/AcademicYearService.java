@@ -98,7 +98,30 @@ public class AcademicYearService {
     return academicYearRepository
         .findById(id)
         .map(academicYearMapper::toResponse)
-        .orElseThrow(() -> new ResourceNotFoundException("NOT_FOUND"));
+        .orElseThrow(() -> new ResourceNotFoundException("ACADEMIC_YEAR_NOT_FOUND"));
+  }
+
+  @Transactional
+  public void deleteAcademicYear(Long id) {
+    AcademicYear academicYear = getOrThrow(id);
+
+    if (academicYear.getStatus() != YearStatus.PLANNED) {
+      throw new BusinessValidationException("ACADEMIC_YEAR_CANNOT_BE_DELETED_NOT_PLANNED");
+    }
+
+    if (Boolean.TRUE.equals(academicYear.getIsDefault())) {
+      throw new BusinessValidationException("ACADEMIC_YEAR_CANNOT_BE_DELETED_IS_DEFAULT");
+    }
+
+    if (periodRepository.existsByAcademicYearId(id)) {
+      throw new BusinessValidationException("ACADEMIC_YEAR_CANNOT_BE_DELETED_HAS_PERIODS");
+    }
+
+    if (accreditedPromotionService.hasPromotionsForAcademicYear(id)) {
+      throw new BusinessValidationException("ACADEMIC_YEAR_CANNOT_BE_DELETED_HAS_PROMOTIONS");
+    }
+
+    academicYearRepository.delete(academicYear);
   }
 
   @Transactional
