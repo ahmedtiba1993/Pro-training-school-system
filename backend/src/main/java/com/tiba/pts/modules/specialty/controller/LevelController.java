@@ -23,47 +23,47 @@ public class LevelController {
   private final LevelService levelService;
 
   @PostMapping
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> createLevel(@Valid @RequestBody LevelRequest request) {
-    ApiResponse<Long> response =
-        ApiResponse.success("LEVEL_CREATED_SUCCESSFULLY", levelService.create(request));
-    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    Long createdId = levelService.create(request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.success("SPECIALTY_LEVEL_CREATED", createdId));
   }
 
   @GetMapping
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
   public ResponseEntity<ApiResponse<List<LevelResponse>>> getAllLevels() {
     List<LevelResponse> data = levelService.getAll();
-    ApiResponse<List<LevelResponse>> response = ApiResponse.success("LEVEL_LIST_RETRIEVED", data);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_LEVEL_LIST_RETRIEVED", data));
+  }
+
+  @GetMapping("/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+  public ResponseEntity<ApiResponse<LevelResponse>> getLevelById(@PathVariable Long id) {
+    LevelResponse data = levelService.getById(id);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_LEVEL_RETRIEVED", data));
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> updateLevel(
       @PathVariable Long id, @Valid @RequestBody LevelRequest request) {
     Long updatedId = levelService.update(id, request);
-    ApiResponse<Long> response = ApiResponse.success("LEVEL_UPDATED_SUCCESSFULLY", updatedId);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_LEVEL_UPDATED", updatedId));
   }
 
   @PatchMapping("/{id}/status")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> updateLevelStatus(
       @PathVariable Long id, @RequestParam boolean isActive) {
-
     Long updatedId = levelService.updateStatus(id, isActive);
-    ApiResponse<Long> response =
-        ApiResponse.success("LEVEL_STATUS_UPDATED_SUCCESSFULLY", updatedId);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_LEVEL_STATUS_UPDATED", updatedId));
   }
 
   @GetMapping("/active")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
   public ResponseEntity<ApiResponse<List<LevelResponse>>> getActiveLevels() {
     List<LevelResponse> data = levelService.getAllActive();
-    ApiResponse<List<LevelResponse>> response =
-        ApiResponse.success("ACTIVE_LEVEL_LIST_RETRIEVED", data);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_LEVEL_ACTIVE_LIST_RETRIEVED", data));
   }
 }

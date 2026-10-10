@@ -5,16 +5,21 @@ import com.tiba.pts.modules.specialty.dto.request.TrainingRequest;
 import com.tiba.pts.modules.specialty.dto.response.TrainingResponse;
 import com.tiba.pts.modules.specialty.dto.response.TrainingTypeCountResponse;
 import com.tiba.pts.modules.specialty.repository.projection.TrainingTypeCountProjection;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface TrainingMapper {
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "code", ignore = true)
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "createdDate", ignore = true)
+  @Mapping(target = "modifiedDate", ignore = true)
   @Mapping(target = "level", ignore = true)
   @Mapping(target = "specialty", ignore = true)
   Training toEntity(TrainingRequest requestDTO);
@@ -28,6 +33,10 @@ public interface TrainingMapper {
   TrainingResponse toResponse(Training training);
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "code", ignore = true)
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "createdDate", ignore = true)
+  @Mapping(target = "modifiedDate", ignore = true)
   @Mapping(target = "level", ignore = true)
   @Mapping(target = "specialty", ignore = true)
   void updateEntityFromRequest(TrainingRequest requestDTO, @MappingTarget Training training);

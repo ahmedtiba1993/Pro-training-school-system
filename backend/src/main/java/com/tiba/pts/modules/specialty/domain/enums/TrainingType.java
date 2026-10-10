@@ -4,17 +4,15 @@ import lombok.Getter;
 
 @Getter
 public enum TrainingType {
-  CONTINUOUS("Continue"),
-  ACCELERATED("Accélérée"),
-  ACCREDITED("Homologuée");
+  CONTINUOUS("Continue", "CON"),
+  ACCELERATED("Accélérée", "ACC"),
+  ACCREDITED("Homologuée", "HOM");
 
   private final String labelFr;
+  private final String prefix;
 
-  TrainingType(String labelFr) {
+  TrainingType(String labelFr, String prefix) {
     this.labelFr = labelFr;
-  }
-
-  public String getLabelFr() {
-    return labelFr;
+    this.prefix = prefix;
   }
 }

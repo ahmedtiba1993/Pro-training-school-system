@@ -118,6 +118,7 @@ model/api-response-exam-time-slot-response.ts
 model/api-response-exam-timetable-response.ts
 model/api-response-existence-check-response.ts
 model/api-response-holiday-response.ts
+model/api-response-level-response.ts
 model/api-response-list-academic-year-response.ts
 model/api-response-list-accelerated-promotion-response.ts
 model/api-response-list-accredited-promotion-response.ts
@@ -181,6 +182,7 @@ model/api-response-public-academic-year-response.ts
 model/api-response-ref-teacher-specialty-response.ts
 model/api-response-room-status-stats-response.ts
 model/api-response-schedule-response.ts
+model/api-response-specialty-response.ts
 model/api-response-student-response.ts
 model/api-response-subject-response.ts
 model/api-response-teacher-response.ts
@@ -188,6 +190,7 @@ model/api-response-timetable-slot-detail-response.ts
 model/api-response-timetable-teacher-view-response.ts
 model/api-response-timetable-view-response.ts
 model/api-response-token-refresh-response.ts
+model/api-response-training-response.ts
 model/api-response-user-response.ts
 model/api-response-void.ts
 model/assessment-lookup-response.ts

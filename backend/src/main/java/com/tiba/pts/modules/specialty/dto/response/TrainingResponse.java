@@ -3,23 +3,31 @@ package com.tiba.pts.modules.specialty.dto.response;
 import com.tiba.pts.modules.specialty.domain.enums.DurationUnit;
 import com.tiba.pts.modules.specialty.domain.enums.TrainingStatus;
 import com.tiba.pts.modules.specialty.domain.enums.TrainingType;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record TrainingResponse(
-    Long id,
-    String code,
-    String description,
-    TrainingType trainingType,
-    Integer durationValue,
-    DurationUnit durationUnit,
-    TrainingStatus status,
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrainingResponse {
+  private Long id;
+  private String code;
+  private String description;
+  private TrainingType trainingType;
+  private Integer durationValue;
+  private DurationUnit durationUnit;
+  private TrainingStatus status;
 
-    // --- Fields for Level ---
-    Long levelId,
-    String levelCode,
-    String levelLabel,
+  // --- Level details ---
+  private Long levelId;
+  private String levelCode;
+  private String levelLabel;
 
-    // --- Fields for Specialty ---
-    Long specialtyId,
-    String specialtyCode,
-    String specialtyLabel) {}
+  // --- Specialty details ---
+  private Long specialtyId;
+  private String specialtyCode;
+  private String specialtyLabel;
+}

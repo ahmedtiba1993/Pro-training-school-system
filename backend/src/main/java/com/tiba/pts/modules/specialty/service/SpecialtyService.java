@@ -1,7 +1,6 @@
 package com.tiba.pts.modules.specialty.service;
 
-import com.tiba.pts.core.dto.ErrorDetail;
-import com.tiba.pts.core.exception.DuplicateResourceException;
+import com.tiba.pts.core.exception.EntityAlreadyExistsException;
 import com.tiba.pts.core.exception.ResourceNotFoundException;
 import com.tiba.pts.modules.specialty.domain.entity.Specialty;
 import com.tiba.pts.modules.specialty.dto.request.SpecialtyRequest;
@@ -12,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,8 +22,9 @@ public class SpecialtyService {
 
   @Transactional
   public Long createSpecialty(SpecialtyRequest request) {
-    validateSpecialty(null, request);
+    validateSpecialtyUniqueness(null, request);
     Specialty specialty = specialtyMapper.toEntity(request);
+    specialty.setIsActive(true);
     return specialtyRepository.save(specialty).getId();
   }
 
@@ -36,42 +35,60 @@ public class SpecialtyService {
             .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("SPECIALTY_NOT_FOUND"));
 
-    // Update basic fields of the specialty
-    specialty.setLabel(request.label());
-    specialty.setCode(request.code());
+    validateSpecialtyUniqueness(id, request);
+    specialtyMapper.updateEntityFromRequest(request, specialty);
 
     return specialtyRepository.save(specialty).getId();
   }
 
-  private void validateSpecialty(Long specialtyId, SpecialtyRequest request) {
-    List<ErrorDetail> erreurs = new ArrayList<>();
+  @Transactional(readOnly = true)
+  public SpecialtyResponse getById(Long id) {
+    return specialtyRepository
+        .findById(id)
+        .map(specialtyMapper::toResponse)
+        .orElseThrow(() -> new ResourceNotFoundException("SPECIALTY_NOT_FOUND"));
+  }
 
-    // Check if the specialty name already exists
-    boolean nameExists =
+  @Transactional(readOnly = true)
+  public List<SpecialtyResponse> getAll() {
+    return specialtyRepository.findAll().stream().map(specialtyMapper::toResponse).toList();
+  }
+
+  @Transactional
+  public Long updateStatus(Long id, boolean isActive) {
+    Specialty existingSpecialty =
+        specialtyRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("SPECIALTY_NOT_FOUND"));
+
+    existingSpecialty.setIsActive(isActive);
+    return specialtyRepository.save(existingSpecialty).getId();
+  }
+
+  @Transactional(readOnly = true)
+  public List<SpecialtyResponse> getAllActive() {
+    return specialtyRepository.findByIsActiveTrue().stream()
+        .map(specialtyMapper::toResponse)
+        .toList();
+  }
+
+  private void validateSpecialtyUniqueness(Long specialtyId, SpecialtyRequest request) {
+    boolean labelExists =
         (specialtyId == null)
             ? specialtyRepository.existsByLabelIgnoreCase(request.label())
             : specialtyRepository.existsByLabelIgnoreCaseAndIdNot(request.label(), specialtyId);
 
-    if (nameExists) {
-      erreurs.add(new ErrorDetail("name", "SPECIALTY_NAME_ALREADY_EXISTS"));
+    if (labelExists) {
+      throw new EntityAlreadyExistsException("SPECIALTY_LABEL_ALREADY_EXISTS");
     }
 
-    // Check if the specialty code already exists
     boolean codeExists =
         (specialtyId == null)
             ? specialtyRepository.existsByCodeIgnoreCase(request.code())
             : specialtyRepository.existsByCodeIgnoreCaseAndIdNot(request.code(), specialtyId);
 
     if (codeExists) {
-      erreurs.add(new ErrorDetail("code", "SPECIALTY_CODE_ALREADY_EXISTS"));
+      throw new EntityAlreadyExistsException("SPECIALTY_CODE_ALREADY_EXISTS");
     }
-
-    if (!erreurs.isEmpty()) {
-      throw new DuplicateResourceException("VALIDATION_ERREUR", erreurs);
-    }
-  }
-
-  public List<SpecialtyResponse> getAll() {
-    return specialtyRepository.findAll().stream().map(specialtyMapper::toResponse).toList();
   }
 }

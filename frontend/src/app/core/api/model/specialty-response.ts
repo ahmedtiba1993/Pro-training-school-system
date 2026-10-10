@@ -11,7 +11,8 @@
 
 export interface SpecialtyResponse { 
     id?: number;
-    code?: string;
     label?: string;
+    code?: string;
+    isActive?: boolean;
 }
 

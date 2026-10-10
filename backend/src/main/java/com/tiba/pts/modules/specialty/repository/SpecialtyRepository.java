@@ -18,4 +18,6 @@ public interface SpecialtyRepository extends JpaRepository<Specialty, Long> {
 
   // Exclude the current ID when checking for uniqueness.
   boolean existsByCodeIgnoreCaseAndIdNot(String code, Long id);
+
+  List<Specialty> findByIsActiveTrue();
 }

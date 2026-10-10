@@ -28,31 +28,88 @@
           <tr>
             <th class="px-6 py-4">Nom de la Spécialité</th>
             <th class="px-6 py-4">Code / Abréviation</th>
+            <th class="px-6 py-4">Statut</th>
             <th class="px-6 py-4 text-right">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
           @if (isLoading()) {
           <tr>
-            <td colspan="3" class="px-6 py-8 text-center text-slate-500">Chargement...</td>
+            <td colspan="4" class="px-6 py-8 text-center text-slate-500">Chargement...</td>
           </tr>
           } @else { @for (specialty of specialties(); track specialty.id) {
-          <tr class="hover:bg-slate-50 transition-colors">
-            <td class="px-6 py-4 font-semibold text-slate-700">
+          <tr class="hover:bg-slate-50 transition-colors" [class.opacity-60]="!specialty.isActive">
+            <td class="px-6 py-4 font-semibold text-slate-700" [class.text-slate-500]="!specialty.isActive">
               {{ specialty.label }}
             </td>
             <td class="px-6 py-4">
               <span
                 class="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-lg text-xs font-bold uppercase tracking-wider"
+                [class.bg-slate-100]="!specialty.isActive"
+                [class.text-slate-500]="!specialty.isActive"
+                [class.border-slate-200]="!specialty.isActive"
               >
                 {{ specialty.code }}
               </span>
             </td>
+            <td class="px-6 py-4">
+              @if (specialty.isActive) {
+              <span
+                class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 w-fit"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Actif
+              </span>
+              } @else {
+              <span
+                class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 w-fit"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Inactif
+              </span>
+              }
+            </td>
             <td class="px-6 py-4 text-right">
               <div class="flex justify-end gap-2">
                 <button
+                  (click)="openToggleConfirmModal(specialty)"
+                  class="p-2 transition-colors rounded-lg hover:bg-slate-100"
+                  [class.text-rose-500]="specialty.isActive"
+                  [class.text-emerald-600]="!specialty.isActive"
+                  [title]="specialty.isActive ? 'Désactiver cette spécialité' : 'Activer cette spécialité'"
+                >
+                  @if (specialty.isActive) {
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                    />
+                  </svg>
+                  } @else {
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  }
+                </button>
+
+                <button
                   (click)="openEditModal(specialty)"
-                  class="p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+                  class="p-2 text-slate-400 hover:text-indigo-600 transition-colors rounded-lg hover:bg-slate-100"
                   title="Modifier"
                 >
                   <svg class="w-4 h-4" stroke-width="2">
@@ -64,7 +121,7 @@
           </tr>
           } @empty {
           <tr>
-            <td colspan="3" class="px-6 py-8 text-center text-slate-500">
+            <td colspan="4" class="px-6 py-8 text-center text-slate-500">
               Aucune spécialité trouvée.
             </td>
           </tr>
@@ -196,5 +253,83 @@
       </button>
     </div>
   </form>
+</div>
+}
+
+<!-- Status Confirmation Modal -->
+@if (isConfirmModalOpen() && specialtyToToggle()) {
+<div
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+>
+  <div
+    class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all p-6 text-center"
+  >
+    <div
+      class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+      [class.bg-rose-100]="specialtyToToggle()!.isActive"
+      [class.text-rose-600]="specialtyToToggle()!.isActive"
+      [class.bg-emerald-100]="!specialtyToToggle()!.isActive"
+      [class.text-emerald-600]="!specialtyToToggle()!.isActive"
+    >
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
+      </svg>
+    </div>
+
+    <h3 class="text-lg font-bold text-slate-800 mb-2">
+      {{ specialtyToToggle()!.isActive ? 'Désactiver la spécialité ?' : 'Activer la spécialité ?' }}
+    </h3>
+    <p class="text-sm text-slate-500">
+      Êtes-vous sûr de vouloir {{ specialtyToToggle()!.isActive ? 'désactiver' : 'activer' }} la
+      spécialité <strong class="text-slate-800">{{ specialtyToToggle()!.label }}</strong> ({{ specialtyToToggle()!.code }}) ?
+    </p>
+
+    <div class="mt-6 flex gap-3">
+      <button
+        type="button"
+        (click)="closeToggleConfirmModal()"
+        [disabled]="isTogglingStatus()"
+        class="flex-1 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-colors disabled:opacity-50"
+      >
+        Annuler
+      </button>
+
+      <button
+        type="button"
+        (click)="confirmToggleSpecialtyStatus()"
+        [disabled]="isTogglingStatus()"
+        class="flex-1 py-2.5 text-white rounded-xl text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        [class.bg-rose-600]="specialtyToToggle()!.isActive"
+        [class.hover:bg-rose-700]="specialtyToToggle()!.isActive"
+        [class.bg-emerald-600]="!specialtyToToggle()!.isActive"
+        [class.hover:bg-emerald-700]="!specialtyToToggle()!.isActive"
+      >
+        @if (isTogglingStatus()) {
+        <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        Patientez...
+        } @else {
+        Confirmer
+        }
+      </button>
+    </div>
+  </div>
 </div>
 }

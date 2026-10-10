@@ -1,14 +1,17 @@
 package com.tiba.pts.modules.specialty.dto.response;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class SpecialtyResponse {
   private Long id;
   private String label;
   private String code;
+  private Boolean isActive;
 }

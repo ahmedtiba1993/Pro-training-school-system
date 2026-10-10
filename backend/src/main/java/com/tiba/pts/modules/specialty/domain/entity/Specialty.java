@@ -14,7 +14,7 @@ public class Specialty extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "specialty_seq")
-  @SequenceGenerator(name = "specialty_seq", sequenceName = "specialty_seq")
+  @SequenceGenerator(name = "specialty_seq", sequenceName = "specialty_seq", allocationSize = 1)
   private Long id;
 
   @Column(nullable = false)
@@ -22,4 +22,8 @@ public class Specialty extends BaseEntity {
 
   @Column(nullable = false, unique = true)
   private String code;
+
+  @Column(nullable = false)
+  @Builder.Default
+  private Boolean isActive = true;
 }

@@ -31,6 +31,11 @@ export class Specialty implements OnInit {
   isSubmitting = signal<boolean>(false);
   editingSpecialtyId = signal<number | null>(null);
 
+  // --- STATUS TOGGLE STATE ---
+  isConfirmModalOpen = signal<boolean>(false);
+  specialtyToToggle = signal<SpecialtyResponse | null>(null);
+  isTogglingStatus = signal<boolean>(false);
+
   // --- COMPUTED ---
   modalTitle = computed(() =>
     this.editingSpecialtyId() !== null ? 'Modifier la spécialité' : 'Ajouter une spécialité'
@@ -90,6 +95,53 @@ export class Specialty implements OnInit {
     this.specialtyForm.reset();
   }
 
+  // --- TOGGLE STATUS MODAL ---
+  openToggleConfirmModal(specialty: SpecialtyResponse): void {
+    this.specialtyToToggle.set(specialty);
+    this.isConfirmModalOpen.set(true);
+  }
+
+  closeToggleConfirmModal(): void {
+    this.isConfirmModalOpen.set(false);
+    this.specialtyToToggle.set(null);
+  }
+
+  confirmToggleSpecialtyStatus(): void {
+    const specialty = this.specialtyToToggle();
+    if (!specialty || specialty.id == null) return;
+
+    this.isTogglingStatus.set(true);
+    const newStatus = !specialty.isActive;
+
+    this.specialtyService
+      .updateSpecialtyStatus(specialty.id, newStatus)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            const successMessages: Record<string, string> = {
+              SPECIALTY_STATUS_UPDATED: `Spécialité ${newStatus ? 'activée' : 'désactivée'} avec succès`
+            };
+            const successToast =
+              (res.message && successMessages[res.message]) ||
+              `Spécialité ${newStatus ? 'activée' : 'désactivée'} avec succès`;
+            this.toastService.success(successToast);
+            this.specialties.update(currentList =>
+              currentList.map(s => (s.id === specialty.id ? { ...s, isActive: newStatus } : s))
+            );
+            this.closeToggleConfirmModal();
+          } else {
+            this.handleBackendError(res);
+          }
+          this.isTogglingStatus.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.handleBackendError(err.error);
+          this.isTogglingStatus.set(false);
+        }
+      });
+  }
+
   onSubmit(): void {
     if (this.specialtyForm.invalid) {
       this.toastService.error('Veuillez remplir tous les champs obligatoires.');
@@ -110,9 +162,16 @@ export class Specialty implements OnInit {
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {
         if (res.success) {
-          this.toastService.success(
-            `Spécialité ${currentId !== null ? 'modifiée' : 'ajoutée'} avec succès`
-          );
+          const successMessages: Record<string, string> = {
+            SPECIALTY_CREATED: 'Spécialité ajoutée avec succès',
+            SPECIALTY_UPDATED: 'Spécialité modifiée avec succès',
+            CREATED_SUCCESSFULLY: 'Spécialité ajoutée avec succès',
+            UPDATED_SUCCESSFULLY: 'Spécialité modifiée avec succès'
+          };
+          const successToast =
+            (res.message && successMessages[res.message]) ||
+            `Spécialité ${currentId !== null ? 'modifiée' : 'ajoutée'} avec succès`;
+          this.toastService.success(successToast);
           this.closeModal();
           this.loadSpecialties();
         } else {
@@ -146,8 +205,12 @@ export class Specialty implements OnInit {
 
   private translateErrorCode(errorCode: string): string {
     const errorDictionary: Record<string, string> = {
+      SPECIALTY_NOT_FOUND: 'Spécialité introuvable.',
+      SPECIALTY_LABEL_ALREADY_EXISTS: 'Ce libellé de spécialité est déjà utilisé.',
       SPECIALTY_NAME_ALREADY_EXISTS: 'Ce libellé de spécialité est déjà utilisé.',
+      LABEL_ALREADY_EXISTS: 'Ce libellé de spécialité est déjà utilisé.',
       SPECIALTY_CODE_ALREADY_EXISTS: 'Ce code de spécialité est déjà utilisé.',
+      CODE_ALREADY_EXISTS: 'Ce code de spécialité est déjà utilisé.',
       VALIDATION_ERREUR: 'Veuillez corriger les erreurs de validation.'
     };
     return errorDictionary[errorCode] || errorCode;

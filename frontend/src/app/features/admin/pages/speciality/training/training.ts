@@ -11,7 +11,9 @@ import { ToastService } from '../../../../../shared/services/toast.service';
 import {
   TrainingControllerService,
   LevelControllerService,
-  SpecialtyControllerService
+  SpecialtyControllerService,
+  SpecialtyResponse,
+  Pageable
 } from '../../../../../core/api';
 import { PaginationComponent } from '../../../../../shared/components/pagination/pagination';
 
@@ -32,7 +34,7 @@ export class Training implements OnInit {
 
   trainings = signal<any[]>([]);
   levels = signal<any[]>([]);
-  specialties = signal<any[]>([]);
+  specialties = signal<SpecialtyResponse[]>([]);
 
   isLoading = signal<boolean>(true);
   isModalOpen = signal<boolean>(false);
@@ -129,7 +131,11 @@ export class Training implements OnInit {
 
   loadTrainings(): void {
     this.isLoading.set(true);
-    this.trainingService.getAllPaged(this.currentPage(), this.pageSize()).subscribe({
+    const pageable: Pageable = {
+      page: this.currentPage(),
+      size: this.pageSize()
+    };
+    this.trainingService.getAllPaged(pageable).subscribe({
       next: (response: any) => {
         if (response.success) {
           this.trainings.set(response.data.content);
@@ -155,11 +161,14 @@ export class Training implements OnInit {
   }
 
   loadSpecialties(): void {
-    this.specialtyService.getAllSpecialties().subscribe({
-      next: (res: any) => {
-        if (res.success) this.specialties.set(res.data);
-      }
-    });
+    this.specialtyService
+      .getActiveSpecialties()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: any) => {
+          if (res.success) this.specialties.set(res.data);
+        }
+      });
   }
 
   // --- ADD MODAL ---
@@ -304,7 +313,15 @@ export class Training implements OnInit {
     action$.subscribe({
       next: (res: any) => {
         if (res.success) {
-          this.toastService.success(`Formation ${currentId ? 'modifiée' : 'créée'} avec succès`);
+          const successMessages: Record<string, string> = {
+            SPECIALTY_TRAINING_CREATED: 'Formation créée avec succès',
+            SPECIALTY_TRAINING_UPDATED: 'Formation modifiée avec succès',
+            TRAINING_CREATED_SUCCESSFULLY: 'Formation créée avec succès',
+            TRAINING_UPDATED_SUCCESSFULLY: 'Formation modifiée avec succès'
+          };
+          const successToast = (res.message && successMessages[res.message]) ||
+            `Formation ${currentId ? 'modifiée' : 'créée'} avec succès`;
+          this.toastService.success(successToast);
           this.closeModal();
           this.loadTrainings();
           this.loadStats();
@@ -319,7 +336,8 @@ export class Training implements OnInit {
         const errorBody = err.error;
         if (
           errorBody?.errorCode === 'ENTITY_ALREADY_EXISTS' ||
-          errorBody?.message === 'TRAINING_COMBINATION_ALREADY_EXISTS'
+          errorBody?.message === 'TRAINING_COMBINATION_ALREADY_EXISTS' ||
+          errorBody?.message === 'SPECIALTY_TRAINING_ALREADY_EXISTS'
         ) {
           this.toastService.error('Cette combinaison (Spécialité + Niveau + Type) existe déjà.');
         } else {

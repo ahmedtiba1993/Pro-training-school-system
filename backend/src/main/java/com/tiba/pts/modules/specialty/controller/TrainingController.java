@@ -10,6 +10,9 @@ import com.tiba.pts.modules.specialty.dto.response.TrainingTypeCountResponse;
 import com.tiba.pts.modules.specialty.service.TrainingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,87 +30,78 @@ public class TrainingController {
   private final TrainingService trainingService;
 
   @PostMapping
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> createTraining(
       @Valid @RequestBody TrainingRequest request) {
     Long trainingId = trainingService.createTraining(request);
-    ApiResponse<Long> response = ApiResponse.success("TRAINING_CREATED_SUCCESSFULLY", trainingId);
-    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.success("SPECIALTY_TRAINING_CREATED", trainingId));
   }
 
   @GetMapping
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
   public ResponseEntity<ApiResponse<PageResponse<TrainingResponse>>> getAllPaged(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    PageResponse<TrainingResponse> pageResult = trainingService.getAllPaged(page, size);
-    ApiResponse<PageResponse<TrainingResponse>> response =
-        ApiResponse.success("TRAININGS_PAGED_RETRIEVED", pageResult);
-    return ResponseEntity.ok(response);
+      @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC)
+          Pageable pageable) {
+    PageResponse<TrainingResponse> pageResult = trainingService.getAllPaged(pageable);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_TRAINING_PAGED_RETRIEVED", pageResult));
+  }
+
+  @GetMapping("/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+  public ResponseEntity<ApiResponse<TrainingResponse>> getTrainingById(@PathVariable Long id) {
+    TrainingResponse data = trainingService.getById(id);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_TRAINING_RETRIEVED", data));
   }
 
   @GetMapping("/active")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
   public ResponseEntity<ApiResponse<List<TrainingResponse>>> getAllActiveTrainings(
       @RequestParam(required = false) TrainingType type) {
     List<TrainingResponse> data = trainingService.getAllActive(type);
-    ApiResponse<List<TrainingResponse>> response =
-        ApiResponse.success("ACTIVE_TRAININGS_RETRIEVED", data);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_TRAINING_ACTIVE_RETRIEVED", data));
   }
 
   @GetMapping("/active/level/{levelId}")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
   public ResponseEntity<ApiResponse<List<TrainingResponse>>> getActiveTrainingsByLevel(
       @PathVariable Long levelId, @RequestParam(required = false) TrainingType type) {
-
     List<TrainingResponse> data = trainingService.getActiveTrainingsByLevelId(levelId, type);
-    ApiResponse<List<TrainingResponse>> response =
-        ApiResponse.success("ACTIVE_TRAININGS_BY_LEVEL_RETRIEVED", data);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(
+        ApiResponse.success("SPECIALTY_TRAINING_ACTIVE_BY_LEVEL_RETRIEVED", data));
   }
 
   @GetMapping("/stats/active")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<List<TrainingTypeCountResponse>>> getActiveTrainingStats() {
     List<TrainingTypeCountResponse> stats = trainingService.getActiveTrainingStats();
-    ApiResponse<List<TrainingTypeCountResponse>> response =
-        ApiResponse.success("ACTIVE_TRAINING_STATS_RETRIEVED", stats);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_TRAINING_STATS_RETRIEVED", stats));
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> updateTraining(
       @PathVariable Long id, @Valid @RequestBody TrainingRequest request) {
     Long updatedId = trainingService.updateTraining(id, request);
-    ApiResponse<Long> response = ApiResponse.success("TRAINING_UPDATED_SUCCESSFULLY", updatedId);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_TRAINING_UPDATED", updatedId));
   }
 
   @PatchMapping("/{id}/status")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> updateTrainingStatus(
       @PathVariable Long id, @RequestParam TrainingStatus status) {
     Long updatedId = trainingService.updateStatus(id, status);
-    ApiResponse<Long> response =
-        ApiResponse.success("TRAINING_STATUS_UPDATED_SUCCESSFULLY", updatedId);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_TRAINING_STATUS_UPDATED", updatedId));
   }
 
   @GetMapping("/level/{levelId}/ongoing")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
   public ResponseEntity<ApiResponse<List<TrainingResponse>>> getOngoingTrainingsByLevel(
       @PathVariable Long levelId) {
-
     List<TrainingStatus> statusesToFetch =
         List.of(TrainingStatus.DRAFT, TrainingStatus.ACTIVE, TrainingStatus.SUSPENDED);
-
     List<TrainingResponse> data =
         trainingService.getTrainingsByLevelAndStatuses(levelId, statusesToFetch);
-
-    ApiResponse<List<TrainingResponse>> response =
-        ApiResponse.success("TRAININGS_BY_LEVEL_RETRIEVED", data);
-
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_TRAINING_BY_LEVEL_RETRIEVED", data));
   }
 }

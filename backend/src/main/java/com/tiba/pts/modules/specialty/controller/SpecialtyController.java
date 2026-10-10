@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,26 +21,48 @@ public class SpecialtyController {
   private final SpecialtyService specialtyService;
 
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> createSpecialty(
       @Valid @RequestBody SpecialtyRequest request) {
     Long id = specialtyService.createSpecialty(request);
-    ApiResponse<Long> response = ApiResponse.success("CREATED_SUCCESSFULLY", id);
-    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.success("SPECIALTY_CREATED", id));
   }
 
   @PutMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<Long>> updateSpecialty(
       @PathVariable Long id, @Valid @RequestBody SpecialtyRequest request) {
     Long updatedId = specialtyService.updateSpecialty(id, request);
-    ApiResponse<Long> response = ApiResponse.success("UPDATED_SUCCESSFULLY", updatedId);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_UPDATED", updatedId));
   }
 
-  @GetMapping("/all")
+  @GetMapping
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
   public ResponseEntity<ApiResponse<List<SpecialtyResponse>>> getAllSpecialties() {
     List<SpecialtyResponse> data = specialtyService.getAll();
-    ApiResponse<List<SpecialtyResponse>> response =
-        ApiResponse.success("ALL_SPECIALTIES_RETRIEVED_SUCCESSFULLY", data);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_LIST_RETRIEVED", data));
+  }
+
+  @GetMapping("/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+  public ResponseEntity<ApiResponse<SpecialtyResponse>> getSpecialtyById(@PathVariable Long id) {
+    SpecialtyResponse data = specialtyService.getById(id);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_RETRIEVED", data));
+  }
+
+  @PatchMapping("/{id}/status")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<ApiResponse<Long>> updateSpecialtyStatus(
+      @PathVariable Long id, @RequestParam boolean isActive) {
+    Long updatedId = specialtyService.updateStatus(id, isActive);
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_STATUS_UPDATED", updatedId));
+  }
+
+  @GetMapping("/active")
+  @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+  public ResponseEntity<ApiResponse<List<SpecialtyResponse>>> getActiveSpecialties() {
+    List<SpecialtyResponse> data = specialtyService.getAllActive();
+    return ResponseEntity.ok(ApiResponse.success("SPECIALTY_ACTIVE_LIST_RETRIEVED", data));
   }
 }

@@ -11,6 +11,7 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ApiResponseLevelResponse } from '../model/models';
 import { ApiResponseListLevelResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { LevelRequest } from '../model/models';
@@ -45,6 +46,14 @@ export interface LevelControllerServiceInterface {
      * @endpoint get /api/v1/levels
      */
     getAllLevels(extraHttpRequestParams?: any): Observable<ApiResponseListLevelResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/levels/{id}
+     * @param id 
+     */
+    getLevelById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseLevelResponse>;
 
     /**
      * 

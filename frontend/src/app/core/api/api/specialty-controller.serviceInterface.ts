@@ -13,6 +13,7 @@ import { Observable }                                        from 'rxjs';
 
 import { ApiResponseListSpecialtyResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
+import { ApiResponseSpecialtyResponse } from '../model/models';
 import { SpecialtyRequest } from '../model/models';
 
 
@@ -35,9 +36,24 @@ export interface SpecialtyControllerServiceInterface {
     /**
      * 
      * 
-     * @endpoint get /api/v1/specialties/all
+     * @endpoint get /api/v1/specialties/active
+     */
+    getActiveSpecialties(extraHttpRequestParams?: any): Observable<ApiResponseListSpecialtyResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/specialties
      */
     getAllSpecialties(extraHttpRequestParams?: any): Observable<ApiResponseListSpecialtyResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/specialties/{id}
+     * @param id 
+     */
+    getSpecialtyById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseSpecialtyResponse>;
 
     /**
      * 
@@ -47,5 +63,14 @@ export interface SpecialtyControllerServiceInterface {
      * @param specialtyRequest 
      */
     updateSpecialty(id: number, specialtyRequest: SpecialtyRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/specialties/{id}/status
+     * @param id 
+     * @param isActive 
+     */
+    updateSpecialtyStatus(id: number, isActive: boolean, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
 
 }

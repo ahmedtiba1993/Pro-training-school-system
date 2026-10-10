@@ -20,9 +20,7 @@ import com.tiba.pts.modules.specialty.repository.TrainingRepository;
 import com.tiba.pts.modules.trainingsession.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,12 +59,21 @@ public class TrainingService {
     return trainingRepository.save(training).getId();
   }
 
-  public PageResponse<TrainingResponse> getAllPaged(int page, int size) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+  @Transactional(readOnly = true)
+  public PageResponse<TrainingResponse> getAllPaged(Pageable pageable) {
     Page<Training> pageResult = trainingRepository.findAll(pageable);
     return PageResponse.of(pageResult, trainingMapper::toResponse);
   }
 
+  @Transactional(readOnly = true)
+  public TrainingResponse getById(Long id) {
+    return trainingRepository
+        .findById(id)
+        .map(trainingMapper::toResponse)
+        .orElseThrow(() -> new ResourceNotFoundException("SPECIALTY_TRAINING_NOT_FOUND"));
+  }
+
+  @Transactional(readOnly = true)
   public List<TrainingResponse> getAllActive(TrainingType type) {
     List<Training> activeTrainings =
         (type != null)
@@ -76,25 +83,22 @@ public class TrainingService {
     return activeTrainings.stream().map(trainingMapper::toResponse).toList();
   }
 
+  @Transactional(readOnly = true)
   public List<TrainingResponse> getActiveTrainingsByLevelId(Long levelId, TrainingType type) {
-    // Check level existence
     if (!levelRepository.existsById(levelId)) {
-      throw new ResourceNotFoundException("LEVEL_NOT_FOUND");
+      throw new ResourceNotFoundException("SPECIALTY_LEVEL_NOT_FOUND");
     }
 
-    // Conditional retrieval
-    List<Training> trainings;
-    if (type != null) {
-      trainings =
-          trainingRepository.findAllByStatusAndLevelIdAndTrainingType(
-              TrainingStatus.ACTIVE, levelId, type);
-    } else {
-      trainings = trainingRepository.findAllByStatusAndLevelId(TrainingStatus.ACTIVE, levelId);
-    }
+    List<Training> trainings =
+        (type != null)
+            ? trainingRepository.findAllByStatusAndLevelIdAndTrainingType(
+                TrainingStatus.ACTIVE, levelId, type)
+            : trainingRepository.findAllByStatusAndLevelId(TrainingStatus.ACTIVE, levelId);
 
     return trainings.stream().map(trainingMapper::toResponse).toList();
   }
 
+  @Transactional(readOnly = true)
   public List<TrainingTypeCountResponse> getActiveTrainingStats() {
     return trainingRepository.countTrainingsByTypeAndStatus(TrainingStatus.ACTIVE).stream()
         .map(p -> new TrainingTypeCountResponse(p.getTrainingType(), p.getCount()))
@@ -106,31 +110,27 @@ public class TrainingService {
     Training existingTraining =
         trainingRepository
             .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("TRAINING_NOT_FOUND"));
+            .orElseThrow(() -> new ResourceNotFoundException("SPECIALTY_TRAINING_NOT_FOUND"));
 
     TrainingStatus currentStatus = existingTraining.getStatus();
 
-    //  ARCHIVED -> Update total
     if (currentStatus == TrainingStatus.ARCHIVED) {
-      return trainingRepository.save(existingTraining).getId();
+      throw new BusinessValidationException("SPECIALTY_TRAINING_ARCHIVED_CANNOT_BE_MODIFIED");
     }
 
-    // ACTIVE / SUSPENDED -> High supervision
     if (currentStatus == TrainingStatus.ACTIVE || currentStatus == TrainingStatus.SUSPENDED) {
       if (isCoreFieldsModified(existingTraining, request)) {
-        throw new BusinessValidationException("ACTIVE_TRAINING_CORE_FIELDS_LOCKED");
+        throw new BusinessValidationException("SPECIALTY_TRAINING_ACTIVE_CORE_FIELDS_LOCKED");
       }
       existingTraining.setDescription(request.description());
       return trainingRepository.save(existingTraining).getId();
     }
 
-    // Check if there are promotions linked to this training
     boolean hasPromotions = promotionRepository.existsByTrainingId(existingTraining.getId());
-    if (hasPromotions) {
-      throw new BusinessValidationException("PROMOTIONS_CANNOT_CHANGE_TYPE");
+    if (hasPromotions && existingTraining.getTrainingType() != request.trainingType()) {
+      throw new BusinessValidationException("SPECIALTY_TRAINING_PROMOTIONS_EXIST_TYPE_LOCKED");
     }
 
-    // Full freedom
     if (currentStatus == TrainingStatus.DRAFT) {
       Level level = getActiveLevelOrThrow(request.levelId());
       Specialty specialty = getSpecialtyOrThrow(request.specialtyId());
@@ -138,13 +138,16 @@ public class TrainingService {
       validateDurationRules(request.trainingType(), request.durationUnit());
       checkUniqueness(level.getId(), specialty.getId(), request.trainingType(), id);
 
-      // Manually update fields
+      String generatedCode =
+          generateTechnicalCode(level.getCode(), specialty.getCode(), request.trainingType());
+
       existingTraining.setDescription(request.description());
       existingTraining.setTrainingType(request.trainingType());
       existingTraining.setDurationValue(request.durationValue());
       existingTraining.setDurationUnit(request.durationUnit());
       existingTraining.setLevel(level);
       existingTraining.setSpecialty(specialty);
+      existingTraining.setCode(generatedCode);
 
       return trainingRepository.save(existingTraining).getId();
     }
@@ -155,45 +158,40 @@ public class TrainingService {
   @Transactional
   public Long updateStatus(Long id, TrainingStatus newStatus) {
     if (newStatus == null) {
-      throw new BusinessValidationException("TRAINING_STATUS_REQUIRED");
+      throw new BusinessValidationException("SPECIALTY_TRAINING_STATUS_REQUIRED");
     }
 
     Training training =
         trainingRepository
             .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("TRAINING_NOT_FOUND"));
+            .orElseThrow(() -> new ResourceNotFoundException("SPECIALTY_TRAINING_NOT_FOUND"));
 
     training.setStatus(newStatus);
     return trainingRepository.save(training).getId();
   }
 
+  @Transactional(readOnly = true)
   public List<TrainingResponse> getTrainingsByLevelAndStatuses(
       Long levelId, List<TrainingStatus> statuses) {
     if (!levelRepository.existsById(levelId)) {
-      throw new ResourceNotFoundException("LEVEL_NOT_FOUND");
+      throw new ResourceNotFoundException("SPECIALTY_LEVEL_NOT_FOUND");
     }
 
-    List<Training> trainings;
-    if (statuses == null || statuses.isEmpty()) {
-      trainings = trainingRepository.findAllByLevelId(levelId);
-    } else {
-      trainings = trainingRepository.findAllByLevelIdAndStatusIn(levelId, statuses);
-    }
+    List<Training> trainings =
+        (statuses == null || statuses.isEmpty())
+            ? trainingRepository.findAllByLevelId(levelId)
+            : trainingRepository.findAllByLevelIdAndStatusIn(levelId, statuses);
 
     return trainings.stream().map(trainingMapper::toResponse).toList();
   }
-
-  // ==========================================
-  // PRIVATE METHODS
-  // ==========================================
 
   private Level getActiveLevelOrThrow(Long levelId) {
     Level level =
         levelRepository
             .findById(levelId)
-            .orElseThrow(() -> new ResourceNotFoundException("LEVEL_NOT_FOUND"));
-    if (!level.getIsActive()) {
-      throw new BusinessValidationException("LEVEL_IS_NOT_ACTIVE");
+            .orElseThrow(() -> new ResourceNotFoundException("SPECIALTY_LEVEL_NOT_FOUND"));
+    if (!Boolean.TRUE.equals(level.getIsActive())) {
+      throw new BusinessValidationException("SPECIALTY_LEVEL_NOT_ACTIVE");
     }
     return level;
   }
@@ -213,7 +211,7 @@ public class TrainingService {
                 levelId, specialtyId, type, excludeId);
 
     if (exists) {
-      throw new EntityAlreadyExistsException("TRAINING_COMBINATION_ALREADY_EXISTS");
+      throw new EntityAlreadyExistsException("SPECIALTY_TRAINING_COMBINATION_ALREADY_EXISTS");
     }
   }
 
@@ -229,30 +227,31 @@ public class TrainingService {
     switch (type) {
       case ACCELERATED -> {
         if (unit != DurationUnit.HOURS && unit != DurationUnit.DAYS) {
-          throw new BusinessValidationException("INVALID_CONTINUOUS_DURATION_UNIT");
+          throw new BusinessValidationException("SPECIALTY_TRAINING_INVALID_ACCELERATED_DURATION_UNIT");
         }
       }
       case ACCREDITED -> {
         if (unit != DurationUnit.MONTHS && unit != DurationUnit.YEARS) {
-          throw new BusinessValidationException("INVALID_ACCREDITED_DURATION_UNIT");
+          throw new BusinessValidationException("SPECIALTY_TRAINING_INVALID_ACCREDITED_DURATION_UNIT");
         }
       }
       case CONTINUOUS -> {
         if (unit != DurationUnit.MONTHS && unit != DurationUnit.WEEKS) {
-          throw new BusinessValidationException("INVALID_ACCELERATED_DURATION_UNIT");
+          throw new BusinessValidationException("SPECIALTY_TRAINING_INVALID_CONTINUOUS_DURATION_UNIT");
         }
       }
-      default -> throw new BusinessValidationException("UNKNOWN_TRAINING_TYPE");
+      default -> throw new BusinessValidationException("SPECIALTY_TRAINING_UNKNOWN_TYPE");
     }
   }
 
-  private String generateTechnicalCode(String levelCode, String specialtyCode, TrainingType type) {
-    String typePrefix =
-        switch (type) {
-          case CONTINUOUS -> "CON";
-          case ACCREDITED -> "HOM";
-          case ACCELERATED -> "ACC";
-        };
-    return String.format("%s-%s-%s", levelCode, specialtyCode, typePrefix).toUpperCase();
+  String generateTechnicalCode(String levelCode, String specialtyCode, TrainingType type) {
+    if (levelCode == null || specialtyCode == null || type == null) {
+      throw new BusinessValidationException("SPECIALTY_TRAINING_CODE_GENERATION_FAILED");
+    }
+    String cleanedLevelCode = levelCode.trim().toUpperCase();
+    String cleanedSpecialtyCode = specialtyCode.trim().toUpperCase();
+    String typePrefix = type.getPrefix().trim().toUpperCase();
+
+    return String.format("%s-%s-%s", cleanedLevelCode, cleanedSpecialtyCode, typePrefix);
   }
 }

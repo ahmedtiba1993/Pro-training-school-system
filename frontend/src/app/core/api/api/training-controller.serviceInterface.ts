@@ -15,6 +15,8 @@ import { ApiResponseListTrainingResponse } from '../model/models';
 import { ApiResponseListTrainingTypeCountResponse } from '../model/models';
 import { ApiResponseLong } from '../model/models';
 import { ApiResponsePageResponseTrainingResponse } from '../model/models';
+import { ApiResponseTrainingResponse } from '../model/models';
+import { Pageable } from '../model/models';
 import { TrainingRequest } from '../model/models';
 
 
@@ -62,10 +64,9 @@ export interface TrainingControllerServiceInterface {
      * 
      * 
      * @endpoint get /api/v1/trainings
-     * @param page 
-     * @param size 
+     * @param pageable 
      */
-    getAllPaged(page?: number, size?: number, extraHttpRequestParams?: any): Observable<ApiResponsePageResponseTrainingResponse>;
+    getAllPaged(pageable: Pageable, extraHttpRequestParams?: any): Observable<ApiResponsePageResponseTrainingResponse>;
 
     /**
      * 
@@ -74,6 +75,14 @@ export interface TrainingControllerServiceInterface {
      * @param levelId 
      */
     getOngoingTrainingsByLevel(levelId: number, extraHttpRequestParams?: any): Observable<ApiResponseListTrainingResponse>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/trainings/{id}
+     * @param id 
+     */
+    getTrainingById(id: number, extraHttpRequestParams?: any): Observable<ApiResponseTrainingResponse>;
 
     /**
      * 

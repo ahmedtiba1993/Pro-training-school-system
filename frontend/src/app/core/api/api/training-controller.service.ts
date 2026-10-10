@@ -25,6 +25,10 @@ import { ApiResponseLong } from '../model/api-response-long';
 // @ts-ignore
 import { ApiResponsePageResponseTrainingResponse } from '../model/api-response-page-response-training-response';
 // @ts-ignore
+import { ApiResponseTrainingResponse } from '../model/api-response-training-response';
+// @ts-ignore
+import { Pageable } from '../model/pageable';
+// @ts-ignore
 import { TrainingRequest } from '../model/training-request';
 
 // @ts-ignore
@@ -308,32 +312,25 @@ export class TrainingControllerService extends BaseService implements TrainingCo
 
     /**
      * @endpoint get /api/v1/trainings
-     * @param page 
-     * @param size 
+     * @param pageable 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAllPaged(page?: number, size?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponsePageResponseTrainingResponse>;
-    public getAllPaged(page?: number, size?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponsePageResponseTrainingResponse>>;
-    public getAllPaged(page?: number, size?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponsePageResponseTrainingResponse>>;
-    public getAllPaged(page?: number, size?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getAllPaged(pageable: Pageable, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponsePageResponseTrainingResponse>;
+    public getAllPaged(pageable: Pageable, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponsePageResponseTrainingResponse>>;
+    public getAllPaged(pageable: Pageable, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponsePageResponseTrainingResponse>>;
+    public getAllPaged(pageable: Pageable, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (pageable === null || pageable === undefined) {
+            throw new Error('Required parameter pageable was null or undefined when calling getAllPaged.');
+        }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
-            'page',
-            <any>page,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'size',
-            <any>size,
+            'pageable',
+            <any>pageable,
             QueryParamStyle.Form,
             true,
         );
@@ -429,6 +426,64 @@ export class TrainingControllerService extends BaseService implements TrainingCo
         let localVarPath = `/api/v1/trainings/level/${this.configuration.encodeParam({name: "levelId", value: levelId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/ongoing`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ApiResponseListTrainingResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/v1/trainings/{id}
+     * @param id 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getTrainingById(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiResponseTrainingResponse>;
+    public getTrainingById(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiResponseTrainingResponse>>;
+    public getTrainingById(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiResponseTrainingResponse>>;
+    public getTrainingById(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getTrainingById.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/trainings/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiResponseTrainingResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

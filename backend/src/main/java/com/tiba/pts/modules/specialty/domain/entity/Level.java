@@ -18,7 +18,7 @@ public class Level extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "level_seq")
-  @SequenceGenerator(name = "level_seq", sequenceName = "level_seq")
+  @SequenceGenerator(name = "level_seq", sequenceName = "level_seq", allocationSize = 1)
   private Long id;
 
   @Column(nullable = false, unique = true)
@@ -34,7 +34,7 @@ public class Level extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private AccessLevel accessLevel;
 
-  @OneToMany(mappedBy = "level", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "level")
   @Builder.Default
   private List<Training> trainings = new ArrayList<>();
 }

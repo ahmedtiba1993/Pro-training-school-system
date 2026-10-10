@@ -137,16 +137,20 @@ export class Level implements OnInit {
   }
 
   private handleBackendErrors(payload: any): void {
+    const errorMap: Record<string, string> = {
+      SPECIALTY_LEVEL_CODE_ALREADY_EXISTS: 'Ce code existe déjà.',
+      CODE_ALREADY_EXISTS: 'Ce code existe déjà.',
+      SPECIALTY_LEVEL_LABEL_ALREADY_EXISTS: 'Ce nom existe déjà.',
+      LABEL_ALREADY_EXISTS: 'Ce nom existe déjà.'
+    };
+
     if (payload && payload.errors && Array.isArray(payload.errors)) {
       payload.errors.forEach((err: any) => {
-        if (err.message === 'CODE_ALREADY_EXISTS') {
-          this.toastService.error('Ce code existe déjà.');
-        } else if (err.message === 'LABEL_ALREADY_EXISTS') {
-          this.toastService.error('Ce nom existe déjà.');
-        } else {
-          this.toastService.error(err.message || 'Une erreur est survenue.');
-        }
+        const msg = errorMap[err.message] || err.message || 'Une erreur est survenue.';
+        this.toastService.error(msg);
       });
+    } else if (payload?.message && errorMap[payload.message]) {
+      this.toastService.error(errorMap[payload.message]);
     } else {
       this.toastService.error(payload?.message || 'Erreur lors de la sauvegarde.');
     }
@@ -166,7 +170,12 @@ export class Level implements OnInit {
       this.levelService.updateLevel(currentId, request).subscribe({
         next: (res: any) => {
           if (res.success) {
-            this.toastService.success('Niveau modifié avec succès');
+            const successMessages: Record<string, string> = {
+              SPECIALTY_LEVEL_UPDATED: 'Niveau modifié avec succès',
+              LEVEL_UPDATED_SUCCESSFULLY: 'Niveau modifié avec succès'
+            };
+            const toastMsg = (res.message && successMessages[res.message]) || 'Niveau modifié avec succès';
+            this.toastService.success(toastMsg);
             this.closeModal();
             this.loadLevels();
           } else {
@@ -183,7 +192,12 @@ export class Level implements OnInit {
       this.levelService.createLevel(request).subscribe({
         next: (res: any) => {
           if (res.success) {
-            this.toastService.success('Niveau ajouté avec succès');
+            const successMessages: Record<string, string> = {
+              SPECIALTY_LEVEL_CREATED: 'Niveau ajouté avec succès',
+              LEVEL_CREATED_SUCCESSFULLY: 'Niveau ajouté avec succès'
+            };
+            const toastMsg = (res.message && successMessages[res.message]) || 'Niveau ajouté avec succès';
+            this.toastService.success(toastMsg);
             this.closeModal();
             this.loadLevels();
           } else {
