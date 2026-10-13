@@ -20,6 +20,7 @@ export interface EnrollmentDocumentResponse {
     condition?: EnrollmentDocumentResponse.ConditionEnum;
     levels?: Array<LevelSummaryResponse>;
     mandatory?: boolean;
+    isActive?: boolean;
 }
 export namespace EnrollmentDocumentResponse {
     export const NatureEnum = {

@@ -17,13 +17,11 @@ import com.tiba.pts.modules.specialty.repository.LevelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.TemplateEngine;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,26 +37,22 @@ public class EnrollmentDocumentService {
   @Transactional
   public Long addDocument(EnrollmentDocumentRequest request) {
 
-    if (documentRepository.existsByLabelIgnoreCase(request.getLabel())) {
-      throw new ResourceNotFoundException("DOCUMENT_LABEL_ALREADY_EXISTS");
+    if (documentRepository.existsByLabelIgnoreCase(request.label())) {
+      throw new EntityAlreadyExistsException("DOCUMENTS_ENROLLMENT_DOCUMENT_LABEL_ALREADY_EXISTS");
     }
 
-    // Code existence check (Requested addition)
-    if (documentRepository.existsByCodeIgnoreCase(request.getCode())) {
-      throw new EntityAlreadyExistsException("DOCUMENT_CODE_ALREADY_EXISTS");
+    if (documentRepository.existsByCodeIgnoreCase(request.code())) {
+      throw new EntityAlreadyExistsException("DOCUMENTS_ENROLLMENT_DOCUMENT_CODE_ALREADY_EXISTS");
     }
 
-    // Convert the Request DTO to Entity
     EnrollmentDocument document = mapper.toEntity(request);
+    document.setIsActive(false);
 
-    // Associate Levels if they are provided
-    if (request.getLevelIds() != null && !request.getLevelIds().isEmpty()) {
-      // Retrieve all corresponding levels in a single query
-      List<Level> levels = levelRepository.findAllById(request.getLevelIds());
+    if (request.levelIds() != null && !request.levelIds().isEmpty()) {
+      List<Level> levels = levelRepository.findAllById(request.levelIds());
 
-      // Optional safety check: verify that all requested levels were found
-      if (levels.size() != request.getLevelIds().size()) {
-        throw new ResourceNotFoundException("One or more provided levels were not found.");
+      if (levels.size() != request.levelIds().size()) {
+        throw new ResourceNotFoundException("DOCUMENTS_LEVEL_NOT_FOUND");
       }
 
       document.setLevels(new HashSet<>(levels));
@@ -69,75 +63,93 @@ public class EnrollmentDocumentService {
 
   @Transactional(readOnly = true)
   public List<EnrollmentDocumentResponse> getAll() {
-    List<EnrollmentDocument> documents = documentRepository.findAll();
-    return documents.stream().map(mapper::toResponse).collect(Collectors.toList());
+    List<EnrollmentDocument> documents = documentRepository.findAllWithLevels();
+    return documents.stream().map(mapper::toResponse).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public List<EnrollmentDocumentResponse> getAllActive() {
+    List<EnrollmentDocument> documents = documentRepository.findAllActiveWithLevels();
+    return documents.stream().map(mapper::toResponse).toList();
+  }
+
+  @Transactional
+  public Long updateStatus(Long id, boolean isActive) {
+    EnrollmentDocument document =
+        documentRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new ResourceNotFoundException("DOCUMENTS_ENROLLMENT_DOCUMENT_NOT_FOUND"));
+
+    document.setIsActive(isActive);
+    return documentRepository.save(document).getId();
   }
 
   @Transactional
   public Long update(Long id, EnrollmentDocumentRequest request) {
 
-    // Find the existing document
     EnrollmentDocument document =
         documentRepository
             .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("DOCUMENT_NOT_FOUND"));
+            .orElseThrow(
+                () -> new ResourceNotFoundException("DOCUMENTS_ENROLLMENT_DOCUMENT_NOT_FOUND"));
 
-    // Check name uniqueness (only if the name has been modified)
-    if (!document.getLabel().equalsIgnoreCase(request.getLabel())
-        && documentRepository.existsByLabelIgnoreCase(request.getLabel())) {
-      throw new ResourceNotFoundException("DOCUMENT_NAME_ALREADY_EXISTS");
+    if (!document.getLabel().equalsIgnoreCase(request.label())
+        && documentRepository.existsByLabelIgnoreCase(request.label())) {
+      throw new EntityAlreadyExistsException("DOCUMENTS_ENROLLMENT_DOCUMENT_LABEL_ALREADY_EXISTS");
     }
 
-    // Update simple properties
-    document.setLabel(request.getLabel());
-    document.setQuantity(request.getQuantity());
-    document.setNature(request.getNature());
-    document.setCondition(request.getCondition());
-    document.setMandatory(request.getMandatory());
+    mapper.updateEntityFromRequest(request, document);
 
-    // Update levels
-    if (request.getLevelIds() != null && !request.getLevelIds().isEmpty()) {
-      List<Level> levels = levelRepository.findAllById(request.getLevelIds());
+    if (request.levelIds() != null && !request.levelIds().isEmpty()) {
+      List<Level> levels = levelRepository.findAllById(request.levelIds());
 
-      if (levels.size() != request.getLevelIds().size()) {
-        throw new ResourceNotFoundException("One or more provided levels were not found.");
+      if (levels.size() != request.levelIds().size()) {
+        throw new ResourceNotFoundException("DOCUMENTS_LEVEL_NOT_FOUND");
       }
 
-      // Replace the old list with the new one
       document.setLevels(new HashSet<>(levels));
+    } else {
+      document.getLevels().clear();
     }
 
-    // Save the entity and return the response DTO ID
     EnrollmentDocument updatedDocument = documentRepository.save(document);
-    return mapper.toResponse(updatedDocument).getId();
+    return updatedDocument.getId();
   }
 
+  @Transactional(readOnly = true)
   public EnrollmentDocument getRegistrationDocumentById(Long documentId) {
     return documentRepository
         .findById(documentId)
         .orElseThrow(
-            () -> new ResourceNotFoundException("DOCUMENT_NOT_FOUND_IN_CATALOG: " + documentId));
+            () -> new ResourceNotFoundException("DOCUMENTS_ENROLLMENT_DOCUMENT_NOT_FOUND"));
   }
 
   @Transactional(readOnly = true)
   public List<EnrollmentDocumentResponse> getDocumentsByLevelId(Long levelId) {
-    // Check if the level exists
     if (!levelRepository.existsById(levelId)) {
-      throw new ResourceNotFoundException("LEVEL_NOT_FOUND");
+      throw new ResourceNotFoundException("DOCUMENTS_LEVEL_NOT_FOUND");
     }
 
-    // Retrieve documents linked to this level
-    List<EnrollmentDocument> documents = documentRepository.findByLevelsId(levelId);
-
-    // Mapping Entity -> DTO via MapStruct and return the list of responses
-    return documents.stream().map(mapper::toResponse).collect(Collectors.toList());
+    List<EnrollmentDocument> documents = documentRepository.findByLevelsIdAndIsActiveTrue(levelId);
+    return documents.stream().map(mapper::toResponse).toList();
   }
 
   @Transactional(readOnly = true)
-  public byte[] exportArabicEnrollmentForm() {
-    List<EnrollmentDocumentResponse> documents = this.getAll();
+  public byte[] exportArabicEnrollmentForm(Long levelId) {
+    List<EnrollmentDocumentResponse> documents;
+    if (levelId != null) {
+      if (!levelRepository.existsById(levelId)) {
+        throw new ResourceNotFoundException("DOCUMENTS_LEVEL_NOT_FOUND");
+      }
+      documents =
+          documentRepository.findByLevelsIdAndIsActiveTrue(levelId).stream()
+              .map(mapper::toResponse)
+              .toList();
+    } else {
+      documents = this.getAllActive();
+    }
 
-    // Retrieve the default academic year; otherwise, set to null
     String currentAcademicYear =
         academicYearRepository.findByIsDefaultTrue().map(AcademicYear::getLabel).orElse(null);
 
@@ -145,22 +157,16 @@ public class EnrollmentDocumentService {
     data.put("documents", documents);
     data.put("academicYear", currentAcademicYear);
 
-    data.put("registrationFees", "150 دينار");
-
     return pdfGeneratorService.generateArPdf("enrollment-documents-ar", data);
   }
 
   @Transactional(readOnly = true)
   public List<EnrollmentDocumentSimpleResponse> getDocumentsByClassGroupId(Long classGroupId) {
-    // Security check: does the class exist
     if (!classGroupRepository.existsById(classGroupId)) {
-      throw new ResourceNotFoundException("CLASS_GROUP_NOT_FOUND");
+      throw new ResourceNotFoundException("DOCUMENTS_CLASS_GROUP_NOT_FOUND");
     }
 
-    // Retrieval of documents associated with the level of this class
     List<EnrollmentDocument> documents = documentRepository.findByClassGroupId(classGroupId);
-
-    // Transformation to the restricted DTO (id + label)
-    return documents.stream().map(mapper::toSimpleResponse).collect(Collectors.toList());
+    return documents.stream().map(mapper::toSimpleResponse).toList();
   }
 }

@@ -2,14 +2,17 @@ package com.tiba.pts.modules.documents.dto.response;
 
 import com.tiba.pts.modules.documents.domain.enums.DocumentCondition;
 import com.tiba.pts.modules.documents.domain.enums.DocumentNature;
-import com.tiba.pts.modules.specialty.dto.request.LevelRequest;
-import com.tiba.pts.modules.specialty.dto.response.LevelResponse;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Set;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class EnrollmentDocumentResponse {
   private Long id;
   private String code;
@@ -20,8 +23,12 @@ public class EnrollmentDocumentResponse {
   private DocumentCondition condition;
   private List<LevelSummaryResponse> levels;
   private Boolean mandatory;
+  private Boolean isActive;
 
   @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
   public static class LevelSummaryResponse {
     private Long id;
     private String code;

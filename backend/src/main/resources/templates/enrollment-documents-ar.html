@@ -102,7 +102,7 @@
     </div>
 
     <div class="content-section">
-        <div class="subtitle">الوثائق الازمة للترسيم</div>
+        <div class="subtitle">الوثائق اللازمة للترسيم</div>
         <table class="requirements-table">
             <thead>
             <tr>
@@ -114,10 +114,6 @@
             <tr th:each="doc : ${documents}">
                 <td class="col-qty" th:text="${doc.quantity}">2</td>
                 <td class="col-doc" th:text="${doc.labelAr}">نسخة من الشهادة المدرسية</td>
-            </tr>
-            <tr>
-                <td class="col-qty">-</td>
-                <td class="col-doc" th:text="'معلوم التسجيل: ' + ${registrationFees}">150 دينار</td>
             </tr>
             </tbody>
         </table>

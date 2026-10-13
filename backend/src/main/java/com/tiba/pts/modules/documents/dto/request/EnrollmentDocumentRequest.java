@@ -5,49 +5,47 @@ import com.tiba.pts.modules.documents.domain.enums.DocumentNature;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import jakarta.validation.constraints.Positive;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
-@Data
-public class EnrollmentDocumentRequest {
+public record EnrollmentDocumentRequest(
+    @NotBlank(message = "DOCUMENTS_LABEL_REQUIRED")
+    String label,
 
-  @NotBlank(message = "LABEL_REQUIRED")
-  private String label;
+    @NotBlank(message = "DOCUMENTS_LABEL_AR_REQUIRED")
+    String labelAr,
 
-  @NotBlank(message = "LABEL_AR_REQUIRED")
-  private String labelAr;
+    @NotBlank(message = "DOCUMENTS_CODE_REQUIRED")
+    String code,
 
-  @NotBlank(message = "CODE_REQUIRED")
-  private String code;
+    @NotNull(message = "DOCUMENTS_QUANTITY_REQUIRED")
+    @Positive(message = "DOCUMENTS_QUANTITY_MUST_BE_POSITIVE")
+    Integer quantity,
 
-  @NotNull(message = "QUANTITY_REQUIRED")
-  private Integer quantity;
+    @NotNull(message = "DOCUMENTS_NATURE_REQUIRED")
+    DocumentNature nature,
 
-  @NotNull(message = "TYPE_REQUIRED")
-  private DocumentNature nature;
+    @NotNull(message = "DOCUMENTS_CONDITION_REQUIRED")
+    DocumentCondition condition,
 
-  @NotNull(message = "CONDITION_REQUIRED")
-  private DocumentCondition condition;
+    @NotEmpty(message = "DOCUMENTS_LEVEL_IDS_REQUIRED")
+    Set<Long> levelIds,
 
-  @NotEmpty(message = "LEVEL_IDS_REQUIRED")
-  private Set<Long> levelIds;
-
-  @NotNull(message = "MANDATORY_REQUIRED")
-  private Boolean mandatory;
-
-  public void normalizeData() {
-    // Nettoyage du label
-    if (this.label != null) {
-      this.label = this.label.trim();
+    @NotNull(message = "DOCUMENTS_MANDATORY_REQUIRED")
+    Boolean mandatory
+) {
+  public EnrollmentDocumentRequest {
+    if (label != null) {
+      label = label.trim();
     }
-
-    // Formatage strict
-    this.code = normalizeCode(this.code);
+    if (code != null) {
+      code = normalizeCode(code);
+    }
   }
 
-  private String normalizeCode(String input) {
+  private static String normalizeCode(String input) {
     if (input == null) return null;
 
     return StringUtils.stripAccents(input)

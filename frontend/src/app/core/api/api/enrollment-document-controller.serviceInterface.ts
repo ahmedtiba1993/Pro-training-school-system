@@ -37,8 +37,16 @@ export interface EnrollmentDocumentControllerServiceInterface {
      * 
      * 
      * @endpoint get /api/v1/enrollment-documents/export/arabic-pdf
+     * @param levelId 
      */
-    exportArabicForm(extraHttpRequestParams?: any): Observable<string>;
+    exportArabicForm(levelId?: number, extraHttpRequestParams?: any): Observable<string>;
+
+    /**
+     * 
+     * 
+     * @endpoint get /api/v1/enrollment-documents/active
+     */
+    getActiveDocuments(extraHttpRequestParams?: any): Observable<ApiResponseListEnrollmentDocumentResponse>;
 
     /**
      * 
@@ -71,5 +79,14 @@ export interface EnrollmentDocumentControllerServiceInterface {
      * @param enrollmentDocumentRequest 
      */
     updateDocument(id: number, enrollmentDocumentRequest: EnrollmentDocumentRequest, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
+
+    /**
+     * 
+     * 
+     * @endpoint patch /api/v1/enrollment-documents/{id}/status
+     * @param id 
+     * @param isActive 
+     */
+    updateDocumentStatus(id: number, isActive: boolean, extraHttpRequestParams?: any): Observable<ApiResponseLong>;
 
 }
